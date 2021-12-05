@@ -43,7 +43,7 @@ if __name__ == '__main__':
     version_range_max = max(sys.version_info[1], 8) + 1
     setup(
         name=os.getenv('JOATMON_PACKAGE_NAME', 'joatmon'),
-        version='1.0.1rc0',
+        version='1.0.1rc1',
         description="General Purpose Python Library",
         long_description=long_description,
         long_description_content_type="text/markdown",
