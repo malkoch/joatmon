@@ -1,0 +1,38 @@
+site_name: JOATMON Documentation
+theme: readthedocs
+docs_dir: docs/source
+repo_url: https://github.com/malkoch/joatmon
+site_description: 'Documentation for joatmon.'
+
+pages:
+  - Home: index.md
+  - Core: core.md
+  - Callback:
+      - Overview: callback/overview.md
+      - Callback List: callback/callbacklist.md
+      - Weight Loader: callback/wloader.md
+      - Train Logger: callback/trainlog.md
+      - Test Logger: callback/validationlog.md
+      - Layer Visualizer: callback/visualizer.md
+      - Environment Renderer: callback/renderer.md
+  - Environment:
+      - Overview: game/overview.md
+      - Cube Environment: game/rcube.md
+      - Puzzle Environment: game/puzzle.md
+      - Sokoban Environment: game/sokoban.md
+      - Tiles Environment: game/tiles.md
+  - Memory:
+      - Overview: memory/overview.md
+      - Ring Memory: memory/ring.md
+  - Model:
+      - Overview: models/overview.md
+      - DDPG: models/ddpg.md
+      - DQN: models/dqn.md
+  - Policy:
+      - Overview: policy/overview.md
+      - Epsilon Greedy Policy: policy/epsgreedy.md
+      - Greedy Q Policy: policy/greedy.md
+  - RandomProcess:
+      - Overview: random/overview.md
+      - Gaussian Process: random/gauss.md
+      - Ornstein Uhlenbeck Process: random/ou.md

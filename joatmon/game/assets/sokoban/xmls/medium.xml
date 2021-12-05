@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<environment>
+    <about>
+        <name>Default Sokoban Environment</name>
+        <summary>Default Sokoban Environment, Overlap the block with goal and win the game...
+        </summary>
+    </about>
+
+    <layout>
+        <height>11</height>
+        <width>11</width>
+        <wall_prob>0.01</wall_prob>
+        <p_change_directions>0.35</p_change_directions>
+        <num_steps>15</num_steps>
+        <num_boxes>1</num_boxes>
+        <tries>4</tries>
+    </layout>
+
+    <object>
+        <size>32</size>
+        <ground>
+            <collision>0</collision>
+            <color>black</color>
+            <sprite>ground.png</sprite>
+        </ground>
+        <goal>
+            <collision>1</collision>
+            <color>green3</color>
+            <sprite>goal.png</sprite>
+        </goal>
+        <block>
+            <collision>2</collision>
+            <color>blue3</color>
+            <sprite>block.png</sprite>
+        </block>
+        <player>
+            <collision>4</collision>
+            <color>orange3</color>
+            <sprite>player.png</sprite>
+        </player>
+        <obstacle>
+            <collision>8</collision>
+            <color>red3</color>
+            <sprite>obstacle.png</sprite>
+        </obstacle>
+    </object>
+
+    <space>
+        <gravity>
+            <x>0.0</x>
+            <y>0.0</y>
+        </gravity>
+        <damping>0.0</damping>
+        <dt>0.02</dt>
+        <steps>2</steps>
+        <force_multiplier>250.0</force_multiplier>
+    </space>
+
+    <reward>
+        <movement>-0.25</movement>
+        <on_target>5.0</on_target>
+        <off_target>-5.0</off_target>
+        <success>10.0</success>
+    </reward>
+</environment>
