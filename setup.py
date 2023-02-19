@@ -9,7 +9,7 @@ from setuptools import find_packages
 
 extras = {
     'assistant': ['feedparser', 'requests', 'colorama'],
-    'database': ['pymongo'],
+    'orm': ['pymongo'],
     'downloader': ['pycurl'],
     'mq': ['websockets', 'yaml', 'transitions', 'passlib'],
     'plugin': ['pika', 'redis', 'pymongo'],

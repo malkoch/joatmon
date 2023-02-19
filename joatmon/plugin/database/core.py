@@ -1,5 +1,5 @@
 from joatmon.core import CoreException
-from joatmon.database.query import QueryBuilder
+from joatmon.orm.query import QueryBuilder
 from joatmon.plugin.core import Plugin
 
 

@@ -1,7 +1,7 @@
 import typing
 
 from joatmon.core import CoreException
-from joatmon.database.meta import Meta
+from joatmon.orm.meta import Meta
 from joatmon.serializable import Serializable
 from joatmon.utility import get_converter
 

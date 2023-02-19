@@ -4,9 +4,9 @@ import psycopg2
 import psycopg2.extras
 
 from joatmon.context import current
-from joatmon.database.constraint import UniqueConstraint
-from joatmon.database.document import Document
-from joatmon.database.utility import (
+from joatmon.orm.constraint import UniqueConstraint
+from joatmon.orm.document import Document
+from joatmon.orm.utility import (
     empty_object_id,
     normalize_kwargs
 )

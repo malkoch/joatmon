@@ -1,7 +1,7 @@
 import jwt
 
 from joatmon.core import CoreException
-from joatmon.database.model.user import OUser, OUserLoginHistory, DUserType, EUserType
+from joatmon.orm.model.user import OUser, OUserLoginHistory, DUserType, EUserType
 from joatmon.plugin.auth.core import Auth
 from joatmon.plugin.core import create
 from joatmon.utility import first
