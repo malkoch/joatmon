@@ -6,7 +6,7 @@ import time
 from cmd import Cmd
 
 import colorama
-import schedule
+# import schedule
 from colorama import Fore
 
 from joatmon.context import (
@@ -131,15 +131,16 @@ class Interpreter(Cmd):
             return self.exit()
 
     def run_tasks(self):
-        settings = json.loads(open('iva.json', 'r').read())
+        return
+        # settings = json.loads(open('iva.json', 'r').read())
 
-        tasks = settings.get('tasks', {})
-        for task in sorted(filter(lambda x: x['status'] and x['schedule'] != '@startup', tasks.values()), key=lambda x: x['priority']):
-            schedule.every(int(task['schedule'])).seconds.do(self.do_action, task['command'].replace('"', ''))  # need to do them in background
+        # tasks = settings.get('tasks', {})
+        # for task in sorted(filter(lambda x: x['status'] and x['schedule'] != '@startup', tasks.values()), key=lambda x: x['priority']):
+        #     schedule.every(int(task['schedule'])).seconds.do(self.do_action, task['command'].replace('"', ''))  # need to do them in background
 
-        while not self.event.is_set():
-            schedule.run_pending()
-            time.sleep(0.1)
+        # while not self.event.is_set():
+        #     schedule.run_pending()
+        #     time.sleep(0.1)
 
     def clean(self):
         while not self.event.is_set():
