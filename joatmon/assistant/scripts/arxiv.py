@@ -12,10 +12,10 @@ import feedparser
 import requests
 
 from joatmon.assistant.task import BaseTask
-from joatmon.database.constraint import UniqueConstraint
-from joatmon.database.document import Document
-from joatmon.database.field import Field
-from joatmon.database.index import Index
+from joatmon.orm.constraint import UniqueConstraint
+from joatmon.orm.document import Document
+from joatmon.orm.field import Field
+from joatmon.orm.index import Index
 from joatmon.plugin.database.mongo import MongoDatabase
 
 
@@ -226,7 +226,7 @@ class Task(BaseTask):
         #     'cs.IR', 'cs.IT', 'cs.LO', 'cs.LG', 'cs.MS', 'cs.MA', 'cs.MM', 'cs.NI', 'cs.NE', 'cs.NA',
         #     'cs.OS', 'cs.OH', 'cs.PF', 'cs.PL', 'cs.RO', 'cs.SI', 'cs.SE', 'cs.SD', 'cs.SC', 'cs.SY'
         # ]:
-        #     self.database.save(Tag(object_id=uuid.uuid4(), name=tag, count=0))
+        #     self.orm.save(Tag(object_id=uuid.uuid4(), name=tag, count=0))
 
     def add_pdf(self, pdf, tag):
         pdf_object_id = uuid.uuid4()
@@ -337,7 +337,7 @@ class Task(BaseTask):
 
                     if self.database.read_one(SourceFile, source_id=source.object_id) is not None:
                         # with open(os.path.join(r'X:\Cloud\OneDrive\WORK\Source', filename + '.pdf'), 'wb') as file:
-                        #     file.write(self.database.read_one(SourceFile, source_id=source.object_id).content)
+                        #     file.write(self.orm.read_one(SourceFile, source_id=source.object_id).content)
 
                         continue
 

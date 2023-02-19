@@ -1,4 +1,4 @@
-from joatmon.database.model.log import Log
+from joatmon.orm.model.log import Log
 from joatmon.plugin.core import create
 from joatmon.plugin.logger.core import Logger
 

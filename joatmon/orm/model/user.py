@@ -1,16 +1,16 @@
 from datetime import datetime
 from uuid import UUID
 
-from joatmon.database.constraint import (
+from joatmon.orm.constraint import (
     CustomConstraint,
     LengthConstraint,
     UniqueConstraint
 )
-from joatmon.database.document import Document
-from joatmon.database.field import Field
-from joatmon.database.meta import Meta
-from joatmon.database.model.enum import Enum
-from joatmon.database.utility import (
+from joatmon.orm.document import Document
+from joatmon.orm.field import Field
+from joatmon.orm.meta import Meta
+from joatmon.orm.model.enum import Enum
+from joatmon.orm.utility import (
     create_new_type,
     email_pattern
 )

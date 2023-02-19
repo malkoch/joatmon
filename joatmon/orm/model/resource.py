@@ -1,8 +1,8 @@
-from joatmon.database.constraint import UniqueConstraint
-from joatmon.database.document import Document
-from joatmon.database.field import Field
-from joatmon.database.meta import Meta
-from joatmon.database.utility import create_new_type
+from joatmon.orm.constraint import UniqueConstraint
+from joatmon.orm.document import Document
+from joatmon.orm.field import Field
+from joatmon.orm.meta import Meta
+from joatmon.orm.utility import create_new_type
 
 
 class Resource(Meta):
