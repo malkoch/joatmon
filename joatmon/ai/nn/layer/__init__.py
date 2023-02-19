@@ -5,4 +5,4 @@ from .dropout import *
 from .flatten import *
 from .linear import *
 from .pool import *
-from .rnn import *
+from .lstm import *

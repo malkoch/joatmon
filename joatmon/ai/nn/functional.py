@@ -30,16 +30,13 @@ __all__ = [
     'floor_backward', 'ceil_backward', 'clip_backward', 'negative_backward', 'summation_backward', 'mean_backward',
     'std_backward', 'var_backward', 'add_backward', 'sub_backward', 'mul_backward', 'div_backward', 'power_backward',
     'clone_backward', 'relu_backward', 'sigmoid_backward', 'softmax_backward', 'tanh_backward', 'dense_backward',
-    'conv_backward', 'dropout_backward', 'batch_norm_backward', 'max_pool_backward', 'avg_pool_backward',
-    'rnn_relu_backward', 'rnn_tanh_backward', 'lstm_backward', 'gru_backward', 'rnn_relu_cell_backward',
-    'rnn_tanh_cell_backward', 'lstm_cell_backward', 'gru_cell_backward', 'concat', 'stack', 'chunk', 'view',
+    'conv_backward', 'dropout_backward', 'batch_norm_backward', 'max_pool_backward', 'avg_pool_backward', 'lstm_backward', 'concat', 'stack', 'chunk', 'view',
     'index_select', 'zero', 'one', 'fill', 'squeeze', 'expand_dim', 'transpose', 'absolute', 'around', 'floor',
     'ceil', 'clip', 'negative', 'summation', 'mean', 'std', 'var', 'add', 'sub', 'mul', 'div', 'power', 'clone',
     'detach', 'arange', 'linspace', 'normal', 'uniform', 'rand', 'randint', 'randn', 'eye', 'empty', 'full', 'zeros',
     'ones', 'normal_like', 'uniform_like', 'rand_like', 'randint_like', 'randn_like', 'eye_like', 'empty_like',
     'full_like', 'zeros_like', 'ones_like', 'from_array', 'to_array', 'half', 'single', 'double', 'cpu', 'gpu',
-    'relu', 'sigmoid', 'softmax', 'tanh', 'dense', 'conv', 'dropout', 'batch_norm', 'max_pool', 'avg_pool',
-    'rnn_relu', 'rnn_tanh', 'lstm', 'gru', 'rnn_relu_cell', 'rnn_tanh_cell', 'lstm_cell', 'gru_cell', 'adam', 'rmsprop'
+    'relu', 'sigmoid', 'softmax', 'tanh', 'dense', 'conv', 'dropout', 'batch_norm', 'max_pool', 'avg_pool', 'lstm', 'adam', 'rmsprop'
 ]
 
 
@@ -448,74 +445,7 @@ def avg_pool_backward(gradient: Tensor, inp: Tensor, kernel_size: Union[List[int
     _set_grad(inp, _output_array[:, :, padding[0]:padding[0] + _output_height - 1, padding[1]:padding[1] + _output_width - 1])
 
 
-def rnn_relu_backward(gradient: Tensor, inp: Tensor, all_weights: List[Union[List[Tensor], Tuple[Tensor]]], num_layers: int, intermediate_values: dict):
-    _check_tensors(inp)
-    engine = _get_engine(inp)
-
-    _inp_grads = engine.zeros_like(inp.data)
-
-    # for each layer need to create new gradient array
-    # from last layer to first layer
-    for _layer in range(num_layers):
-        _w_ih, _w_hh, _b_ih, _b_hh = all_weights[_layer]
-
-        _w_ih_grads = engine.zeros_like(_w_ih.data)
-        _w_hh_grads = engine.zeros_like(_w_hh.data)
-        _b_ih_grads = engine.zeros_like(_b_ih.data)
-        _b_hh_grads = engine.zeros_like(_b_hh.data)
-
-        for _time in range(inp.size(1) - 1, -1, -1):
-            _prev_h = intermediate_values[_time][_layer]['prev_h']
-            _current_h = intermediate_values[_time][_layer]['current_h']
-            _inp = intermediate_values[_time][_layer]['input']
-            _relu_input = intermediate_values[_time][_layer]['relu_input']
-
-            _w_ih_power = engine.power(_w_ih.data, inp.size(1) - _time - 1)
-            _w_hh_power = engine.power(_w_hh.data, inp.size(1) - _time - 1)
-
-            _out = engine.zeros_like(_relu_input.data)
-            _out[_relu_input.data <= 0] = 0
-            _out[_relu_input.data > 0] = 1
-
-            _w_ih_grads += engine.dot((_out * gradient.data[:, _time, :]).T, _inp.data) * _w_ih_power
-            _w_hh_grads += engine.dot((_out * gradient.data[:, _time, :]).T, _prev_h.data) * _w_hh_power
-            _b_ih_grads += engine.sum((_out * gradient.data[:, _time, :]), axis=0)
-            _b_hh_grads += engine.sum((_out * gradient.data[:, _time, :]), axis=0)
-
-            _inp_grads[:, _time, :] += engine.dot((_out * gradient.data[:, _time, :]), _w_ih.data)
-
-        _set_grad(_w_ih, data=_w_ih_grads)
-        _set_grad(_w_hh, data=_w_hh_grads)
-        _set_grad(_b_ih, data=_b_ih_grads)
-        _set_grad(_b_hh, data=_b_hh_grads)
-    _set_grad(inp, data=_inp_grads)
-
-
-def rnn_tanh_backward(gradient, inp, hx, all_weights, bias, num_layers):
-    ...
-
-
 def lstm_backward(gradient, inp, hx, all_weights, bias, num_layers):
-    ...
-
-
-def gru_backward(gradient, inp, hx, all_weights, bias, num_layers):
-    ...
-
-
-def rnn_relu_cell_backward(gradient, inp, h, w_ih, w_hh, b_ih=None, b_hh=None):
-    ...
-
-
-def rnn_tanh_cell_backward(gradient, inp, h, w_ih, w_hh, b_ih=None, b_hh=None):
-    ...
-
-
-def lstm_cell_backward(gradient, inp, h, w_ih, w_hh, b_ih=None, b_hh=None):
-    ...
-
-
-def gru_cell_backward(gradient):
     ...
 
 
@@ -549,11 +479,13 @@ def chunk(tensor: Tensor, chunks: int, dim: int = 0):
 
     tensors = []
     for array in arrays:
-        tensors.append(_create_tensor(
-            tensor,
-            data=array,
-            func=wrapped_partial(chunk_backward, tensor=tensor, chunks=chunks)
-        ))
+        tensors.append(
+            _create_tensor(
+                tensor,
+                data=array,
+                func=wrapped_partial(chunk_backward, tensor=tensor, chunks=chunks)
+            )
+        )
     return tensors
 
 
@@ -1163,12 +1095,13 @@ def batch_norm(inp, weight, bias, running_mean, running_var, momentum, eps, trai
         weight,
         bias,
         data=out,
-        func=wrapped_partial(batch_norm_backward, inp=inp, weight=weight, bias=bias, training=training, **{
-            'input_standard_deviation': input_standard_deviation,
-            'input_mean_difference': input_mean_difference,
-            'input_mean_over_input_standard_deviation': input_mean_over_input_standard_deviation
-        }
-                             )
+        func=wrapped_partial(
+            batch_norm_backward, inp=inp, weight=weight, bias=bias, training=training, **{
+                'input_standard_deviation': input_standard_deviation,
+                'input_mean_difference': input_mean_difference,
+                'input_mean_over_input_standard_deviation': input_mean_over_input_standard_deviation
+            }
+            )
     )
 
 
@@ -1233,81 +1166,6 @@ def avg_pool(inp, kernel_size, stride, padding) -> 'Tensor':
     )
 
 
-def rnn_relu(inp, hx, all_weights, bias, num_layers):
-    _check_tensors(inp)
-
-    out_tensor = zeros((inp.size(0), inp.size(1), hx.size(2)))
-
-    intermediate_values = {}
-    for time in range(inp.size(1)):
-        if time not in intermediate_values:
-            intermediate_values[time] = {}
-
-        out = inp[:, time, :]
-        for layer in range(num_layers):
-            if layer not in intermediate_values[time]:
-                intermediate_values[time][layer] = {}
-
-            if bias:
-                w_ih, w_hh, b_ih, b_hh = all_weights[layer]
-            else:
-                w_ih, w_hh = all_weights[layer]
-                b_ih, b_hh = None, None
-
-            h = hx[layer]
-
-            intermediate_values[time][layer]['input'] = out
-            out = dense(out, w_ih, b_ih) + dense(h, w_hh, b_hh)
-            intermediate_values[time][layer]['relu_input'] = out
-            out = relu(out)
-            intermediate_values[time][layer]['prev_h'] = h
-            intermediate_values[time][layer]['current_h'] = out
-            hx[layer] = out
-
-        out_tensor[:, time, :] = out
-
-    from functools import reduce
-    out_tensor = _create_tensor(
-        inp,
-        *reduce(lambda x, y: x + y, all_weights),
-        data=out_tensor.data,
-        func=wrapped_partial(rnn_relu_backward, inp=inp, all_weights=all_weights, num_layers=num_layers, intermediate_values=intermediate_values)
-    )
-    return out_tensor, hx
-
-
-def rnn_tanh(inp, hx, all_weights, bias, num_layers):
-    # inp.shape = b, t, f
-    # hx.shape = n, b, h
-
-    out_tensor = zeros((inp.size(0), inp.size(1), hx.size(2)))
-    for time in range(inp.size(1)):
-        out = inp[:, time, :]
-        for layer in range(num_layers):
-            if bias:
-                w_ih, w_hh, b_ih, b_hh = all_weights[layer]
-            else:
-                w_ih, w_hh = all_weights[layer]
-                b_ih, b_hh = None, None
-
-            h = hx[layer]
-
-            out._data = tanh(dense(out, w_ih, b_ih) + dense(h, w_hh, b_hh)).data
-
-            h._data = out.data
-
-            hx[layer] = h.data  # need to stack, instead of assigning
-
-        out_tensor[:, time, :] = out.data
-
-    out_tensor = _create_tensor(
-        inp,
-        data=out_tensor.data,
-        func=None
-    )
-    return out_tensor, hx
-
-
 def lstm(inp, hx, all_weights, bias, num_layers):
     # inp.shape = b, t, f
     # hx.shape = n, b, h
@@ -1352,83 +1210,6 @@ def lstm(inp, hx, all_weights, bias, num_layers):
         func=None
     )
     return out_tensor, (hx, cx)
-
-
-def gru(inp, hx, all_weights, bias, num_layers):
-    # inp.shape = b, t, f
-    # hx.shape = n, b, h
-
-    out_tensor = zeros((inp.size(0), inp.size(1), hx.size(2)))
-    for time in range(inp.size(1)):
-        out = inp[:, time, :]
-        for layer in range(num_layers):
-            if bias:
-                w_ih, w_hh, b_ih, b_hh = all_weights[layer]
-            else:
-                w_ih, w_hh = all_weights[layer]
-                b_ih, b_hh = None, None
-
-            h = hx[layer]
-
-            gi = dense(out, w_ih, b_ih)
-            gh = dense(h, w_hh, b_hh)
-            i_r, i_i, i_n = gi.chunk(3, 1)
-            h_r, h_i, h_n = gh.chunk(3, 1)
-
-            resetgate = sigmoid(i_r + h_r)
-            inputgate = sigmoid(i_i + h_i)
-            newgate = tanh(i_n + resetgate * h_n)
-            out._data = (newgate + inputgate * (h - newgate)).data
-
-            hx[layer] = out  # need to stack, instead of assigning
-
-        out_tensor[:, time, :] = out
-
-    out_tensor = _create_tensor(
-        inp,
-        data=out_tensor.data,
-        func=None
-    )
-    return out_tensor, hx
-
-
-def rnn_relu_cell(inp, h, w_ih, w_hh, b_ih=None, b_hh=None):
-    return relu(dense(inp, w_ih, b_ih) + dense(h, w_hh, b_hh))
-
-
-def rnn_tanh_cell(inp, h, w_ih, w_hh, b_ih=None, b_hh=None):
-    return tanh(dense(inp, w_ih, b_ih) + dense(h, w_hh, b_hh))
-
-
-def lstm_cell(inp, h, w_ih, w_hh, b_ih=None, b_hh=None):
-    hx, cx = h
-    gates = dense(inp, w_ih, b_ih) + dense(hx, w_hh, b_hh)
-
-    ingate, forgetgate, cellgate, outgate = gates.chunk(4, 1)
-
-    ingate = sigmoid(ingate)
-    forgetgate = sigmoid(forgetgate)
-    cellgate = tanh(cellgate)
-    outgate = sigmoid(outgate)
-
-    cy = (forgetgate * cx) + (ingate * cellgate)
-    hy = outgate * tanh(cy)
-
-    return hy, cy
-
-
-def gru_cell(inp, h, w_ih, w_hh, b_ih=None, b_hh=None):
-    gi = dense(inp, w_ih, b_ih)
-    gh = dense(h, w_hh, b_hh)
-    i_r, i_i, i_n = gi.chunk(3, 1)
-    h_r, h_i, h_n = gh.chunk(3, 1)
-
-    resetgate = sigmoid(i_r + h_r)
-    inputgate = sigmoid(i_i + h_i)
-    newgate = tanh(i_n + resetgate * h_n)
-    hy = newgate + inputgate * (h - newgate)
-
-    return hy
 
 
 def adam(params, grads, exp_avgs, exp_avg_sqs, max_exp_avg_sqs, state_steps, amsgrad, beta1, beta2, lr, weight_decay, eps):
