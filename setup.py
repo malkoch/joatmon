@@ -8,15 +8,12 @@ from distutils.core import setup
 from setuptools import find_packages
 
 extras = {
+    'ai': ['numpy'],
     'assistant': ['feedparser', 'requests', 'colorama'],
+    'decorator': ['feedparser', 'requests', 'colorama'],
+    'game': ['feedparser', 'requests', 'colorama'],
     'orm': ['pymongo'],
-    'downloader': ['pycurl'],
-    'mq': ['websockets', 'yaml', 'transitions', 'passlib'],
-    'plugin': ['pika', 'redis', 'pymongo'],
-    'rdp': ['twisted', 'pillow'],
     'system': ['pywin32'],
-    'visualization': ['matplotlib', 'numpy', 'pandas'],
-    'web': ['jwt', 'flask', 'quart']
 }
 if sys.platform == 'win32':
     # pywin32 postinstall as admin
@@ -55,8 +52,6 @@ if __name__ == '__main__':
         },
         install_requires=[
             'six',
-            'schedule',
-            'forbiddenfruit'
         ],
         tests_require=[
             'pytest',

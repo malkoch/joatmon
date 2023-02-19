@@ -11,7 +11,6 @@ from typing import (
 
 from joatmon.ai.nn.core import Tensor
 from joatmon.ai.nn.utility import _calculate_output_dims
-from joatmon.array.array import Array
 
 BooleanT = Union[bool]
 IntegerT = Union[int]
@@ -19,7 +18,7 @@ FloatingT = Union[float]
 NumberT = Union[IntegerT, FloatingT]
 
 DataT = Union[BooleanT, IntegerT, FloatingT]
-ArrayT = Union[Tuple[DataT], List[DataT], Array, Tuple['ArrayT'], List['ArrayT']]
+ArrayT = Union[Tuple[DataT], List[DataT], Tuple['ArrayT'], List['ArrayT']]
 TensorT = Union[ArrayT, Tuple[Tensor], List[Tensor], Tensor, Tuple['TensorT'], List['TensorT']]
 TypeT = Union[str]
 ShapeT = Union[Tuple[int], List[int]]
@@ -76,25 +75,7 @@ def _check_tensors(*tensors: Tensor):
 
 
 def _get_engine(*tensors: Union[Tensor, str]):
-    engine = None
-
-    if (isinstance(tensors[0], Tensor) and tensors[0].device == 'gpu') or (isinstance(tensors[0], str) and tensors[0] == 'gpu'):
-        try:
-            import cupy as engine
-        except ImportError as ex:
-            print(f'{ex}')
-            engine = None
-
-    if engine is None:
-        try:
-            import numpy as engine
-        except ImportError as ex:
-            print(f'{ex}')
-            engine = None
-
-    if engine is None:
-        from joatmon import array as engine
-
+    import numpy as engine
     return engine
 
 
@@ -994,9 +975,9 @@ def cpu(inp) -> 'Tensor':
     if inp.device == 'cpu':
         return inp
 
-    import cupy as cp
     inp._device = 'cpu'
-    inp._data = cp.asnumpy(inp.data)
+    inp._data = _get_engine().array(inp.data)
+    # inp._data = cp.asnumpy(inp.data)
     return inp
 
 
@@ -1004,9 +985,9 @@ def gpu(inp) -> 'Tensor':
     if inp.device == 'gpu':
         return inp
 
-    import cupy as cp
     inp._device = 'gpu'
-    inp._data = cp.array(inp.data)
+    inp._data = _get_engine().array(inp.data)
+    # inp._data = cp.array(inp.data)
     return inp
 
 
