@@ -445,8 +445,154 @@ def avg_pool_backward(gradient: Tensor, inp: Tensor, kernel_size: Union[List[int
     _set_grad(inp, _output_array[:, :, padding[0]:padding[0] + _output_height - 1, padding[1]:padding[1] + _output_width - 1])
 
 
-def lstm_backward(gradient, inp, hx, all_weights, bias, num_layers):
-    ...
+def lstm_backward(gradient, inp, all_weights, cache):
+    engine = _get_engine()
+
+    gradient_array = gradient.data.copy()
+    inp_array = inp.data.copy()
+
+    out = cache['out']
+    hx = cache['hx']  # b, l, t, h
+    cx = cache['cx']
+    igates = cache['i']
+    fgates = cache['f']
+    cgates = cache['c']
+    ogates = cache['o']
+
+    batch_size, layer_num, time_sequence, hidden_size = hx.shape
+
+    w_ih_arrays = [x[0].data for x in all_weights]
+    w_hh_arrays = [x[1].data for x in all_weights]
+    b_ih_arrays = [x[2].data for x in all_weights]
+    b_hh_arrays = [x[3].data for x in all_weights]
+
+    delta_array = engine.zeros((batch_size, layer_num, time_sequence, hidden_size))
+    delta_out_array = engine.zeros((batch_size, layer_num, time_sequence, hidden_size))
+    d_out_array = engine.zeros((batch_size, layer_num, time_sequence, hidden_size))
+    d_state_array = engine.zeros((batch_size, layer_num, time_sequence, hidden_size))
+    d_cgate_array = engine.zeros((batch_size, layer_num, time_sequence, hidden_size))
+    d_igate_array = engine.zeros((batch_size, layer_num, time_sequence, hidden_size))
+    d_fgate_array = engine.zeros((batch_size, layer_num, time_sequence, hidden_size))
+    d_ogate_array = engine.zeros((batch_size, layer_num, time_sequence, hidden_size))
+
+    d_inp_array = engine.zeros_like(inp_array)
+
+    d_wih_array = [engine.zeros_like(x[0].data) for x in all_weights]
+    d_whh_array = [engine.zeros_like(x[1].data) for x in all_weights]
+    d_bih_array = [engine.zeros_like(x[2].data) for x in all_weights]
+    d_bhh_array = [engine.zeros_like(x[3].data) for x in all_weights]
+
+    for time in range(time_sequence - 1, -1, -1):
+        a = 0
+        for layer in range(layer_num - 1, -1, -1):
+            # w_ih -> 4 * hidden, input if layer == 0 else hidden
+            w_ih_array = w_ih_arrays[layer]
+
+            # w_hh -> 4 * hidden, hidden
+            w_hh_array = w_hh_arrays[layer]
+
+            # b_ih -> 4 * hidden
+            b_ih_array = b_ih_arrays[layer]
+
+            # b_hh -> 4 * hidden
+            b_hh_array = b_hh_arrays[layer]
+
+            if time == time_sequence - 1:
+                if layer == layer_num - 1:
+                    cell_grad = gradient_array[:, time, :]
+                else:
+                    cell_grad = d_state_array[:, layer + 1, time, :]
+                    cell_grad = a
+            else:
+                if layer == layer_num - 1:
+                    cell_grad = gradient_array[:, time, :]
+                else:
+                    cell_grad = d_state_array[:, layer + 1, time, :]
+                    cell_grad = a
+
+            delta_array[:, layer, time, :] = cell_grad
+            if time == time_sequence - 1:
+                delta_out = engine.zeros_like(delta_out_array[:, layer, time, :])
+            else:
+                delta_out = delta_out_array[:, layer, time + 1, :]
+
+            d_out_array[:, layer, time, :] = delta_array[:, layer, time, :] + delta_out
+
+            if time == time_sequence - 1:
+                d_next_state = engine.zeros_like(d_state_array[:, layer, time, :])
+            else:
+                d_next_state = d_state_array[:, layer, time + 1, :]
+
+            if time == time_sequence - 1:
+                next_forget = engine.zeros_like(fgates[:, layer, time, :])
+            else:
+                next_forget = fgates[:, layer, time + 1, :]
+
+            d_state_array[:, layer, time, :] = \
+                d_out_array[:, layer, time, :] * ogates[:, layer, time, :] * (1 - engine.tanh(cx[:, layer, time, :]) ** 2) + d_next_state * next_forget
+
+            if time == 0:
+                prev_state = engine.zeros_like(cx[:, layer, time, :])
+            else:
+                prev_state = cx[:, layer, time - 1, :]
+
+            d_cgate = d_state_array[:, layer, time, :] * igates[:, layer, time, :] * (1 - cgates[:, layer, time, :] ** 2)
+            d_igate = d_state_array[:, layer, time, :] * cgates[:, layer, time, :] * igates[:, layer, time, :] * (1 - igates[:, layer, time, :])
+            d_fgate = d_state_array[:, layer, time, :] * prev_state * fgates[:, layer, time, :] * (1 - fgates[:, layer, time, :])
+            d_ogate = d_out_array[:, layer, time, :] * engine.tanh(cx[:, layer, time, :]) * ogates[:, layer, time, :] * (1 - ogates[:, layer, time, :])
+
+            d_cgate_array[:, layer, time, :] = d_cgate
+            d_igate_array[:, layer, time, :] = d_igate
+            d_fgate_array[:, layer, time, :] = d_fgate
+            d_ogate_array[:, layer, time, :] = d_ogate
+
+            d_gates = engine.hstack([d_igate, d_fgate, d_cgate, d_ogate])
+            # d_x_array[:, layer, time, :] = (w_ih_array.T @ d_gates.T).T
+            a = (w_ih_array.T @ d_gates.T).T
+
+            delta_out_array[:, layer, time, :] = (w_hh_array.T @ d_gates.T).T
+
+            # d_wih = engine.outer(d_gates, inp[:, time, :])
+            if layer == 0:
+                i = inp_array[:, time, :]
+            else:
+                i = out[:, layer - 1, time, :]
+            # d_wih = d_gates.T @ inp_array[:, time, :]
+            d_wih = d_gates.T @ i
+
+            if time == time_sequence - 1:
+                d_gates_next = engine.hstack(
+                    [
+                        engine.zeros_like(d_igate_array[:, layer, time, :]),
+                        engine.zeros_like(d_fgate_array[:, layer, time, :]),
+                        engine.zeros_like(d_cgate_array[:, layer, time, :]),
+                        engine.zeros_like(d_ogate_array[:, layer, time, :])
+                    ]
+                )
+            else:
+                d_gates_next = engine.hstack(
+                    [
+                        d_igate_array[:, layer, time + 1, :],
+                        d_fgate_array[:, layer, time + 1, :],
+                        d_cgate_array[:, layer, time + 1, :],
+                        d_ogate_array[:, layer, time + 1, :]
+                    ]
+                )
+            d_whh = d_gates_next.T @ out[:, layer, time, :]
+
+            d_wih_array[layer] += d_wih
+            d_whh_array[layer] += d_whh
+            d_bih_array[layer] += engine.sum(d_gates.T, axis=1)
+            d_bhh_array[layer] += engine.sum(d_gates.T, axis=1)
+
+        d_inp_array[:, time, :] = a
+
+    _set_grad(inp, d_inp_array)
+    for layer in range(layer_num):
+        _set_grad(all_weights[layer][0], d_wih_array[layer])
+        _set_grad(all_weights[layer][1], d_whh_array[layer])
+        _set_grad(all_weights[layer][2], d_bih_array[layer])
+        _set_grad(all_weights[layer][3], d_bhh_array[layer])
 
 
 def concat(tensors: List[Tensor], axis: int = 0) -> 'Tensor':
@@ -1101,7 +1247,7 @@ def batch_norm(inp, weight, bias, running_mean, running_var, momentum, eps, trai
                 'input_mean_difference': input_mean_difference,
                 'input_mean_over_input_standard_deviation': input_mean_over_input_standard_deviation
             }
-            )
+        )
     )
 
 
@@ -1166,50 +1312,105 @@ def avg_pool(inp, kernel_size, stride, padding) -> 'Tensor':
     )
 
 
-def lstm(inp, hx, all_weights, bias, num_layers):
+def lstm(inp, all_weights):
     # inp.shape = b, t, f
     # hx.shape = n, b, h
     # cx.shape = n, b, h
+    # out.shape = b, t, h
 
-    hx, cx = hx
-    out_tensor = zeros((inp.size(0), inp.size(1), hx.size(2)))
-    for time in range(inp.size(1)):
-        out = inp[:, time, :]
+    # ilt = σ(Wxihl−1t + Whihlt−1 + bi) (10)
+    # flt = σ(Wxfhl−1t + Whfhlt−1 + bf ) (11)
+    # olt = σ(Wxohl−1t + Whohlt−1 + bo) (12)
+    # zlt = tanh(Wxzhl−1t + Whzhlt−1 + bz ) (13)
+    # clt = flt ◦ clt−1 + ilt ◦ zlt(14)
+    # hlt = olt ◦ tanh(clt), (15)
+
+    batch_size, time_sequence, input_features, num_layers, hidden_size = inp.size(0), inp.size(1), inp.size(2), len(all_weights), all_weights[0][0].size(0) // 4
+
+    engine = _get_engine()
+
+    inp_array = inp.data.copy()
+
+    # [[[0] * (4 if layer == 0 else 8) for time in range(time)] for layer in range(layer)]
+
+    hx_array = engine.zeros((batch_size, num_layers, time_sequence, hidden_size))
+    cx_array = engine.zeros((batch_size, num_layers, time_sequence, hidden_size))
+    out_array = engine.zeros((batch_size, num_layers, time_sequence, hidden_size))
+
+    igates = engine.zeros((batch_size, num_layers, time_sequence, hidden_size))
+    fgates = engine.zeros((batch_size, num_layers, time_sequence, hidden_size))
+    cgates = engine.zeros((batch_size, num_layers, time_sequence, hidden_size))
+    ogates = engine.zeros((batch_size, num_layers, time_sequence, hidden_size))
+
+    w_ih_arrays = [x[0].data for x in all_weights]
+    w_hh_arrays = [x[1].data for x in all_weights]
+    b_ih_arrays = [x[2].data for x in all_weights]
+    b_hh_arrays = [x[3].data for x in all_weights]
+
+    for time in range(time_sequence):
         for layer in range(num_layers):
-            if bias:
-                w_ih, w_hh, b_ih, b_hh = all_weights[layer]
+            if time == 0:
+                if layer == 0:
+                    cell_input = inp_array[:, time, :]
+                else:
+                    cell_input = out_array[:, layer - 1, time, :]
             else:
-                w_ih, w_hh = all_weights[layer]
-                b_ih, b_hh = None, None
+                if layer == 0:
+                    cell_input = inp_array[:, time, :]
+                else:
+                    cell_input = out_array[:, layer - 1, time, :]
 
-            h = hx[layer]
-            c = cx[layer]
+            w_ih_array, w_hh_array, b_ih_array, b_hh_array = w_ih_arrays[layer], w_hh_arrays[layer], b_ih_arrays[layer], b_hh_arrays[layer]
 
-            gates = dense(out, w_ih, b_ih) + dense(h, w_hh, b_hh)
+            if time == 0:
+                h = hx_array[:, layer, 0, :]  # engine.zeros()
+                c = cx_array[:, layer, 0, :]  # engine.zeros()
+            else:
+                h = hx_array[:, layer, time - 1, :]
+                c = cx_array[:, layer, time - 1, :]
 
-            ingate, forgetgate, cellgate, outgate = gates.chunk(4, 1)
+            gates = cell_input @ w_ih_array.T + b_ih_array + h @ w_hh_array.T + b_hh_array
 
-            ingate = sigmoid(ingate)
-            forgetgate = sigmoid(forgetgate)
-            cellgate = tanh(cellgate)
-            outgate = sigmoid(outgate)
+            ingate, forgetgate, cellgate, outgate = engine.split(gates, 4, 1)
 
-            c._data = ((forgetgate * c) + (ingate * cellgate)).data
-            out._data = (outgate * tanh(c)).data
+            ingate = 1 / (1 + engine.exp(-ingate))
+            forgetgate = 1 / (1 + engine.exp(-forgetgate))
+            cellgate = engine.tanh(cellgate)
+            outgate = 1 / (1 + engine.exp(-outgate))
 
-            h._data = out.data
+            igates[:, layer, time, :] = ingate
+            fgates[:, layer, time, :] = forgetgate
+            cgates[:, layer, time, :] = cellgate
+            ogates[:, layer, time, :] = outgate
 
-            cx[layer] = c.data
-            hx[layer] = h.data  # need to stack, instead of assigning
+            c = (forgetgate * c) + (ingate * cellgate)
+            h = outgate * engine.tanh(c)
 
-        out_tensor[:, time, :] = out.data
+            hx_array[:, layer, time, :] = h
+            cx_array[:, layer, time, :] = c
+
+            out_array[:, layer, time, :] = h
+
+    cache = {
+        'inp': inp_array,
+        'out': out_array,
+        'hx': hx_array,
+        'cx': cx_array,
+        'i': igates,
+        'f': fgates,
+        'c': cgates,
+        'o': ogates
+    }
 
     out_tensor = _create_tensor(
-        inp,
-        data=out_tensor.data,
-        func=None
+        *([inp] + sum([layer_weights for layer_weights in all_weights], [])),
+        data=out_array[:, num_layers - 1, :, :],
+        func=wrapped_partial(lstm_backward, inp=inp, all_weights=all_weights, cache=cache)
     )
-    return out_tensor, (hx, cx)
+    return out_tensor, (
+        from_array(engine.transpose(hx_array[:, :, time_sequence - 1, :], (1, 0, 2))),
+        from_array(engine.transpose(cx_array[:, :, time_sequence - 1, :], (1, 0, 2)))
+    )
 
 
 def adam(params, grads, exp_avgs, exp_avg_sqs, max_exp_avg_sqs, state_steps, amsgrad, beta1, beta2, lr, weight_decay, eps):
