@@ -20,19 +20,17 @@ __all__ = ['LSTM']
 
 
 class LSTM(Module):
-    __constants__ = ['input_size', 'hidden_size', 'num_layers', 'bias']
+    __constants__ = ['input_size', 'hidden_size', 'num_layers']
 
     input_size: int
     hidden_size: int
     num_layers: int
-    bias: bool
 
-    def __init__(self, input_size: int, hidden_size: int, num_layers: int = 1, bias: bool = True) -> None:
+    def __init__(self, input_size: int, hidden_size: int, num_layers: int = 1) -> None:
         super(LSTM, self).__init__()
         self.input_size = input_size
         self.hidden_size = hidden_size
         self.num_layers = num_layers
-        self.bias = bias
 
         gate_size = 4 * hidden_size
 
@@ -42,14 +40,10 @@ class LSTM(Module):
             w_hh = Parameter(Tensor.from_array(np.zeros((gate_size, hidden_size))))
             b_ih = Parameter(Tensor.from_array(np.zeros((gate_size,))))
             b_hh = Parameter(Tensor.from_array(np.zeros((gate_size,))))
-            if bias:
-                layer_params = (w_ih, w_hh, b_ih, b_hh)
-            else:
-                layer_params = (w_ih, w_hh)
+            layer_params = (w_ih, w_hh, b_ih, b_hh)
 
             param_names = ['weight_ih_l{}', 'weight_hh_l{}']
-            if bias:
-                param_names += ['bias_ih_l{}', 'bias_hh_l{}']
+            param_names += ['bias_ih_l{}', 'bias_hh_l{}']
             param_names = [x.format(layer) for x in param_names]
 
             for name, param in zip(param_names, layer_params):
@@ -75,12 +69,8 @@ class LSTM(Module):
 
     def extra_repr(self) -> str:
         s = '{input_size}, {hidden_size}'
-        if self.proj_size != 0:
-            s += ', proj_size={proj_size}'
         if self.num_layers != 1:
             s += ', num_layers={num_layers}'
-        if self.bias is not True:
-            s += ', bias={bias}'
         return s.format(**self.__dict__)
 
     def __setstate__(self, d):
@@ -93,20 +83,9 @@ class LSTM(Module):
         num_layers = self.num_layers
         self._all_weights = []
         for layer in range(num_layers):
-            for direction in range(1):
-                suffix = '_reverse' if direction == 1 else ''
-                weights = ['weight_ih_l{}{}', 'weight_hh_l{}{}', 'bias_ih_l{}{}', 'bias_hh_l{}{}', 'weight_hr_l{}{}']
-                weights = [x.format(layer, suffix) for x in weights]
-                if self.bias:
-                    if self.proj_size > 0:
-                        self._all_weights += [weights]
-                    else:
-                        self._all_weights += [weights[:4]]
-                else:
-                    if self.proj_size > 0:
-                        self._all_weights += [weights[:2]] + [weights[-1:]]
-                    else:
-                        self._all_weights += [weights[:2]]
+            weights = ['weight_ih_l{}', 'weight_hh_l{}', 'bias_ih_l{}', 'bias_hh_l{}']
+            weights = [x.format(layer) for x in weights]
+            self._all_weights += [weights[:4]]
 
     @property
     def all_weights(self) -> List[List[Parameter]]:
