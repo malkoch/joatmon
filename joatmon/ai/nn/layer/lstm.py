@@ -73,17 +73,6 @@ class LSTM(Module):
     def get_expected_hidden_size(self, inp: Tensor) -> Tuple[int, int, int]:
         return self.num_layers, inp.size(0), self.hidden_size
 
-    @staticmethod
-    def check_hidden_size(hx: Tensor, expected_hidden_size: Tuple[int, int, int], msg: str = 'Expected hidden size {}, got {}') -> None:
-        if hx.size() != expected_hidden_size:
-            raise RuntimeError(msg.format(expected_hidden_size, list(hx.size())))
-
-    def check_forward_args(self, inp: Tensor, hidden: Tensor):
-        self.check_input(inp)
-        expected_hidden_size = self.get_expected_hidden_size(inp)
-
-        self.check_hidden_size(hidden, expected_hidden_size)
-
     def extra_repr(self) -> str:
         s = '{input_size}, {hidden_size}'
         if self.proj_size != 0:
@@ -126,16 +115,9 @@ class LSTM(Module):
     def get_expected_cell_size(self, inp: Tensor) -> Tuple[int, int, int]:
         return self.num_layers, inp.size(0), self.hidden_size
 
-    def check_forward_args(self, inp: Tensor, hidden: Tuple[Tensor, Tensor]):  # type: ignore
+    def check_forward_args(self, inp: Tensor):  # type: ignore
         self.check_input(inp)
-        self.check_hidden_size(hidden[0], self.get_expected_hidden_size(inp), 'Expected hidden[0] size {}, got {}')
-        self.check_hidden_size(hidden[1], self.get_expected_cell_size(inp), 'Expected hidden[1] size {}, got {}')
 
-    def forward(self, inp, hx=None):
-        if hx is None:
-            h_zeros = f.zeros((self.num_layers, inp.size(0), self.hidden_size), dtype=inp.dtype, device=inp.device)
-            c_zeros = f.zeros((self.num_layers, inp.size(0), self.hidden_size), dtype=inp.dtype, device=inp.device)
-            hx = (h_zeros, c_zeros)
-
-        self.check_forward_args(inp, hx)
-        return f.lstm(inp, hx, self.all_weights, self.bias, self.num_layers)
+    def forward(self, inp):
+        self.check_forward_args(inp)
+        return f.lstm(inp, self.all_weights)
