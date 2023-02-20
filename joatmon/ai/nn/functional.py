@@ -71,7 +71,7 @@ def _check_tensors(*tensors: Tensor):
         raise ValueError('device has to be either \'cpu\' or \'gpu\'')
 
 
-def _get_engine(*tensors: Union[Tensor, str]):
+def _get_engine(*_: Union[Tensor, str]):
     import numpy as engine
     return engine
 
@@ -452,7 +452,7 @@ def lstm_backward(gradient, inp, all_weights, cache):
     inp_array = inp.data.copy()
 
     out = cache['out']
-    hx = cache['hx']  # b, l, t, h
+    hx = cache['hx']
     cx = cache['cx']
     igates = cache['i']
     fgates = cache['f']
@@ -463,8 +463,6 @@ def lstm_backward(gradient, inp, all_weights, cache):
 
     w_ih_arrays = [x[0].data for x in all_weights]
     w_hh_arrays = [x[1].data for x in all_weights]
-    b_ih_arrays = [x[2].data for x in all_weights]
-    b_hh_arrays = [x[3].data for x in all_weights]
 
     delta_array = engine.zeros((batch_size, layer_num, time_sequence, hidden_size))
     delta_out_array = engine.zeros((batch_size, layer_num, time_sequence, hidden_size))
@@ -485,29 +483,18 @@ def lstm_backward(gradient, inp, all_weights, cache):
     for time in range(time_sequence - 1, -1, -1):
         a = 0
         for layer in range(layer_num - 1, -1, -1):
-            # w_ih -> 4 * hidden, input if layer == 0 else hidden
             w_ih_array = w_ih_arrays[layer]
-
-            # w_hh -> 4 * hidden, hidden
             w_hh_array = w_hh_arrays[layer]
-
-            # b_ih -> 4 * hidden
-            b_ih_array = b_ih_arrays[layer]
-
-            # b_hh -> 4 * hidden
-            b_hh_array = b_hh_arrays[layer]
 
             if time == time_sequence - 1:
                 if layer == layer_num - 1:
                     cell_grad = gradient_array[:, time, :]
                 else:
-                    cell_grad = d_state_array[:, layer + 1, time, :]
                     cell_grad = a
             else:
                 if layer == layer_num - 1:
                     cell_grad = gradient_array[:, time, :]
                 else:
-                    cell_grad = d_state_array[:, layer + 1, time, :]
                     cell_grad = a
 
             delta_array[:, layer, time, :] = cell_grad
