@@ -1,6 +1,0 @@
-class CoreObject(object):
-    ...
-
-
-class CoreException(Exception):
-    ...
