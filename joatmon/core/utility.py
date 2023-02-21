@@ -18,6 +18,42 @@ from uuid import UUID
 
 pascal_case_pattern = re.compile(r'(?<!^)(?=[A-Z])')
 
+email_pattern = re.compile(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
+ip_address_pattern = re.compile(
+    r"(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\."
+    r"(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\."
+    r"(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\."
+    r"(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
+)
+
+
+def empty_object_id():
+    return uuid.UUID('00000000-0000-0000-0000-000000000000')
+
+
+def new_object_id():
+    return uuid.uuid4()
+
+
+def current_time():
+    return datetime.now()
+
+
+def new_nickname():
+    return f'random_nickname_{uuid.uuid4()}'
+
+
+def new_password():
+    return f'random_password_{uuid.uuid4()}'
+
+
+def mail_validator(email):
+    return email_pattern.match(email) is not None
+
+
+def ip_validator(ip):
+    return ip_address_pattern.match(ip) is not None
+
 
 def to_snake_string(string: str):
     return pascal_case_pattern.sub('_', string).lower()
@@ -43,7 +79,9 @@ def to_enumerable(value, string=False):
     if value is None:
         return None
 
-    from joatmon.serializable import Serializable
+    from joatmon.core.serializable import Serializable
+    from joatmon.orm.enum import Enum
+
     if isinstance(value, dict):
         ret = {k: to_enumerable(v, string) for k, v in value.items()}
     elif isinstance(value, list):
@@ -52,6 +90,8 @@ def to_enumerable(value, string=False):
         ret = tuple([to_enumerable(v, string) for v in value])
     elif isinstance(value, Serializable):
         ret = to_enumerable({k: v for k, v in value.__dict__.items()}, string)
+    elif isinstance(value, Enum):
+        ret = str(value).lower()
     else:
         ret = value
         if string:
@@ -60,7 +100,7 @@ def to_enumerable(value, string=False):
 
 
 def to_case(case, value, key=None, convert_value=False):
-    from joatmon.serializable import Serializable
+    from joatmon.core.serializable import Serializable
 
     enumerable = to_enumerable(value)
 
@@ -94,7 +134,10 @@ def to_case(case, value, key=None, convert_value=False):
 
 
 def to_hash(func, *args, **kwargs):
-    return f'{func.__module__}.{func.__name__}({", ".join(f"{arg}" for arg in args)}, {", ".join([f"{k}={v}" for k, v in kwargs.items()])})'
+    args_str = ", ".join([f"{arg}" for arg in args])
+    kwargs_str = ", ".join([f"{k}={v}" for k, v in kwargs.items()])
+    arg_kwarg_str = ', '.join([args_str, kwargs_str])
+    return f'{func.__module__}.{func.__qualname__}({arg_kwarg_str})'
 
 
 def get_converter(kind: type):
@@ -121,7 +164,7 @@ def get_converter(kind: type):
             return int(value)
 
         if isinstance(value, int):
-            return value
+            return int(value)
 
         if isinstance(value, str):
             return int(value)
@@ -263,6 +306,20 @@ def get_converter(kind: type):
     return converters.get(kind, _object_converter)
 
 
+def to_list(items):
+    ret = []
+    for item in iter(items):
+        ret.append(item)
+    return ret
+
+
+async def to_list_async(items):
+    ret = []
+    async for item in aiter(items):
+        ret.append(item)
+    return ret
+
+
 def first(items):
     try:
         iterable = iter(items)
@@ -271,6 +328,17 @@ def first(items):
     except TypeError:
         return None
     except StopIteration:
+        return None
+
+
+async def first_async(items):
+    try:
+        iterable = aiter(items)
+        first_item = await anext(iterable)
+        return first_item
+    except TypeError:
+        return None
+    except StopAsyncIteration:
         return None
 
 
@@ -289,6 +357,24 @@ def single(items):
     except TypeError:
         return first_item
     except StopIteration:
+        return first_item
+
+
+async def single_async(items):
+    try:
+        iterable = aiter(items)
+        first_item = await anext(iterable)
+    except TypeError:
+        return None
+    except StopAsyncIteration:
+        return None
+
+    try:
+        await anext(iterable)
+        return None
+    except TypeError:
+        return first_item
+    except StopAsyncIteration:
         return first_item
 
 
