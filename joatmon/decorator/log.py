@@ -5,50 +5,50 @@ import sys
 import time
 import traceback
 
-from core import ctx
-from core.utility import to_enumerable
+from joatmon import context
+from joatmon.core.utility import to_enumerable
 
 
 def log(_func=None, name=None, on_begin=None, on_success=None, on_error=None):
     # need to stop writing self values
     async def _on_begin(f, *args, **kwargs):
-        logger = ctx.get_value(name)
+        logger = context.get_value(name)
 
         await logger.info(
             {
-                'ip': ctx.get_value('ip'),
+                'ip': context.get_value('ip'),
                 'function': f.__qualname__,
                 'module': f.__module__,
                 'args': to_enumerable(args, string=True),
                 'kwargs': to_enumerable(kwargs, string=True),
-                'language': ctx.get_value('lang')
+                'language': context.get_value('lang')
             }
         )
 
     async def _on_success(f, t, result, *args, **kwargs):
-        logger = ctx.get_value(name)
+        logger = context.get_value(name)
 
         await logger.info(
             {
                 'timed': t,
-                'ip': ctx.get_value('ip'),
+                'ip': context.get_value('ip'),
                 'result': to_enumerable(result, string=True),
                 'function': f.__qualname__,
                 'module': f.__module__,
                 'args': to_enumerable(args, string=True),
                 'kwargs': to_enumerable(kwargs, string=True),
-                'language': ctx.get_value('lang')
+                'language': context.get_value('lang')
             }
         )
 
     async def _on_error(f, exception, *args, **kwargs):
-        logger = ctx.get_value(name)
+        logger = context.get_value(name)
 
         exc_type, exc_obj, exc_trace = sys.exc_info()
 
         await logger.error(
             {
-                'ip': ctx.get_value('ip'),
+                'ip': context.get_value('ip'),
                 'exception': {
                     'line': exc_trace.tb_lineno,
                     'file': os.path.split(exc_trace.tb_frame.f_code.co_filename)[1],
@@ -59,7 +59,7 @@ def log(_func=None, name=None, on_begin=None, on_success=None, on_error=None):
                 'module': f.__module__,
                 'args': to_enumerable(args, string=True),
                 'kwargs': to_enumerable(kwargs, string=True),
-                'language': ctx.get_value('lang')
+                'language': context.get_value('lang')
             }
         )
 

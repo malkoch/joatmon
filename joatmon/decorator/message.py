@@ -3,15 +3,15 @@ import threading
 import time
 from threading import Thread
 
-from core.event import Event
-from core import ctx
+from joatmon import context
+from joatmon.event.core import Event
 
 __all__ = ['producer', 'consumer']
 
 
 def producer(kafka, topic):
     def _decorator(func):
-        p = ctx.get_value(kafka).get_producer(topic)
+        p = context.get_value(kafka).get_producer(topic)
 
         def _wrapper(*args, **kwargs):
             message = json.dumps({'args': args, 'kwargs': kwargs}).encode('utf-8')
@@ -68,7 +68,7 @@ def add_consumer(topic, c):
 
 def consumer(kafka, topic):
     def _decorator(func):
-        c = ctx.get_value(kafka).get_consumer(topic)
+        c = context.get_value(kafka).get_consumer(topic)
 
         add_consumer(topic, c)
         consumer_events[topic] += func
