@@ -1,9 +1,9 @@
 import functools
 import inspect
 
-from core import ctx
-from core.response import DecoratorResponse, HTTPResponse, PluginResponse, ServiceResponse, StatusCode
-from core.utility import to_case, to_enumerable
+from joatmon import context
+from joatmon.core.utility import to_case, to_enumerable
+from joatmon.plugin.core import PluginResponse
 
 
 def get(func):
@@ -22,14 +22,14 @@ def incoming(_func=None, case=None):
     def _decorator(func):
         @functools.wraps(func)
         async def _wrapper(*args, **kwargs):  # if func.method is get need to do with args, else with json
-            c = ctx.get_value('in-case') or case
+            c = context.get_value('in-case') or case
 
-            if c is not None and ctx.get_value('json') is not None:
-                kwargs.update(to_case(c, ctx.get_value('json')))
-            if c is not None and ctx.get_value('args') is not None:
-                kwargs.update(to_case(c, ctx.get_value('args')))
-            if c is not None and ctx.get_value('form') is not None:
-                kwargs.update(to_case(c, ctx.get_value('form')))
+            if c is not None and context.get_value('json') is not None:
+                kwargs.update(to_case(c, context.get_value('json')))
+            if c is not None and context.get_value('args') is not None:
+                kwargs.update(to_case(c, context.get_value('args')))
+            if c is not None and context.get_value('form') is not None:
+                kwargs.update(to_case(c, context.get_value('form')))
 
             return await func(*args, **kwargs)
 
@@ -64,7 +64,7 @@ def outgoing(_func=None, case=None):
         @functools.wraps(func)
         async def _wrapper(*args, **kwargs):
             response = await func(*args, **kwargs)
-            c = ctx.get_value('out-case') or case
+            c = context.get_value('out-case') or case
             if c is not None:
                 response = to_case(c, response)
             return response
@@ -82,8 +82,8 @@ def ip_limit(_func=None, interval=1, cache=None):
     def _decorator(func):
         @functools.wraps(func)
         async def _wrapper(*args, **kwargs):
-            c = ctx.get_value(cache)
-            ip = ctx.get_value('ip')
+            c = context.get_value(cache)
+            ip = context.get_value('ip')
 
             key = f'limit_request:{func.__qualname__}:{ip}'
 
@@ -107,7 +107,7 @@ def limit(_func=None, interval=1, cache=None):
     def _decorator(func):
         @functools.wraps(func)
         async def _wrapper(*args, **kwargs):
-            c = ctx.get_value(cache)
+            c = context.get_value(cache)
 
             key = f'limit_request:{func.__qualname__}'
 

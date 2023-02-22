@@ -3,7 +3,7 @@ import inspect
 
 import async_exit_stack
 
-from core import ctx
+from joatmon import context
 
 
 def transaction(_func=None, names=None):
@@ -11,8 +11,8 @@ def transaction(_func=None, names=None):
         @functools.wraps(func)
         async def _wrapper(*args, **kwargs):
             async with async_exit_stack.AsyncExitStack() as stack:
-                for database in names or []:
-                    await stack.enter_async_context(ctx.get_value(database))
+                for name in names or []:
+                    await stack.enter_async_context(context.get_value(name))
 
                 return await func(*args, **kwargs)
 

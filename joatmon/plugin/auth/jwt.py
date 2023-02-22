@@ -36,4 +36,4 @@ class JWTAuth(Auth):
         if role < min_role:
             return PluginResponse(data=None, code=AuthStatusCode.TOKEN_NOT_ALLOWED)
 
-        return PluginResponse(data=True, code=AuthStatusCode.OK)  # can be used on context.user
+        return PluginResponse(data=None, code=AuthStatusCode.OK)  # can be used on context.user

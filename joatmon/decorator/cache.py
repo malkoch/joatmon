@@ -1,28 +1,19 @@
 import functools
 import inspect
 import json
-from enum import Enum
 
-from core import ctx
-from core.response import DecoratorResponse, HTTPResponse, PluginResponse, ServiceResponse
-from core.utility import JSONEncoder, to_enumerable, to_hash
-
-
-class CacheStrategy(Enum):
-    NotSet = 0
-    CacheAside = 1
-    WriteThrough = 2
-    WriteBack = 3
-    WritePeriodic = 4
+from joatmon import context
+from joatmon.core.utility import JSONEncoder, to_enumerable, to_hash
+from joatmon.plugin.core import PluginResponse
 
 
-def cached(_func=None, name=None, duration=None, strategy=CacheStrategy.NotSet):
+def cached(_func=None, name=None, duration=None):
     def _decorator(func):
         @functools.wraps(func)
         async def _wrapper(*args, **kwargs):
-            cache = ctx.get_value(name)
+            cache = context.get_value(name)
 
-            key = f'{ctx.get_value("lang")}-{to_hash(func, *args, **kwargs)}'
+            key = f'{context.get_value("lang")}-{to_hash(func, *args, **kwargs)}'
             if (value := await cache.get(key)) is None:
                 result = await func(*args, **kwargs)
                 if isinstance(result, (DecoratorResponse, ServiceResponse, HTTPResponse, PluginResponse)):
@@ -47,7 +38,7 @@ def remove(_func=None, name=None, regex=None):
     def _decorator(func):
         @functools.wraps(func)
         async def _wrapper(*args, **kwargs):
-            cache = ctx.get_value(name)
+            cache = context.get_value(name)
             await cache.remove(regex)
             return await func(*args, **kwargs)
 
