@@ -1,7 +1,6 @@
 import jwt
 
-from joatmon.plugin.auth.core import Auth, AuthStatusCode
-from joatmon.plugin.core import PluginResponse
+from joatmon.plugin.auth.core import Auth
 
 
 class JWTAuth(Auth):
@@ -25,15 +24,15 @@ class JWTAuth(Auth):
         try:
             decoded = jwt.decode(token, self.secret, issuer=issuer, audience=audience, algorithms='HS256')
         except jwt.DecodeError:
-            return PluginResponse(data=None, code=AuthStatusCode.TOKEN_DECODE_ERROR)
+            raise ValueError('token_decode_error')
         except jwt.ExpiredSignatureError:
-            return PluginResponse(data=None, code=AuthStatusCode.TOKEN_EXPIRED)
+            raise ValueError('token_expired')
         except ValueError:
-            return PluginResponse(data=None, code=AuthStatusCode.TOKEN_DECODE_ERROR)
+            raise ValueError('token_decode_error')
 
         role = decoded.get('role', None)
 
         if role < min_role:
-            return PluginResponse(data=None, code=AuthStatusCode.TOKEN_NOT_ALLOWED)
+            raise ValueError('token_not_allowed')
 
-        return PluginResponse(data=None, code=AuthStatusCode.OK)  # can be used on context.user
+        return True

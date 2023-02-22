@@ -1,8 +1,4 @@
-import typing
-
 from joatmon import context
-from joatmon.core.serializable import Serializable
-from joatmon.orm.enum import Enum
 
 
 def register(cls, alias, *args, **kwargs):
@@ -11,18 +7,6 @@ def register(cls, alias, *args, **kwargs):
 
 class Plugin:
     ...
-
-
-class PluginResponse(Serializable):
-    def __init__(
-            self,
-            data: typing.Optional[typing.Union[dict, list, Serializable]] = None,
-            code: Enum = 0
-    ):
-        super(PluginResponse, self).__init__()
-        self.data = data
-        self.code = int(code)
-        self.message = str(code)
 
 
 class PluginProxy:
