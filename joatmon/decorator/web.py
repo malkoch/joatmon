@@ -3,7 +3,6 @@ import inspect
 
 from joatmon import context
 from joatmon.core.utility import to_case, to_enumerable
-from joatmon.plugin.core import PluginResponse
 
 
 def get(func):
@@ -47,13 +46,9 @@ def wrap(func):
     async def _wrapper(*args, **kwargs):
         try:
             data = await func(*args, **kwargs)
-            if isinstance(data, (ServiceResponse, PluginResponse, DecoratorResponse, HTTPResponse)):
-                return HTTPResponse(to_enumerable(data.data), data.code).dict
-            else:
-                return HTTPResponse(to_enumerable(data), StatusCode.OK).dict
+            return {'data': to_enumerable(data), 'error': None, 'success': True}
         except Exception as ex:
-            print(str(ex))
-            return HTTPResponse(None, StatusCode.UNKNOWN_ERROR).dict
+            return {'data': None, 'error': str(ex), 'success': False}
 
     _wrapper.__signature__ = inspect.signature(func)
     return _wrapper
@@ -88,7 +83,7 @@ def ip_limit(_func=None, interval=1, cache=None):
             key = f'limit_request:{func.__qualname__}:{ip}'
 
             if await c.get(key) is not None:
-                return DecoratorResponse(data=None, code=StatusCode.TOO_MANY_REQUEST)
+                raise ValueError('too_many_request')
             await c.add(key, 1, duration=interval)
 
             response = await func(*args, **kwargs)
@@ -112,7 +107,7 @@ def limit(_func=None, interval=1, cache=None):
             key = f'limit_request:{func.__qualname__}'
 
             if await c.get(key) is not None:
-                return DecoratorResponse(data=None, code=StatusCode.TOO_MANY_REQUEST)
+                raise ValueError('too_many_request')
 
             await c.add(key, 1, duration=interval)
 
