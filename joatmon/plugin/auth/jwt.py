@@ -7,14 +7,11 @@ class JWTAuth(Auth):
     def __init__(self, secret: str):
         self.secret = secret
 
-    async def authenticate(self, role, issuer, audience, expire_at):
+    async def authenticate(self, issuer, audience, expire_at, **kwargs):
+        kwargs.update({'exp': expire_at, 'iss': issuer, 'aud': audience})
+
         token = jwt.encode(
-            payload={
-                'role': role,
-                'exp': expire_at,
-                'iss': issuer,
-                'aud': audience
-            },
+            payload=kwargs,
             key=self.secret,
             algorithm='HS256',
         )
@@ -35,4 +32,4 @@ class JWTAuth(Auth):
         if role < min_role:
             raise ValueError('token_not_allowed')
 
-        return True
+        return decoded
