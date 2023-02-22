@@ -19,8 +19,8 @@ class Enum(IntEnum, metaclass=Meta):
         return self.value
 
     def __str__(self):
-        # return f'{to_snake_string(type(self).__name__.replace("Enum", ""))}.{self.name}'
-        return '{@resource.' + f'{to_snake_string(type(self).__name__.replace("Enum", ""))}.{self.name}' + '}'
+        return f'{to_snake_string(type(self).__name__.replace("Enum", ""))}.{self.name}'
+        # return '{@resource.' + f'{to_snake_string(type(self).__name__.replace("Enum", ""))}.{self.name}' + '}'
 
     def __repr__(self):
         return f'{type(self).__name__}.{self.name}'
