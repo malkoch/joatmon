@@ -17,7 +17,7 @@ class JWTAuth(Auth):
         )
         return token
 
-    async def authorize(self, token, issuer, audience, min_role):
+    async def authorize(self, token, issuer, audience):
         try:
             decoded = jwt.decode(token, self.secret, issuer=issuer, audience=audience, algorithms='HS256')
         except jwt.DecodeError:
@@ -28,8 +28,5 @@ class JWTAuth(Auth):
             raise ValueError('token_decode_error')
 
         role = decoded.get('role', None)
-
-        if role < min_role:
-            raise ValueError('token_not_allowed')
 
         return decoded
