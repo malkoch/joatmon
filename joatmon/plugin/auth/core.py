@@ -5,5 +5,5 @@ class Auth(Plugin):
     async def authenticate(self, issuer, audience, expire_at):
         raise NotImplementedError
 
-    async def authorize(self, token, issuer, audience, min_role):
+    async def authorize(self, token, issuer, audience):
         raise NotImplementedError

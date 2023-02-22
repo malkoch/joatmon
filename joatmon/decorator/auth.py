@@ -4,7 +4,7 @@ import inspect
 from joatmon import context
 
 
-def authorized(_func=None, min_role=None, auth=None):  # use current token and issuer
+def authorized(_func=None, auth=None):  # use current token and issuer
     def _decorator(func):
         @functools.wraps(func)
         async def _wrapper(*args, **kwargs):
@@ -14,7 +14,7 @@ def authorized(_func=None, min_role=None, auth=None):  # use current token and i
             audience = f'{func.__module__}.{func.__qualname__}'
 
             authorizer = context.get_value(auth)
-            await authorizer.authorize(token, issuer, audience, min_role)
+            await authorizer.authorize(token, issuer, audience)
 
             return await func(*args, **kwargs)
 
