@@ -1,5 +1,6 @@
 from typing import Union
 
+from joatmon import context
 from joatmon.orm.enum import Enum
 from joatmon.plugin.core import Plugin
 
@@ -14,10 +15,13 @@ class LogLevel(Enum):
 
 
 class LoggerPlugin(Plugin):
-    def __init__(self, level):
+    def __init__(self, level, language, ip):
         if isinstance(level, LogLevel):
             level = level.name
         self._level = LoggerPlugin._get_level(level)
+
+        self.language = language
+        self.ip = ip
 
     @staticmethod
     def _get_level(level_str):
@@ -39,6 +43,8 @@ class LoggerPlugin(Plugin):
 
             if self._level.value <= level.value:
                 log['level'] = level.name
+                log['language'] = context.get_value(self.language).get()
+                log['ip'] = context.get_value(self.ip).get()
                 await self._write(log)
         except Exception as ex:
             print(str(ex))

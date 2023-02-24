@@ -6,26 +6,6 @@ from joatmon import context
 from joatmon.core.utility import to_enumerable
 
 
-def lang(_func=None, default='tr'):
-    def _decorator(func):
-        @functools.wraps(func)
-        async def _wrapper(*args, **kwargs):
-            language = context.get_value('lang')
-            if language is None:
-                language = default
-            context.set_value('lang', language)
-            result = await func(*args, **kwargs)
-            return result
-
-        _wrapper.__signature__ = inspect.signature(func)
-        return _wrapper
-
-    if _func is None:
-        return _decorator
-    else:
-        return _decorator(_func)
-
-
 async def helper(language, enumerable):
     if isinstance(enumerable, (list, tuple)):
         return [await helper(language, x) for x in enumerable]
@@ -39,24 +19,21 @@ async def helper(language, enumerable):
     return enumerable
 
 
-def localise(_func=None):
+def localise(language):
     def _decorator(func):
         @functools.wraps(func)
         async def _wrapper(*args, **kwargs):
             result = await func(*args, **kwargs)
 
-            language = context.get_value('lang')
-            result = await helper(language, to_enumerable(result))
+            language_value = context.get_value(language).get()
+            result = await helper(language_value, to_enumerable(result))
 
             return result
 
         _wrapper.__signature__ = inspect.signature(func)
         return _wrapper
 
-    if _func is None:
-        return _decorator
-    else:
-        return _decorator(_func)
+    return _decorator
 
 
 localize = localise

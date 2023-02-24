@@ -9,46 +9,41 @@ from joatmon import context
 from joatmon.core.utility import to_enumerable
 
 
-def log(_func=None, name=None, on_begin=None, on_success=None, on_error=None):
+def log(logger, on_begin=None, on_success=None, on_error=None):
     # need to stop writing self values
     async def _on_begin(f, *args, **kwargs):
-        logger = context.get_value(name)
+        logger_value = context.get_value(logger)
 
-        await logger.info(
+        await logger_value.info(
             {
-                'ip': context.get_value('ip'),
                 'function': f.__qualname__,
                 'module': f.__module__,
                 'args': to_enumerable(args, string=True),
-                'kwargs': to_enumerable(kwargs, string=True),
-                'language': context.get_value('lang')
+                'kwargs': to_enumerable(kwargs, string=True)
             }
         )
 
     async def _on_success(f, t, result, *args, **kwargs):
-        logger = context.get_value(name)
+        logger_value = context.get_value(logger)
 
-        await logger.info(
+        await logger_value.info(
             {
                 'timed': t,
-                'ip': context.get_value('ip'),
                 'result': to_enumerable(result, string=True),
                 'function': f.__qualname__,
                 'module': f.__module__,
                 'args': to_enumerable(args, string=True),
-                'kwargs': to_enumerable(kwargs, string=True),
-                'language': context.get_value('lang')
+                'kwargs': to_enumerable(kwargs, string=True)
             }
         )
 
     async def _on_error(f, exception, *args, **kwargs):
-        logger = context.get_value(name)
+        logger_value = context.get_value(logger)
 
         exc_type, exc_obj, exc_trace = sys.exc_info()
 
-        await logger.error(
+        await logger_value.error(
             {
-                'ip': context.get_value('ip'),
                 'exception': {
                     'line': exc_trace.tb_lineno,
                     'file': os.path.split(exc_trace.tb_frame.f_code.co_filename)[1],
@@ -58,8 +53,7 @@ def log(_func=None, name=None, on_begin=None, on_success=None, on_error=None):
                 'function': f.__qualname__,
                 'module': f.__module__,
                 'args': to_enumerable(args, string=True),
-                'kwargs': to_enumerable(kwargs, string=True),
-                'language': context.get_value('lang')
+                'kwargs': to_enumerable(kwargs, string=True)
             }
         )
 
@@ -86,7 +80,4 @@ def log(_func=None, name=None, on_begin=None, on_success=None, on_error=None):
         _wrapper.__signature__ = inspect.signature(func)
         return _wrapper
 
-    if _func is None:
-        return _decorator
-    else:
-        return _decorator(_func)
+    return _decorator

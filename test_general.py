@@ -1,7 +1,6 @@
 import asyncio
 import datetime
 
-from joatmon import context
 from joatmon.plugin.auth.jwt import JWTAuth
 from joatmon.plugin.cache.redis import RedisCache
 from joatmon.plugin.core import register

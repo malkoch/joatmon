@@ -27,6 +27,4 @@ class JWTAuth(Auth):
         except ValueError:
             raise ValueError('token_decode_error')
 
-        role = decoded.get('role', None)
-
         return decoded

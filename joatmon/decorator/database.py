@@ -6,7 +6,7 @@ import async_exit_stack
 from joatmon import context
 
 
-def transaction(_func=None, names=None):
+def transaction(names):
     def _decorator(func):
         @functools.wraps(func)
         async def _wrapper(*args, **kwargs):
@@ -19,7 +19,4 @@ def transaction(_func=None, names=None):
         _wrapper.__signature__ = inspect.signature(func)
         return _wrapper
 
-    if _func is None:
-        return _decorator
-    else:
-        return _decorator(_func)
+    return _decorator
