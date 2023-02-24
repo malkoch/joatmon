@@ -21,10 +21,11 @@ class MongoDatabase(DatabasePlugin):
     CREATED_COLLECTIONS = set()
     UPDATED_COLLECTIONS = set()
 
-    def __init__(self, uri, database):
+    def __init__(self, uri, database, user_plugin):
         self.database_name = database
         self.client = pymongo.MongoClient(host=uri)
         self.database = self.client[database]
+        self.user_plugin = user_plugin
 
         self.session = None
 
@@ -131,7 +132,7 @@ class MongoDatabase(DatabasePlugin):
 
     async def insert(self, *documents):
         for document in documents:
-            user = context.get_value('user')
+            user = context.get_value(self.user_plugin).get()
             document.creator_id = user.object_id if user is not None else uuid.UUID(int=0)
             document.created_at = datetime.utcnow()
             document.updater_id = user.object_id if user is not None else uuid.UUID(int=0)
@@ -169,7 +170,7 @@ class MongoDatabase(DatabasePlugin):
 
     async def update(self, *documents):
         for document in documents:
-            user = context.get_value('user')
+            user = context.get_value(self.user_plugin).get()
             document.updater_id = user.object_id if user is not None else uuid.UUID(int=0)
             document.updated_at = datetime.utcnow()
 
@@ -179,7 +180,7 @@ class MongoDatabase(DatabasePlugin):
 
     async def delete(self, *documents):
         for document in documents:
-            user = context.get_value('user')
+            user = context.get_value(self.user_plugin).get()
             document.updater_id = user.object_id if user is not None else uuid.UUID(int=0)
             document.updated_at = datetime.utcnow()
             document.deleter_id = user.object_id if user is not None else uuid.UUID(int=0)

@@ -16,11 +16,12 @@ class PostgreSQLDatabase(DatabasePlugin):
     CREATED_COLLECTIONS = set()
     UPDATED_COLLECTIONS = set()
 
-    def __init__(self, host, port, user, password, database):
+    def __init__(self, host, port, user, password, database, user_plugin):
         self.connection = psycopg2.connect(
             database=database, user=user,
             password=password, host=host, port=port  # , async_=True
         )
+        self.user_plugin = user_plugin
         self.connection.autocommit = True
 
     async def _check_collection(self, collection):
@@ -115,7 +116,7 @@ class PostgreSQLDatabase(DatabasePlugin):
 
     async def insert(self, *documents):
         for document in documents:
-            user = context.get_value('user')
+            user = context.get_value(self.user_plugin).get()
             document.creator_id = user.object_id if user is not None else uuid.UUID(int=0)
             document.created_at = datetime.utcnow()
             document.updater_id = user.object_id if user is not None else uuid.UUID(int=0)
@@ -205,7 +206,7 @@ class PostgreSQLDatabase(DatabasePlugin):
 
     async def update(self, *documents):
         for document in documents:
-            user = context.get_value('user')
+            user = context.get_value(self.user_plugin).get()
             document.updater_id = user.object_id if user is not None else uuid.UUID(int=0)
             document.updated_at = datetime.utcnow()
 
@@ -218,7 +219,7 @@ class PostgreSQLDatabase(DatabasePlugin):
             if not isinstance(document, Document):
                 raise ValueError(f'{type(document)} is not valid for saving')
 
-            user = context.get_value('user')
+            user = context.get_value(self.user_plugin).get()
             document.updater_id = user.object_id if user is not None else uuid.UUID(int=0)
             document.updated_at = datetime.utcnow()
             document.deleter_id = user.object_id if user is not None else uuid.UUID(int=0)

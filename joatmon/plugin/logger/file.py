@@ -6,8 +6,8 @@ from joatmon.plugin.logger.core import LoggerPlugin
 
 
 class FileLogger(LoggerPlugin):
-    def __init__(self, level: str, base_folder: str):
-        super(FileLogger, self).__init__(level)
+    def __init__(self, level: str, base_folder: str, language, ip):
+        super(FileLogger, self).__init__(level, language, ip)
 
         self.folder = base_folder
 

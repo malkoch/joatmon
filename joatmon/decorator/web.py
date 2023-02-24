@@ -17,28 +17,37 @@ def post(func):
     return func
 
 
-def incoming(_func=None, case=None):
+def incoming(case, json, arg, form):
     def _decorator(func):
         @functools.wraps(func)
         async def _wrapper(*args, **kwargs):  # if func.method is get need to do with args, else with json
-            c = context.get_value('in-case') or case
+            c = context.get_value(case).get()
+            c = 'snake'
 
-            if c is not None and context.get_value('json') is not None:
-                kwargs.update(to_case(c, context.get_value('json')))
-            if c is not None and context.get_value('args') is not None:
-                kwargs.update(to_case(c, context.get_value('args')))
-            if c is not None and context.get_value('form') is not None:
-                kwargs.update(to_case(c, context.get_value('form')))
+            if context.get_value(json).get() is not None:
+                if c is not None:
+                    kwargs.update(to_case(c, context.get_value(json).get()))
+                else:
+                    kwargs.update(context.get_value(json).get())
+
+            if context.get_value(arg).get() is not None:
+                if c is not None:
+                    kwargs.update(to_case(c, context.get_value(arg).get()))
+                else:
+                    kwargs.update(context.get_value(arg).get())
+
+            if context.get_value(form).get() is not None:
+                if c is not None:
+                    kwargs.update(to_case(c, context.get_value(form).get()))
+                else:
+                    kwargs.update(context.get_value(form).get())
 
             return await func(*args, **kwargs)
 
         _wrapper.__signature__ = inspect.signature(func)
         return _wrapper
 
-    if _func is None:
-        return _decorator
-    else:
-        return _decorator(_func)
+    return _decorator
 
 
 def wrap(func):
@@ -54,12 +63,12 @@ def wrap(func):
     return _wrapper
 
 
-def outgoing(_func=None, case=None):
+def outgoing(case):
     def _decorator(func):
         @functools.wraps(func)
         async def _wrapper(*args, **kwargs):
             response = await func(*args, **kwargs)
-            c = context.get_value('out-case') or case
+            c = context.get_value(case).get()
             if c is not None:
                 response = to_case(c, response)
             return response
@@ -67,20 +76,17 @@ def outgoing(_func=None, case=None):
         _wrapper.__signature__ = inspect.signature(func)
         return _wrapper
 
-    if _func is None:
-        return _decorator
-    else:
-        return _decorator(_func)
+    return _decorator
 
 
-def ip_limit(_func=None, interval=1, cache=None):
+def ip_limit(interval, cache, ip):
     def _decorator(func):
         @functools.wraps(func)
         async def _wrapper(*args, **kwargs):
             c = context.get_value(cache)
-            ip = context.get_value('ip')
+            ip_value = context.get_value(ip).get()
 
-            key = f'limit_request:{func.__qualname__}:{ip}'
+            key = f'limit_request:{func.__qualname__}:{ip_value}'
 
             if await c.get(key) is not None:
                 raise ValueError('too_many_request')
@@ -92,13 +98,10 @@ def ip_limit(_func=None, interval=1, cache=None):
         _wrapper.__signature__ = inspect.signature(func)
         return _wrapper
 
-    if _func is None:
-        return _decorator
-    else:
-        return _decorator(_func)
+    return _decorator
 
 
-def limit(_func=None, interval=1, cache=None):
+def limit(interval, cache):
     def _decorator(func):
         @functools.wraps(func)
         async def _wrapper(*args, **kwargs):
@@ -117,7 +120,4 @@ def limit(_func=None, interval=1, cache=None):
         _wrapper.__signature__ = inspect.signature(func)
         return _wrapper
 
-    if _func is None:
-        return _decorator
-    else:
-        return _decorator(_func)
+    return _decorator

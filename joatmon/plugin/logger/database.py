@@ -3,8 +3,8 @@ from joatmon.plugin.logger.core import LoggerPlugin
 
 
 class DatabaseLogger(LoggerPlugin):
-    def __init__(self, level: str, database: str, cls):
-        super(DatabaseLogger, self).__init__(level)
+    def __init__(self, level: str, database: str, cls, language, ip):
+        super(DatabaseLogger, self).__init__(level, language, ip)
 
         self.database = database
         self.cls = cls
