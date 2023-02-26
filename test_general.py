@@ -1,32 +1,45 @@
 import asyncio
-import datetime
+import functools
+import inspect
+import re
 
-from joatmon.plugin.auth.jwt import JWTAuth
-from joatmon.plugin.cache.redis import RedisCache
-from joatmon.plugin.core import register
-
-
-class CTX:
-    ...
+from joatmon.core.utility import to_enumerable
 
 
-ctx = CTX()
-context.set_ctx(ctx)
-
-register(JWTAuth, 'auth', 'secretkeysecretkeysecretkeysecretkeysecretkeysecretkey')
-register(RedisCache, 'redis_cache', '127.0.0.1', 6379, 'malkoch')
-
-
-async def test():
-    token = await context.get_value('auth').authenticate(1, 'hello', ['world'], datetime.datetime.now() + datetime.timedelta(hours=1))
-    print(token)
-    response = await context.get_value('auth').authorize(token, 'hello', 'world', 1)
-    print(response)
-
-    await context.get_value('redis_cache').add('k', 'v', duration=1)
-    print(await context.get_value('redis_cache').get('k'))
-    await asyncio.sleep(1)
-    print(await context.get_value('redis_cache').get('k'))
+async def helper(enumerable, pattern):
+    if isinstance(enumerable, (list, tuple)):
+        return [await helper(x, pattern) for x in enumerable]
+    if isinstance(enumerable, dict):
+        return {k: await helper(v, pattern) for k, v in enumerable.items()}
+    if isinstance(enumerable, str):
+        for x in re.findall(pattern, enumerable):
+            # localised = await context.get_value('resource_service').get(x)
+            print(enumerable, end=' ')
+            enumerable = enumerable.replace('{@resource.' + x + '}', x)
+            print(enumerable)
+        return enumerable
+    return enumerable
 
 
-asyncio.run(test())
+def localise(language, pattern):
+    def _decorator(func):
+        @functools.wraps(func)
+        async def _wrapper(*args, **kwargs):
+            result = await func(*args, **kwargs)
+
+            result = await helper(to_enumerable(result), pattern)
+
+            return result
+
+        _wrapper.__signature__ = inspect.signature(func)
+        return _wrapper
+
+    return _decorator
+
+
+@localise('tr', r'{@resource\.(.*?)}')
+async def aaa():
+    return {'hello': '{@resource.hello}'}
+
+
+asyncio.run(aaa())
