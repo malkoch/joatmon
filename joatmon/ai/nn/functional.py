@@ -30,13 +30,14 @@ __all__ = [
     'floor_backward', 'ceil_backward', 'clip_backward', 'negative_backward', 'summation_backward', 'mean_backward',
     'std_backward', 'var_backward', 'add_backward', 'sub_backward', 'mul_backward', 'div_backward', 'power_backward',
     'clone_backward', 'relu_backward', 'sigmoid_backward', 'softmax_backward', 'tanh_backward', 'dense_backward',
-    'conv_backward', 'dropout_backward', 'batch_norm_backward', 'max_pool_backward', 'avg_pool_backward', 'lstm_backward', 'concat', 'stack', 'chunk', 'view',
-    'index_select', 'zero', 'one', 'fill', 'squeeze', 'expand_dim', 'transpose', 'absolute', 'around', 'floor',
-    'ceil', 'clip', 'negative', 'summation', 'mean', 'std', 'var', 'add', 'sub', 'mul', 'div', 'power', 'clone',
-    'detach', 'arange', 'linspace', 'normal', 'uniform', 'rand', 'randint', 'randn', 'eye', 'empty', 'full', 'zeros',
-    'ones', 'normal_like', 'uniform_like', 'rand_like', 'randint_like', 'randn_like', 'eye_like', 'empty_like',
-    'full_like', 'zeros_like', 'ones_like', 'from_array', 'to_array', 'half', 'single', 'double', 'cpu', 'gpu',
-    'relu', 'sigmoid', 'softmax', 'tanh', 'dense', 'conv', 'dropout', 'batch_norm', 'max_pool', 'avg_pool', 'lstm', 'adam', 'rmsprop'
+    'conv_backward', 'dropout_backward', 'batch_norm_backward', 'max_pool_backward', 'avg_pool_backward', 'lstm_cell_backward',
+    'lstm_backward', 'concat', 'stack', 'chunk', 'view', 'index_select', 'zero', 'one', 'fill', 'squeeze', 'expand_dim',
+    'transpose', 'absolute', 'around', 'floor', 'ceil', 'clip', 'negative', 'summation', 'mean', 'std', 'var', 'add',
+    'sub', 'mul', 'div', 'power', 'clone', 'detach', 'arange', 'linspace', 'normal', 'uniform', 'rand', 'randint',
+    'randn', 'eye', 'empty', 'full', 'zeros', 'ones', 'normal_like', 'uniform_like', 'rand_like', 'randint_like',
+    'randn_like', 'eye_like', 'empty_like', 'full_like', 'zeros_like', 'ones_like', 'from_array', 'to_array', 'half',
+    'single', 'double', 'cpu', 'gpu', 'relu', 'sigmoid', 'softmax', 'tanh', 'dense', 'conv', 'dropout', 'batch_norm',
+    'max_pool', 'avg_pool', 'lstm_cell', 'lstm', 'adam', 'rmsprop'
 ]
 
 
@@ -443,6 +444,143 @@ def avg_pool_backward(gradient: Tensor, inp: Tensor, kernel_size: Union[List[int
             _output_array[:, :, _row * stride:_row * stride + _kernel_height, _column * stride:_column * stride + _kernel_width] += increment
 
     _set_grad(inp, _output_array[:, :, padding[0]:padding[0] + _output_height - 1, padding[1]:padding[1] + _output_width - 1])
+
+
+def lstm_cell_backward(gradient, inp, all_weights, cache):
+    engine = _get_engine()
+
+    gradient_array = gradient.data.copy()
+    inp_array = inp.data.copy()
+
+    out = cache['out']
+    hx = cache['hx']
+    cx = cache['cx']
+    igates = cache['i']
+    fgates = cache['f']
+    cgates = cache['c']
+    ogates = cache['o']
+
+    batch_size, layer_num, time_sequence, hidden_size = hx.shape
+
+    w_ih_arrays = [x[0].data for x in all_weights]
+    w_hh_arrays = [x[1].data for x in all_weights]
+
+    delta_array = engine.zeros((batch_size, layer_num, time_sequence, hidden_size))
+    delta_out_array = engine.zeros((batch_size, layer_num, time_sequence, hidden_size))
+    d_out_array = engine.zeros((batch_size, layer_num, time_sequence, hidden_size))
+    d_state_array = engine.zeros((batch_size, layer_num, time_sequence, hidden_size))
+    d_cgate_array = engine.zeros((batch_size, layer_num, time_sequence, hidden_size))
+    d_igate_array = engine.zeros((batch_size, layer_num, time_sequence, hidden_size))
+    d_fgate_array = engine.zeros((batch_size, layer_num, time_sequence, hidden_size))
+    d_ogate_array = engine.zeros((batch_size, layer_num, time_sequence, hidden_size))
+
+    d_inp_array = engine.zeros_like(inp_array)
+
+    d_wih_array = [engine.zeros_like(x[0].data) for x in all_weights]
+    d_whh_array = [engine.zeros_like(x[1].data) for x in all_weights]
+    d_bih_array = [engine.zeros_like(x[2].data) for x in all_weights]
+    d_bhh_array = [engine.zeros_like(x[3].data) for x in all_weights]
+
+    for time in range(time_sequence - 1, -1, -1):
+        a = 0
+        for layer in range(layer_num - 1, -1, -1):
+            w_ih_array = w_ih_arrays[layer]
+            w_hh_array = w_hh_arrays[layer]
+
+            if time == time_sequence - 1:
+                if layer == layer_num - 1:
+                    cell_grad = gradient_array[:, time, :]
+                else:
+                    cell_grad = a
+            else:
+                if layer == layer_num - 1:
+                    cell_grad = gradient_array[:, time, :]
+                else:
+                    cell_grad = a
+
+            delta_array[:, layer, time, :] = cell_grad
+            if time == time_sequence - 1:
+                delta_out = engine.zeros_like(delta_out_array[:, layer, time, :])
+            else:
+                delta_out = delta_out_array[:, layer, time + 1, :]
+
+            d_out_array[:, layer, time, :] = delta_array[:, layer, time, :] + delta_out
+
+            if time == time_sequence - 1:
+                d_next_state = engine.zeros_like(d_state_array[:, layer, time, :])
+            else:
+                d_next_state = d_state_array[:, layer, time + 1, :]
+
+            if time == time_sequence - 1:
+                next_forget = engine.zeros_like(fgates[:, layer, time, :])
+            else:
+                next_forget = fgates[:, layer, time + 1, :]
+
+            d_state_array[:, layer, time, :] = \
+                d_out_array[:, layer, time, :] * ogates[:, layer, time, :] * (1 - engine.tanh(cx[:, layer, time, :]) ** 2) + d_next_state * next_forget
+
+            if time == 0:
+                prev_state = engine.zeros_like(cx[:, layer, time, :])
+            else:
+                prev_state = cx[:, layer, time - 1, :]
+
+            d_cgate = d_state_array[:, layer, time, :] * igates[:, layer, time, :] * (1 - cgates[:, layer, time, :] ** 2)
+            d_igate = d_state_array[:, layer, time, :] * cgates[:, layer, time, :] * igates[:, layer, time, :] * (1 - igates[:, layer, time, :])
+            d_fgate = d_state_array[:, layer, time, :] * prev_state * fgates[:, layer, time, :] * (1 - fgates[:, layer, time, :])
+            d_ogate = d_out_array[:, layer, time, :] * engine.tanh(cx[:, layer, time, :]) * ogates[:, layer, time, :] * (1 - ogates[:, layer, time, :])
+
+            d_cgate_array[:, layer, time, :] = d_cgate
+            d_igate_array[:, layer, time, :] = d_igate
+            d_fgate_array[:, layer, time, :] = d_fgate
+            d_ogate_array[:, layer, time, :] = d_ogate
+
+            d_gates = engine.hstack([d_igate, d_fgate, d_cgate, d_ogate])
+            # d_x_array[:, layer, time, :] = (w_ih_array.T @ d_gates.T).T
+            a = (w_ih_array.T @ d_gates.T).T
+
+            delta_out_array[:, layer, time, :] = (w_hh_array.T @ d_gates.T).T
+
+            # d_wih = engine.outer(d_gates, inp[:, time, :])
+            if layer == 0:
+                i = inp_array[:, time, :]
+            else:
+                i = out[:, layer - 1, time, :]
+            # d_wih = d_gates.T @ inp_array[:, time, :]
+            d_wih = d_gates.T @ i
+
+            if time == time_sequence - 1:
+                d_gates_next = engine.hstack(
+                    [
+                        engine.zeros_like(d_igate_array[:, layer, time, :]),
+                        engine.zeros_like(d_fgate_array[:, layer, time, :]),
+                        engine.zeros_like(d_cgate_array[:, layer, time, :]),
+                        engine.zeros_like(d_ogate_array[:, layer, time, :])
+                    ]
+                )
+            else:
+                d_gates_next = engine.hstack(
+                    [
+                        d_igate_array[:, layer, time + 1, :],
+                        d_fgate_array[:, layer, time + 1, :],
+                        d_cgate_array[:, layer, time + 1, :],
+                        d_ogate_array[:, layer, time + 1, :]
+                    ]
+                )
+            d_whh = d_gates_next.T @ out[:, layer, time, :]
+
+            d_wih_array[layer] += d_wih
+            d_whh_array[layer] += d_whh
+            d_bih_array[layer] += engine.sum(d_gates.T, axis=1)
+            d_bhh_array[layer] += engine.sum(d_gates.T, axis=1)
+
+        d_inp_array[:, time, :] = a
+
+    _set_grad(inp, d_inp_array)
+    for layer in range(layer_num):
+        _set_grad(all_weights[layer][0], d_wih_array[layer])
+        _set_grad(all_weights[layer][1], d_whh_array[layer])
+        _set_grad(all_weights[layer][2], d_bih_array[layer])
+        _set_grad(all_weights[layer][3], d_bhh_array[layer])
 
 
 def lstm_backward(gradient, inp, all_weights, cache):
@@ -1296,6 +1434,74 @@ def avg_pool(inp, kernel_size, stride, padding) -> 'Tensor':
         inp,
         data=output_array,
         func=wrapped_partial(avg_pool_backward, inp=inp, kernel_size=kernel_size, stride=stride, padding=padding)
+    )
+
+
+def lstm_cell(inp, all_weights):
+    batch_size, input_features, hidden_size = inp.size(0), inp.size(1), all_weights[0].size(0) // 4
+
+    engine = _get_engine()
+
+    inp_array = inp.data.copy()
+
+    hx_array = engine.zeros((batch_size, hidden_size))
+    cx_array = engine.zeros((batch_size, hidden_size))
+    out_array = engine.zeros((batch_size, hidden_size))
+
+    igates = engine.zeros((batch_size, hidden_size))
+    fgates = engine.zeros((batch_size, hidden_size))
+    cgates = engine.zeros((batch_size, hidden_size))
+    ogates = engine.zeros((batch_size, hidden_size))
+
+    all_weights_array = [x.data for x in all_weights]
+
+    cell_input = inp_array[:, :]
+
+    w_ih_array, w_hh_array, b_ih_array, b_hh_array = all_weights_array
+    h = hx_array[:, :]  # engine.zeros()
+    c = cx_array[:, :]  # engine.zeros()
+
+    gates = cell_input @ w_ih_array.T + b_ih_array + h @ w_hh_array.T + b_hh_array
+
+    ingate, forgetgate, cellgate, outgate = engine.split(gates, 4, 1)
+
+    ingate = 1 / (1 + engine.exp(-ingate))
+    forgetgate = 1 / (1 + engine.exp(-forgetgate))
+    cellgate = engine.tanh(cellgate)
+    outgate = 1 / (1 + engine.exp(-outgate))
+
+    igates[:, :] = ingate
+    fgates[:, :] = forgetgate
+    cgates[:, :] = cellgate
+    ogates[:, :] = outgate
+
+    c = (forgetgate * c) + (ingate * cellgate)
+    h = outgate * engine.tanh(c)
+
+    hx_array[:, :] = h
+    cx_array[:, :] = c
+
+    out_array[:, :] = h
+
+    cache = {
+        'inp': inp_array,
+        'out': out_array,
+        'hx': hx_array,
+        'cx': cx_array,
+        'i': igates,
+        'f': fgates,
+        'c': cgates,
+        'o': ogates
+    }
+
+    out_tensor = _create_tensor(
+        *([inp] + all_weights),
+        data=out_array[:, :],
+        func=wrapped_partial(lstm_cell_backward, inp=inp, all_weights=all_weights, cache=cache)
+    )
+    return out_tensor, (
+        from_array(engine.transpose(hx_array[:, :], (1, 0))),
+        from_array(engine.transpose(cx_array[:, :], (1, 0)))
     )
 
 

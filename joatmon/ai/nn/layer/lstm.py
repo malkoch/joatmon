@@ -19,6 +19,78 @@ from ..core import (
 __all__ = ['LSTM']
 
 
+class LSTMCell(Module):
+    __constants__ = ['input_size', 'hidden_size']
+
+    input_size: int
+    hidden_size: int
+
+    def __init__(self, input_size: int, hidden_size: int) -> None:
+        super(LSTMCell, self).__init__()
+
+        self.input_size = input_size
+        self.hidden_size = hidden_size
+
+        gate_size = 4 * hidden_size
+
+        self._all_weights = ['weight_ih', 'weight_hh', 'bias_ih', 'bias_hh']
+        w_ih = Parameter(Tensor.from_array(np.zeros((gate_size, input_size))))
+        w_hh = Parameter(Tensor.from_array(np.zeros((gate_size, hidden_size))))
+        b_ih = Parameter(Tensor.from_array(np.zeros((gate_size,))))
+        b_hh = Parameter(Tensor.from_array(np.zeros((gate_size,))))
+        layer_params = (w_ih, w_hh, b_ih, b_hh)
+
+        for name, param in zip(self._all_weights, layer_params):
+            setattr(self, name, param)
+
+        self.reset_parameters()
+
+    def reset_parameters(self) -> None:
+        stdv = 1.0 / math.sqrt(self.hidden_size)
+        for weight in self.parameters():
+            init.uniform(weight, -stdv, stdv)
+
+    def check_input(self, inp: Tensor) -> None:
+        expected_input_dim = 3
+        if inp.dim() != expected_input_dim:
+            raise RuntimeError('input must have {} dimensions, got {}'.format(expected_input_dim, inp.dim()))
+        if self.input_size != inp.size(-1):
+            raise RuntimeError('input.size(-1) must be equal to input_size. Expected {}, got {}'.format(self.input_size, inp.size(-1)))
+
+    def get_expected_hidden_size(self, inp: Tensor) -> Tuple[int, int]:
+        return inp.size(0), self.hidden_size
+
+    def extra_repr(self) -> str:
+        s = '{input_size}, {hidden_size}'
+        if self.num_layers != 1:
+            s += ', num_layers={num_layers}'
+        return s.format(**self.__dict__)
+
+    def __setstate__(self, d):
+        super(LSTMCell, self).__setstate__(d)
+        if 'all_weights' in d:
+            self._all_weights = d['all_weights']
+
+        if isinstance(self._all_weights[0], str):
+            return
+
+        self._all_weights = ['weight_ih', 'weight_hh', 'bias_ih', 'bias_hh']
+
+    @property
+    def all_weights(self) -> List[List[Parameter]]:
+        return [getattr(self, weights) for weights in self._all_weights]
+
+    def get_expected_cell_size(self, inp: Tensor) -> Tuple[int, int]:
+        return inp.size(0), self.hidden_size
+
+    def check_forward_args(self, inp: Tensor):  # type: ignore
+        self.check_input(inp)
+
+    def forward(self, inp):
+        self.check_forward_args(inp)
+        return f.lstm(inp, self.all_weights)
+
+
 class LSTM(Module):
     __constants__ = ['input_size', 'hidden_size', 'num_layers']
 
