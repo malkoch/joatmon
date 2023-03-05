@@ -1,9 +1,7 @@
 import threading
 
-from joatmon.assistant.core import IVACoreObject
 
-
-class BaseTask(IVACoreObject):
+class BaseTask:
     def __init__(self, api=None, background=False, thread_num=1, priority=100, max_run_time=1):
         self.api = api
 

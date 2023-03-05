@@ -4,7 +4,6 @@ import argparse
 import sys
 
 from joatmon.assistant.task import BaseTask
-from joatmon.downloader import download
 
 
 class Task(BaseTask):

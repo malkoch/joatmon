@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import argparse
+import datetime
 import json
 import re
 import sys
@@ -13,9 +14,10 @@ import requests
 
 from joatmon.assistant.task import BaseTask
 from joatmon.orm.constraint import UniqueConstraint
-from joatmon.orm.document import Document
+from joatmon.orm.document import create_new_type, Document
 from joatmon.orm.field import Field
 from joatmon.orm.index import Index
+from joatmon.orm.meta import Meta
 from joatmon.plugin.database.mongo import MongoDatabase
 
 
@@ -32,9 +34,11 @@ def query(category=None, fetched=0):
 
         config = json.loads(open('iva.json', 'r').read())['configs']['arxiv']
 
-        url = config['url'] + 'query?' + urlencode({
-            "search_query": category, "start": fetched, "max_results": min(max_results - fetched, 1000), "sortBy": sort_by, "sortOrder": sort_order
-        })
+        url = config['url'] + 'query?' + urlencode(
+            {
+                "search_query": category, "start": fetched, "max_results": min(max_results - fetched, 1000), "sortBy": sort_by, "sortOrder": sort_order
+            }
+        )
         result = feedparser.parse(url)
         if result.get('status') == 200:
             results = result['entries']
@@ -61,125 +65,88 @@ def download(link, prefer_source_tarfile=False):
     return response.content
 
 
-class Author(Document):
-    CollectionName = 'arxiv.author'
+class Author(Meta):
+    __collection__ = 'arxiv.author'
 
-    Fields = [
-        Field('name', 'str')
-    ]
+    name = Field(str)
 
-    Constraints = [
-        UniqueConstraint('name')
-    ]
-
-    Indexes = [
-        Index('name')
-    ]
+    unique_constraint_name = UniqueConstraint('name')
+    index_name = Index('name')
 
 
-class Tag(Document):
-    CollectionName = 'arxiv.tag'
+class Tag(Meta):
+    __collection__ = 'arxiv.tag'
 
-    Fields = [
-        Field('name', 'str'),
-        Field('count', 'int'),
-    ]
+    name = Field(str)
+    count = Field(int)
 
-    Constraints = [
-        UniqueConstraint('name')
-    ]
-
-    Indexes = [
-        Index('name')
-    ]
+    unique_constraint_name = UniqueConstraint('name')
+    index_name = Index('name')
 
 
-class Source(Document):
-    CollectionName = 'arxiv.source'
+class Source(Meta):
+    __collection__ = 'arxiv.source'
 
-    Fields = [
-        Field('id', 'str'),
-        Field('title', 'str'),
-        Field('summary', 'str'),
-        Field('published', 'datetime'),
-        Field('updated', 'datetime'),
-    ]
+    id = Field(str)
+    title = Field(str)
+    summary = Field(str)
+    published = Field(datetime.datetime)
+    updated = Field(datetime.datetime)
 
-    Constraints = [
-        UniqueConstraint('id')
-    ]
-
-    Indexes = [
-        Index('id')
-    ]
+    unique_constraint_id = UniqueConstraint('id')
+    index_id = Index('id')
 
 
-class SourceFile(Document):
-    CollectionName = 'arxiv.source_file'
+class SourceFile(Meta):
+    __collection__ = 'arxiv.source_file'
 
-    Fields = [
-        Field('source_id', 'uuid'),
-        Field('content', 'byte'),
-        Field('type', 'str')
-    ]
+    source_id = Field(uuid.UUID)
+    content = Field(bytes)
+    type = Field(str)
 
-    Constraints = [
-        UniqueConstraint('source_id')
-    ]
-
-    Indexes = [
-        Index('source_id')
-    ]
+    unique_constraint_source_id = UniqueConstraint('source_id')
+    index_source_id = Index('source_id')
 
 
-class SourceLink(Document):
-    CollectionName = 'arxiv.source_link'
+class SourceLink(Meta):
+    __collection__ = 'arxiv.source_link'
 
-    Fields = [
-        Field('source_id', 'uuid'),
-        Field('link', 'str'),
-        Field('type', 'str')
-    ]
+    source_id = Field(uuid.UUID)
+    link = Field(str)
+    type = Field(str)
 
-    Indexes = [
-        Index('source_id')
-    ]
+    index_source_id = Index('source_id')
 
 
-class SourceAuthor(Document):
-    CollectionName = 'arxiv.source_author'
+class SourceAuthor(Meta):
+    __collection__ = 'arxiv.source_author'
 
-    Fields = [
-        Field('source_id', 'uuid'),
-        Field('author_id', 'uuid')
-    ]
+    source_id = Field(uuid.UUID)
+    author_id = Field(uuid.UUID)
 
-    Constraints = [
-        UniqueConstraint('source_id,author_id')
-    ]
-
-    Indexes = [
-        Index('source_id'),
-        Index('author_id')
-    ]
+    unique_constraint_source_id_author_id = UniqueConstraint('source_id,author_id')
+    index_source_id = Index('source_id')
+    index_author_id = Index('author_id')
 
 
-class SourceTag(Document):
-    CollectionName = 'arxiv.source_tag'
+class SourceTag(Meta):
+    __collection__ = 'arxiv.source_tag'
 
-    Fields = [
-        Field('source_id', 'uuid'),
-        Field('tag_id', 'uuid')
-    ]
+    source_id = Field(uuid.UUID)
+    tag_id = Field(uuid.UUID)
 
-    Constraints = [
-        UniqueConstraint('source_id,tag_id')
-    ]
+    unique_constraint_source_id_tag_id = UniqueConstraint('source_id,tag_id')
+    index_source_id = Index('source_id')
+    index_tag_id = Index('tag_id')
 
-    Indexes = [
-        Index('source_id'),
-        Index('tag_id')
-    ]
+
+Author = create_new_type(Author, (Document,))
+Tag = create_new_type(Tag, (Document,))
+Source = create_new_type(Source, (Document,))
+SourceFile = create_new_type(SourceFile, (Document,))
+SourceLink = create_new_type(SourceLink, (Document,))
+SourceAuthor = create_new_type(SourceAuthor, (Document,))
+SourceTag = create_new_type(SourceTag, (Document,))
 
 
 class Task(BaseTask):
@@ -214,12 +181,11 @@ class Task(BaseTask):
         self.database = MongoDatabase('arxiv', **db_config)
 
     def reinit(self):
-        self.database.drop()
+        self.database.drop_database()
         self.init()
 
     def init(self):
-        self.database.initialize()
-
+        ...
         # for tag in [
         #     'cs.AI', 'cs.CL', 'cs.CC', 'cs.CE', 'cs.CG', 'cs.GT', 'cs.CV', 'cs.CY', 'cs.CR', 'cs.DS',
         #     'cs.DB', 'cs.DL', 'cs.DM', 'cs.DC', 'cs.ET', 'cs.FL', 'cs.GL', 'cs.GR', 'cs.AR', 'cs.HC',

@@ -3,7 +3,6 @@ import queue
 import sys
 import threading
 import time
-
 import warnings
 
 from joatmon.system.core import RWLock
@@ -99,7 +98,7 @@ class OutputDevice:
 
             self.speaking_event.set()
 
-            speaker = win32com.client.Dispatch("SAPI.SpVoice")
+            speaker = win32com.client.Dispatch("SAPI.SpVoice", pythoncom.CoInitialize())
             self.current_speaker = speaker
             speaker.EventInterests = 33790
 
