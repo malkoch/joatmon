@@ -47,7 +47,11 @@ if __name__ == '__main__':
         packages=[package for package in find_packages() if package.startswith('joatmon')],
         entry_points={
             'console_scripts': [
-                'assistant = scripts.assistant:main'
+                'assistant = scripts.assistant:main',
+                'arxiv = scripts.arxiv:main',
+                'download = scripts.download:main',
+                'openai = scripts.openai:main',
+                'weather = scripts.weather:main',
             ]
         },
         install_requires=[
