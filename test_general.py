@@ -1,15 +1,10 @@
-import json
-import os
-import importlib.util
-import sys
+import argparse
 
-content = json.loads(open('iva.json').read())
+parser = argparse.ArgumentParser()
+parser.add_argument('--create', type=str)
+parser.add_argument('--update', type=str)
+parser.add_argument('--delete', type=str)
+parser.add_argument('--value', type=str)
 
-for scripts in content.get('scripts', []):
-    if os.path.isabs(scripts) and os.path.exists(scripts):
-        print(f'this is a path: {scripts}')
-
-        spec = importlib.util.spec_from_file_location("arxiv", os.path.join(scripts, f'{"arxiv"}.py'))
-        foo = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(foo)
-        foo.Task()
+namespace, _ = parser.parse_known_args(['--create', 'hello world'])
+print(namespace.create)
