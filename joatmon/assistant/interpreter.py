@@ -1,3 +1,4 @@
+import importlib.util
 import json
 import os
 import re
@@ -117,12 +118,18 @@ class Interpreter(Cmd):
             # it could be external scripts
             settings = json.loads(open('iva.json', 'r').read())
             for scripts in set(settings.get('scripts', []) + ['joatmon.assistant.scripts']):
-                try:
-                    _module = __import__(scripts, fromlist=[f'{action}'])
-                except ModuleNotFoundError:
-                    continue
+                if os.path.isabs(scripts) and os.path.exists(scripts):
+                    spec = importlib.util.spec_from_file_location(action, os.path.join(scripts, f'{action}.py'))
+                    action_module = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(action_module)
+                else:
+                    try:
+                        _module = __import__(scripts, fromlist=[f'{action}'])
+                    except ModuleNotFoundError:
+                        continue
 
-                action_module = getattr(_module, action, None)
+                    action_module = getattr(_module, action, None)
+
                 if action_module is None:
                     continue
                 action_module.sys.argv = [action] + list(args)

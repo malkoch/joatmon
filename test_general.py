@@ -1,11 +1,15 @@
-import time
+import json
+import os
+import importlib.util
+import sys
 
-from joatmon.system.microphone import InputDriver
-from joatmon.system.speaker import OutputDevice
+content = json.loads(open('iva.json').read())
 
-device = OutputDevice(True)
+for scripts in content.get('scripts', []):
+    if os.path.isabs(scripts) and os.path.exists(scripts):
+        print(f'this is a path: {scripts}')
 
-driver = InputDriver(device, True)
-
-while True:
-    time.sleep(0.1)
+        spec = importlib.util.spec_from_file_location("arxiv", os.path.join(scripts, f'{"arxiv"}.py'))
+        foo = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(foo)
+        foo.Task()
