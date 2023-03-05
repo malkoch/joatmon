@@ -1,3 +1,4 @@
+import argparse
 import importlib.util
 import json
 import os
@@ -108,6 +109,12 @@ class Interpreter(Cmd):
                 return self.enable(*args)
             if action == 'disable':
                 return self.disable(*args)
+            if action == 'task':
+                return self.task(*args)
+            if action == 'service':
+                return self.service(*args)
+            if action == 'config':
+                return self.config(*args)
             if action == 'help':
                 return self.help()
             if action == 'exit':
@@ -117,7 +124,7 @@ class Interpreter(Cmd):
 
             # it could be external scripts
             settings = json.loads(open('iva.json', 'r').read())
-            for scripts in set(settings.get('scripts', []) + ['joatmon.assistant.scripts']):
+            for scripts in settings.get('scripts', []):
                 if os.path.isabs(scripts) and os.path.exists(scripts):
                     spec = importlib.util.spec_from_file_location(action, os.path.join(scripts, f'{action}.py'))
                     action_module = importlib.util.module_from_spec(spec)
@@ -216,9 +223,180 @@ class Interpreter(Cmd):
 
         return False
 
+    def task(self, *args):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--create', type=str)
+        parser.add_argument('--update', type=str)
+        parser.add_argument('--delete', type=str)
+        parser.add_argument('--command', type=str)
+        parser.add_argument('--priority', type=int)
+        parser.add_argument('--schedule', type=str)
+        parser.add_argument('--status', type=bool)
+
+        namespace, _ = parser.parse_known_args(args)
+
+        action = None
+        if namespace.create:
+            action = {
+                'action': 'create',
+                'name': namespace.create,
+                'command': namespace.command.replace('"', ''),
+                'priority': namespace.priority,
+                'schedule': namespace.schedule
+            }
+        elif namespace.update:
+            action = {
+                'action': 'update',
+                'name': namespace.update,
+                'command': namespace.command.replace('"', ''),
+                'priority': namespace.priority,
+                'schedule': namespace.schedule,
+                'status': namespace.status
+            }
+        elif namespace.delete:
+            action = {
+                'action': 'delete',
+                'name': namespace.delete
+            }
+
+        settings = json.loads(open('iva.json', 'r').read())
+        tasks = settings.get('tasks', {})
+
+        if action['action'] == 'create':
+            task = tasks.get(action['name'], None)
+            if task:
+                raise ValueError('task is already exists')
+            task = {
+                'command': action['command'],
+                'priority': action['priority'] or 1,
+                'schedule': action['schedule'] or '* * * * *',
+                'status': True
+            }
+            tasks[action['name']] = task
+            settings['tasks'] = tasks
+            open('iva.json', 'w').write(json.dumps(settings, indent=4))
+        elif action['action'] == 'update':
+            task = tasks.get(action['name'], None)
+            if task is None:
+                raise ValueError('task does not exists')
+            task = {
+                'command': action['command'],
+                'priority': action['priority'] or 1,
+                'schedule': action['schedule'] or '* * * * *',
+                'status': action['status'] or False,
+            }
+            tasks[action['name']] = task
+            settings['tasks'] = tasks
+            open('iva.json', 'w').write(json.dumps(settings, indent=4))
+        elif action['action'] == 'delete':
+            task = tasks.get(action['name'], None)
+            if task is None:
+                raise ValueError('task does not exists')
+            del tasks[action['name']]
+            settings['tasks'] = tasks
+            open('iva.json', 'w').write(json.dumps(settings, indent=4))
+        else:
+            raise ValueError(f'arguments are not recognized')
+
+    def service(self, *args):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--create', type=str)
+        parser.add_argument('--update', type=str)
+        parser.add_argument('--delete', type=str)
+        parser.add_argument('--command', type=str)
+        parser.add_argument('--priority', type=int)
+
+        namespace, _ = parser.parse_known_args(args)
+
+        action = None
+        if namespace.create:
+            action = ['create', namespace.create, namespace.command]
+        elif namespace.update:
+            action = ['update', namespace.update, namespace.command]
+        elif namespace.delete:
+            action = ['delete', namespace.delete, namespace.command]
+
+        if action[0] == 'create':
+            ...
+        elif action[0] == 'update':
+            ...
+        elif action[0] == 'delete':
+            ...
+        else:
+            raise ValueError(f'arguments are not recognized')
+
+    def config(self, *args):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--create', type=str)
+        parser.add_argument('--update', type=str)
+        parser.add_argument('--delete', type=str)
+        parser.add_argument('--value', type=str)
+
+        namespace, _ = parser.parse_known_args(args)
+
+        config = None
+        if namespace.create:
+            config = {
+                'action': 'create',
+                'name': namespace.create,
+                'value': namespace.value
+            }
+        elif namespace.update:
+            config = {
+                'action': 'update',
+                'name': namespace.update,
+                'value': namespace.value
+            }
+        elif namespace.delete:
+            config = {
+                'action': 'delete',
+                'name': namespace.delete
+            }
+        else:
+            raise ValueError('')
+
+        def set_config(parent, name, value):
+            if name == '':
+                return
+
+            names = name.split('.')
+            if names[0] not in parent:
+                if len(names) == 1:
+                    if value is not None:
+                        parent[names[0]] = value
+                    else:
+                        del parent[names[0]]
+                else:
+                    parent[names[0]] = {}
+            else:
+                if len(names) == 1:
+                    if value is not None:
+                        parent[names[0]] = value
+                    else:
+                        del parent[names[0]]
+            set_config(parent[names[0]], '.'.join(names[1:]), value)
+
+        settings = json.loads(open('iva.json', 'r').read())
+        configs = settings.get('configs', {})
+
+        if config['action'] == 'create':
+            set_config(configs, config['name'], config['value'])
+            settings['configs'] = configs
+            open('iva.json', 'w').write(json.dumps(settings, indent=4))
+        elif config['action'] == 'update':
+            set_config(configs, config['name'], config['value'])
+            settings['configs'] = configs
+            open('iva.json', 'w').write(json.dumps(settings, indent=4))
+        elif config['action'] == 'delete':
+            set_config(configs, config['name'], None)
+            settings['configs'] = configs
+            open('iva.json', 'w').write(json.dumps(settings, indent=4))
+        else:
+            raise ValueError(f'arguments are not recognized')
+
     def help(self):
         settings = json.loads(open('iva.json', 'r').read())
-        for scripts in set(settings.get('scripts', []) + ['joatmon.assistant.scripts']):
+        for scripts in settings.get('scripts', []):
             for module in list(filter(lambda x: '__' not in x, map(lambda x: x.replace('.py', ''), os.listdir(scripts.replace('.', '/'))))):
                 print(module)
                 _module = __import__(settings['scripts'][0], fromlist=[module])
