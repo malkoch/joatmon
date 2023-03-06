@@ -27,9 +27,9 @@ class BaseTask:
     def hash(cls):
         return hash(f'{cls.__module__}.{cls.__name__}')
 
-    @classmethod
-    def help(cls):
-        return cls.__doc__
+    @staticmethod
+    def help(api):
+        raise NotImplementedError
 
     @classmethod
     def create(cls):
