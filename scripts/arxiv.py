@@ -240,6 +240,10 @@ class Task(BaseTask):
             source_tag.count = count
             self.database.update(source_tag)
 
+    @staticmethod
+    def help(api):
+        ...
+
     def run(self):
         if self.action is None:
             raise ValueError(f'arguments are not recognized')

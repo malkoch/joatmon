@@ -17,6 +17,10 @@ class Task(BaseTask):
 
         self.action = [namespace.args]
 
+    @staticmethod
+    def help(api):
+        ...
+
     def run(self):
         print(f'dummy task is running {self.action}')
 

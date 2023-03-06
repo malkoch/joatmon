@@ -32,6 +32,10 @@ class Task(BaseTask):
         elif namespace.history:
             self.action = ['history', namespace.history]
 
+    @staticmethod
+    def help(api):
+        ...
+
     def run(self):
         config = json.loads(open('iva.json', 'r').read())['configs']['weather']
         base_url = config['url']

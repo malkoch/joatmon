@@ -3,6 +3,7 @@ from __future__ import print_function
 import argparse
 import json
 import sys
+import time
 
 import openai
 
@@ -27,6 +28,20 @@ class Task(BaseTask):
             self.action = ['image', namespace.image]
         elif namespace.transcribe:
             self.action = ['transcribe', namespace.transcribe]
+
+    @staticmethod
+    def help(api):
+        message = """
+        this module can be used to use openai api
+            --ask to use chat-gpt
+            --image to use dall-e
+            --transcribe to use whisper
+        """
+        if api is not None:
+            api.output(message)
+            time.sleep(7)
+        else:
+            print(message)
 
     def run(self):
         config = json.loads(open('iva.json', 'r').read())['configs']['openai']

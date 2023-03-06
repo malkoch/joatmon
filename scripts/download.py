@@ -24,6 +24,10 @@ class Task(BaseTask):
             'resume': namespace.resume,
         }
 
+    @staticmethod
+    def help(api):
+        ...
+
     def run(self):
         download(self.download['url'], self.download['file'], self.download['chunks'] or 10, self.download['resume'] or False)
 
