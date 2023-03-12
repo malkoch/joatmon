@@ -3,12 +3,12 @@
 ---
 
 <span style="float:right;">[[source]](https://github.com/malkoch/joatmon/blob/master/joatmon/ai/models/dqn.py#L21)</span>
+
 ### DQNModel
 
 ```python
 joatmon.ai.models.dqn.DQNModel.joatmon.ai.models.dqn.DQNModel(lr=0.001, tau=0.0001, gamma=0.99, network=None)
 ```
-
 
 Deep Q Network
 
@@ -16,7 +16,7 @@ __Arguments__
 
 - __models__ (`keras.nn.Model` instance): See [Model](#) for details.
 - __optimizer__ (`keras.optimizers.Optimizer` instance):
-See [Optimizer](#) for details.
+  See [Optimizer](#) for details.
 - __tau__ (float): tau.
 - __gamma__ (float): gamma.
 
@@ -25,7 +25,6 @@ See [Optimizer](#) for details.
 <span style="float:right;">[[source]](https://github.com/malkoch/joatmon/blob/master/joatmon/ai/models/dqn.py#L47)</span>
 
 ### load
-
 
 ```python
 DQNModel.load(self, path='')
@@ -37,7 +36,6 @@ DQNModel.load(self, path='')
 
 ### save
 
-
 ```python
 DQNModel.save(self, path='')
 ```
@@ -47,7 +45,6 @@ DQNModel.save(self, path='')
 <span style="float:right;">[[source]](https://github.com/malkoch/joatmon/blob/master/joatmon/ai/models/dqn.py#L79)</span>
 
 ### predict
-
 
 ```python
 DQNModel.predict(self, state=None)
@@ -59,7 +56,6 @@ DQNModel.predict(self, state=None)
 
 ### train
 
-
 ```python
 DQNModel.train(self, batch=None, update_target=False)
 ```
@@ -70,10 +66,8 @@ DQNModel.train(self, batch=None, update_target=False)
 
 ### evaluate
 
-
 ```python
 DQNModel.evaluate(self)
 ```
-
 
 ---

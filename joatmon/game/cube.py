@@ -41,9 +41,11 @@ def project_points(points, q, view, vertical=(0, 1, 0)):
     dproj = -dpoint * v2 / dpoint_view
 
     trans = list(range(1, dproj.ndim)) + [0]
-    return np.array([
-        np.dot(dproj, xdir), np.dot(dproj, ydir), -np.dot(dpoint, zdir)
-    ]).transpose(trans)
+    return np.array(
+        [
+            np.dot(dproj, xdir), np.dot(dproj, ydir), -np.dot(dpoint, zdir)
+        ]
+    ).transpose(trans)
 
 
 def resize(pos):
@@ -62,12 +64,14 @@ class Quaternion:
         return_shape = prod.shape[:-1]
         prod = prod.reshape((-1, 4, 4)).transpose((1, 2, 0))
 
-        ret = np.array([
-            (prod[0, 0] - prod[1, 1] - prod[2, 2] - prod[3, 3]),
-            (prod[0, 1] + prod[1, 0] + prod[2, 3] - prod[3, 2]),
-            (prod[0, 2] - prod[1, 3] + prod[2, 0] + prod[3, 1]),
-            (prod[0, 3] + prod[1, 2] - prod[2, 1] + prod[3, 0])
-        ], dtype=np.float, order='F').T
+        ret = np.array(
+            [
+                (prod[0, 0] - prod[1, 1] - prod[2, 2] - prod[3, 3]),
+                (prod[0, 1] + prod[1, 0] + prod[2, 3] - prod[3, 2]),
+                (prod[0, 2] - prod[1, 3] + prod[2, 0] + prod[3, 1]),
+                (prod[0, 3] + prod[1, 2] - prod[2, 1] + prod[3, 0])
+            ], dtype=np.float, order='F'
+        ).T
         return self.__class__(ret.reshape(return_shape))
 
     def __repr__(self):
@@ -82,11 +86,13 @@ class Quaternion:
         c = np.cos(theta)
         s = np.sin(theta)
 
-        mat = np.array([
-            [v[0] * v[0] * (1 - c) + c, v[0] * v[1] * (1 - c) - v[2] * s, v[0] * v[2] * (1 - c) + v[1] * s],
-            [v[1] * v[0] * (1 - c) + v[2] * s, v[1] * v[1] * (1 - c) + c, v[1] * v[2] * (1 - c) - v[0] * s],
-            [v[2] * v[0] * (1 - c) - v[1] * s, v[2] * v[1] * (1 - c) + v[0] * s, v[2] * v[2] * (1 - c) + c]
-        ], order='F').T
+        mat = np.array(
+            [
+                [v[0] * v[0] * (1 - c) + c, v[0] * v[1] * (1 - c) - v[2] * s, v[0] * v[2] * (1 - c) + v[1] * s],
+                [v[1] * v[0] * (1 - c) + v[2] * s, v[1] * v[1] * (1 - c) + c, v[1] * v[2] * (1 - c) - v[0] * s],
+                [v[2] * v[0] * (1 - c) - v[1] * s, v[2] * v[1] * (1 - c) + v[0] * s, v[2] * v[2] * (1 - c) + c]
+            ], order='F'
+        ).T
         return mat.reshape(shape + (3, 3))
 
     def as_v_theta(self):
@@ -148,11 +154,13 @@ class Face:
     def draw(self, screen, view, rotation, vertical):
         for i, row in enumerate(self.stickers):
             for j, sticker in enumerate(row):
-                sticker.draw(screen, (self.top_left + self.increment[0] * (i + 0) + self.increment[1] * (j + 0),
-                                      self.top_left + self.increment[0] * (i + 0) + self.increment[1] * (j + 1),
-                                      self.top_left + self.increment[0] * (i + 1) + self.increment[1] * (j + 1),
-                                      self.top_left + self.increment[0] * (i + 1) + self.increment[1] * (j + 0),
-                                      self.top_left + self.increment[0] * (i + 0) + self.increment[1] * (j + 0)), view, rotation, vertical)
+                sticker.draw(
+                    screen, (self.top_left + self.increment[0] * (i + 0) + self.increment[1] * (j + 0),
+                             self.top_left + self.increment[0] * (i + 0) + self.increment[1] * (j + 1),
+                             self.top_left + self.increment[0] * (i + 1) + self.increment[1] * (j + 1),
+                             self.top_left + self.increment[0] * (i + 1) + self.increment[1] * (j + 0),
+                             self.top_left + self.increment[0] * (i + 0) + self.increment[1] * (j + 0)), view, rotation, vertical
+                    )
 
     def rotate(self, times):
         for _ in range(times):
@@ -177,18 +185,30 @@ class Cube:
     def __init__(self, n=3):
         self.n = n
         self.faces = {
-            'L': Face(n, 0, np.asarray([-1, +1, -1]).astype('float32'),
-                      (np.asarray([0, -1, 0]).astype('float32') * (2.0 / n), np.asarray([0, 0, +1]).astype('float32') * (2.0 / n))),
-            'F': Face(n, 1, np.asarray([-1, +1, +1]).astype('float32'),
-                      (np.asarray([0, -1, 0]).astype('float32') * (2.0 / n), np.asarray([+1, 0, 0]).astype('float32') * (2.0 / n))),
-            'U': Face(n, 2, np.asarray([-1, +1, -1]).astype('float32'),
-                      (np.asarray([0, 0, +1]).astype('float32') * (2.0 / n), np.asarray([+1, 0, 0]).astype('float32') * (2.0 / n))),
-            'R': Face(n, 3, np.asarray([+1, +1, +1]).astype('float32'),
-                      (np.asarray([0, -1, 0]).astype('float32') * (2.0 / n), np.asarray([0, 0, -1]).astype('float32') * (2.0 / n))),
-            'B': Face(n, 4, np.asarray([+1, +1, -1]).astype('float32'),
-                      (np.asarray([0, -1, 0]).astype('float32') * (2.0 / n), np.asarray([-1, 0, 0]).astype('float32') * (2.0 / n))),
-            'D': Face(n, 5, np.asarray([-1, -1, +1]).astype('float32'),
-                      (np.asarray([0, 0, -1]).astype('float32') * (2.0 / n), np.asarray([+1, 0, 0]).astype('float32') * (2.0 / n)))
+            'L': Face(
+                n, 0, np.asarray([-1, +1, -1]).astype('float32'),
+                (np.asarray([0, -1, 0]).astype('float32') * (2.0 / n), np.asarray([0, 0, +1]).astype('float32') * (2.0 / n))
+                ),
+            'F': Face(
+                n, 1, np.asarray([-1, +1, +1]).astype('float32'),
+                (np.asarray([0, -1, 0]).astype('float32') * (2.0 / n), np.asarray([+1, 0, 0]).astype('float32') * (2.0 / n))
+                ),
+            'U': Face(
+                n, 2, np.asarray([-1, +1, -1]).astype('float32'),
+                (np.asarray([0, 0, +1]).astype('float32') * (2.0 / n), np.asarray([+1, 0, 0]).astype('float32') * (2.0 / n))
+                ),
+            'R': Face(
+                n, 3, np.asarray([+1, +1, +1]).astype('float32'),
+                (np.asarray([0, -1, 0]).astype('float32') * (2.0 / n), np.asarray([0, 0, -1]).astype('float32') * (2.0 / n))
+                ),
+            'B': Face(
+                n, 4, np.asarray([+1, +1, -1]).astype('float32'),
+                (np.asarray([0, -1, 0]).astype('float32') * (2.0 / n), np.asarray([-1, 0, 0]).astype('float32') * (2.0 / n))
+                ),
+            'D': Face(
+                n, 5, np.asarray([-1, -1, +1]).astype('float32'),
+                (np.asarray([0, 0, -1]).astype('float32') * (2.0 / n), np.asarray([+1, 0, 0]).astype('float32') * (2.0 / n))
+                )
         }
         self.order = ['D', 'B', 'L', 'R', 'F', 'U']
 

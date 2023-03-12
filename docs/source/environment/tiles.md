@@ -1,4 +1,5 @@
 <span style="float:right;">[[source]](https://github.com/malkoch/joatmon/blob/master/joatmon/environment/tiles.py#L8)</span>
+
 ### TilesEnv
 
 ```python
@@ -11,7 +12,6 @@ joatmon.environment.tiles.TilesEnv.joatmon.environment.tiles.TilesEnv(size)
 
 ### close
 
-
 ```python
 TilesEnv.close(self)
 ```
@@ -21,7 +21,6 @@ TilesEnv.close(self)
 <span style="float:right;">[[source]](https://github.com/malkoch/joatmon/blob/master/joatmon/environment/tiles.py#L49)</span>
 
 ### reset
-
 
 ```python
 TilesEnv.reset(self)
@@ -33,7 +32,6 @@ TilesEnv.reset(self)
 
 ### step
 
-
 ```python
 TilesEnv.step(self, action)
 ```
@@ -44,7 +42,6 @@ TilesEnv.step(self, action)
 
 ### seed
 
-
 ```python
 TilesEnv.seed(self, seed=None)
 ```
@@ -54,7 +51,6 @@ TilesEnv.seed(self, seed=None)
 <span style="float:right;">[[source]](https://github.com/malkoch/joatmon/blob/master/joatmon/environment/tiles.py#L39)</span>
 
 ### render
-
 
 ```python
 TilesEnv.render(self, mode='human')

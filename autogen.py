@@ -25,10 +25,6 @@ from joatmon.ai.core import (
     CorePolicy,
     CoreRandom
 )
-from joatmon.game import CubeEnv
-from joatmon.game import Puzzle2048
-from joatmon.game import SokobanEnv
-from joatmon.game import TilesEnv
 from joatmon.ai.memory import RingMemory
 from joatmon.ai.models.ddpg import DDPGModel
 from joatmon.ai.models.dqn import DQNModel
@@ -39,6 +35,12 @@ from joatmon.ai.policy import (
 from joatmon.ai.random import (
     GaussianRandom,
     OrnsteinUhlenbeck
+)
+from joatmon.game import (
+    CubeEnv,
+    Puzzle2048,
+    SokobanEnv,
+    TilesEnv
 )
 
 

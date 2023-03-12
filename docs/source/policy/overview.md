@@ -12,12 +12,12 @@
 All policies share a common API. This allows you to easily switch between different policies.
 
 <span style="float:right;">[[source]](https://github.com/malkoch/joatmon/blob/master/joatmon/ai/core.py#L234)</span>
+
 ### CorePolicy
 
 ```python
 joatmon.ai.core.CorePolicy.joatmon.ai.core.CorePolicy()
 ```
-
 
 Abstract base class for all implemented policy.
 
@@ -35,12 +35,9 @@ To implement your own policy, you have to implement the following methods:
 
 ### reset
 
-
 ```python
 CorePolicy.reset(self)
 ```
-
-
 
 reset
 
@@ -50,12 +47,9 @@ reset
 
 ### decay
 
-
 ```python
 CorePolicy.decay(self)
 ```
-
-
 
 Decaying the epsilon / sigma value of the policy.
 
@@ -65,12 +59,9 @@ Decaying the epsilon / sigma value of the policy.
 
 ### use_network
 
-
 ```python
 CorePolicy.use_network(self)
 ```
-
-
 
 Sample an experience replay batch with size.
 

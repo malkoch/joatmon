@@ -12,12 +12,12 @@
 All random states share a common API. This allows you to easily switch between different random states.
 
 <span style="float:right;">[[source]](https://github.com/malkoch/joatmon/blob/master/joatmon/ai/core.py#L272)</span>
+
 ### CoreRandom
 
 ```python
 joatmon.ai.core.CoreRandom.joatmon.ai.core.CoreRandom()
 ```
-
 
 Abstract base class for all implemented random processes.
 
@@ -37,12 +37,9 @@ you have to implement the following methods:
 
 ### reset
 
-
 ```python
 CoreRandom.reset(self)
 ```
-
-
 
 Reset random state.
 
@@ -52,12 +49,9 @@ Reset random state.
 
 ### decay
 
-
 ```python
 CoreRandom.decay(self)
 ```
-
-
 
 decay
 
@@ -67,12 +61,9 @@ decay
 
 ### sample
 
-
 ```python
 CoreRandom.sample(self)
 ```
-
-
 
 Sample random state.
 

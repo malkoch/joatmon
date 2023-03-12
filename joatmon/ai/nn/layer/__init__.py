@@ -4,5 +4,5 @@ from .conv import *
 from .dropout import *
 from .flatten import *
 from .linear import *
-from .pool import *
 from .lstm import *
+from .pool import *

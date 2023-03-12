@@ -3,11 +3,6 @@ import sys
 
 from joatmon.system.decorators import auto_pause
 
-import ctypes
-import functools
-import inspect
-import time
-
 __all__ = ['Keyboard']
 
 if sys.platform != 'win32':
@@ -95,9 +90,11 @@ class Input(ctypes.Structure):
     _fields_ = [("type", ctypes.c_ulong),
                 ("ii", Input_I)]
 
+
 @auto_pause(duration=0.05)
 def _send_keyboard_event(key, event):
     ctypes.windll.user32.keybd_event(key, key, event, 0)
+
 
 @auto_pause(duration=0.05)
 def _send_keyboard_event2(key, event):
@@ -161,6 +158,8 @@ def _send_keyboard_event2(key, event):
             insertedEvents += SendInput(1, ctypes.pointer(x), ctypes.sizeof(x))
 
         return insertedEvents == expectedEvents
+
+
 ##    ctypes.windll.user32.keybd_event(key, key, event, 0)
 
 

@@ -31,10 +31,12 @@ from joatmon.core import CoreException
 
 __all__ = ['Tensor', 'Module', 'Parameter', 'Optimizer', 'LRScheduler', 'Loss', 'ModuleAttributeException', 'Sequential']
 
-warnings.filterwarnings("once", "The .grad attribute of a Tensor that is not a leaf Tensor is being accessed. Its .grad "
-                                "attribute won't be populated during autograd.backward(). If you indeed want the gradient "
-                                "for a non-leaf Tensor, use .retain_grad() on the non-leaf Tensor. If you access the "
-                                "non-leaf Tensor by mistake, make sure you access the leaf Tensor instead.", UserWarning)
+warnings.filterwarnings(
+    "once", "The .grad attribute of a Tensor that is not a leaf Tensor is being accessed. Its .grad "
+            "attribute won't be populated during autograd.backward(). If you indeed want the gradient "
+            "for a non-leaf Tensor, use .retain_grad() on the non-leaf Tensor. If you access the "
+            "non-leaf Tensor by mistake, make sure you access the leaf Tensor instead.", UserWarning
+    )
 
 
 class ModuleAttributeException(CoreException, AttributeError):
@@ -270,10 +272,12 @@ class Tensor:
     @property
     def grad(self) -> 'Tensor':
         if not self._can_read_grad():
-            warnings.warn("The .grad attribute of a Tensor that is not a leaf Tensor is being accessed. Its .grad "
-                          "attribute won't be populated during autograd.backward(). If you indeed want the gradient "
-                          "for a non-leaf Tensor, use .retain_grad() on the non-leaf Tensor. If you access the "
-                          "non-leaf Tensor by mistake, make sure you access the leaf Tensor instead.", UserWarning)
+            warnings.warn(
+                "The .grad attribute of a Tensor that is not a leaf Tensor is being accessed. Its .grad "
+                "attribute won't be populated during autograd.backward(). If you indeed want the gradient "
+                "for a non-leaf Tensor, use .retain_grad() on the non-leaf Tensor. If you access the "
+                "non-leaf Tensor by mistake, make sure you access the leaf Tensor instead.", UserWarning
+                )
 
         return self._grad
 
@@ -403,8 +407,10 @@ class Module:
         elif not isinstance(param, Parameter):
             raise TypeError("cannot assign '{}' object to parameter '{}' (Parameter or None required)".format(typename(param), name))
         elif not param.is_leaf:
-            raise ValueError("Cannot assign non-leaf Tensor to parameter '{0}'. Model parameters must be created explicitly. "
-                             "To express '{0}' as a function of another Tensor, compute the value in the forward() method.".format(name))
+            raise ValueError(
+                "Cannot assign non-leaf Tensor to parameter '{0}'. Model parameters must be created explicitly. "
+                "To express '{0}' as a function of another Tensor, compute the value in the forward() method.".format(name)
+                )
         else:
             self._parameters[name] = param
 
@@ -775,8 +781,10 @@ class Optimizer(object):
         if isinstance(params, Parameter):
             param_group['params'] = [params]
         elif isinstance(params, set):
-            raise TypeError('optimizer parameters need to be organized in ordered collections, but '
-                            'the ordering of tensors in sets will change between runs. Please use a list instead.')
+            raise TypeError(
+                'optimizer parameters need to be organized in ordered collections, but '
+                'the ordering of tensors in sets will change between runs. Please use a list instead.'
+                )
         else:
             param_group['params'] = list(params)
 
@@ -794,8 +802,10 @@ class Optimizer(object):
 
         params = param_group['params']
         if len(params) != len(set(params)):
-            warnings.warn("optimizer contains a parameter group with duplicate parameters; "
-                          "in future, this will cause an error", stacklevel=3)
+            warnings.warn(
+                "optimizer contains a parameter group with duplicate parameters; "
+                "in future, this will cause an error", stacklevel=3
+                )
 
         param_set = set()
         for group in self.param_groups:
@@ -811,8 +821,11 @@ class LRScheduler(object):
     def __init__(self, optimizer, last_epoch=-1, verbose=False):
 
         if not isinstance(optimizer, Optimizer):
-            raise TypeError('{} is not an Optimizer'.format(
-                type(optimizer).__name__))
+            raise TypeError(
+                '{} is not an Optimizer'.format(
+                    type(optimizer).__name__
+                )
+            )
         self.optimizer = optimizer
 
         if last_epoch == -1:
@@ -875,16 +888,20 @@ class LRScheduler(object):
         # Raise a warning if old pattern is detected
         if self._step_count == 1:
             if not hasattr(self.optimizer.step, "_with_counter"):
-                warnings.warn("Seems like `optimizer.step()` has been overridden after learning rate scheduler "
-                              "initialization. Please, make sure to call `optimizer.step()` before "
-                              "`lr_scheduler.step()`.", UserWarning)
+                warnings.warn(
+                    "Seems like `optimizer.step()` has been overridden after learning rate scheduler "
+                    "initialization. Please, make sure to call `optimizer.step()` before "
+                    "`lr_scheduler.step()`.", UserWarning
+                    )
 
             # Just check if there were two first lr_scheduler.step() calls before optimizer.step()
             elif self.optimizer._step_count < 1:
-                warnings.warn("Detected call of `lr_scheduler.step()` before `optimizer.step()`. "
-                              "In PyTorch 1.1.0 and later, you should call them in the opposite order: "
-                              "`optimizer.step()` before `lr_scheduler.step()`.  Failure to do this "
-                              "will result in PyTorch skipping the first value of the learning rate schedule.", UserWarning)
+                warnings.warn(
+                    "Detected call of `lr_scheduler.step()` before `optimizer.step()`. "
+                    "In PyTorch 1.1.0 and later, you should call them in the opposite order: "
+                    "`optimizer.step()` before `lr_scheduler.step()`.  Failure to do this "
+                    "will result in PyTorch skipping the first value of the learning rate schedule.", UserWarning
+                    )
         self._step_count += 1
 
         class _enable_get_lr_call:

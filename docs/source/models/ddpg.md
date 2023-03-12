@@ -3,12 +3,12 @@
 ---
 
 <span style="float:right;">[[source]](https://github.com/malkoch/joatmon/blob/master/joatmon/ai/models/ddpg.py#L19)</span>
+
 ### DDPGModel
 
 ```python
 joatmon.ai.models.ddpg.DDPGModel.joatmon.ai.models.ddpg.DDPGModel(lr=0.001, tau=0.0001, gamma=0.99, actor=None, critic=None)
 ```
-
 
 Deep Deterministic Policy Gradient
 
@@ -17,9 +17,9 @@ __Arguments__
 - __actor_model__ (`keras.nn.Model` instance): See [Model](#) for details.
 - __critic_model__ (`keras.nn.Model` instance): See [Model](#) for details.
 - __optimizer__ (`keras.optimizers.Optimizer` instance):
-See [Optimizer](#) for details.
+  See [Optimizer](#) for details.
 - __action_inp__ (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-See [Input](#) for details.
+  See [Input](#) for details.
 - __tau__ (float): tau.
 - __gamma__ (float): gamma.
 
@@ -28,7 +28,6 @@ See [Input](#) for details.
 <span style="float:right;">[[source]](https://github.com/malkoch/joatmon/blob/master/joatmon/ai/models/ddpg.py#L54)</span>
 
 ### load
-
 
 ```python
 DDPGModel.load(self, path='')
@@ -40,7 +39,6 @@ DDPGModel.load(self, path='')
 
 ### save
 
-
 ```python
 DDPGModel.save(self, path='')
 ```
@@ -50,7 +48,6 @@ DDPGModel.save(self, path='')
 <span style="float:right;">[[source]](https://github.com/malkoch/joatmon/blob/master/joatmon/ai/models/ddpg.py#L116)</span>
 
 ### predict
-
 
 ```python
 DDPGModel.predict(self, state=None)
@@ -62,7 +59,6 @@ DDPGModel.predict(self, state=None)
 
 ### train
 
-
 ```python
 DDPGModel.train(self, batch=None, update_target=True)
 ```
@@ -73,10 +69,8 @@ DDPGModel.train(self, batch=None, update_target=True)
 
 ### evaluate
 
-
 ```python
 DDPGModel.evaluate(self)
 ```
-
 
 ---

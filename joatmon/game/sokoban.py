@@ -361,88 +361,108 @@ class SokobanEnv(CoreEnv):
         if env_specs is None:
             raise Exception
 
-        layout_specs = env_specs.get('layout', {
-            'height': 7,
-            'width': 7,
-            'wall_prob': 0.3,
-            'p_change_directions': 0.35,
-            'num_steps': 5,
-            'num_boxes': 1,
-            'tries': 4
-        })
-        object_specs = env_specs.get('object', {
-            'size': 32,
-            'ground': {
+        layout_specs = env_specs.get(
+            'layout', {
+                'height': 7,
+                'width': 7,
+                'wall_prob': 0.3,
+                'p_change_directions': 0.35,
+                'num_steps': 5,
+                'num_boxes': 1,
+                'tries': 4
+            }
+            )
+        object_specs = env_specs.get(
+            'object', {
+                'size': 32,
+                'ground': {
+                    'collision': 0,
+                    'color': 'black',
+                    'sprite': 'ground.png'
+                },
+                'goal': {
+                    'collision': 1,
+                    'color': 'green3',
+                    'sprite': 'goal.png'
+                },
+                'block': {
+                    'collision': 2,
+                    'color': 'blue3',
+                    'sprite': 'block.png'
+                },
+                'player': {
+                    'collision': 4,
+                    'color': 'orange3',
+                    'sprite': 'player.png'
+                },
+                'obstacle': {
+                    'collision': 8,
+                    'color': 'red3',
+                    'sprite': 'obstacle.png'
+                }
+            }
+            )
+        ground_specs = object_specs.get(
+            'ground', {
                 'collision': 0,
                 'color': 'black',
                 'sprite': 'ground.png'
-            },
-            'goal': {
+            }
+            )
+        goal_specs = object_specs.get(
+            'goal', {
                 'collision': 1,
                 'color': 'green3',
                 'sprite': 'goal.png'
-            },
-            'block': {
+            }
+            )
+        block_specs = object_specs.get(
+            'block', {
                 'collision': 2,
                 'color': 'blue3',
                 'sprite': 'block.png'
-            },
-            'player': {
+            }
+            )
+        player_specs = object_specs.get(
+            'player', {
                 'collision': 4,
                 'color': 'orange3',
                 'sprite': 'player.png'
-            },
-            'obstacle': {
+            }
+            )
+        obstacle_specs = object_specs.get(
+            'obstacle', {
                 'collision': 8,
                 'color': 'red3',
                 'sprite': 'obstacle.png'
             }
-        })
-        ground_specs = object_specs.get('ground', {
-            'collision': 0,
-            'color': 'black',
-            'sprite': 'ground.png'
-        })
-        goal_specs = object_specs.get('goal', {
-            'collision': 1,
-            'color': 'green3',
-            'sprite': 'goal.png'
-        })
-        block_specs = object_specs.get('block', {
-            'collision': 2,
-            'color': 'blue3',
-            'sprite': 'block.png'
-        })
-        player_specs = object_specs.get('player', {
-            'collision': 4,
-            'color': 'orange3',
-            'sprite': 'player.png'
-        })
-        obstacle_specs = object_specs.get('obstacle', {
-            'collision': 8,
-            'color': 'red3',
-            'sprite': 'obstacle.png'
-        })
-        space_specs = env_specs.get('space', {
-            'gravity': {
+            )
+        space_specs = env_specs.get(
+            'space', {
+                'gravity': {
+                    'x': 0.0,
+                    'y': 0.0
+                },
+                'damping': 0.0,
+                'dt': 0.02,
+                'steps': 2,
+                'force_multiplier': 250.0
+            }
+            )
+        gravity_specs = space_specs.get(
+            'gravity', {
                 'x': 0.0,
                 'y': 0.0
-            },
-            'damping': 0.0,
-            'dt': 0.02,
-            'steps': 2,
-            'force_multiplier': 250.0
-        })
-        gravity_specs = space_specs.get('gravity', {
-            'x': 0.0,
-            'y': 0.0
-        })
-        reward_specs = env_specs.get('reward', {
-            'movement': -0.25,
-            'on_target': 5.0,
-            'off_target': -5.0,
-            'success': 10.0
-        })
+            }
+            )
+        reward_specs = env_specs.get(
+            'reward', {
+                'movement': -0.25,
+                'on_target': 5.0,
+                'off_target': -5.0,
+                'success': 10.0
+            }
+            )
 
         self.new_layout = layout_getter(layout_specs)
         self.layout = None

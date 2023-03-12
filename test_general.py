@@ -4,6 +4,8 @@ from PIL import Image
 path = r'C:\Users\malkoch\Downloads\Biqu_H2_Mount___Cover_-_Ender_3_CR10_4740250\images\Base_Cover_RevA01.png'
 
 gscale = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. "
+
+
 # gscale = '@%#*+=-:. '
 
 def get_average_l(image):

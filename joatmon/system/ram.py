@@ -458,9 +458,9 @@ class Process(BaseProcess):
         processes = []
         for process in Process.list():
             if (
-                process_name == process.get("name", None) or
-                (process.get("name", "").lower().endswith(".exe") and
-                 process.get("name", "")[:-4] == process_name)
+                    process_name == process.get("name", None) or
+                    (process.get("name", "").lower().endswith(".exe") and
+                     process.get("name", "")[:-4] == process_name)
             ):
                 processes.append(process)
 
@@ -824,10 +824,10 @@ class Worker(object):
             raise ProcessException("Can't read_bytes, process %s is not open" % self.process.pid)
 
         for offset, chunk_size in self.process.iter_region(
-            start_offset=start_offset,
-            end_offset=end_offset,
-            protect=protect,
-            optimizations=optimizations
+                start_offset=start_offset,
+                end_offset=end_offset,
+                protect=protect,
+                optimizations=optimizations
         ):
             bytes_array = b''
             current_offset = offset

@@ -3,12 +3,12 @@
 ---
 
 <span style="float:right;">[[source]](https://github.com/malkoch/joatmon/blob/master/joatmon/ai/policy.py#L20)</span>
+
 ### EpsilonGreedyPolicy
 
 ```python
 joatmon.ai.policy.EpsilonGreedyPolicy.joatmon.ai.policy.EpsilonGreedyPolicy(max_value=1.0, min_value=0.0, decay_steps=1)
 ```
-
 
 Epsilon Greedy
 
@@ -24,7 +24,6 @@ __Arguments__
 
 ### reset
 
-
 ```python
 EpsilonGreedyPolicy.reset(self)
 ```
@@ -34,7 +33,6 @@ EpsilonGreedyPolicy.reset(self)
 <span style="float:right;">[[source]](https://github.com/malkoch/joatmon/blob/master/joatmon/ai/policy.py#L40)</span>
 
 ### decay
-
 
 ```python
 EpsilonGreedyPolicy.decay(self)
@@ -46,10 +44,8 @@ EpsilonGreedyPolicy.decay(self)
 
 ### use_network
 
-
 ```python
 EpsilonGreedyPolicy.use_network(self)
 ```
-
 
 ---

@@ -1,13 +1,15 @@
 <span style="float:right;">[[source]](https://github.com/malkoch/joatmon/blob/master/joatmon/ai/core.py#L162)</span>
+
 ### CoreEnv
 
 ```python
 joatmon.ai.core.CoreEnv.joatmon.ai.core.CoreEnv()
 ```
 
-
-The abstract environment class that is used by all agents. This class has the exact same API that OpenAI Gym uses so that integrating
-with it is trivial. In contrast to the OpenAI Gym implementation, this class only defines the abstract methods without any actual implementation.
+The abstract environment class that is used by all agents. This class has the exact same API that OpenAI Gym uses so
+that integrating
+with it is trivial. In contrast to the OpenAI Gym implementation, this class only defines the abstract methods without
+any actual implementation.
 
 To implement your own environment, you need to define the following methods:
 
@@ -25,12 +27,9 @@ Refer to the [Gym documentation](https://gym.openai.com/docs/#environment).
 
 ### close
 
-
 ```python
 CoreEnv.close(self)
 ```
-
-
 
 Override in your subclass to perform any necessary cleanup.
 
@@ -43,12 +42,9 @@ garbage collected or when the program exits.
 
 ### reset
 
-
 ```python
 CoreEnv.reset(self)
 ```
-
-
 
 Resets the state of the environment and returns an initial observation.
 
@@ -62,12 +58,9 @@ __Returns__
 
 ### step
 
-
 ```python
 CoreEnv.step(self, action)
 ```
-
-
 
 Run one timestep of the environment's dynamics.
 
@@ -90,12 +83,9 @@ __Returns__
 
 ### seed
 
-
 ```python
 CoreEnv.seed(self, seed=None)
 ```
-
-
 
 set the seed
 
@@ -105,12 +95,9 @@ set the seed
 
 ### render
 
-
 ```python
 CoreEnv.render(self, mode='human')
 ```
-
-
 
 Renders the environment.
 

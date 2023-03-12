@@ -1,4 +1,5 @@
 <span style="float:right;">[[source]](https://github.com/malkoch/joatmon/blob/master/joatmon/environment/puzzle.py#L11)</span>
+
 ### Puzzle2048
 
 ```python
@@ -11,7 +12,6 @@ joatmon.environment.puzzle.Puzzle2048.joatmon.environment.puzzle.Puzzle2048(size
 
 ### close
 
-
 ```python
 Puzzle2048.close(self)
 ```
@@ -21,7 +21,6 @@ Puzzle2048.close(self)
 <span style="float:right;">[[source]](https://github.com/malkoch/joatmon/blob/master/joatmon/environment/puzzle.py#L181)</span>
 
 ### reset
-
 
 ```python
 Puzzle2048.reset(self)
@@ -33,7 +32,6 @@ Puzzle2048.reset(self)
 
 ### step
 
-
 ```python
 Puzzle2048.step(self, action)
 ```
@@ -44,7 +42,6 @@ Puzzle2048.step(self, action)
 
 ### seed
 
-
 ```python
 Puzzle2048.seed(self, seed=None)
 ```
@@ -54,7 +51,6 @@ Puzzle2048.seed(self, seed=None)
 <span style="float:right;">[[source]](https://github.com/malkoch/joatmon/blob/master/joatmon/environment/puzzle.py#L165)</span>
 
 ### render
-
 
 ```python
 Puzzle2048.render(self, mode='human')

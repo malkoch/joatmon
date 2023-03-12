@@ -3,6 +3,7 @@
 ---
 
 <span style="float:right;">[[source]](https://github.com/malkoch/joatmon/blob/master/joatmon/ai/callback.py#L80)</span>
+
 ### TrainLogger
 
 ```python
@@ -15,7 +16,6 @@ joatmon.ai.callback.TrainLogger.joatmon.ai.callback.TrainLogger(run_path, interv
 
 ### on_agent_begin
 
-
 ```python
 TrainLogger.on_agent_begin(self)
 ```
@@ -25,7 +25,6 @@ TrainLogger.on_agent_begin(self)
 <span style="float:right;">[[source]](https://github.com/malkoch/joatmon/blob/master/joatmon/ai/callback.py#L103)</span>
 
 ### on_episode_begin
-
 
 ```python
 TrainLogger.on_episode_begin(self)
@@ -37,7 +36,6 @@ TrainLogger.on_episode_begin(self)
 
 ### on_episode_end
 
-
 ```python
 TrainLogger.on_episode_end(self)
 ```
@@ -48,10 +46,8 @@ TrainLogger.on_episode_end(self)
 
 ### on_replay_end
 
-
 ```python
 TrainLogger.on_replay_end(self)
 ```
-
 
 ---

@@ -11,12 +11,12 @@
 All memories share a common API. This allows you to easily switch between different memories.
 
 <span style="float:right;">[[source]](https://github.com/malkoch/joatmon/blob/master/joatmon/ai/core.py#L35)</span>
+
 ### CoreMemory
 
 ```python
 joatmon.ai.core.CoreMemory.joatmon.ai.core.CoreMemory(buffer, batch_size)
 ```
-
 
 Abstract base class for all implemented memory.
 
@@ -33,12 +33,9 @@ To implement your own memory, you have to implement the following methods:
 
 ### remember
 
-
 ```python
 CoreMemory.remember(self, element)
 ```
-
-
 
 Remember the transaction.
 
@@ -54,17 +51,14 @@ __Arguments__
 
 ### sample
 
-
 ```python
 CoreMemory.sample(self)
 ```
-
-
 
 Sample an experience replay batch with size.
 
 __Returns__
 
 - __batch__ (abstract): Randomly selected batch
-from experience replay memory.
+  from experience replay memory.
 
