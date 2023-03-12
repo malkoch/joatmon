@@ -97,6 +97,7 @@ class Interpreter(Cmd):
         return stop
 
     def do_action(self, line):
+        # need to be able to process | character as well
         try:
             if line is None or line == '':
                 return False
