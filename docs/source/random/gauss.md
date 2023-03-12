@@ -3,12 +3,12 @@
 ---
 
 <span style="float:right;">[[source]](https://github.com/malkoch/joatmon/blob/master/joatmon/ai/random.py#L7)</span>
+
 ### GaussianRandom
 
 ```python
 joatmon.ai.random.GaussianRandom.joatmon.ai.random.GaussianRandom(mu=0.0, size=2, sigma=0.1, sigma_min=0.01, decay_steps=200000)
 ```
-
 
 Gaussian Noise
 
@@ -26,7 +26,6 @@ __Arguments__
 
 ### reset
 
-
 ```python
 GaussianRandom.reset(self)
 ```
@@ -36,7 +35,6 @@ GaussianRandom.reset(self)
 <span style="float:right;">[[source]](https://github.com/malkoch/joatmon/blob/master/joatmon/ai/random.py#L42)</span>
 
 ### decay
-
 
 ```python
 GaussianRandom.decay(self)
@@ -48,10 +46,8 @@ GaussianRandom.decay(self)
 
 ### sample
 
-
 ```python
 GaussianRandom.sample(self)
 ```
-
 
 ---

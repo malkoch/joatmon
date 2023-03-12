@@ -3,8 +3,8 @@ import numpy as np
 from .. import functional as f
 from ..core import (
     Module,
-    Tensor,
-    Parameter
+    Parameter,
+    Tensor
 )
 
 __all__ = ['Conv']

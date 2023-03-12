@@ -1,7 +1,10 @@
 import asyncio
 
 from joatmon import context
-from joatmon.orm.document import create_new_type, Document
+from joatmon.orm.document import (
+    create_new_type,
+    Document
+)
 from joatmon.orm.field import Field
 from joatmon.orm.meta import Meta
 from joatmon.plugin.core import register

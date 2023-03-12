@@ -16,12 +16,12 @@
 All callbacks share a common API. This allows you to use different callbacks.
 
 <span style="float:right;">[[source]](https://github.com/malkoch/joatmon/blob/master/joatmon/ai/core.py#L312)</span>
+
 ### CoreModel
 
 ```python
 joatmon.ai.core.CoreModel.joatmon.ai.core.CoreModel()
 ```
-
 
 Abstract base class for all implemented nn.
 
@@ -41,12 +41,9 @@ To implement your own nn, you have to implement the following methods:
 
 ### load
 
-
 ```python
 CoreModel.load(self)
 ```
-
-
 
 load
 
@@ -56,12 +53,9 @@ load
 
 ### save
 
-
 ```python
 CoreModel.save(self)
 ```
-
-
 
 save
 
@@ -71,12 +65,9 @@ save
 
 ### predict
 
-
 ```python
 CoreModel.predict(self)
 ```
-
-
 
 Get the action for given state.
 
@@ -96,12 +87,9 @@ __Returns__
 
 ### train
 
-
 ```python
 CoreModel.train(self)
 ```
-
-
 
 Train the nn with given batch.
 
@@ -115,12 +103,9 @@ __Arguments__
 
 ### evaluate
 
-
 ```python
 CoreModel.evaluate(self)
 ```
-
-
 
 evaluate
 

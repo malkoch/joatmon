@@ -14,7 +14,10 @@ import requests
 
 from joatmon.assistant.task import BaseTask
 from joatmon.orm.constraint import UniqueConstraint
-from joatmon.orm.document import create_new_type, Document
+from joatmon.orm.document import (
+    create_new_type,
+    Document
+)
 from joatmon.orm.field import Field
 from joatmon.orm.index import Index
 from joatmon.orm.meta import Meta

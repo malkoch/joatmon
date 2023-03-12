@@ -41,7 +41,7 @@ class TilesEnv(CoreEnv):
         for y in range(self.size):
             line = ''
             for x in range(self.size):
-                line += '{:2d} '.format(self.tiles[y][x])\
+                line += '{:2d} '.format(self.tiles[y][x]) \
                     if self.tiles[y][x] != 0 else '   '
             to_print += line + '\n'
         print(to_print)

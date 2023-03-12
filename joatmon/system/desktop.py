@@ -108,8 +108,10 @@ def _check_for_four_int_or_float_tuple(arg):
 
 
 class Rectangle(object):
-    def __init__(self, left=0, top=0, width=0, height=0,
-                 enable_float=False, read_only=False, on_change=None, on_read=None):
+    def __init__(
+            self, left=0, top=0, width=0, height=0,
+            enable_float=False, read_only=False, on_change=None, on_read=None
+            ):
         _check_for_int_or_float(width)
         _check_for_int_or_float(height)
         _check_for_int_or_float(left)
@@ -138,10 +140,10 @@ class Rectangle(object):
             self._top = int(top)
 
     def __repr__(self):
-        return f'{self.__class__.__name__}'\
-               f'(left={self._left}, '\
-               f'top={self._top}, '\
-               f'width={self._width}, '\
+        return f'{self.__class__.__name__}' \
+               f'(left={self._left}, ' \
+               f'top={self._top}, ' \
+               f'width={self._width}, ' \
                f'height={self._height})'
 
     def __str__(self):
@@ -635,10 +637,10 @@ class Rectangle(object):
         _check_for_four_int_or_float_tuple(value)
         new_left, new_top, new_width, new_height = value
         if (
-            (new_left != self._left) or
-            (new_top != self._top) or
-            (new_width != self._width) or
-            (new_height != self._height)
+                (new_left != self._left) or
+                (new_top != self._top) or
+                (new_width != self._width) or
+                (new_height != self._height)
         ):
             original_left = self._left
             original_top = self._top
@@ -814,10 +816,10 @@ class Rectangle(object):
     def __contains__(self, value):
         if isinstance(value, Rectangle):
             return (
-                value.top_left in self and
-                value.top_right in self and
-                value.bottom_left in self and
-                value.bottom_right in self
+                    value.top_left in self and
+                    value.top_right in self and
+                    value.bottom_left in self and
+                    value.bottom_right in self
             )
 
         try:
@@ -827,7 +829,8 @@ class Rectangle(object):
             raise RectangleException(
                 f'in <Rect> requires an (x, y) tuple, '
                 f'a (left, top, width, height) tuple, or a Rect object as '
-                f'left operand, not {value.__class__.__name__}')
+                f'left operand, not {value.__class__.__name__}'
+            )
 
         if len(value) == 2:
             _check_for_two_int_or_float_tuple(value)
@@ -837,24 +840,25 @@ class Rectangle(object):
             _check_for_four_int_or_float_tuple(value)
             left, top, width, height = value
             return (
-                (left, top) in self and
-                (left + width, top) in self and
-                (left, top + height) in self and
-                (left + width, top + height) in self
+                    (left, top) in self and
+                    (left + width, top) in self and
+                    (left, top + height) in self and
+                    (left + width, top + height) in self
             )
         else:
             raise RectangleException(
                 f'in <Rect> requires an (x, y) tuple, a'
                 f' (left, top, width, height) tuple, or a Rect object as '
-                f'left operand, not {value.__class__.__name__}')
+                f'left operand, not {value.__class__.__name__}'
+            )
 
     def collide(self, value):
         if isinstance(value, Rectangle):
             return (
-                value.top_left in self or
-                value.top_right in self or
-                value.bottom_left in self or
-                value.bottom_right in self
+                    value.top_left in self or
+                    value.top_right in self or
+                    value.bottom_left in self or
+                    value.bottom_right in self
             )
 
         try:
@@ -864,7 +868,8 @@ class Rectangle(object):
             raise RectangleException(
                 f'in <Rect> requires an (x, y) tuple, a '
                 f'(left, top, width, height) tuple, or a Rect object as '
-                f'left operand, not {value.__class__.__name__}')
+                f'left operand, not {value.__class__.__name__}'
+            )
 
         if len(value) == 2:
             _check_for_two_int_or_float_tuple(value)
@@ -880,7 +885,8 @@ class Rectangle(object):
             raise RectangleException(
                 f'in <Rect> requires an (x, y) tuple, '
                 f'a (left, top, width, height) tuple, or a Rect object as '
-                f'left operand, not {value.__class__.__name__}')
+                f'left operand, not {value.__class__.__name__}'
+            )
 
     def __eq__(self, other):
         if isinstance(other, Rectangle):
@@ -1024,11 +1030,11 @@ class Window:
         r = get_window_rect(self._h_wnd)
         width = r.right - r.left
         height = r.bottom - r.top
-        return f'<{self.__class__.__name__} '\
-               f'left="{r.left}", '\
-               f'top="{r.top}", '\
-               f'width="{width}", '\
-               f'height="{height}", '\
+        return f'<{self.__class__.__name__} ' \
+               f'left="{r.left}", ' \
+               f'top="{r.top}", ' \
+               f'width="{width}", ' \
+               f'height="{height}", ' \
                f'title="{self.title}">'
 
     def __repr__(self):

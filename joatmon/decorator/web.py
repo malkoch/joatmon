@@ -2,7 +2,10 @@ import functools
 import inspect
 
 from joatmon import context
-from joatmon.core.utility import to_case, to_enumerable
+from joatmon.core.utility import (
+    to_case,
+    to_enumerable
+)
 
 
 def get(func):

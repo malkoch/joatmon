@@ -3,8 +3,16 @@ import typing
 from datetime import datetime
 from uuid import UUID
 
-from joatmon.core.utility import current_time, empty_object_id, get_converter, new_object_id
-from joatmon.orm.constraint import Constraint, UniqueConstraint
+from joatmon.core.utility import (
+    current_time,
+    empty_object_id,
+    get_converter,
+    new_object_id
+)
+from joatmon.orm.constraint import (
+    Constraint,
+    UniqueConstraint
+)
 from joatmon.orm.field import Field
 from joatmon.orm.index import Index
 

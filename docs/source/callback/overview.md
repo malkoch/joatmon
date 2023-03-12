@@ -16,12 +16,12 @@
 All callbacks share a common API. This allows you to use different callbacks.
 
 <span style="float:right;">[[source]](https://github.com/malkoch/joatmon/blob/master/joatmon/ai/core.py#L92)</span>
+
 ### CoreCallback
 
 ```python
 joatmon.ai.core.CoreCallback.joatmon.ai.core.CoreCallback()
 ```
-
 
 Abstract base class for all implemented callback.
 
@@ -44,12 +44,9 @@ To implement your own callback, you have to implement the following methods:
 
 ### on_action_begin
 
-
 ```python
 CoreCallback.on_action_begin(self)
 ```
-
-
 
 Called at beginning of each agent action
 
@@ -59,12 +56,9 @@ Called at beginning of each agent action
 
 ### on_action_end
 
-
 ```python
 CoreCallback.on_action_end(self)
 ```
-
-
 
 Called at end of each agent action
 
@@ -74,12 +68,9 @@ Called at end of each agent action
 
 ### on_agent_begin
 
-
 ```python
 CoreCallback.on_agent_begin(self)
 ```
-
-
 
 Called at beginning of each agent play
 
@@ -89,12 +80,9 @@ Called at beginning of each agent play
 
 ### on_agent_end
 
-
 ```python
 CoreCallback.on_agent_end(self)
 ```
-
-
 
 Called at end of each agent play
 
@@ -104,12 +92,9 @@ Called at end of each agent play
 
 ### on_episode_begin
 
-
 ```python
 CoreCallback.on_episode_begin(self)
 ```
-
-
 
 Called at beginning of each environment episode
 
@@ -119,12 +104,9 @@ Called at beginning of each environment episode
 
 ### on_episode_end
 
-
 ```python
 CoreCallback.on_episode_end(self)
 ```
-
-
 
 Called at end of each environment episode
 
@@ -134,12 +116,9 @@ Called at end of each environment episode
 
 ### on_replay_begin
 
-
 ```python
 CoreCallback.on_replay_begin(self)
 ```
-
-
 
 Called at beginning of each nn replay
 
@@ -149,12 +128,9 @@ Called at beginning of each nn replay
 
 ### on_replay_end
 
-
 ```python
 CoreCallback.on_replay_end(self)
 ```
-
-
 
 Called at end of each nn replay
 

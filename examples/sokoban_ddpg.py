@@ -150,29 +150,35 @@ class DDPGTrainer:
 
     def train(self, batch_size=32, max_action=50, max_episode=120, warmup=0, replay_interval=4, update_interval=1, test_interval=1000):
         total_steps = 0
-        self.callbacks.on_agent_begin(**{
-            'agent_headers': ['episode_number', 'action_number', 'episode_reward'],
-            'network_headers': ['actor_loss', 'critic_loss', 'critic_extra_loss']
-        })
+        self.callbacks.on_agent_begin(
+            **{
+                'agent_headers': ['episode_number', 'action_number', 'episode_reward'],
+                'network_headers': ['actor_loss', 'critic_loss', 'critic_extra_loss']
+            }
+            )
         for episode_number in easy_range(1, max_episode):
             episode_reward = 0
             state = self.environment.reset()
             state = self.processor.process_state(state)
-            self.callbacks.on_episode_begin(**{
-                'episode_number': episode_number,
-                'state': state
-            })
+            self.callbacks.on_episode_begin(
+                **{
+                    'episode_number': episode_number,
+                    'state': state
+                }
+                )
 
             goal_state = self.final_state()
 
             for action_number in easy_range(1, max_action):
                 action = self.get_action(state, goal_state)
-                self.callbacks.on_action_begin(**{
-                    'episode_number': episode_number,
-                    'action_number': action_number,
-                    'state': state,
-                    'action': action
-                })
+                self.callbacks.on_action_begin(
+                    **{
+                        'episode_number': episode_number,
+                        'action_number': action_number,
+                        'state': state,
+                        'action': action
+                    }
+                    )
 
                 if hasattr(self.environment, 'get_step'):
                     step = self.environment.get_step(action, 'continuous')
@@ -183,15 +189,17 @@ class DDPGTrainer:
                 if action_number >= max_action:
                     terminal = True
 
-                self.callbacks.on_action_end(**{
-                    'episode_number': episode_number,
-                    'action_number': action_number,
-                    'state': state,
-                    'action': action,
-                    'reward': reward,
-                    'terminal': terminal,
-                    'next_state': next_state
-                })
+                self.callbacks.on_action_end(
+                    **{
+                        'episode_number': episode_number,
+                        'action_number': action_number,
+                        'state': state,
+                        'action': action,
+                        'reward': reward,
+                        'terminal': terminal,
+                        'next_state': next_state
+                    }
+                    )
 
                 processed_state = np.concatenate((state, goal_state), axis=2) if self.her else state
                 clipped_reward = np.clip(reward - 0.25, -1, 1)
@@ -205,27 +213,33 @@ class DDPGTrainer:
                         mini_batch = self.memory.sample()
                         batch = self.processor.process_batch(mini_batch)
                         loss = self.model.train(batch, ((total_steps - warmup) // replay_interval) % update_interval == 0)
-                        self.callbacks.on_replay_end(**{
-                            'loss': loss
-                        })
+                        self.callbacks.on_replay_end(
+                            **{
+                                'loss': loss
+                            }
+                            )
 
                 episode_reward += reward
                 state = deepcopy(next_state)
                 total_steps += 1
 
                 if terminal:
-                    self.callbacks.on_episode_end(**{
-                        'episode_number': episode_number,
-                        'action_number': action_number,
-                        'episode_reward': episode_reward
-                    })
+                    self.callbacks.on_episode_end(
+                        **{
+                            'episode_number': episode_number,
+                            'action_number': action_number,
+                            'episode_reward': episode_reward
+                        }
+                        )
                     gc.collect()
                     break
 
         self.environment.close()
-        self.callbacks.on_agent_end(**{
-            'total_steps': total_steps
-        })
+        self.callbacks.on_agent_end(
+            **{
+                'total_steps': total_steps
+            }
+            )
 
     def evaluate(self, max_action=50, max_episode=12):
         total_steps = 0
@@ -234,21 +248,25 @@ class DDPGTrainer:
             episode_reward = 0
             state = self.environment.reset()
             state = self.processor.process_state(state)
-            self.callbacks.on_episode_begin(**{
-                'episode_number': episode_number,
-                'state': state
-            })
+            self.callbacks.on_episode_begin(
+                **{
+                    'episode_number': episode_number,
+                    'state': state
+                }
+                )
 
             goal_state = self.final_state()
 
             for action_number in easy_range(1, max_action):
                 action = self.get_action(state, goal_state)
-                self.callbacks.on_action_begin(**{
-                    'episode_number': episode_number,
-                    'action_number': action_number,
-                    'state': state,
-                    'action': action
-                })
+                self.callbacks.on_action_begin(
+                    **{
+                        'episode_number': episode_number,
+                        'action_number': action_number,
+                        'state': state,
+                        'action': action
+                    }
+                    )
 
                 if hasattr(self.environment, 'get_step'):
                     step = self.environment.get_step(action, 'continuous')
@@ -259,49 +277,59 @@ class DDPGTrainer:
                 if action_number >= max_action:
                     terminal = True
 
-                self.callbacks.on_action_end(**{
-                    'episode_number': episode_number,
-                    'action_number': action_number,
-                    'state': state,
-                    'action': action,
-                    'reward': reward,
-                    'terminal': terminal,
-                    'next_state': next_state
-                })
+                self.callbacks.on_action_end(
+                    **{
+                        'episode_number': episode_number,
+                        'action_number': action_number,
+                        'state': state,
+                        'action': action,
+                        'reward': reward,
+                        'terminal': terminal,
+                        'next_state': next_state
+                    }
+                    )
 
                 episode_reward += reward
                 state = deepcopy(next_state)
                 total_steps += 1
 
                 if terminal:
-                    self.callbacks.on_episode_end(**{
-                        'episode_number': episode_number,
-                        'action_number': action_number,
-                        'episode_reward': episode_reward
-                    })
+                    self.callbacks.on_episode_end(
+                        **{
+                            'episode_number': episode_number,
+                            'action_number': action_number,
+                            'episode_reward': episode_reward
+                        }
+                        )
 
                     gc.collect()
                     break
 
         self.environment.close()
-        self.callbacks.on_agent_end(**{
-            'total_steps': total_steps
-        })
+        self.callbacks.on_agent_end(
+            **{
+                'total_steps': total_steps
+            }
+            )
 
 
 def create_env():
     try:
-        environment = gym.make('Sokoban-Medium-v0', **{
-            'xmls': 'game/assets/sokoban/xmls/',
-            'sprites': 'game/assets/sokoban/sprites/'
-        })
+        environment = gym.make(
+            'Sokoban-Medium-v0', **{
+                'xmls': 'game/assets/sokoban/xmls/',
+                'sprites': 'game/assets/sokoban/sprites/'
+            }
+            )
     except Exception as ex:
         print(str(ex))
-        environment = SokobanEnv(**{
-            'xml': 'medium.xml',
-            'xmls': 'game/assets/sokoban/xmls/',
-            'sprites': 'game/assets/sokoban/sprites/'
-        })
+        environment = SokobanEnv(
+            **{
+                'xml': 'medium.xml',
+                'xmls': 'game/assets/sokoban/xmls/',
+                'sprites': 'game/assets/sokoban/sprites/'
+            }
+            )
     return environment
 
 
@@ -318,11 +346,13 @@ def run():
 
     random_process = RandomProcess(decay_steps=1200000)
     environment = create_env()
-    callbacks = CallbackList([
-        TrainLogger(run_path=run_path, interval=100),
-        Loader(model=model, run_path=run_path, interval=1000),
-        Renderer(environment=environment)
-    ])
+    callbacks = CallbackList(
+        [
+            TrainLogger(run_path=run_path, interval=100),
+            Loader(model=model, run_path=run_path, interval=1000),
+            Renderer(environment=environment)
+        ]
+    )
     agent = DDPGTrainer(
         environment=environment,
         memory=memory,
@@ -335,11 +365,13 @@ def run():
 
     random_process = RandomProcess(sigma=0.0, sigma_min=0.0, decay_steps=1200000)
     environment = create_env()
-    callbacks = CallbackList([
-        ValidationLogger(run_path=run_path, interval=1),
-        Loader(model=model, run_path=run_path, interval=1000),
-        Renderer(environment=environment),
-    ])
+    callbacks = CallbackList(
+        [
+            ValidationLogger(run_path=run_path, interval=1),
+            Loader(model=model, run_path=run_path, interval=1000),
+            Renderer(environment=environment),
+        ]
+    )
     agent = DDPGTrainer(
         environment=environment,
         memory=memory,
