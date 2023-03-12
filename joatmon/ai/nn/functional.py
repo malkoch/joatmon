@@ -286,13 +286,14 @@ def clone_backward(gradient: Tensor, inp: Tensor):
     _set_grad(inp, gradient.data * engine.ones_like(inp.data))
 
 
-def relu_backward(gradient: Tensor, inp: Tensor):
+def relu_backward(gradient: Tensor, inp: Tensor, alpha: float):
     _check_tensors(inp)
     engine = _get_engine(inp)
 
-    out = engine.zeros_like(inp.data)
-    out[inp.data <= 0] = 0
-    out[inp.data > 0] = 1
+    out = engine.where(inp.data > 0, 1, alpha)
+
+    # out[inp.data <= 0] = 0
+    # out[inp.data > 0] = 1
 
     _set_grad(inp, gradient.data * out)
 
@@ -1194,15 +1195,16 @@ def gpu(inp) -> 'Tensor':
     return inp
 
 
-def relu(inp) -> 'Tensor':
+def relu(inp, alpha) -> 'Tensor':
     _check_tensors(inp)
 
     arr = inp.data
-    arr[arr <= 0] = 0
+    # arr[arr <= 0] = 0
+    arr = _get_engine().where(arr > 0, arr, arr * alpha)
     return _create_tensor(
         inp,
         data=arr,
-        func=wrapped_partial(relu_backward, inp=inp)
+        func=wrapped_partial(relu_backward, inp=inp, alpha=alpha)
     )
 
 

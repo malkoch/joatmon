@@ -5,10 +5,13 @@ __all__ = ['ReLU']
 
 
 class ReLU(Module):
-    def __init__(self):
+    def __init__(self, alpha=0):
         super(ReLU, self).__init__()
+
+        self.alpha = alpha
 
     def forward(self, inp):
         return f.relu(
-            inp=inp
+            inp=inp,
+            alpha=self.alpha
         )
