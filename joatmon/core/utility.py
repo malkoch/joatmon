@@ -133,10 +133,23 @@ def to_case(case, value, key=None, convert_value=False):
     return ret
 
 
+def get_function_args(func, *args):
+    if get_class_that_defined_method(func) is None:
+        return args
+    else:
+        # need to check if the function is static / class method
+        # if static no need to remove first args
+        return args[1:]
+
+
+def get_function_kwargs(func, **kwargs):
+    return kwargs
+
+
 def to_hash(func, *args, **kwargs):
-    args_str = ", ".join([f"{arg}" for arg in args])
-    kwargs_str = ", ".join([f"{k}={v}" for k, v in kwargs.items()])
-    arg_kwarg_str = ', '.join([args_str, kwargs_str])
+    args_str = ", ".join([f"{arg}" for arg in get_function_args(func, *args)])
+    kwargs_str = ", ".join([f"{k}={v}" for k, v in get_function_kwargs(func, **kwargs).items()])
+    arg_kwarg_str = ', '.join(filter(lambda x: x != '', [args_str, kwargs_str]))
     return f'{func.__module__}.{func.__qualname__}({arg_kwarg_str})'
 
 

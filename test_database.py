@@ -8,6 +8,7 @@ from joatmon.orm.document import (
 from joatmon.orm.field import Field
 from joatmon.orm.meta import Meta
 from joatmon.plugin.core import register
+from joatmon.plugin.database.couchbase import CouchBaseDatabase
 from joatmon.plugin.database.elastic import ElasticDatabase
 from joatmon.plugin.user.core import UserPlugin
 
@@ -38,11 +39,12 @@ c = CTX()
 context.set_ctx(c)
 
 register(UserPlugin, 'user_plugin', 'user')
-register(ElasticDatabase, 'elastic', 'http://localhost:9200', 'user_plugin')
+# register(ElasticDatabase, 'elastic', 'http://localhost:9200', 'user_plugin')
+register(CouchBaseDatabase, 'couchbase', 'couchbase://localhost', 'ToG', '_default', 'malkoch', 'malkoch', 'user_plugin')
 
 
 async def test():
-    e = context.get_value('elastic')
+    e = context.get_value('couchbase')
     await e.insert(
         Log(
             **{
