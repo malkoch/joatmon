@@ -6,7 +6,11 @@ import time
 import traceback
 
 from joatmon import context
-from joatmon.core.utility import to_enumerable
+from joatmon.core.utility import (
+    get_function_args,
+    get_function_kwargs,
+    to_enumerable
+)
 
 
 def log(logger, on_begin=None, on_success=None, on_error=None):
@@ -18,8 +22,8 @@ def log(logger, on_begin=None, on_success=None, on_error=None):
             {
                 'function': f.__qualname__,
                 'module': f.__module__,
-                'args': to_enumerable(args, string=True),
-                'kwargs': to_enumerable(kwargs, string=True)
+                'args': to_enumerable(get_function_args(f, *args), string=True),
+                'kwargs': to_enumerable(get_function_kwargs(f, **kwargs), string=True)
             }
         )
 
@@ -32,8 +36,8 @@ def log(logger, on_begin=None, on_success=None, on_error=None):
                 'result': to_enumerable(result, string=True),
                 'function': f.__qualname__,
                 'module': f.__module__,
-                'args': to_enumerable(args, string=True),
-                'kwargs': to_enumerable(kwargs, string=True)
+                'args': to_enumerable(get_function_args(f, *args), string=True),
+                'kwargs': to_enumerable(get_function_kwargs(f, **kwargs), string=True)
             }
         )
 
@@ -52,8 +56,8 @@ def log(logger, on_begin=None, on_success=None, on_error=None):
                 },
                 'function': f.__qualname__,
                 'module': f.__module__,
-                'args': to_enumerable(args, string=True),
-                'kwargs': to_enumerable(kwargs, string=True)
+                'args': to_enumerable(get_function_args(f, *args), string=True),
+                'kwargs': to_enumerable(get_function_kwargs(f, **kwargs), string=True)
             }
         )
 
