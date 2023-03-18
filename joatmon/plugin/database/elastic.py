@@ -23,22 +23,22 @@ class ElasticDatabase(DatabasePlugin):
             yield doc
 
     async def read(self, document, query):
-        raise NotImplementedError
+        ...
 
     async def update(self, document, query, update):
-        raise NotImplementedError
+        ...
 
     async def delete(self, document, query):
-        raise NotImplementedError
+        ...
 
     async def start(self):
-        raise NotImplementedError
+        ...
 
     async def commit(self):
-        raise NotImplementedError
+        ...
 
     async def abort(self):
-        raise NotImplementedError
+        ...
 
     async def end(self):
-        raise NotImplementedError
+        ...

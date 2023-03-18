@@ -1,3 +1,5 @@
+from joatmon.core.utility import first_async
+
 from joatmon import context
 from joatmon.plugin.logger.core import LoggerPlugin
 
@@ -11,4 +13,4 @@ class DatabaseLogger(LoggerPlugin):
 
     async def _write(self, log: dict):
         database = context.get_value(self.database)
-        await database.insert(self.cls(**log))
+        await first_async(database.insert(self.cls, log))

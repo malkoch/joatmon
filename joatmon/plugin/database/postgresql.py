@@ -22,6 +22,7 @@ class PostgreSQLDatabase(DatabasePlugin):
         self.connection.autocommit = True
 
     async def _check_collection(self, collection):
+        # for one time only need to check indexes, constraints, default values, table schema as well
         cursor = self.connection.cursor()
 
         cursor.execute(f'select * from information_schema.tables where table_name = \'{collection.__collection__}\'')
