@@ -24,7 +24,26 @@ class Document(Serializable):  # need to have copy and deepcopy functions as wel
         field = self.__metaclass__.fields(self.__metaclass__)[key]
         self.__dict__[key] = get_converter(field.dtype)(value)
 
+    def __len__(self):
+        return len(self.__dict__.keys())
+
+    def __iter__(self):
+        for k in self.__dict__.keys():
+            yield k, getattr(self, k, None)
+
+    def __getitem__(self, item):
+        return getattr(self, item, None)
+
+    def keys(self):
+        return list(self.__dict__.keys())
+
+    def values(self):
+        return list(map(lambda x: getattr(self, x, None), self.__dict__.keys()))
+
     def validate(self):
+        if not self.__metaclass__.structured:
+            raise ValueError('unstructured document cannot be validated')
+
         ret = {}
         for name, field in self.__metaclass__.fields(self.__metaclass__).items():
             value = getattr(self, name, None)
@@ -40,10 +59,7 @@ class Document(Serializable):  # need to have copy and deepcopy functions as wel
                 raise ValueError(f'field {name} is not nullable')
 
             if isinstance(field.dtype, (tuple, list)):
-                if ((value is not None and field.nullable) or not field.nullable) and not isinstance(
-                        value,
-                        field.dtype
-                ):
+                if ((value is not None and field.nullable) or not field.nullable) and not isinstance(value,field.dtype):
                     raise ValueError(
                         f'field {name} has to be one of the following {field.dtype} not {type(value).__name__}'
                     )
