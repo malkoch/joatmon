@@ -25,10 +25,11 @@ class CouchBaseDatabase(DatabasePlugin):
         self.db = Cluster(uri, ClusterOptions(auth)).bucket(bucket).scope(scope)
 
     async def _create_collection(self, collection):
-        self.db.query(f'CREATE COLLECTION `{self.bucket}`.{self.scope}.{collection.__collection__} if not exits ')
-
-    async def _get_collection(self, collection):
-        return self.db.collection(collection)
+        self.db.query(
+            f'CREATE COLLECTION `{self.bucket}`.{self.scope}.{collection.__collection__} '
+            f'if not exists',
+            QueryOptions(scan_consistency=QueryScanConsistency.REQUEST_PLUS)
+        ).execute()
 
     async def insert(self, document, *docs):
         for doc in docs:
@@ -60,6 +61,8 @@ class CouchBaseDatabase(DatabasePlugin):
             yield document(**r[document.__metaclass__.__collection__])
 
     async def update(self, document, query, update):
+        await self._create_collection(document.__metaclass__)
+
         query_values = 'and '.join([f'`{k}` = $query_{k}' for k, v in query.items()])
         update_values = ', '.join([f'`{k}` = $update_{k}' for k, v in update.items()])
 
@@ -74,6 +77,8 @@ class CouchBaseDatabase(DatabasePlugin):
         ).execute()
 
     async def delete(self, document, query):
+        await self._create_collection(document.__metaclass__)
+
         values = 'and '.join([f'`{k}` = ${k}' for k, v in query.items()])
         self.db.query(
             f'delete from `{self.bucket}`.{self.scope}.{document.__metaclass__.__collection__} '
@@ -82,13 +87,13 @@ class CouchBaseDatabase(DatabasePlugin):
         ).execute()
 
     async def start(self):
-        raise NotImplementedError
+        ...
 
     async def commit(self):
-        raise NotImplementedError
+        ...
 
     async def abort(self):
-        raise NotImplementedError
+        ...
 
     async def end(self):
-        raise NotImplementedError
+        ...
