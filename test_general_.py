@@ -68,37 +68,6 @@ sl = StructuredLog(**{'level': '1', 'ip': '1', 'function': '', 'module': '', 'la
 ul = UnStructuredLog(**{'object_id': new_object_id(), 'level': '1', 'ip': '1', 'function': '', 'module': '', 'language': '', 'args': (), 'kwargs': {}})
 
 
-def test_args(*args):
-    for arg in args:
-        print(arg)
-
-
-def test_kwargs(**kwargs):
-    for kwarg in kwargs.items():
-        print(kwarg)
-
-
-def create_object(d):
-    t = type('new_type', (), {})
-    o = t()
-    for k, v in d.items():
-        setattr(o, k, v)
-    return o
-
-
-# print(create_object({'level': '1', 'ip': '1', 'function': '', 'module': '', 'language': '', 'args': (), 'kwargs': {}}))
-
-
-# test_args(*ul)
-# print()
-# test_args(*sl)
-# print()
-# test_kwargs(**ul)
-# print()
-# test_kwargs(**sl)
-# print()
-
-
 class CTX:
     ...
 
@@ -128,24 +97,24 @@ async def test():
     # document = await first_async(context.get_value('elastic').read(UnStructuredLog, {'object_id': document.object_id}))
     # await context.get_value('elastic').delete(UnStructuredLog, {'object_id': document.object_id})
 
-    # document = await first_async(context.get_value('couchbase').insert(UnStructuredLog, dict(**ul)))
-    # document = await first_async(context.get_value('couchbase').read(UnStructuredLog, {'object_id': document.object_id}))
-    # document.level = '2'
-    # await context.get_value('couchbase').update(UnStructuredLog, {'object_id': document.object_id}, document)
-    # document = await first_async(context.get_value('couchbase').read(UnStructuredLog, {'object_id': document.object_id}))
-    # await context.get_value('couchbase').delete(UnStructuredLog, {'object_id': document.object_id})
-
-    document = await first_async(context.get_value('postgresql').insert(StructuredLog, dict(**sl)))
-    document = await first_async(context.get_value('postgresql').read(StructuredLog, {'object_id': document.object_id}))
+    document = await first_async(context.get_value('couchbase').insert(UnStructuredLog, dict(**ul)))
+    document = await first_async(context.get_value('couchbase').read(UnStructuredLog, {'object_id': document.object_id}))
     document.level = '2'
-    await context.get_value('postgresql').update(StructuredLog, {'object_id': document.object_id}, document)
-    document = await first_async(context.get_value('postgresql').read(StructuredLog, {'object_id': document.object_id}))
-    await context.get_value('postgresql').delete(StructuredLog, {'object_id': document.object_id})
-    document = await first_async(context.get_value('postgresql').read(StructuredLog, {'object_id': document.object_id}))
+    await context.get_value('couchbase').update(UnStructuredLog, {'object_id': document.object_id}, document)
+    document = await first_async(context.get_value('couchbase').read(UnStructuredLog, {'object_id': document.object_id}))
+    await context.get_value('couchbase').delete(UnStructuredLog, {'object_id': document.object_id})
 
-    # await context.get_value('postgresql').delete(StructuredLog, {})
-    async for document in context.get_value('postgresql').read(StructuredLog, {}):
-        print(document)
+    # document = await first_async(context.get_value('postgresql').insert(StructuredLog, dict(**sl)))
+    # document = await first_async(context.get_value('postgresql').read(StructuredLog, {'object_id': document.object_id}))
+    # document.level = '2'
+    # await context.get_value('postgresql').update(StructuredLog, {'object_id': document.object_id}, document)
+    # document = await first_async(context.get_value('postgresql').read(StructuredLog, {'object_id': document.object_id}))
+    # await context.get_value('postgresql').delete(StructuredLog, {'object_id': document.object_id})
+    # document = await first_async(context.get_value('postgresql').read(StructuredLog, {'object_id': document.object_id}))
+
+    # # await context.get_value('postgresql').delete(StructuredLog, {})
+    # async for document in context.get_value('postgresql').read(StructuredLog, {}):
+    #     print(document)
 
 
 asyncio.run(test())
