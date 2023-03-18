@@ -272,7 +272,7 @@ def get_converter(kind: type):
         if value is None:
             return value
 
-        if isinstance(value, tuple):
+        if isinstance(value, (tuple, list)):
             ret = []
             for v in value:
                 ret.append(to_enumerable(v))
@@ -338,8 +338,6 @@ def first(items):
         iterable = iter(items)
         first_item = next(iterable)
         return first_item
-    except TypeError:
-        return None
     except StopIteration:
         return None
 
@@ -349,8 +347,6 @@ async def first_async(items):
         iterable = aiter(items)
         first_item = await anext(iterable)
         return first_item
-    except TypeError:
-        return None
     except StopAsyncIteration:
         return None
 
@@ -359,16 +355,12 @@ def single(items):
     try:
         iterable = iter(items)
         first_item = next(iterable)
-    except TypeError:
-        return None
     except StopIteration:
         return None
 
     try:
         next(iterable)
         return None
-    except TypeError:
-        return first_item
     except StopIteration:
         return first_item
 
@@ -377,16 +369,12 @@ async def single_async(items):
     try:
         iterable = aiter(items)
         first_item = await anext(iterable)
-    except TypeError:
-        return None
     except StopAsyncIteration:
         return None
 
     try:
         await anext(iterable)
         return None
-    except TypeError:
-        return first_item
     except StopAsyncIteration:
         return first_item
 

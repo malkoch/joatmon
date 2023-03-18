@@ -17,38 +17,26 @@ class DatabasePlugin(Plugin):
 
         return self
 
-    async def drop_database(self):
-        ...
+    async def insert(self, document, *docs):
+        raise NotImplementedError
 
-    async def drop_collection(self, collection):
-        ...
+    async def read(self, document, query):
+        raise NotImplementedError
 
-    async def insert_raw(self, document):
-        ...
+    async def update(self, document, query, update):
+        raise NotImplementedError
 
-    async def insert(self, *documents):
-        ...
-
-    async def read(self, document):
-        ...
-
-    async def update_raw(self, document):
-        ...
-
-    async def update(self, *documents):
-        ...
-
-    async def delete(self):
-        ...
+    async def delete(self, document, query):
+        raise NotImplementedError
 
     async def start(self):
-        ...
+        raise NotImplementedError
 
     async def commit(self):
-        ...
+        raise NotImplementedError
 
     async def abort(self):
-        ...
+        raise NotImplementedError
 
     async def end(self):
-        ...
+        raise NotImplementedError
