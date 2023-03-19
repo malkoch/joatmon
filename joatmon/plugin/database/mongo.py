@@ -38,8 +38,6 @@ class MongoDatabase(DatabasePlugin):
             collection = await self._get_collection(document.__metaclass__.__collection__)
             collection.insert_one(dict(**doc), session=self.session)
 
-            yield document(**doc)
-
     async def read(self, document, query):
         collection = await self._get_collection(document.__metaclass__.__collection__)
         result = collection.find(dict(**query), {'_id': 0}, session=self.session)

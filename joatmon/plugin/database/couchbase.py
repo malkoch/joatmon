@@ -45,8 +45,6 @@ class CouchBaseDatabase(DatabasePlugin):
                 QueryOptions(named_parameters={k: str(v) if isinstance(v, uuid.UUID) else v for k, v in doc.items()}, scan_consistency=QueryScanConsistency.REQUEST_PLUS)
             ).execute()
 
-            yield document(**doc)
-
     async def read(self, document, query):
         await self._create_collection(document.__metaclass__)
 

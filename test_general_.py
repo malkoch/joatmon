@@ -6,7 +6,6 @@ from joatmon import context
 from joatmon.core.utility import (
     current_time,
     empty_object_id,
-    first_async,
     new_object_id
 )
 from joatmon.orm.constraint import UniqueConstraint
@@ -81,6 +80,31 @@ register(ElasticDatabase, 'elastic', 'http://localhost:9200')
 register(CouchBaseDatabase, 'couchbase', 'couchbase://localhost', 'ToG', '_default', 'malkoch', 'malkoch')
 register(PostgreSQLDatabase, 'postgresql', '127.0.0.1', 5432, 'malkoch', 'malkoch', 'ToG')
 
+from joatmon.orm.query import (
+    Count,
+    Database,
+    Dialects,
+    Query
+)
+
+tog = Database('ToG')
+public = tog.public
+server = public.o_server.as_('s')
+character = public.o_character.as_('c')
+character_login_history = public.o_character_login_history.as_('clh')
+
+
+class NewMeta(Meta):
+    qb = Query() \
+        .select(server.name, server.capacity, Count((character_login_history.logout_at == None) & (character_login_history.is_deleted == False)).as_('number_of_logins')) \
+        .from_(server) \
+        .left_join(character, server.object_id == character.server_id) \
+        .left_join(character_login_history, character.object_id == character_login_history.character_id) \
+        .group(server.name)
+
+
+print(NewMeta.query(NewMeta).build(Dialects.POSTGRESQL))
+
 
 async def test():
     # document = await first_async(context.get_value('mongo').insert(UnStructuredLog, dict(**ul)))
@@ -97,12 +121,12 @@ async def test():
     # document = await first_async(context.get_value('elastic').read(UnStructuredLog, {'object_id': document.object_id}))
     # await context.get_value('elastic').delete(UnStructuredLog, {'object_id': document.object_id})
 
-    document = await first_async(context.get_value('couchbase').insert(UnStructuredLog, dict(**ul)))
-    document = await first_async(context.get_value('couchbase').read(UnStructuredLog, {'object_id': document.object_id}))
-    document.level = '2'
-    await context.get_value('couchbase').update(UnStructuredLog, {'object_id': document.object_id}, document)
-    document = await first_async(context.get_value('couchbase').read(UnStructuredLog, {'object_id': document.object_id}))
-    await context.get_value('couchbase').delete(UnStructuredLog, {'object_id': document.object_id})
+    # document = await first_async(context.get_value('couchbase').insert(UnStructuredLog, dict(**ul)))
+    # document = await first_async(context.get_value('couchbase').read(UnStructuredLog, {'object_id': document.object_id}))
+    # document.level = '2'
+    # await context.get_value('couchbase').update(UnStructuredLog, {'object_id': document.object_id}, document)
+    # document = await first_async(context.get_value('couchbase').read(UnStructuredLog, {'object_id': document.object_id}))
+    # await context.get_value('couchbase').delete(UnStructuredLog, {'object_id': document.object_id})
 
     # document = await first_async(context.get_value('postgresql').insert(StructuredLog, dict(**sl)))
     # document = await first_async(context.get_value('postgresql').read(StructuredLog, {'object_id': document.object_id}))
@@ -115,6 +139,7 @@ async def test():
     # # await context.get_value('postgresql').delete(StructuredLog, {})
     # async for document in context.get_value('postgresql').read(StructuredLog, {}):
     #     print(document)
+    ...
 
 
 asyncio.run(test())

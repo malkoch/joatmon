@@ -6,6 +6,9 @@ import psycopg2
 from joatmon.core.utility import get_converter
 from joatmon.orm.constraint import UniqueConstraint
 from joatmon.orm.meta import normalize_kwargs
+from joatmon.orm.query import (
+    Dialects
+)
 from joatmon.plugin.database.core import DatabasePlugin
 
 
@@ -93,12 +96,15 @@ class PostgreSQLDatabase(DatabasePlugin):
 
                 return keys, values, dictionary
 
-            k, v, di = normalize(document(**doc))
+            if isinstance(doc, dict):
+                k, v, di = normalize(document(**doc))
+            elif isinstance(doc, document):
+                k, v, di = normalize(doc)
+            else:
+                raise ValueError(f'cannot convert object type {type(doc)} to {document}')
             sql = f'insert into {document.__metaclass__.__collection__} ({", ".join(k)}) values ({", ".join(v)})'
 
             cursor.execute(sql)
-
-            yield document(**di)
 
     async def read(self, document, query):
         cursor = self.connection.cursor()
@@ -238,6 +244,16 @@ class PostgreSQLDatabase(DatabasePlugin):
 
         await self._ensure_collection(document.__metaclass__)
         cursor.execute(sql)
+
+    async def view(self, document):
+        query = document.__metaclass__.query(document.__metaclass__).build(Dialects.POSTGRESQL)
+        cursor = self.connection.cursor()
+        cursor.execute(query)
+
+        # keys = list(document.__metaclass__.fields(document.__metaclass__).keys())
+        keys = [desc[0] for desc in cursor.description]
+        for doc in cursor.fetchall():
+            yield document(**dict(zip(keys, doc)))
 
     async def start(self):
         self.connection.autocommit = False
