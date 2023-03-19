@@ -29,6 +29,9 @@ class DatabasePlugin(Plugin):
     async def delete(self, document, query):
         raise NotImplementedError
 
+    async def view(self, document):
+        raise NotImplementedError
+
     async def start(self):
         raise NotImplementedError
 

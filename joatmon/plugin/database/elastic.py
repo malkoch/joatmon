@@ -20,8 +20,6 @@ class ElasticDatabase(DatabasePlugin):
 
             self.client.index(index=document.__metaclass__.__collection__, document=dict(**doc))
 
-            yield doc
-
     async def read(self, document, query):
         ...
 

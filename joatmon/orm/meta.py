@@ -13,6 +13,8 @@ class Meta(type):
     structured = True
     encrypt = False
 
+    qb = None
+
     def __new__(mcs, name, bases, dct):
         return super().__new__(mcs, name, bases, dct)
 
@@ -24,6 +26,9 @@ class Meta(type):
 
     def indexes(cls, predicate=lambda x: True) -> typing.Dict[str, Index]:
         return {k: v for k, v in inspect.getmembers(cls, lambda x: isinstance(x, Index)) if predicate(v)}
+
+    def query(cls):
+        return cls.qb
 
 
 def normalize_kwargs(meta, **kwargs):
