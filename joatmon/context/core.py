@@ -20,5 +20,6 @@ def get_value(name):
 
 def set_value(name, value):
     current = getattr(get_ctx(), 'current', {})
-    current[name] = value
+    if name not in current:
+        current[name] = value
     setattr(get_ctx(), 'current', current)
