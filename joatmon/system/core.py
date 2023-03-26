@@ -1,9 +1,8 @@
 import os
-import threading
 from contextlib import contextmanager
 from threading import Lock
 
-__all__ = ['RWLock', 'Path', 'File', 'Task', 'EventManager']
+__all__ = ['RWLock', 'Path', 'File']
 
 
 class RWLock(object):
@@ -124,80 +123,3 @@ class File:
         with self.lock.w_locked():
             with open(str(self.path), 'w') as file:
                 file.write(data + '\n')
-
-
-class Task:
-    def __init__(self, iva=None, background=False, thread_num=1, priority=100):
-        self.iva = iva
-
-        self.background = background
-        self.thread_num = thread_num
-        self.priority = priority
-        self.as_job = None
-        self.as_service = None
-
-        self.threads = None
-        self.event = threading.Event()
-
-        if self.background:
-            self.threads = []
-            for _ in range(self.thread_num):
-                self.threads.append(threading.Thread(target=self.run))
-
-    def __hash__(self):
-        return hash(f'{type(self).__module__}.{type(self).__name__}()')
-
-    @classmethod
-    def hash(cls):
-        return hash(f'{cls.__module__}.{cls.__name__}')
-
-    @classmethod
-    def help(cls):
-        return cls.__doc__
-
-    @classmethod
-    def create(cls):
-        pass
-
-    def run(self):
-        if not self.event.is_set():
-            self.event.set()
-
-    def running(self):
-        return not self.event.is_set()
-
-    def restart(self):
-        pass
-
-    def start(self):
-        if not self.event.is_set():
-            if self.threads is not None:
-                for thread in self.threads:
-                    thread.start()
-            else:
-                self.run()
-
-    def stop(self):
-        if not self.event.is_set():
-            self.event.set()
-
-
-class EventManager:
-    def __init__(self):
-        self.events = {}
-
-    def add(self, name, order, event):
-        if name not in self.events:
-            self.events[name] = {}
-        if order not in self.events[name]:
-            self.events[name][order] = []
-        self.events[name][order].append(event)
-        return self
-
-    def fire(self, name, order, *args, **kwargs):
-        if name not in self.events:
-            return
-        if order not in self.events[name]:
-            return
-        for event in self.events[name][order]:
-            event(*args, **kwargs)

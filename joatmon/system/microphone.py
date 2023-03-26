@@ -1,71 +1,68 @@
 import sys
 import threading
-import warnings
-
-if sys.platform != 'win32':
-    warnings.warn('The microphone module can only be used on a Windows system. STT will never be enabled')
+from io import TextIOBase
 
 
-class InputDriver:
-    def __init__(self, output_device, stt_enabled, recognizer='SAPI.SpInProcRecognizer', words=[]):
+class InputDriver(TextIOBase):
+    def __init__(self, stt_enabled):
         super(InputDriver, self).__init__()
 
-        self.output_device = output_device
-        self.stop_event = threading.Event()
-        self.stt_enabled = stt_enabled and sys.platform == 'win32'
+        self._stt = stt_enabled
 
         if self.stt_enabled:
-            import win32com.client
-            from win32com.client import constants
+            import queue
+            import whisper
 
-            if recognizer == 'SAPI.SpInProcRecognizer':
-                self.listener = win32com.client.Dispatch("SAPI.SpInProcRecognizer")
-                self.listener.AudioInputStream = win32com.client.Dispatch("SAPI.SpMMAudioIn")
-                self.listener_base = win32com.client.getevents("SAPI.SpInProcRecoContext")
-            elif recognizer == 'SAPI.SpSharedRecognizer':
-                self.listener = win32com.client.Dispatch("SAPI.SpSharedRecognizer")
-                self.listener_base = win32com.client.getevents("SAPI.SpSharedRecoContext")
-            else:
-                raise ValueError('listener is not recognized')
+            self.audio_model = whisper.load_model('small.en').cuda()
+            self.audio_queue = queue.Queue()
+            self.result_queue = queue.Queue()
 
-            class ListenerEvents(self.listener_base):
-                OnRecognition = self.on_recognition
+            self.listening_thread = threading.Thread(target=self.record_audio)
+            self.translator_thread = threading.Thread(target=self.transcribe_forever)
 
-            self.context = self.listener.CreateRecoContext()
-            self.grammar = self.context.CreateGrammar()
+            self.listening_thread.start()
+            self.translator_thread.start()
 
-            if words:
-                self.grammar.DictationSetState(0)
-                self.words = self.grammar.Rules.Add("words", constants.SRATopLevel + constants.SRADynamic, 0)
-                self.words.Clear()
-                for word in words:
-                    self.words.InitialState.AddWordTransition(None, word)
-                self.grammar.Rules.Commit()
-                self.grammar.CmdSetRuleState("words", 1)  # wordsRule
-                self.grammar.Rules.Commit()
-            else:
-                self.grammar.DictationSetState(1)
+        self.stop_event = threading.Event()
 
-            self.listener_event_handler = ListenerEvents(self.context)
+    @property
+    def stt_enabled(self):
+        return self._stt
 
-    def on_recognition(self, _1, _2, _3, result):
-        import win32com.client
-        new_result = win32com.client.Dispatch(result)
-        print("You said: ", new_result.PhraseInfo.GetText())
+    @stt_enabled.setter
+    def stt_enabled(self, value):
+        self._stt = value
 
-    def input(self, prompt=None):
-        p = prompt if prompt is not None else 'default prompt: '
-        self.output_device.output(p)
-        return self.readline()
+    def record_audio(self):
+        import speech_recognition as sr
 
-    def readline(self):
+        r = sr.Recognizer()
+        r.energy_threshold = 100
+        r.pause_threshold = 0.8
+        r.dynamic_energy_threshold = True
+
+        with sr.Microphone(sample_rate=16000) as source:
+            import numpy as np
+            import torch
+            print("Say something!")
+            while not self.stop_event.is_set():
+                audio = r.listen(source)
+                torch_audio = torch.from_numpy(np.frombuffer(audio.get_raw_data(), np.int16).flatten().astype(np.float32) / 32768.0)
+                audio_data = torch_audio
+
+                self.audio_queue.put_nowait(audio_data)
+
+    def transcribe_forever(self):
+        while not self.stop_event.is_set():
+            audio_data = self.audio_queue.get().cuda()
+            result = self.audio_model.transcribe(audio_data, language='english')
+            self.result_queue.put_nowait(result)
+
+    def readline(self, **kwargs):
         if not self.stt_enabled:
-            if self.output_device.tts_enabled:
-                sys.stdout.write('~ Your Command ->')
-                sys.stdout.flush()
             return sys.stdin.readline()
         else:
-            return ''
+            return self.result_queue.get()['text'].replace('.', '').lower()
 
     def stop(self):
         self.stop_event.set()
