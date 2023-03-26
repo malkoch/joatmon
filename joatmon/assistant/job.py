@@ -1,26 +1,18 @@
 import threading
 
 
-class BaseTask:
-    def __init__(self, api=None, background=False, thread_num=1, priority=100):
-        self.api = api
-
+class BaseJob:
+    def __init__(self, thread_num=1, priority=100):
         self.name = None
 
-        self.background = background
         self.thread_num = thread_num
         self.priority = priority
-        self.as_task = None
-        self.as_job = None
-        self.as_service = None
 
-        self.threads = None
         self.event = threading.Event()
 
-        if self.background:
-            self.threads = []
-            for _ in range(self.thread_num):
-                self.threads.append(threading.Thread(target=self.run))
+        self.threads = []
+        for _ in range(self.thread_num):
+            self.threads.append(threading.Thread(target=self.run))
 
     def __hash__(self):
         if self.name is not None:

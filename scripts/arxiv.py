@@ -1,61 +1,57 @@
 from __future__ import print_function
 
 import argparse
+import asyncio
 import datetime
 import json
 import re
 import sys
-import time
 import uuid
 from urllib.parse import urlencode
 
 import feedparser
 import requests
 
+from joatmon.assistant.job import BaseJob
+from joatmon.assistant.service import BaseService
 from joatmon.assistant.task import BaseTask
-from joatmon.orm.constraint import UniqueConstraint
+from joatmon.core.utility import (
+    current_time,
+    first_async,
+    new_object_id,
+    to_enumerable,
+    to_list_async
+)
+from joatmon.decorator.message import producer
 from joatmon.orm.document import (
     create_new_type,
     Document
 )
 from joatmon.orm.field import Field
-from joatmon.orm.index import Index
 from joatmon.orm.meta import Meta
+from joatmon.plugin.core import register
 from joatmon.plugin.database.mongo import MongoDatabase
+from joatmon.plugin.message.kafka import KafkaPlugin
 
 
 def query(category=None, fetched=0):
-    max_results = float('inf')
     sort_by = "submittedDate"
-    sort_order = "ascending"
+    sort_order = "descending"
 
-    total = fetched
-    while max_results > total:
-        if fetched >= 50000:
-            fetched = fetched - 50000
-            sort_order = 'descending'
+    config = json.loads(open('iva.json', 'r').read())['configs']['arxiv']
 
-        config = json.loads(open('iva.json', 'r').read())['configs']['arxiv']
+    url = config['url'] + 'query?' + urlencode(
+        {
+            "search_query": category, "start": 0, "max_results": 1000, "sortBy": sort_by, "sortOrder": sort_order
+        }
+    )
+    result = feedparser.parse(url)
+    if result.get('status') == 200:
+        results = result['entries']
+    else:
+        results = []
 
-        url = config['url'] + 'query?' + urlencode(
-            {
-                "search_query": category, "start": fetched, "max_results": min(max_results - fetched, 1000), "sortBy": sort_by, "sortOrder": sort_order
-            }
-        )
-        result = feedparser.parse(url)
-        if result.get('status') == 200:
-            results = result['entries']
-            max_results = int(result['feed']['opensearch_totalresults'])
-        else:
-            break
-
-        total = total + len(results)
-        fetched = fetched + len(results)
-        yield [dict(r.items()) for r in results if r.get("title", None)]
-        time.sleep(5)
-
-        if total >= max_results:
-            break
+    yield [dict(r.items()) for r in results if r.get("title", None)]
 
 
 def download(link, prefer_source_tarfile=False):
@@ -68,27 +64,31 @@ def download(link, prefer_source_tarfile=False):
     return response.content
 
 
-class Author(Meta):
-    __collection__ = 'arxiv.author'
+class Structured(Meta):
+    structured = True
+
+    object_id = Field(uuid.UUID, nullable=False, default=new_object_id, primary=True)
+    created_at = Field(datetime.datetime, nullable=False, default=current_time)
+    updated_at = Field(datetime.datetime, nullable=False, default=current_time)
+    deleted_at = Field(datetime.datetime, nullable=True, default=current_time)
+    is_deleted = Field(bool, nullable=False, default=False)
+
+
+class Author(Structured):
+    __collection__ = 'author'
 
     name = Field(str)
 
-    unique_constraint_name = UniqueConstraint('name')
-    index_name = Index('name')
 
-
-class Tag(Meta):
-    __collection__ = 'arxiv.tag'
+class Tag(Structured):
+    __collection__ = 'tag'
 
     name = Field(str)
     count = Field(int)
 
-    unique_constraint_name = UniqueConstraint('name')
-    index_name = Index('name')
 
-
-class Source(Meta):
-    __collection__ = 'arxiv.source'
+class Source(Structured):
+    __collection__ = 'source'
 
     id = Field(str)
     title = Field(str)
@@ -96,51 +96,35 @@ class Source(Meta):
     published = Field(datetime.datetime)
     updated = Field(datetime.datetime)
 
-    unique_constraint_id = UniqueConstraint('id')
-    index_id = Index('id')
 
-
-class SourceFile(Meta):
-    __collection__ = 'arxiv.source_file'
+class SourceFile(Structured):
+    __collection__ = 'source_file'
 
     source_id = Field(uuid.UUID)
     content = Field(bytes)
     type = Field(str)
 
-    unique_constraint_source_id = UniqueConstraint('source_id')
-    index_source_id = Index('source_id')
 
-
-class SourceLink(Meta):
-    __collection__ = 'arxiv.source_link'
+class SourceLink(Structured):
+    __collection__ = 'source_link'
 
     source_id = Field(uuid.UUID)
     link = Field(str)
     type = Field(str)
 
-    index_source_id = Index('source_id')
 
-
-class SourceAuthor(Meta):
-    __collection__ = 'arxiv.source_author'
+class SourceAuthor(Structured):
+    __collection__ = 'source_author'
 
     source_id = Field(uuid.UUID)
     author_id = Field(uuid.UUID)
 
-    unique_constraint_source_id_author_id = UniqueConstraint('source_id,author_id')
-    index_source_id = Index('source_id')
-    index_author_id = Index('author_id')
 
-
-class SourceTag(Meta):
-    __collection__ = 'arxiv.source_tag'
+class SourceTag(Structured):
+    __collection__ = 'source_tag'
 
     source_id = Field(uuid.UUID)
     tag_id = Field(uuid.UUID)
-
-    unique_constraint_source_id_tag_id = UniqueConstraint('source_id,tag_id')
-    index_source_id = Index('source_id')
-    index_tag_id = Index('tag_id')
 
 
 Author = create_new_type(Author, (Document,))
@@ -154,184 +138,394 @@ SourceTag = create_new_type(SourceTag, (Document,))
 
 class Task(BaseTask):
     def __init__(self, api=None):
-        super(Task, self).__init__(api, False, 1, 100)
-
         parser = argparse.ArgumentParser()
-        parser.add_argument('--fetch', type=str)
-        parser.add_argument('--download', type=str)
         parser.add_argument('--list', dest='list', action='store_true')
         parser.add_argument('--init', dest='init', action='store_true')
         parser.add_argument('--reinit', dest='reinit', action='store_true')
+        parser.add_argument('--background', dest='background', action='store_true')
         parser.set_defaults(list=False)
         parser.set_defaults(init=False)
         parser.set_defaults(reinit=False)
+        parser.set_defaults(background=False)
 
         namespace, _ = parser.parse_known_args(sys.argv)
 
+        super(Task, self).__init__(api, namespace.background, 1, 100)
+
         self.action = None
-        if namespace.fetch:
-            self.action = ['fetch', namespace.fetch]
-        elif namespace.download:
-            self.action = ['download', namespace.download]
-        elif namespace.list:
+        if namespace.list:
             self.action = ['list']
         elif namespace.init:
             self.action = ['init']
         elif namespace.reinit:
             self.action = ['reinit']
 
-        db_config = json.loads(open('iva.json', 'r').read())['configs']['arxiv']['mongo']
-        self.database = MongoDatabase('arxiv', **db_config)
+        # db_config = json.loads(open('iva.json', 'r').read())['configs']['arxiv']['mongo']
+        self.database = MongoDatabase('mongodb://malkoch:malkoch@127.0.0.1:27017/?replicaSet=rs0', 'arxiv')
 
     def reinit(self):
-        self.database.drop_database()
+        # self.database.drop_database()
+        for doc_type in Document.__subclasses__():
+            asyncio.run(self.database.delete(doc_type, {}))
+
         self.init()
 
     def init(self):
-        ...
-        # for tag in [
-        #     'cs.AI', 'cs.CL', 'cs.CC', 'cs.CE', 'cs.CG', 'cs.GT', 'cs.CV', 'cs.CY', 'cs.CR', 'cs.DS',
-        #     'cs.DB', 'cs.DL', 'cs.DM', 'cs.DC', 'cs.ET', 'cs.FL', 'cs.GL', 'cs.GR', 'cs.AR', 'cs.HC',
-        #     'cs.IR', 'cs.IT', 'cs.LO', 'cs.LG', 'cs.MS', 'cs.MA', 'cs.MM', 'cs.NI', 'cs.NE', 'cs.NA',
-        #     'cs.OS', 'cs.OH', 'cs.PF', 'cs.PL', 'cs.RO', 'cs.SI', 'cs.SE', 'cs.SD', 'cs.SC', 'cs.SY'
-        # ]:
-        #     self.orm.save(Tag(object_id=uuid.uuid4(), name=tag, count=0))
-
-    def add_pdf(self, pdf, tag):
-        pdf_object_id = uuid.uuid4()
-
-        pdf_id = pdf['id']
-        pdf_updated = pdf['updated_parsed']
-        pdf_published = pdf['published_parsed']
-        pdf_title = pdf['title']
-        pdf_summary = pdf['summary']
-
-        pdf_links = [{'link': link['href'], 'type': link['type']} for link in pdf['links']]
-        pdf_authors = [author['name'] for author in pdf['authors']]
-
-        pdf_result = self.database.read_one(Source, id=pdf_id)
-        if pdf_result:
-            pdf_object_id = pdf_result.object_id
-        else:
-            self.database.save(Source(object_id=pdf_object_id, id=pdf_id, published=pdf_published, updated=pdf_updated, title=pdf_title, summary=pdf_summary))
-
-            for link in pdf_links:
-                self.database.save(SourceLink(object_id=uuid.uuid4(), source_id=pdf_object_id, link=link['link'], type=link['type']))
-
-            for author in pdf_authors:
-                author_result = self.database.read_one(Author, name=author)
-                if author_result:
-                    author_object_id = author_result.object_id
-                else:
-                    author_object_id = uuid.uuid4()
-                    self.database.save(Author(object_id=author_object_id, name=author))
-
-                self.database.save(SourceAuthor(object_id=uuid.uuid4(), source_id=pdf_object_id, author_id=author_object_id))
-
-        tag_object = self.database.read_one(Tag, name=tag)
-        if tag_object:
-            tag_object_id = tag_object.object_id
-        else:
-            tag_object_id = uuid.uuid4()
-            self.database.save(Tag(object_id=tag_object_id, name=tag, count=0))
-
-        if not self.database.read_one(SourceTag, source_id=pdf_object_id, tag_id=tag_object_id):
-            self.database.save(SourceTag(object_id=uuid.uuid4(), source_id=pdf_object_id, tag_id=tag_object_id))
-            count = self.database.count(SourceTag, tag_id=tag_object_id)
-
-            source_tag = self.database.read_one(Tag, object_id=tag_object_id)
-            source_tag.count = count
-            self.database.update(source_tag)
+        for tag in [
+            'cs.AI', 'cs.CL', 'cs.CC', 'cs.CE', 'cs.CG', 'cs.GT', 'cs.CV', 'cs.CY', 'cs.CR', 'cs.DS',
+            'cs.DB', 'cs.DL', 'cs.DM', 'cs.DC', 'cs.ET', 'cs.FL', 'cs.GL', 'cs.GR', 'cs.AR', 'cs.HC',
+            'cs.IR', 'cs.IT', 'cs.LO', 'cs.LG', 'cs.MS', 'cs.MA', 'cs.MM', 'cs.NI', 'cs.NE', 'cs.NA',
+            'cs.OS', 'cs.OH', 'cs.PF', 'cs.PL', 'cs.RO', 'cs.SI', 'cs.SE', 'cs.SD', 'cs.SC', 'cs.SY'
+        ]:
+            tag = Tag(**{'object_id': uuid.uuid4(), 'name': tag, 'count': 0})
+            asyncio.run(self.database.insert(Tag, tag))
 
     @staticmethod
     def help(api):
         ...
 
     def run(self):
-        if self.action is None:
-            raise ValueError(f'arguments are not recognized')
+        try:
+            if self.action is None:
+                raise ValueError(f'arguments are not recognized')
 
-        if self.action[0] == 'list':
-            self.api.output(self.database.read_many(Tag))
-        elif self.action[0] == 'init':
-            self.init()
-        elif self.action[0] == 'reinit':
-            self.reinit()
-        elif self.action[0] == 'fetch':
-            # fetch category that is wanted
-            # fetch all categories
-
-            if self.action[1] != 'all':
-                tag = self.database.read_one(Tag, name=self.action[1])
-                if tag is not None:
-                    tag_count = tag.count
-                else:
-                    raise ValueError(f'{self.action[1]} is not found')
-                    # tag_count = 0
-
-                for results in query(self.action[1], fetched=tag_count):
-                    for result in results:
-                        self.add_pdf(result, self.action[1])
-
-                    if self.event.is_set():
-                        break
+            if self.action[0] == 'list':
+                self.api.output(asyncio.run(to_list_async(self.database.read(Tag, {}))))
+            elif self.action[0] == 'init':
+                self.init()
+            elif self.action[0] == 'reinit':
+                self.reinit()
             else:
-                for tag in self.database.read_many(Tag):
-                    tag_count = tag.count
+                raise ValueError(f'arguments are not recognized')
 
-                    for results in query(tag.name, fetched=tag_count):
+            if not self.event.is_set():
+                self.event.set()
+
+            super(Task, self).run()
+        except:
+            ...
+
+
+class Job(BaseJob):
+    def __init__(self):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--fetch', type=str)
+        parser.add_argument('--download', type=str)
+
+        namespace, _ = parser.parse_known_args(sys.argv)
+
+        super(Job, self).__init__(1, 100)
+
+        self.action = None
+        if namespace.fetch:
+            self.action = ['fetch', namespace.fetch]
+        elif namespace.download:
+            self.action = ['download', namespace.download]
+
+        # db_config = json.loads(open('iva.json', 'r').read())['configs']['arxiv']['mongo']
+        self.database = MongoDatabase('mongodb://malkoch:malkoch@127.0.0.1:27017/?replicaSet=rs0', 'arxiv')
+
+        kafka_topic = json.loads(open('iva.json', 'r').read())['configs']['arxiv']['kafka_topic']
+        kafka_uri = json.loads(open('iva.json', 'r').read())['configs']['arxiv']['kafka_uri']
+        register(KafkaPlugin, 'arxiv_kafka_plugin', kafka_uri)
+
+        self.create_event = producer('arxiv_kafka_plugin', kafka_topic)(self.create_event)
+
+    def create_event(self, source):
+        ...
+
+    def add_pdf(self, pdf, tag):
+        pdf_object_id = uuid.uuid4()
+
+        pdf_id = pdf['id']
+        pdf_updated = datetime.datetime(*pdf['updated_parsed'][:6])
+        pdf_published = datetime.datetime(*pdf['published_parsed'][:6])
+        pdf_title = pdf['title']
+        pdf_summary = pdf['summary']
+
+        pdf_links = [{'link': link['href'], 'type': link['type']} for link in pdf['links']]
+        pdf_authors = [author['name'] for author in pdf['authors']]
+
+        pdf_result = asyncio.run(first_async(self.database.read(Source, {'id': pdf_id})))
+        if pdf_result:
+            pdf_object_id = pdf_result.object_id
+        else:
+            source = Source(**{'object_id': pdf_object_id, 'id': pdf_id, 'published': pdf_published, 'updated': pdf_updated, 'title': pdf_title, 'summary': pdf_summary})
+            asyncio.run(self.database.insert(Source, source))
+            self.create_event(to_enumerable(source, string=True))
+
+            for link in pdf_links:
+                asyncio.run(self.database.insert(SourceLink, {'object_id': uuid.uuid4(), 'source_id': pdf_object_id, 'link': link['link'], 'type': link['type']}))
+
+            for author in pdf_authors:
+                author_result = asyncio.run(first_async(self.database.read(Author, {'name': author})))
+                if author_result:
+                    author_object_id = author_result.object_id
+                else:
+                    author_object_id = uuid.uuid4()
+                    asyncio.run(self.database.insert(Author, {'object_id': author_object_id, 'name': author}))
+
+                asyncio.run(self.database.insert(SourceAuthor, {'object_id': uuid.uuid4(), 'source_id': pdf_object_id, 'author_id': author_object_id}))
+
+        tag_object = asyncio.run(first_async(self.database.read(Tag, {'name': tag})))
+        if tag_object:
+            tag_object_id = tag_object.object_id
+        else:
+            tag_object_id = uuid.uuid4()
+            asyncio.run(self.database.insert(Tag, {'object_id': tag_object_id, 'name': tag, 'count': 0}))
+
+        if not asyncio.run(first_async(self.database.read(SourceTag, {'source_id': pdf_object_id, 'tag_id': tag_object_id}))):
+            asyncio.run(self.database.insert(SourceTag, {'object_id': uuid.uuid4(), 'source_id': pdf_object_id, 'tag_id': tag_object_id}))
+            count = len(asyncio.run(to_list_async(self.database.read(SourceTag, {'tag_id': tag_object_id}))))
+
+            source_tag = asyncio.run(first_async(self.database.read(Tag, {'object_id': tag_object_id})))
+            source_tag.count = count
+            asyncio.run(self.database.update(Tag, {'object_id': source_tag.object_id}, source_tag))
+
+    @staticmethod
+    def help(api):
+        ...
+
+    def run(self):
+        try:
+            if self.action is None:
+                raise ValueError(f'arguments are not recognized')
+
+            if self.action[0] == 'fetch':
+                # fetch category that is wanted
+                # fetch all categories
+
+                if self.action[1] != 'all':
+                    tag = asyncio.run(first_async(self.database.read(Tag, {'name': self.action[1]})))
+                    if tag is not None:
+                        tag_count = tag.count
+                    else:
+                        raise ValueError(f'{self.action[1]} is not found')
+                        # tag_count = 0
+
+                    for results in query(self.action[1], fetched=tag_count):
                         for result in results:
-                            self.add_pdf(result, tag.name)
+                            self.add_pdf(result, self.action[1])
 
                         if self.event.is_set():
                             break
-        elif self.action[0] == 'download':
-            # fetch category that is wanted
-            # fetch all categories
+                else:
+                    for tag in asyncio.run(to_list_async(self.database.read(Tag, {}))):
+                        for results in query(tag.name, fetched=tag.count):
+                            for result in results:
+                                self.add_pdf(result, tag.name)
 
-            if self.action[1] != 'all':
-                tag = self.database.read_one(Tag, name=self.action[1])
+                            if self.event.is_set():
+                                break
+            elif self.action[0] == 'download':
+                # fetch category that is wanted
+                # fetch all categories
 
-                for source_tag in self.database.read_many(SourceTag, tag_id=tag.object_id):
-                    source = self.database.read_one(Source, object_id=source_tag.source_id)
-                    if source is None:
-                        continue
+                if self.action[1] != 'all':
+                    tag = asyncio.run(first_async(self.database.read(Tag, {'name': self.action[1]})))
 
-                    if self.event.is_set():
-                        break
+                    for source_tag in asyncio.run(to_list_async(self.database.read(SourceTag, {'tag_id': tag.object_id}))):
+                        source = asyncio.run(first_async(self.database.read(Source, {'object_id': source_tag.source_id})))
+                        if source is None:
+                            continue
+
+                        if self.event.is_set():
+                            break
+                else:
+                    for source in asyncio.run(to_list_async(self.database.read(Source, {}))):
+                        pdf_link = asyncio.run(first_async(self.database.read(SourceLink, {'source_id': source.object_id, 'type': 'application/pdf'})))
+                        if pdf_link is None:
+                            continue
+
+                        # filename = '_'.join(re.findall(r'\w+', source.title))
+                        # filename = "%s.%s" % (filename, pdf_link.link.split('/')[-1])
+
+                        if asyncio.run(first_async(self.database.read(SourceFile, {'source_id': source.object_id}))) is not None:
+                            # with open(os.path.join(r'X:\Cloud\OneDrive\WORK\Source', filename + '.pdf'), 'wb') as file:
+                            #     file.write(self.orm.read_one(SourceFile, source_id=source.object_id).content)
+
+                            continue
+
+                        try:
+                            print(f'downloading {pdf_link.link}')
+                            content = download(pdf_link.link)
+                            asyncio.run(self.database.insert(SourceFile(**{'source_id': source.object_id, 'content': content, 'type': 'pdf'})))
+                            # with open(os.path.join(r'X:\Cloud\OneDrive\WORK\Source', filename + '.pdf'), 'wb') as file:
+                            #     file.write(content)
+                        except Exception as ex:
+                            print(str(ex))
+
+                        if self.event.is_set():
+                            break
             else:
-                for source in self.database.read_many(Source):
-                    pdf_link = self.database.read_one(SourceLink, source_id=source.object_id, type='application/pdf')
-                    if pdf_link is None:
-                        continue
+                raise ValueError(f'arguments are not recognized')
 
-                    # filename = '_'.join(re.findall(r'\w+', source.title))
-                    # filename = "%s.%s" % (filename, pdf_link.link.split('/')[-1])
+            if not self.event.is_set():
+                self.event.set()
 
-                    if self.database.read_one(SourceFile, source_id=source.object_id) is not None:
-                        # with open(os.path.join(r'X:\Cloud\OneDrive\WORK\Source', filename + '.pdf'), 'wb') as file:
-                        #     file.write(self.orm.read_one(SourceFile, source_id=source.object_id).content)
+            super(Job, self).run()
+        except:
+            ...
 
-                        continue
 
-                    try:
-                        print(f'downloading {pdf_link.link}')
-                        content = download(pdf_link.link)
-                        self.database.save(SourceFile(source_id=source.object_id, content=content, type='pdf'))
-                        # with open(os.path.join(r'X:\Cloud\OneDrive\WORK\Source', filename + '.pdf'), 'wb') as file:
-                        #     file.write(content)
-                    except Exception as ex:
-                        print(str(ex))
+class Service(BaseService):
+    def __init__(self):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--fetch', type=str)
+        parser.add_argument('--download', type=str)
 
-                    if self.event.is_set():
-                        break
+        namespace, _ = parser.parse_known_args(sys.argv)
+
+        super(Service, self).__init__(1, 100)
+
+        self.action = None
+        if namespace.fetch:
+            self.action = ['fetch', namespace.fetch]
+        elif namespace.download:
+            self.action = ['download', namespace.download]
+
+        # db_config = json.loads(open('iva.json', 'r').read())['configs']['arxiv']['mongo']
+        self.database = MongoDatabase('mongodb://malkoch:malkoch@127.0.0.1:27017/?replicaSet=rs0', 'arxiv')
+
+    def add_pdf(self, pdf, tag):
+        pdf_object_id = uuid.uuid4()
+
+        pdf_id = pdf['id']
+        pdf_updated = datetime.datetime(*pdf['updated_parsed'][:6])
+        pdf_published = datetime.datetime(*pdf['published_parsed'][:6])
+        pdf_title = pdf['title']
+        pdf_summary = pdf['summary']
+
+        pdf_links = [{'link': link['href'], 'type': link['type']} for link in pdf['links']]
+        pdf_authors = [author['name'] for author in pdf['authors']]
+
+        pdf_result = asyncio.run(first_async(self.database.read(Source, {'id': pdf_id})))
+        if pdf_result:
+            pdf_object_id = pdf_result.object_id
         else:
-            raise ValueError(f'arguments are not recognized')
+            asyncio.run(
+                self.database.insert(
+                    Source,
+                    {'object_id': pdf_object_id, 'id': pdf_id, 'published': pdf_published, 'updated': pdf_updated, 'title': pdf_title, 'summary': pdf_summary}
+                )
+            )
 
-        if not self.event.is_set():
-            self.event.set()
+            for link in pdf_links:
+                asyncio.run(self.database.insert(SourceLink, {'object_id': uuid.uuid4(), 'source_id': pdf_object_id, 'link': link['link'], 'type': link['type']}))
 
-        super(Task, self).run()
+            for author in pdf_authors:
+                author_result = asyncio.run(first_async(self.database.read(Author, {'name': author})))
+                if author_result:
+                    author_object_id = author_result.object_id
+                else:
+                    author_object_id = uuid.uuid4()
+                    asyncio.run(self.database.insert(Author, {'object_id': author_object_id, 'name': author}))
+
+                asyncio.run(self.database.insert(SourceAuthor, {'object_id': uuid.uuid4(), 'source_id': pdf_object_id, 'author_id': author_object_id}))
+
+        tag_object = asyncio.run(first_async(self.database.read(Tag, {'name': tag})))
+        if tag_object:
+            tag_object_id = tag_object.object_id
+        else:
+            tag_object_id = uuid.uuid4()
+            asyncio.run(self.database.insert(Tag, {'object_id': tag_object_id, 'name': tag, 'count': 0}))
+
+        if not asyncio.run(first_async(self.database.read(SourceTag, {'source_id': pdf_object_id, 'tag_id': tag_object_id}))):
+            asyncio.run(self.database.insert(SourceTag, {'object_id': uuid.uuid4(), 'source_id': pdf_object_id, 'tag_id': tag_object_id}))
+            count = len(asyncio.run(to_list_async(self.database.read(SourceTag, {'tag_id': tag_object_id}))))
+
+            source_tag = asyncio.run(first_async(self.database.read(Tag, {'object_id': tag_object_id})))
+            source_tag.count = count
+            asyncio.run(self.database.update(Tag, {'object_id': source_tag.object_id}, source_tag))
+
+    @staticmethod
+    def help(api):
+        ...
+
+    def run(self):
+        try:
+            while True:
+                if self.event.is_set():
+                    break
+
+                if self.action is None:
+                    raise ValueError(f'arguments are not recognized')
+
+                if self.action[0] == 'fetch':
+                    # fetch category that is wanted
+                    # fetch all categories
+
+                    if self.action[1] != 'all':
+                        tag = asyncio.run(first_async(self.database.read(Tag, {'name': self.action[1]})))
+                        if tag is not None:
+                            tag_count = tag.count
+                        else:
+                            raise ValueError(f'{self.action[1]} is not found')
+                            # tag_count = 0
+
+                        for results in query(self.action[1], fetched=tag_count):
+                            for result in results:
+                                self.add_pdf(result, self.action[1])
+
+                            if self.event.is_set():
+                                break
+                    else:
+                        for tag in asyncio.run(to_list_async(self.database.read(Tag, {}))):
+                            for results in query(tag.name, fetched=tag.count):
+                                for result in results:
+                                    self.add_pdf(result, tag.name)
+
+                                if self.event.is_set():
+                                    break
+                elif self.action[0] == 'download':
+                    # fetch category that is wanted
+                    # fetch all categories
+
+                    if self.action[1] != 'all':
+                        tag = asyncio.run(first_async(self.database.read(Tag, {'name': self.action[1]})))
+
+                        for source_tag in asyncio.run(to_list_async(self.database.read(SourceTag, {'tag_id': tag.object_id}))):
+                            source = asyncio.run(first_async(self.database.read(Source, {'object_id': source_tag.source_id})))
+                            if source is None:
+                                continue
+
+                            if self.event.is_set():
+                                break
+                    else:
+                        for source in asyncio.run(to_list_async(self.database.read(Source, {}))):
+                            pdf_link = asyncio.run(first_async(self.database.read(SourceLink, {'source_id': source.object_id, 'type': 'application/pdf'})))
+                            if pdf_link is None:
+                                continue
+
+                            # filename = '_'.join(re.findall(r'\w+', source.title))
+                            # filename = "%s.%s" % (filename, pdf_link.link.split('/')[-1])
+
+                            if asyncio.run(first_async(self.database.read(SourceFile, {'source_id': source.object_id}))) is not None:
+                                # with open(os.path.join(r'X:\Cloud\OneDrive\WORK\Source', filename + '.pdf'), 'wb') as file:
+                                #     file.write(self.orm.read_one(SourceFile, source_id=source.object_id).content)
+
+                                continue
+
+                            try:
+                                print(f'downloading {pdf_link.link}')
+                                content = download(pdf_link.link)
+                                asyncio.run(self.database.insert(SourceFile(**{'source_id': source.object_id, 'content': content, 'type': 'pdf'})))
+                                # with open(os.path.join(r'X:\Cloud\OneDrive\WORK\Source', filename + '.pdf'), 'wb') as file:
+                                #     file.write(content)
+                            except Exception as ex:
+                                print(str(ex))
+
+                            if self.event.is_set():
+                                break
+                else:
+                    raise ValueError(f'arguments are not recognized')
+
+            if not self.event.is_set():
+                self.event.set()
+
+            super(Service, self).run()
+        except:
+            ...
 
 
 if __name__ == '__main__':

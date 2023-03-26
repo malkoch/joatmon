@@ -29,10 +29,13 @@ class Task(BaseTask):
         ...
 
     def run(self):
-        download(self.download['url'], self.download['file'], self.download['chunks'] or 10, self.download['resume'] or False)
+        try:
+            download(self.download['url'], self.download['file'], self.download['chunks'] or 10, self.download['resume'] or False)
 
-        if not self.event.is_set():
-            self.event.set()
+            if not self.event.is_set():
+                self.event.set()
+        except:
+            ...
 
 
 if __name__ == '__main__':
