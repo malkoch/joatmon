@@ -44,32 +44,31 @@ class Task(BaseTask):
             print(message)
 
     def run(self):
-        config = json.loads(open('iva.json', 'r').read())['configs']['openai']
-        openai.api_key = config['key']
-        if self.action[0] == 'ask':
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": "You are a helpful assistant."},
-                    {"role": "web", "content": "Who won the world series in 2020?"},
-                    {"role": "assistant", "content": "The Los Angeles Dodgers won the World Series in 2020."},
-                    {"role": "web", "content": "Where was it played?"}
-                ]
-            )
-            print(response)
-        elif self.action[0] == 'image':
-            response = openai.Image.create(
-                prompt="a white siamese cat",
-                n=1,
-                size="1024x1024"
-            )
-            print(response)
-        elif self.action[0] == 'transcribe':
-            audio_file = open("/path/to/file/audio.mp3", "rb")
-            transcript = openai.Audio.transcribe("whisper-1", audio_file)
-            print(transcript)
-        else:
-            raise ValueError(f'arguments are not recognized')
+        try:
+            config = json.loads(open('iva.json', 'r').read())['configs']['openai']
+            openai.api_key = config['key']
+
+            if self.action[0] == 'ask':
+                response = openai.ChatCompletion.create(
+                    model="gpt-3.5-turbo",
+                    messages=[{"role": "user", "content": self.action[1]}]
+                )
+                print(response['choices'][0]['message']['content'])
+            elif self.action[0] == 'image':
+                response = openai.Image.create(
+                    prompt=self.action[1],
+                    n=1,
+                    size="1024x1024"
+                )
+                print(response)
+            elif self.action[0] == 'transcribe':
+                audio_file = open("/path/to/file/audio.mp3", "rb")
+                transcript = openai.Audio.transcribe("whisper-1", audio_file)
+                print(transcript)
+            else:
+                raise ValueError(f'arguments are not recognized')
+        except Exception as ex:
+            print(str(ex))
 
         if not self.event.is_set():
             self.event.set()

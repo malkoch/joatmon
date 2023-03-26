@@ -10,9 +10,12 @@ from cmd import Cmd
 
 import colorama
 import schedule
-# import schedule
 from colorama import Fore
 
+from joatmon import context
+from joatmon.assistant.job import BaseJob
+from joatmon.assistant.service import BaseService
+from joatmon.assistant.task import BaseTask
 from joatmon.system.core import RWLock
 from joatmon.system.microphone import InputDriver
 from joatmon.system.speaker import OutputDevice
@@ -34,50 +37,82 @@ class Interpreter(Cmd):
     prompt = first_reaction_text + Fore.RED + "{} What can I do for you?: ".format(PROMPT_CHAR) + Fore.RESET
 
     def __init__(self):
+        self._tts = False
+        self._stt = False
+
         settings = json.loads(open('iva.json', 'r').read())
 
-        self.tts_enabled = settings.get('tts', False)
-        self.stt_enabled = settings.get('stt', False)
+        self._tts = settings.get('tts', False) and False
+        self._stt = settings.get('stt', False) and False
+
+        self.output_device = OutputDevice(tts_enabled=self.tts_enabled)
+        self.input_device = InputDriver(stt_enabled=self.stt_enabled)
+
+        super(Interpreter, self).__init__(stdin=self.input_device, stdout=self.output_device)
 
         if self.tts_enabled:
             first_reaction_text = ""
-            # first_reaction_text += 'IVA\'s sound is by default disabled.'
-            # first_reaction_text += "\n"
-            # first_reaction_text += 'In order to let IVA talk out loud type: '
-            # first_reaction_text += 'enable sound'
-            # first_reaction_text += "\n"
             first_reaction_text += "Type 'help' for a list of available actions."
             first_reaction_text += "\n"
+            self.intro = first_reaction_text
+        else:
+            first_reaction_text = ""
+            first_reaction_text += Fore.BLUE + "Type 'help' for a list of available actions." + Fore.RESET
+            first_reaction_text += "\n"
+            self.intro = first_reaction_text
 
-            self.prompt = first_reaction_text + "What can I do for you?: "
-
-        self.output_device = OutputDevice(tts_enabled=self.tts_enabled)
-        self.input_device = InputDriver(self.output_device, stt_enabled=self.stt_enabled)
-
-        super(Interpreter, self).__init__(stdin=self.input_device, stdout=self.output_device)
+        if self.tts_enabled:
+            self.prompt = "What can I do for you?: "
+        else:
+            self.prompt = Fore.RED + "{} What can I do for you?: ".format(PROMPT_CHAR) + Fore.RESET
 
         self.use_rawinput = False
 
         self.lock = RWLock()
         self.running_tasks = {}
+        self.running_jobs = {}
+        self.running_services = {}
 
         self.event = threading.Event()
         self.cleaning_thread = threading.Thread(target=self.clean)
         self.cleaning_thread.start()
-        self.task_thread = threading.Thread(target=self.run_tasks)
-        self.task_thread.start()
+        self.job_thread = threading.Thread(target=self.run_jobs)
+        self.job_thread.start()
+        self.service_thread = threading.Thread(target=self.run_services)
+        self.service_thread.start()
 
         settings = json.loads(open('iva.json', 'r').read())
 
+        class CTX:
+            ...
+
+        ctx = CTX()
+        context.set_ctx(ctx)
+
         tasks = settings.get('tasks', {})
-        for task in sorted(filter(lambda x: x['status'] and x['schedule'] == '@startup', tasks.values()), key=lambda x: x['priority']):
-            self.do_action(task['command'].replace('"', ''))  # need to do them in background
+        for task in sorted(filter(lambda x: x['status'] and x['on'] == 'startup', tasks.values()), key=lambda x: x['priority']):
+            self.do_action(task['command'], name=task['name'], task_type='task')  # need to do them in background
         services = settings.get('services', {})
         for service in sorted(filter(lambda x: x['status'] and x['mode'] == 'automatic', services.values()), key=lambda x: x['priority']):
-            self.do_action(service['command'].replace('"', ''))  # need to do them in background
+            self.do_action(service['command'], name=service['name'], task_type='service')  # need to do them in background
 
-    def input(self, prompt=None):
-        return self.input_device.input(prompt)
+    @property
+    def tts_enabled(self):
+        return self._tts
+
+    @tts_enabled.setter
+    def tts_enabled(self, value):
+        self._tts = value
+        self.output_device.tts_enabled = value
+
+    @property
+    def stt_enabled(self):
+        return self._stt
+
+    @stt_enabled.setter
+    def stt_enabled(self, value):
+        self._stt = value
+        self.input_device.stt_enabled = value
 
     def output(self, text):
         self.output_device.output(text)
@@ -85,18 +120,7 @@ class Interpreter(Cmd):
     def precmd(self, line):
         return 'action ' + line
 
-    def postcmd(self, stop, line):
-        while self.output_device.speaking_event.is_set():
-            time.sleep(0.1)
-            continue
-
-        if self.tts_enabled:
-            self.prompt = "What can I do for you?: "
-        else:
-            self.prompt = Fore.RED + "{} What can I do for you?: ".format(PROMPT_CHAR) + Fore.RESET
-        return stop
-
-    def do_action(self, line):
+    def do_action(self, line, name=None, task_type=None):
         # need to be able to process | character as well
         try:
             if line is None or line == '':
@@ -107,19 +131,21 @@ class Interpreter(Cmd):
             if action is None or action == '':
                 return False
 
-            if action == 'enable':
+            if action.lower() == 'enable':
                 return self.enable(*args)
-            if action == 'disable':
+            if action.lower() == 'disable':
                 return self.disable(*args)
-            if action == 'task':
+            if action.lower() == 'task':
                 return self.task(*args)
-            if action == 'service':
+            if action.lower() == 'job':
+                return self.job(*args)
+            if action.lower() == 'service':
                 return self.service(*args)
-            if action == 'config':
+            if action.lower() == 'config':
                 return self.config(*args)
-            if action == 'help':
+            if action.lower() == 'help':
                 return self.help()
-            if action == 'exit':
+            if action.lower() == 'exit':
                 return self.exit()
 
             action_found = False
@@ -144,52 +170,114 @@ class Interpreter(Cmd):
                 action_module.sys.argv = [action] + list(args)
 
                 # module might not have function named task
-                task = getattr(action_module, 'Task', None)
+                if task_type is None or task_type == 'task':
+                    task = getattr(action_module, 'Task', None)
+                else:
+                    task = getattr(action_module, task_type.title(), None)
 
                 if task is None:
                     continue
 
+                if task_type is None or task_type == 'task':
+                    t = task(self)
+                else:
+                    if name is None:
+                        raise ValueError('job or service has to have name')
+                    t = task()
+
+                t.name = name
+
                 action_found = True
 
                 # function might not have any argument
-                t = task(self)
-                if hash(t) in self.running_tasks:
-                    raise ValueError(f'{hash(t)} already is in tasks you need to wait for the task to finish')
-                self.running_tasks[hash(t)] = t
-                t.start()
+
+                # token = secrets.token_hex()
+                # self.running_tasks[token] = t
+                if isinstance(t, BaseTask):
+                    if hash(t) in self.running_tasks:
+                        continue
+                        # raise ValueError(f'{hash(t)} already is in tasks you need to wait for the task to finish')
+                    self.running_tasks[hash(t)] = t
+                    t.start()
+                elif isinstance(t, BaseJob):
+                    if name in self.running_jobs:
+                        continue
+                        # raise ValueError(f'{hash(t)} already is in tasks you need to wait for the task to finish')
+                    self.running_jobs[name] = t
+                    t.start()
+                elif isinstance(t, BaseService):
+                    if name in self.running_services:
+                        continue
+                        # raise ValueError(f'{hash(t)} already is in tasks you need to wait for the task to finish')
+                    self.running_services[name] = t
+                    t.start()
+                else:
+                    raise ValueError(f'type {type(t)} is not recognized')
 
             if not action_found:
                 self.output_device.output('action is not found')
             return False
-        except Exception as ex:
-            print(str(ex))  # use stacktrace and write all exception details, line number, function name, file name etc.
-            return self.exit()
+        except:
+            # print(str(ex))  # use stacktrace and write all exception details, line number, function name, file name etc.
+            # return self.exit()
+            ...
 
-    def run_tasks(self):
+    def run_jobs(self):
         settings = json.loads(open('iva.json', 'r').read())
 
-        tasks = settings.get('tasks', {})
-        for task in sorted(filter(lambda x: x['status'] and x['schedule'] != '@startup', tasks.values()), key=lambda x: x['priority']):
-            schedule.every(int(task['schedule'])).seconds.do(self.do_action, task['command'].replace('"', ''))  # need to do them in background
+        jobs = settings.get('jobs', {})
+        for job in sorted(filter(lambda x: x['status'], jobs.values()), key=lambda x: x['priority']):
+            schedule.every(int(job['schedule'])).seconds.do(self.do_action, job['command'].replace('"', ''), name=job['name'], task_type='job')  # need to do them in background
 
         while not self.event.is_set():
             schedule.run_pending()
             time.sleep(0.1)
 
+    def run_services(self):
+        settings = json.loads(open('iva.json', 'r').read())
+
+        services = settings.get('services', {})
+
+        while not self.event.is_set():
+            for service in sorted(filter(lambda x: x['status'], services.values()), key=lambda x: x['priority']):
+                if service['name'] in self.running_services:
+                    continue
+                self.do_action(service['command'].replace('"', ''), name=service['name'], task_type='service')  # need to do them in background
+
+            time.sleep(0.1)
+
     def clean(self):
         while not self.event.is_set():
             with self.lock.r_locked():
-                keys = [key for key in self.running_tasks.keys()]
+                task_keys = [key for key in self.running_tasks.keys()]
+                job_keys = [key for key in self.running_jobs.keys()]
+                service_keys = [key for key in self.running_services.keys()]
 
-            delete_keys = []
-            for key in keys:
+            delete_task_keys = []
+            for key in task_keys:
                 task = self.running_tasks[key]
                 if not task.running():
-                    delete_keys.append(key)
+                    delete_task_keys.append(key)
+            delete_job_keys = []
+            for key in job_keys:
+                task = self.running_jobs[key]
+                if not task.running():
+                    delete_job_keys.append(key)
+            delete_service_keys = []
+            for key in service_keys:
+                task = self.running_services[key]
+                if not task.running():
+                    delete_service_keys.append(key)
 
-            for key in delete_keys:
+            for key in delete_task_keys:
                 with self.lock.w_locked():
                     del self.running_tasks[key]
+            for key in delete_job_keys:
+                with self.lock.w_locked():
+                    del self.running_jobs[key]
+            for key in delete_service_keys:
+                with self.lock.w_locked():
+                    del self.running_services[key]
 
             time.sleep(0.1)
 
@@ -227,105 +315,187 @@ class Interpreter(Cmd):
 
     def task(self, *args):
         parser = argparse.ArgumentParser()
-        parser.add_argument('--create', type=str)
-        parser.add_argument('--update', type=str)
-        parser.add_argument('--delete', type=str)
-        parser.add_argument('--command', type=str)
-        parser.add_argument('--priority', type=int)
-        parser.add_argument('--schedule', type=str)
-        parser.add_argument('--status', type=bool)
+        parser.add_argument('--create', dest='create', action='store_true')
+        parser.add_argument('--update', dest='update', action='store_true')
+        parser.add_argument('--delete', dest='delete', action='store_true')
+        parser.add_argument('--list', dest='list', action='store_true')
+        parser.add_argument('--run', dest='run', action='store_true')
+        parser.add_argument('--name', type=str, default='')
+        parser.add_argument('--script', type=str, default='')
+        parser.add_argument('--priority', type=int, default=1)
+        parser.add_argument('--on', type=str, default='startup')
+        parser.add_argument('--status', type=bool, default=True)
+        parser.set_defaults(create=False)
+        parser.set_defaults(update=False)
+        parser.set_defaults(delete=False)
+        parser.set_defaults(list=False)
+        parser.set_defaults(run=False)
 
-        namespace, _ = parser.parse_known_args(args)
-
-        action = None
-        if namespace.create:
-            action = {
-                'action': 'create',
-                'name': namespace.create,
-                'command': namespace.command.replace('"', ''),
-                'priority': namespace.priority,
-                'schedule': namespace.schedule
-            }
-        elif namespace.update:
-            action = {
-                'action': 'update',
-                'name': namespace.update,
-                'command': namespace.command.replace('"', ''),
-                'priority': namespace.priority,
-                'schedule': namespace.schedule,
-                'status': namespace.status
-            }
-        elif namespace.delete:
-            action = {
-                'action': 'delete',
-                'name': namespace.delete
-            }
+        namespace, args = parser.parse_known_args(args)
 
         settings = json.loads(open('iva.json', 'r').read())
         tasks = settings.get('tasks', {})
 
-        if action['action'] == 'create':
-            task = tasks.get(action['name'], None)
-            if task:
+        if namespace.create:
+            if tasks.get(namespace.name, None) is not None:
                 raise ValueError('task is already exists')
-            task = {
-                'command': action['command'],
-                'priority': action['priority'] or 1,
-                'schedule': action['schedule'] or '* * * * *',
+            tasks[namespace.name] = {
+                'name': namespace.name,
+                'command': ' '.join([namespace.script] + args),
+                'priority': namespace.priority or 1,
+                'on': namespace.on or 'startup',
                 'status': True
             }
-            tasks[action['name']] = task
-            settings['tasks'] = tasks
-            open('iva.json', 'w').write(json.dumps(settings, indent=4))
-        elif action['action'] == 'update':
-            task = tasks.get(action['name'], None)
-            if task is None:
+        elif namespace.update:
+            if tasks.get(namespace.name, None) is None:
                 raise ValueError('task does not exists')
-            task = {
-                'command': action['command'],
-                'priority': action['priority'] or 1,
-                'schedule': action['schedule'] or '* * * * *',
-                'status': action['status'] or False,
+            tasks[namespace.name] = {
+                'name': namespace.name,
+                'command': ' '.join([namespace.script] + args),
+                'priority': namespace.priority or 1,
+                'on': namespace.on or 'startup',
+                'status': True
             }
-            tasks[action['name']] = task
-            settings['tasks'] = tasks
-            open('iva.json', 'w').write(json.dumps(settings, indent=4))
-        elif action['action'] == 'delete':
-            task = tasks.get(action['name'], None)
-            if task is None:
+        elif namespace.delete:
+            if tasks.get(namespace.name, None) is None:
                 raise ValueError('task does not exists')
-            del tasks[action['name']]
-            settings['tasks'] = tasks
-            open('iva.json', 'w').write(json.dumps(settings, indent=4))
-        else:
-            raise ValueError(f'arguments are not recognized')
+            del tasks[namespace.name]
+        elif namespace.list:
+            for task_hash, task in self.running_tasks.items():
+                print(task)
+        elif namespace.run:
+            ...
+
+        settings['tasks'] = tasks
+        open('iva.json', 'w').write(json.dumps(settings, indent=4))
+
+    def job(self, *args):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--create', dest='create', action='store_true')
+        parser.add_argument('--update', dest='update', action='store_true')
+        parser.add_argument('--delete', dest='delete', action='store_true')
+        parser.add_argument('--list', dest='list', action='store_true')
+        parser.add_argument('--run', dest='run', action='store_true')
+        parser.add_argument('--name', type=str, default='')
+        parser.add_argument('--script', type=str, default='')
+        parser.add_argument('--priority', type=int, default=1)
+        parser.add_argument('--schedule', type=int, default=24 * 60 * 60)
+        parser.add_argument('--status', type=bool, default=True)
+        parser.set_defaults(create=False)
+        parser.set_defaults(update=False)
+        parser.set_defaults(delete=False)
+        parser.set_defaults(list=False)
+        parser.set_defaults(run=False)
+
+        namespace, args = parser.parse_known_args(args)
+
+        settings = json.loads(open('iva.json', 'r').read())
+        jobs = settings.get('jobs', {})
+
+        if namespace.create:
+            if jobs.get(namespace.name, None) is not None:
+                raise ValueError('task is already exists')
+            jobs[namespace.name] = {
+                'name': namespace.name,
+                'command': ' '.join([namespace.script] + args),
+                'priority': namespace.priority or 1,
+                'schedule': namespace.schedule or 24 * 60 * 60,
+                'status': True
+            }
+        elif namespace.update:
+            if jobs.get(namespace.name, None) is None:
+                raise ValueError('task does not exists')
+            jobs[namespace.name] = {
+                'name': namespace.name,
+                'command': ' '.join([namespace.script] + args),
+                'priority': namespace.priority or 1,
+                'schedule': namespace.schedule or 24 * 60 * 60,
+                'status': True
+            }
+        elif namespace.delete:
+            if jobs.get(namespace.name, None) is None:
+                raise ValueError('task does not exists')
+            del jobs[namespace.name]
+        elif namespace.list:
+            for task_hash, task in self.running_jobs.items():
+                print(task['name'], task['name'] in self.running_jobs)
+        elif namespace.run:
+            ...
+
+        settings['jobs'] = jobs
+        open('iva.json', 'w').write(json.dumps(settings, indent=4))
 
     def service(self, *args):
+        # need to add depends on
         parser = argparse.ArgumentParser()
-        parser.add_argument('--create', type=str)
-        parser.add_argument('--update', type=str)
-        parser.add_argument('--delete', type=str)
-        parser.add_argument('--command', type=str)
-        parser.add_argument('--priority', type=int)
+        parser.add_argument('--create', dest='create', action='store_true')
+        parser.add_argument('--update', dest='update', action='store_true')
+        parser.add_argument('--delete', dest='delete', action='store_true')
+        parser.add_argument('--list', dest='list', action='store_true')
+        parser.add_argument('--start', dest='start', action='store_true')
+        parser.add_argument('--stop', dest='stop', action='store_true')
+        parser.add_argument('--restart', dest='restart', action='store_true')
+        parser.add_argument('--name', type=str, default='')
+        parser.add_argument('--script', type=str, default='')
+        parser.add_argument('--priority', type=int, default=1)
+        parser.add_argument('--mode', type=str, default='automatic')
+        parser.add_argument('--status', type=bool, default=True)
+        parser.set_defaults(create=False)
+        parser.set_defaults(update=False)
+        parser.set_defaults(delete=False)
+        parser.set_defaults(list=False)
+        parser.set_defaults(start=False)
+        parser.set_defaults(stop=False)
+        parser.set_defaults(restart=False)
 
-        namespace, _ = parser.parse_known_args(args)
+        namespace, args = parser.parse_known_args(args)
 
-        action = None
+        settings = json.loads(open('iva.json', 'r').read())
+        services = settings.get('services', {})
+
         if namespace.create:
-            action = ['create', namespace.create, namespace.command]
+            if services.get(namespace.name, None) is not None:
+                raise ValueError('task is already exists')
+            services[namespace.name] = {
+                'name': namespace.name,
+                'command': ' '.join([namespace.script] + args),
+                'priority': namespace.priority or 1,
+                'mode': namespace.mode or 'automatic',
+                'status': True
+            }
         elif namespace.update:
-            action = ['update', namespace.update, namespace.command]
+            if services.get(namespace.name, None) is None:
+                raise ValueError('task does not exists')
+            services[namespace.name] = {
+                'name': namespace.name,
+                'command': ' '.join([namespace.script] + args),
+                'priority': namespace.priority or 1,
+                'mode': namespace.mode or 'automatic',
+                'status': True
+            }
         elif namespace.delete:
-            action = ['delete', namespace.delete, namespace.command]
+            if services.get(namespace.name, None) is None:
+                raise ValueError('task does not exists')
+            del services[namespace.name]
+        elif namespace.list:
+            for name, service in services.items():
+                print(service['name'], service['name'] in self.running_services)
+        elif namespace.start:
+            service = list(filter(lambda x: x['name'] == namespace.name, services.values()))
+            if len(service) == 1:
+                service = service[0]
+            else:
+                service = None
 
-        if action[0] == 'create':
+            if service is not None:
+                self.do_action(service['command'], name=service['name'], task_type='service')  # need to do them in background
+        elif namespace.stop:
             ...
-        elif action[0] == 'update':
+        elif namespace.restart:
             ...
-        elif action[0] == 'delete':
-            ...
-        else:
-            raise ValueError(f'arguments are not recognized')
+
+        settings['services'] = services
+        open('iva.json', 'w').write(json.dumps(settings, indent=4))
 
     def config(self, *args):
         parser = argparse.ArgumentParser()
@@ -423,24 +593,26 @@ class Interpreter(Cmd):
         return False
 
     def exit(self):
-        self.output_device.output('shutting down')
-        time.sleep(1)
-
         settings = json.loads(open('iva.json', 'r').read())
 
         tasks = settings.get('tasks', {})
-        for task in sorted(filter(lambda x: x['status'] and x['schedule'] == '@shutdown', tasks.values()), key=lambda x: x['priority']):
-            self.do_action(task['command'].replace('"', ''))
+        for task in sorted(filter(lambda x: x['status'] and x['on'] == 'shutdown', tasks.values()), key=lambda x: x['priority']):
+            self.do_action(task['command'], name=task['name'], task_type='task')
 
         with self.lock.r_locked():
-            keys = [key for key in self.running_tasks.keys()]
+            task_keys = [key for key in self.running_tasks.keys()]
+            job_keys = [key for key in self.running_jobs.keys()]
+            service_keys = [key for key in self.running_services.keys()]
 
-        for key in keys:
+        for key in task_keys:
             task = self.running_tasks[key]
             task.stop()
-
-        self.output_device.output('good bye')
-        time.sleep(1)
+        for key in job_keys:
+            task = self.running_jobs[key]
+            task.stop()
+        for key in service_keys:
+            task = self.running_services[key]
+            task.stop()
 
         self.event.set()
         self.input_device.stop()
