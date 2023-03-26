@@ -26,8 +26,8 @@ from joatmon.ai.core import (
     CoreRandom
 )
 from joatmon.ai.memory import RingMemory
-from joatmon.ai.models.ddpg import DDPGModel
-from joatmon.ai.models.dqn import DQNModel
+from joatmon.ai.models.reinforcement.continuous.ddpg import DDPGModel
+from joatmon.ai.models.reinforcement.discrete.dqn import DQNModel
 from joatmon.ai.policy import (
     EpsilonGreedyPolicy,
     GreedyQPolicy
