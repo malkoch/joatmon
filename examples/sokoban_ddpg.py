@@ -181,7 +181,7 @@ class DDPGTrainer:
                     )
 
                 if hasattr(self.environment, 'get_step'):
-                    step = self.environment.get_step(action, 'continuous')
+                    step = self.environment.get_step(action, 'policy_optimization')
                 else:
                     step = action
                 next_state, reward, terminal, _ = self.environment.step(step)
@@ -269,7 +269,7 @@ class DDPGTrainer:
                     )
 
                 if hasattr(self.environment, 'get_step'):
-                    step = self.environment.get_step(action, 'continuous')
+                    step = self.environment.get_step(action, 'policy_optimization')
                 else:
                     step = action
                 next_state, reward, terminal, _ = self.environment.step(step)
