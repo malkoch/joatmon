@@ -175,8 +175,8 @@ class DQNTrainer:
         image = np.swapaxes(image, 0, 1)
         return self.processor.process_state(image)
 
-    def get_step(self, action, mode='discrete', action_number=4):
-        if mode == 'discrete':
+    def get_step(self, action, mode='q_learning', action_number=4):
+        if mode == 'q_learning':
             degree_inc = 360.0 / action_number
             degree = action * degree_inc
             radian = math.radians(degree)
@@ -233,7 +233,7 @@ class DQNTrainer:
                     }
                     )
 
-                step = self.get_step(action, 'discrete', self.action_number)
+                step = self.get_step(action, 'q_learning', self.action_number)
                 next_state, reward, terminal, _ = self.environment.step(step)
                 next_state = self.processor.process_state(next_state)
                 if action_number >= max_action:
@@ -318,7 +318,7 @@ class DQNTrainer:
                     }
                     )
 
-                step = self.get_step(action, 'discrete', self.action_number)
+                step = self.get_step(action, 'q_learning', self.action_number)
                 next_state, reward, terminal, _ = self.environment.step(step)
                 next_state = self.processor.process_state(next_state)
                 if action_number >= max_action:
