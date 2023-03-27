@@ -9,14 +9,19 @@ from setuptools import find_packages
 
 extras = {
     'ai': ['numpy'],
+    'algorithm': [],
     'assistant': ['feedparser', 'requests', 'colorama'],
+    'content': [],
+    'core': [],
     'decorator': ['feedparser', 'requests', 'colorama'],
+    'event': [],
     'game': ['feedparser', 'requests', 'colorama'],
-    'orm': ['pymongo'],
-    'system': ['pywin32'],
+    'orm': [],
+    'plugin': [],
+    'structure': [],
+    'system': [],
 }
 if sys.platform == 'win32':
-    # pywin32 postinstall as admin
     extras['system'].extend(['pywin32'])
 extras['all'] = list(set([item for group in extras.values() for item in group]))
 
