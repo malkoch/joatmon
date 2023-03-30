@@ -14,10 +14,12 @@ extras = {
     'content': [],
     'core': [],
     'decorator': ['feedparser', 'requests', 'colorama'],
+    'download': [],
     'event': [],
     'game': ['feedparser', 'requests', 'colorama'],
     'orm': [],
     'plugin': [],
+    'search': [],
     'structure': [],
     'system': [],
 }

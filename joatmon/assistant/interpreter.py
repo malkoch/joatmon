@@ -42,8 +42,8 @@ class Interpreter(Cmd):
 
         settings = json.loads(open('iva.json', 'r').read())
 
-        self._tts = settings.get('tts', False) and False
-        self._stt = settings.get('stt', False) and False
+        self._tts = settings.get('tts', False)
+        self._stt = settings.get('stt', False)
 
         self.output_device = OutputDevice(tts_enabled=self.tts_enabled)
         self.input_device = InputDriver(stt_enabled=self.stt_enabled)

@@ -1,47 +1,25 @@
 from __future__ import print_function
 
-import argparse
-import sys
 import time
 
 from joatmon.assistant.task import BaseTask
 
 
 class Task(BaseTask):
-    def __init__(self, api=None):
-        super(Task, self).__init__(api, False, 1, 100)
+    arguments = {
+        'message': 'message to greet with'
+    }
 
-        parser = argparse.ArgumentParser()
-        parser.add_argument('--message', type=str)
-
-        namespace, _ = parser.parse_known_args(sys.argv)
-
-        self.action = None
-        if namespace.message:
-            self.action = ['message', namespace.message]
-
-    @staticmethod
-    def help(api):
-        message = """
-        this module can be used to use openai api
-            --ask to use chat-gpt
-            --image to use dall-e
-            --transcribe to use whisper
-        """
-        if api is not None:
-            api.output(message)
-            time.sleep(7)
-        else:
-            print(message)
+    def __init__(self, api, **kwargs):
+        super(Task, self).__init__(api, **kwargs)
 
     def run(self):
-        try:
-            self.api.output(self.action[1].replace('"', ''))
+        message = self.kwargs.get('message', '')
+        if message:
+            self.api.output(message)
 
-            if not self.event.is_set():
-                self.event.set()
-        except:
-            ...
+        if not self.event.is_set():
+            self.event.set()
 
 
 if __name__ == '__main__':

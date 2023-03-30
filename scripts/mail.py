@@ -1,44 +1,40 @@
 from __future__ import print_function
 
-import argparse
-import datetime
 import json
 import smtplib
-import sys
 import time
 from email.mime.text import MIMEText
 
 from joatmon.assistant.service import BaseService
 from joatmon.assistant.task import BaseTask
 from joatmon.decorator.message import consumer
+from joatmon.plugin.core import register
+from joatmon.plugin.message.kafka import KafkaPlugin
 
 
 class Task(BaseTask):
-    def __init__(self, api):
-        parser = argparse.ArgumentParser()
-        parser.add_argument('--background', dest='background', action='store_true')
-        parser.set_defaults(background=False)
+    run_arguments = {
+        'subject': '',
+        'content': '',
+        'receiver': ''
+    }
 
-        namespace, _ = parser.parse_known_args(sys.argv)
-
-        super(Task, self).__init__(api, namespace.background, 1, 100)
-
-    @staticmethod
-    def help(api):
-        ...
+    def __init__(self, api, **kwargs):
+        super(Task, self).__init__(api, **kwargs)
 
     def run(self):
+        receivers = [self.kwargs['receiver']]
+
         config = json.loads(open('iva.json', 'r').read())['configs']['mail']
 
         text_subtype = 'plain'
-        content = """Test message"""
-        subject = "Sent from Python"
+        content = self.kwargs['content']
+        subject = self.kwargs['subject']
 
         smtp_server = config['smtp_server']
         port = config['smtp_port']
         sender_email = config['sender_mail']
         password = config['sender_password']
-        receivers = config['receivers']
 
         msg = MIMEText(content, text_subtype)
         msg['Subject'] = subject
@@ -54,56 +50,25 @@ class Task(BaseTask):
 
 
 class Service(BaseService):
-    def __init__(self):
-        parser = argparse.ArgumentParser()
-        parser.add_argument('--kafka', type=str)
-        parser.add_argument('--topic', type=str)
+    def __init__(self, api, **kwargs):
+        super(Service, self).__init__(api, **kwargs)
 
-        namespace, _ = parser.parse_known_args(sys.argv)
+        register(KafkaPlugin, 'kafka_plugin', 'localhost:9092')
 
-        super(Service, self).__init__(1, 100)
+        self.send_mail = consumer('kafka_plugin', 'mail')(self.send_mail)
 
-        if namespace.topic == 'arxiv':
-            self.new_pdf = consumer(namespace.kafka, namespace.topic)(self.new_pdf)
-
-        self.buffer = []
-        self.last_mail_time = datetime.datetime.now()
-
-    @staticmethod
-    def help(api):
-        ...
-
-    def new_pdf(self, pdf):
-        self.buffer.append(pdf)
-
-    def send_mail(self):
-        if len(self.buffer) == 0:
-            return
-
+    def send_mail(self, mail):
         config = json.loads(open('iva.json', 'r').read())['configs']['mail']
 
-        text_subtype = 'html'
-        content = """    
-        <html>
-            <head></head>
-            <body>
-        """ + '<br><br>'.join(
-            [
-                f'<b>Title:</b> {source["title"]}<br>'
-                f'<b>Summary:</b> {source["summary"]}<br>'
-                f'<b>Link:</b> {source["id"]}<br>'
-                f'<b>Publish Date:</b> {source["published"]}' for source in self.buffer]
-        ) + """
-            </body>
-        </html>
-        """
-        subject = "Sent from Python"
+        text_subtype = mail['content_type']
+        content = mail['content']
+        subject = mail['subject']
 
         smtp_server = config['smtp_server']
         port = config['smtp_port']
         sender_email = config['sender_mail']
         password = config['sender_password']
-        receivers = config['receivers']
+        receivers = mail['receivers']
 
         msg = MIMEText(content, text_subtype)
         msg['Subject'] = subject
@@ -114,23 +79,11 @@ class Service(BaseService):
         conn.sendmail(sender_email, receivers, msg.as_string())
         conn.quit()
 
-        self.buffer = []
-
     def run(self):
-        try:
-            while True:
-                if self.event.is_set():
-                    break
-                time.sleep(1)
-
-                if datetime.datetime.now() - self.last_mail_time > datetime.timedelta(hours=1):
-                    self.last_mail_time = datetime.datetime.now()
-                    self.send_mail()
-        except:
-            ...
-
-    def stop(self):
-        super(Service, self).stop()
+        while True:
+            if self.event.is_set():
+                break
+            time.sleep(1)
 
 
 if __name__ == '__main__':

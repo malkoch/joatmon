@@ -1,11 +1,10 @@
 from __future__ import print_function
 
-import argparse
 import asyncio
 import datetime
 import json
 import re
-import sys
+import time
 import uuid
 from urllib.parse import urlencode
 
@@ -22,7 +21,10 @@ from joatmon.core.utility import (
     to_enumerable,
     to_list_async
 )
-from joatmon.decorator.message import producer
+from joatmon.decorator.message import (
+    consumer,
+    producer
+)
 from joatmon.orm.document import (
     create_new_type,
     Document
@@ -137,30 +139,9 @@ SourceTag = create_new_type(SourceTag, (Document,))
 
 
 class Task(BaseTask):
-    def __init__(self, api=None):
-        parser = argparse.ArgumentParser()
-        parser.add_argument('--list', dest='list', action='store_true')
-        parser.add_argument('--init', dest='init', action='store_true')
-        parser.add_argument('--reinit', dest='reinit', action='store_true')
-        parser.add_argument('--background', dest='background', action='store_true')
-        parser.set_defaults(list=False)
-        parser.set_defaults(init=False)
-        parser.set_defaults(reinit=False)
-        parser.set_defaults(background=False)
+    def __init__(self, api, **kwargs):
+        super(Task, self).__init__(api, **kwargs)
 
-        namespace, _ = parser.parse_known_args(sys.argv)
-
-        super(Task, self).__init__(api, namespace.background, 1, 100)
-
-        self.action = None
-        if namespace.list:
-            self.action = ['list']
-        elif namespace.init:
-            self.action = ['init']
-        elif namespace.reinit:
-            self.action = ['reinit']
-
-        # db_config = json.loads(open('iva.json', 'r').read())['configs']['arxiv']['mongo']
         self.database = MongoDatabase('mongodb://malkoch:malkoch@127.0.0.1:27017/?replicaSet=rs0', 'arxiv')
 
     def reinit(self):
@@ -180,56 +161,25 @@ class Task(BaseTask):
             tag = Tag(**{'object_id': uuid.uuid4(), 'name': tag, 'count': 0})
             asyncio.run(self.database.insert(Tag, tag))
 
-    @staticmethod
-    def help(api):
-        ...
-
     def run(self):
-        try:
-            if self.action is None:
-                raise ValueError(f'arguments are not recognized')
+        self.api.output(asyncio.run(to_list_async(self.database.read(Tag, {}))))
 
-            if self.action[0] == 'list':
-                self.api.output(asyncio.run(to_list_async(self.database.read(Tag, {}))))
-            elif self.action[0] == 'init':
-                self.init()
-            elif self.action[0] == 'reinit':
-                self.reinit()
-            else:
-                raise ValueError(f'arguments are not recognized')
-
-            if not self.event.is_set():
-                self.event.set()
-
-            super(Task, self).run()
-        except:
-            ...
+        if not self.event.is_set():
+            self.event.set()
 
 
 class Job(BaseJob):
-    def __init__(self):
-        parser = argparse.ArgumentParser()
-        parser.add_argument('--fetch', type=str)
-        parser.add_argument('--download', type=str)
+    arguments = {
+        'fetch': '',
+        'download': ''
+    }
 
-        namespace, _ = parser.parse_known_args(sys.argv)
+    def __init__(self, api=None, **kwargs):
+        super(Job, self).__init__(api, **kwargs)
 
-        super(Job, self).__init__(1, 100)
-
-        self.action = None
-        if namespace.fetch:
-            self.action = ['fetch', namespace.fetch]
-        elif namespace.download:
-            self.action = ['download', namespace.download]
-
-        # db_config = json.loads(open('iva.json', 'r').read())['configs']['arxiv']['mongo']
         self.database = MongoDatabase('mongodb://malkoch:malkoch@127.0.0.1:27017/?replicaSet=rs0', 'arxiv')
 
-        kafka_topic = json.loads(open('iva.json', 'r').read())['configs']['arxiv']['kafka_topic']
-        kafka_uri = json.loads(open('iva.json', 'r').read())['configs']['arxiv']['kafka_uri']
-        register(KafkaPlugin, 'arxiv_kafka_plugin', kafka_uri)
-
-        self.create_event = producer('arxiv_kafka_plugin', kafka_topic)(self.create_event)
+        self.create_event = producer('kafka_plugin', 'arxiv')(self.create_event)
 
     def create_event(self, source):
         ...
@@ -282,250 +232,120 @@ class Job(BaseJob):
             source_tag.count = count
             asyncio.run(self.database.update(Tag, {'object_id': source_tag.object_id}, source_tag))
 
-    @staticmethod
-    def help(api):
-        ...
-
     def run(self):
-        try:
-            if self.action is None:
-                raise ValueError(f'arguments are not recognized')
+        fetch = self.kwargs.get('fetch', '')
+        down = self.kwargs.get('download', '')
 
-            if self.action[0] == 'fetch':
-                # fetch category that is wanted
-                # fetch all categories
+        if fetch:
+            # fetch category that is wanted
+            # fetch all categories
 
-                if self.action[1] != 'all':
-                    tag = asyncio.run(first_async(self.database.read(Tag, {'name': self.action[1]})))
-                    if tag is not None:
-                        tag_count = tag.count
-                    else:
-                        raise ValueError(f'{self.action[1]} is not found')
-                        # tag_count = 0
-
-                    for results in query(self.action[1], fetched=tag_count):
-                        for result in results:
-                            self.add_pdf(result, self.action[1])
-
-                        if self.event.is_set():
-                            break
-                else:
-                    for tag in asyncio.run(to_list_async(self.database.read(Tag, {}))):
-                        for results in query(tag.name, fetched=tag.count):
-                            for result in results:
-                                self.add_pdf(result, tag.name)
-
-                            if self.event.is_set():
-                                break
-            elif self.action[0] == 'download':
-                # fetch category that is wanted
-                # fetch all categories
-
-                if self.action[1] != 'all':
-                    tag = asyncio.run(first_async(self.database.read(Tag, {'name': self.action[1]})))
-
-                    for source_tag in asyncio.run(to_list_async(self.database.read(SourceTag, {'tag_id': tag.object_id}))):
-                        source = asyncio.run(first_async(self.database.read(Source, {'object_id': source_tag.source_id})))
-                        if source is None:
-                            continue
-
-                        if self.event.is_set():
-                            break
-                else:
-                    for source in asyncio.run(to_list_async(self.database.read(Source, {}))):
-                        pdf_link = asyncio.run(first_async(self.database.read(SourceLink, {'source_id': source.object_id, 'type': 'application/pdf'})))
-                        if pdf_link is None:
-                            continue
-
-                        # filename = '_'.join(re.findall(r'\w+', source.title))
-                        # filename = "%s.%s" % (filename, pdf_link.link.split('/')[-1])
-
-                        if asyncio.run(first_async(self.database.read(SourceFile, {'source_id': source.object_id}))) is not None:
-                            # with open(os.path.join(r'X:\Cloud\OneDrive\WORK\Source', filename + '.pdf'), 'wb') as file:
-                            #     file.write(self.orm.read_one(SourceFile, source_id=source.object_id).content)
-
-                            continue
-
-                        try:
-                            print(f'downloading {pdf_link.link}')
-                            content = download(pdf_link.link)
-                            asyncio.run(self.database.insert(SourceFile(**{'source_id': source.object_id, 'content': content, 'type': 'pdf'})))
-                            # with open(os.path.join(r'X:\Cloud\OneDrive\WORK\Source', filename + '.pdf'), 'wb') as file:
-                            #     file.write(content)
-                        except Exception as ex:
-                            print(str(ex))
-
-                        if self.event.is_set():
-                            break
+            tag = asyncio.run(first_async(self.database.read(Tag, {'name': fetch})))
+            if tag is not None:
+                tag_count = tag.count
             else:
-                raise ValueError(f'arguments are not recognized')
+                raise ValueError(f'{fetch} is not found')
+                # tag_count = 0
 
-            if not self.event.is_set():
-                self.event.set()
+            for results in query(fetch, fetched=tag_count):
+                for result in results:
+                    self.add_pdf(result, fetch)
 
-            super(Job, self).run()
-        except:
-            ...
-
-
-class Service(BaseService):
-    def __init__(self):
-        parser = argparse.ArgumentParser()
-        parser.add_argument('--fetch', type=str)
-        parser.add_argument('--download', type=str)
-
-        namespace, _ = parser.parse_known_args(sys.argv)
-
-        super(Service, self).__init__(1, 100)
-
-        self.action = None
-        if namespace.fetch:
-            self.action = ['fetch', namespace.fetch]
-        elif namespace.download:
-            self.action = ['download', namespace.download]
-
-        # db_config = json.loads(open('iva.json', 'r').read())['configs']['arxiv']['mongo']
-        self.database = MongoDatabase('mongodb://malkoch:malkoch@127.0.0.1:27017/?replicaSet=rs0', 'arxiv')
-
-    def add_pdf(self, pdf, tag):
-        pdf_object_id = uuid.uuid4()
-
-        pdf_id = pdf['id']
-        pdf_updated = datetime.datetime(*pdf['updated_parsed'][:6])
-        pdf_published = datetime.datetime(*pdf['published_parsed'][:6])
-        pdf_title = pdf['title']
-        pdf_summary = pdf['summary']
-
-        pdf_links = [{'link': link['href'], 'type': link['type']} for link in pdf['links']]
-        pdf_authors = [author['name'] for author in pdf['authors']]
-
-        pdf_result = asyncio.run(first_async(self.database.read(Source, {'id': pdf_id})))
-        if pdf_result:
-            pdf_object_id = pdf_result.object_id
-        else:
-            asyncio.run(
-                self.database.insert(
-                    Source,
-                    {'object_id': pdf_object_id, 'id': pdf_id, 'published': pdf_published, 'updated': pdf_updated, 'title': pdf_title, 'summary': pdf_summary}
-                )
-            )
-
-            for link in pdf_links:
-                asyncio.run(self.database.insert(SourceLink, {'object_id': uuid.uuid4(), 'source_id': pdf_object_id, 'link': link['link'], 'type': link['type']}))
-
-            for author in pdf_authors:
-                author_result = asyncio.run(first_async(self.database.read(Author, {'name': author})))
-                if author_result:
-                    author_object_id = author_result.object_id
-                else:
-                    author_object_id = uuid.uuid4()
-                    asyncio.run(self.database.insert(Author, {'object_id': author_object_id, 'name': author}))
-
-                asyncio.run(self.database.insert(SourceAuthor, {'object_id': uuid.uuid4(), 'source_id': pdf_object_id, 'author_id': author_object_id}))
-
-        tag_object = asyncio.run(first_async(self.database.read(Tag, {'name': tag})))
-        if tag_object:
-            tag_object_id = tag_object.object_id
-        else:
-            tag_object_id = uuid.uuid4()
-            asyncio.run(self.database.insert(Tag, {'object_id': tag_object_id, 'name': tag, 'count': 0}))
-
-        if not asyncio.run(first_async(self.database.read(SourceTag, {'source_id': pdf_object_id, 'tag_id': tag_object_id}))):
-            asyncio.run(self.database.insert(SourceTag, {'object_id': uuid.uuid4(), 'source_id': pdf_object_id, 'tag_id': tag_object_id}))
-            count = len(asyncio.run(to_list_async(self.database.read(SourceTag, {'tag_id': tag_object_id}))))
-
-            source_tag = asyncio.run(first_async(self.database.read(Tag, {'object_id': tag_object_id})))
-            source_tag.count = count
-            asyncio.run(self.database.update(Tag, {'object_id': source_tag.object_id}, source_tag))
-
-    @staticmethod
-    def help(api):
-        ...
-
-    def run(self):
-        try:
-            while True:
                 if self.event.is_set():
                     break
 
-                if self.action is None:
-                    raise ValueError(f'arguments are not recognized')
+        if down:
+            for source in asyncio.run(to_list_async(self.database.read(Source, {}))):
+                pdf_link = asyncio.run(first_async(self.database.read(SourceLink, {'source_id': source.object_id, 'type': 'application/pdf'})))
+                if pdf_link is None:
+                    continue
 
-                if self.action[0] == 'fetch':
-                    # fetch category that is wanted
-                    # fetch all categories
+                # filename = '_'.join(re.findall(r'\w+', source.title))
+                # filename = "%s.%s" % (filename, pdf_link.link.split('/')[-1])
 
-                    if self.action[1] != 'all':
-                        tag = asyncio.run(first_async(self.database.read(Tag, {'name': self.action[1]})))
-                        if tag is not None:
-                            tag_count = tag.count
-                        else:
-                            raise ValueError(f'{self.action[1]} is not found')
-                            # tag_count = 0
+                if asyncio.run(first_async(self.database.read(SourceFile, {'source_id': source.object_id}))) is not None:
+                    # with open(os.path.join(r'X:\Cloud\OneDrive\WORK\Source', filename + '.pdf'), 'wb') as file:
+                    #     file.write(self.orm.read_one(SourceFile, source_id=source.object_id).content)
 
-                        for results in query(self.action[1], fetched=tag_count):
-                            for result in results:
-                                self.add_pdf(result, self.action[1])
+                    continue
 
-                            if self.event.is_set():
-                                break
-                    else:
-                        for tag in asyncio.run(to_list_async(self.database.read(Tag, {}))):
-                            for results in query(tag.name, fetched=tag.count):
-                                for result in results:
-                                    self.add_pdf(result, tag.name)
+                try:
+                    print(f'downloading {pdf_link.link}')
+                    content = download(pdf_link.link)
+                    asyncio.run(self.database.insert(SourceFile(**{'source_id': source.object_id, 'content': content, 'type': 'pdf'})))
+                    # with open(os.path.join(r'X:\Cloud\OneDrive\WORK\Source', filename + '.pdf'), 'wb') as file:
+                    #     file.write(content)
+                except Exception as ex:
+                    print(str(ex))
 
-                                if self.event.is_set():
-                                    break
-                elif self.action[0] == 'download':
-                    # fetch category that is wanted
-                    # fetch all categories
+                if self.event.is_set():
+                    break
 
-                    if self.action[1] != 'all':
-                        tag = asyncio.run(first_async(self.database.read(Tag, {'name': self.action[1]})))
+        if not self.event.is_set():
+            self.event.set()
 
-                        for source_tag in asyncio.run(to_list_async(self.database.read(SourceTag, {'tag_id': tag.object_id}))):
-                            source = asyncio.run(first_async(self.database.read(Source, {'object_id': source_tag.source_id})))
-                            if source is None:
-                                continue
 
-                            if self.event.is_set():
-                                break
-                    else:
-                        for source in asyncio.run(to_list_async(self.database.read(Source, {}))):
-                            pdf_link = asyncio.run(first_async(self.database.read(SourceLink, {'source_id': source.object_id, 'type': 'application/pdf'})))
-                            if pdf_link is None:
-                                continue
+class Service(BaseService):
+    arguments = {}
 
-                            # filename = '_'.join(re.findall(r'\w+', source.title))
-                            # filename = "%s.%s" % (filename, pdf_link.link.split('/')[-1])
+    def __init__(self, api=None, **kwargs):
+        super(Service, self).__init__(api, **kwargs)
 
-                            if asyncio.run(first_async(self.database.read(SourceFile, {'source_id': source.object_id}))) is not None:
-                                # with open(os.path.join(r'X:\Cloud\OneDrive\WORK\Source', filename + '.pdf'), 'wb') as file:
-                                #     file.write(self.orm.read_one(SourceFile, source_id=source.object_id).content)
+        self.database = MongoDatabase('mongodb://malkoch:malkoch@127.0.0.1:27017/?replicaSet=rs0', 'arxiv')
 
-                                continue
+        register(KafkaPlugin, 'kafka_plugin', 'localhost:9092')
 
-                            try:
-                                print(f'downloading {pdf_link.link}')
-                                content = download(pdf_link.link)
-                                asyncio.run(self.database.insert(SourceFile(**{'source_id': source.object_id, 'content': content, 'type': 'pdf'})))
-                                # with open(os.path.join(r'X:\Cloud\OneDrive\WORK\Source', filename + '.pdf'), 'wb') as file:
-                                #     file.write(content)
-                            except Exception as ex:
-                                print(str(ex))
+        self.create_event = consumer('kafka_plugin', 'arxiv')(self.create_event)
+        self.send_mail = producer('kafka_plugin', 'mail')(self.send_mail)
 
-                            if self.event.is_set():
-                                break
-                else:
-                    raise ValueError(f'arguments are not recognized')
+        self.last_mail_time = datetime.datetime.now()
 
-            if not self.event.is_set():
-                self.event.set()
+        self.buffer = []
 
-            super(Service, self).run()
-        except:
-            ...
+    def create_event(self, source):
+        self.buffer.append(source)
+
+    def send_mail(self, mail):
+        ...
+
+    def run(self):
+        while True:
+            if self.event.is_set():
+                break
+            time.sleep(1)
+
+            if datetime.datetime.now() - self.last_mail_time > datetime.timedelta(hours=1):
+                self.last_mail_time = datetime.datetime.now()
+
+                if len(self.buffer) == 0:
+                    continue
+
+                config = json.loads(open('iva.json', 'r').read())['configs']['arxiv']
+                receivers = config['receivers']
+
+                mail = {
+                    'receivers': receivers,
+                    'content': """    
+                <html>
+                    <head></head>
+                    <body>
+                """ + '<br><br>'.join(
+                        [
+                            f'<b>Title:</b> {source["title"]}<br>'
+                            f'<b>Summary:</b> {source["summary"]}<br>'
+                            f'<b>Link:</b> {source["id"]}<br>'
+                            f'<b>Publish Date:</b> {source["published"]}' for source in self.buffer]
+                    ) + """
+                    </body>
+                </html>
+                """,
+                    'subject': 'Arxiv',
+                    'content_type': 'html'
+                }
+
+                self.send_mail(mail)
+
+                self.buffer = []
 
 
 if __name__ == '__main__':
