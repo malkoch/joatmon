@@ -1,40 +1,13 @@
 from __future__ import print_function
 
-import argparse
-import sys
-
 import psutil
 
 from joatmon.assistant.task import BaseTask
 
 
 class Task(BaseTask):
-    def __init__(self, api):
-        super(Task, self).__init__(api, False, 1, 100)
-
-        parser = argparse.ArgumentParser()
-        parser.add_argument('--memory', type=str)
-        parser.add_argument('--cpu', type=str)
-        parser.add_argument('--disk', type=str)
-        parser.add_argument('--battery', type=str)
-        parser.add_argument('--process', type=str)
-
-        namespace, _ = parser.parse_known_args(sys.argv)
-
-        if namespace.memory:
-            self.action = ['memory', namespace.memory]
-        elif namespace.cpu:
-            self.action = ['cpu', namespace.cpu]
-        elif namespace.disk:
-            self.action = ['disk', namespace.disk]
-        elif namespace.battery:
-            self.action = ['battery', namespace.battery]
-        elif namespace.process:
-            self.action = ['process', namespace.process]
-
-    @staticmethod
-    def help(api):
-        ...
+    def __init__(self, api, **kwargs):
+        super(Task, self).__init__(api, **kwargs)
 
     def run(self):
         try:
@@ -59,14 +32,14 @@ class Task(BaseTask):
                     f'Swap Used: {convert_size(psutil.swap_memory().used)}, '
                     f'Swap Free: {convert_size(psutil.swap_memory().free)}, '
                     f'Swap Percent: {psutil.swap_memory().percent}'
-                    )
+                )
             elif self.action[0] == 'cpu':
                 self.api.output(
                     f'CPU Total Usage: {psutil.cpu_percent(percpu=False)}, '
                     f'CPU Per Usage: {psutil.cpu_percent(percpu=True)}, '
                     f'CPU Count: {psutil.cpu_count(logical=False)}, '
                     f'CPU Count Logical: {psutil.cpu_count(logical=True)}'
-                    )
+                )
             elif self.action[0] == 'disk':
                 import math
 
@@ -84,21 +57,21 @@ class Task(BaseTask):
                         f'Disk Device: {d.device}, '
                         f'Disk Mount: {d.mountpoint}, '
                         f'Disk File System Type: {d.fstype}'
-                        )
+                    )
 
                     self.api.output(
                         f'Disk Total: {convert_size(psutil.disk_usage(d.device).total)}, '
                         f'Disk Used: {convert_size(psutil.disk_usage(d.device).used)}, '
                         f'Disk Free: {convert_size(psutil.disk_usage(d.device).free)}, '
                         f'Disk Percent: {psutil.disk_usage(d.device).percent}'
-                        )
+                    )
 
             elif self.action[0] == 'battery':
                 self.api.output(
                     f'Battery Percent: {psutil.sensors_battery().percent}, '
                     f'Battery Plugged: {psutil.sensors_battery().power_plugged}, '
                     f'Batter Left: {psutil.sensors_battery().secsleft}'
-                    )
+                )
             elif self.action[0] == 'process':
                 for p in psutil.pids():
                     process = psutil.Process(p)

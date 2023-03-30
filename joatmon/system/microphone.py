@@ -58,11 +58,15 @@ class InputDriver(TextIOBase):
             result = self.audio_model.transcribe(audio_data, language='english')
             self.result_queue.put_nowait(result)
 
+    def input(self):
+        return self.readline()
+
     def readline(self, **kwargs):
+        # need to find a way to remove these and keep punctuations as well
         if not self.stt_enabled:
-            return sys.stdin.readline()
+            return sys.stdin.readline().lower().strip()
         else:
-            return self.result_queue.get()['text'].replace('.', '').lower()
+            return self.result_queue.get()['text'].lower().strip()
 
     def stop(self):
         self.stop_event.set()
