@@ -1,9 +1,8 @@
 import sys
 import threading
-from io import TextIOBase
 
 
-class InputDriver(TextIOBase):
+class InputDriver:
     def __init__(self, stt_enabled):
         super(InputDriver, self).__init__()
 

@@ -17,6 +17,7 @@ extras = {
     'download': [],
     'event': [],
     'game': ['feedparser', 'requests', 'colorama'],
+    'hid': [],
     'orm': [],
     'plugin': [],
     'search': [],
