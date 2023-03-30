@@ -1,6 +1,8 @@
 import sys
 import threading
 
+from joatmon.system.core import RWLock
+
 
 class OutputDevice:
     def __init__(self, tts_enabled):
@@ -9,6 +11,8 @@ class OutputDevice:
         self._tts = tts_enabled
 
         self.stop_event = threading.Event()
+
+        self.lock = RWLock()
 
     @property
     def tts_enabled(self):
@@ -19,10 +23,11 @@ class OutputDevice:
         self._tts = value
 
     def output(self, text):
-        if not text.endswith('\n'):
-            text += '\n'
-        self.write(text)
-        self.flush()
+        with self.lock.w_locked():
+            if not text.endswith('\n'):
+                text += '\n'
+            self.write(text)
+            self.flush()
 
     def write(self, text):
         if self.tts_enabled:

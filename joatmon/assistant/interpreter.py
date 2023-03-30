@@ -15,8 +15,8 @@ from colorama import Fore
 from joatmon import context
 from joatmon.core.utility import first
 from joatmon.system.core import RWLock
-from joatmon.system.microphone import InputDriver
-from joatmon.system.speaker import OutputDevice
+from joatmon.hid.microphone import InputDriver
+from joatmon.hid.speaker import OutputDevice
 
 
 class CTX:
