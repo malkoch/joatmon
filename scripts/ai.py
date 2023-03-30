@@ -23,7 +23,7 @@ class Task(BaseTask):
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": self.kwargs['message']}]
         )
-        print(response['choices'][0]['message']['content'])
+        self.api.output(response['choices'][0]['message']['content'])
 
         if not self.event.is_set():
             self.event.set()
