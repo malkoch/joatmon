@@ -93,11 +93,6 @@ class Input(ctypes.Structure):
 
 @auto_pause(duration=0.05)
 def _send_keyboard_event(key, event):
-    ctypes.windll.user32.keybd_event(key, key, event, 0)
-
-
-@auto_pause(duration=0.05)
-def _send_keyboard_event2(key, event):
     if event == 0x00:
         keybd_flags = KEYEVENTF_SCANCODE
 
@@ -507,12 +502,12 @@ class Keyboard:
     @staticmethod
     def key_down(key):
         key, of_type = key
-        _send_keyboard_event2(key, Keyboard.KEY_DOWN)
+        _send_keyboard_event(key, Keyboard.KEY_DOWN)
 
     @staticmethod
     def key_up(key):
         key, of_type = key
-        _send_keyboard_event2(key, Keyboard.KEY_UP)
+        _send_keyboard_event(key, Keyboard.KEY_UP)
 
     @staticmethod
     def press(key):
