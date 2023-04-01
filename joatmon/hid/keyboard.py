@@ -80,7 +80,7 @@ class POINT(ctypes.Structure):
                 ("y", ctypes.c_long)]
 
 
-class Input_I(ctypes.Union):
+class InputI(ctypes.Union):
     _fields_ = [("ki", KeyBdInput),
                 ("mi", MouseInput),
                 ("hi", HardwareInput)]
@@ -88,7 +88,7 @@ class Input_I(ctypes.Union):
 
 class Input(ctypes.Structure):
     _fields_ = [("type", ctypes.c_ulong),
-                ("ii", Input_I)]
+                ("ii", InputI)]
 
 
 @auto_pause(duration=0.05)
@@ -99,68 +99,57 @@ def _send_keyboard_event(key, event):
 @auto_pause(duration=0.05)
 def _send_keyboard_event2(key, event):
     if event == 0x00:
-        keybdFlags = KEYEVENTF_SCANCODE
+        keybd_flags = KEYEVENTF_SCANCODE
 
-        insertedEvents = 0
-        expectedEvents = 1
+        inserted_events = 0
+        expected_events = 1
 
         if key in [0x4B, 0x48, 0x4D, 0x50]:
-            keybdFlags |= KEYEVENTF_EXTENDEDKEY
+            keybd_flags |= KEYEVENTF_EXTENDEDKEY
             if ctypes.windll.user32.GetKeyState(0x90):
-                expectedEvents = 2
-                hexKeyCode = 0xE0
+                expected_events = 2
+                hex_key_code = 0xE0
                 extra = ctypes.c_ulong(0)
-                ii_ = Input_I()
-                ii_.ki = KeyBdInput(0, hexKeyCode, KEYEVENTF_SCANCODE, 0, ctypes.pointer(extra))
+                ii_ = InputI()
+                ii_.ki = KeyBdInput(0, hex_key_code, KEYEVENTF_SCANCODE, 0, ctypes.pointer(extra))
                 x = Input(ctypes.c_ulong(1), ii_)
 
-                insertedEvents += SendInput(1, ctypes.pointer(x), ctypes.sizeof(x))
+                inserted_events += SendInput(1, ctypes.pointer(x), ctypes.sizeof(x))
 
-        hexKeyCode = key
+        hex_key_code = key
         extra = ctypes.c_ulong(0)
-        ii_ = Input_I()
-        ii_.ki = KeyBdInput(0, hexKeyCode, keybdFlags, 0, ctypes.pointer(extra))
+        ii_ = InputI()
+        ii_.ki = KeyBdInput(0, hex_key_code, keybd_flags, 0, ctypes.pointer(extra))
         x = Input(ctypes.c_ulong(1), ii_)
-        insertedEvents += SendInput(1, ctypes.pointer(x), ctypes.sizeof(x))
-        return insertedEvents == expectedEvents
+        inserted_events += SendInput(1, ctypes.pointer(x), ctypes.sizeof(x))
+        return inserted_events == expected_events
     elif event == 0x02:
-        keybdFlags = KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP
+        keybd_flags = KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP
 
-        # Init event tracking
-        insertedEvents = 0
-        expectedEvents = 1
+        inserted_events = 0
+        expected_events = 1
 
-        # arrow keys need the extended key flag
         if key in [0x4B, 0x48, 0x4D, 0x50]:
-            keybdFlags |= KEYEVENTF_EXTENDEDKEY
+            keybd_flags |= KEYEVENTF_EXTENDEDKEY
 
-        hexKeyCode = key
+        hex_key_code = key
         extra = ctypes.c_ulong(0)
-        ii_ = Input_I()
-        ii_.ki = KeyBdInput(0, hexKeyCode, keybdFlags, 0, ctypes.pointer(extra))
+        ii_ = InputI()
+        ii_.ki = KeyBdInput(0, hex_key_code, keybd_flags, 0, ctypes.pointer(extra))
         x = Input(ctypes.c_ulong(1), ii_)
 
-        # SendInput returns the number of event successfully inserted into input stream
-        # https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-sendinput#return-value
-        insertedEvents += SendInput(1, ctypes.pointer(x), ctypes.sizeof(x))
+        inserted_events += SendInput(1, ctypes.pointer(x), ctypes.sizeof(x))
 
-        # if numlock is on and an arrow key is being pressed, we need to send an additional scancode
-        # https://stackoverflow.com/questions/14026496/sendinput-sends-num8-when-i-want-to-send-vk-up-how-come
-        # https://handmade.network/wiki/2823-keyboard_inputs_-_scancodes,_raw_input,_text_input,_key_names
         if key in [0x4B, 0x48, 0x4D, 0x50] and ctypes.windll.user32.GetKeyState(0x90):
-            # We need to press two keys, so we expect to have inserted 2 events when done
-            expectedEvents = 2
-            hexKeyCode = 0xE0
+            expected_events = 2
+            hex_key_code = 0xE0
             extra = ctypes.c_ulong(0)
-            ii_ = Input_I()
-            ii_.ki = KeyBdInput(0, hexKeyCode, KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP, 0, ctypes.pointer(extra))
+            ii_ = InputI()
+            ii_.ki = KeyBdInput(0, hex_key_code, KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP, 0, ctypes.pointer(extra))
             x = Input(ctypes.c_ulong(1), ii_)
-            insertedEvents += SendInput(1, ctypes.pointer(x), ctypes.sizeof(x))
+            inserted_events += SendInput(1, ctypes.pointer(x), ctypes.sizeof(x))
 
-        return insertedEvents == expectedEvents
-
-
-##    ctypes.windll.user32.keybd_event(key, key, event, 0)
+        return inserted_events == expected_events
 
 
 class Keyboard:
@@ -529,11 +518,3 @@ class Keyboard:
     def press(key):
         Keyboard.key_down(key)
         Keyboard.key_up(key)
-
-##if __name__ == '__main__':
-##    k = Keyboard()
-##    import time
-##    time.sleep(1)
-##    k.press(Keyboard.DK_UP)
-##    time.sleep(1)
-##    k.press(Keyboard.DK_UP)
