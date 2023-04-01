@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from joatmon.ai.core import CoreModel
+from joatmon.ai.network.core import CoreNetwork
 from joatmon.ai.utility import (
     load,
     save,
@@ -16,7 +16,7 @@ from joatmon.ai.utility import (
 __all__ = ['DDPGModel']
 
 
-class DDPGModel(CoreModel):
+class DDPGModel(CoreNetwork):
     """
     Deep Deterministic Policy Gradient
 

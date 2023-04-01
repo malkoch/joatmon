@@ -14,7 +14,7 @@ import requests
 from joatmon.assistant.job import BaseJob
 from joatmon.assistant.service import BaseService
 from joatmon.assistant.task import BaseTask
-from joatmon.core.utility import (
+from joatmon.utility import (
     current_time,
     first_async,
     new_object_id,

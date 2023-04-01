@@ -3,7 +3,7 @@ import inspect
 import json
 
 from joatmon import context
-from joatmon.core.utility import (
+from joatmon.utility import (
     JSONEncoder,
     to_enumerable,
     to_hash

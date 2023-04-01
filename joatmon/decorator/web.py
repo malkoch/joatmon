@@ -2,7 +2,7 @@ import functools
 import inspect
 
 from joatmon import context
-from joatmon.core.utility import (
+from joatmon.utility import (
     to_case,
     to_enumerable
 )

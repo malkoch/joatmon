@@ -1,6 +1,44 @@
 import numpy as np
 
-from joatmon.ai.core import CoreRandom
+
+class CoreRandom(object):
+    """
+    Abstract base class for all implemented random processes.
+
+    Do not use this abstract base class directly but instead
+    use one of the concrete random processes implemented.
+
+    To implement your own random processes,
+    you have to implement the following methods:
+
+    - `decay`
+    - `sample`
+    - `reset`
+    """
+
+    def __init__(self):
+        super(CoreRandom, self).__init__()
+
+    def reset(self):
+        """
+        Reset random state.
+        """
+        raise NotImplementedError
+
+    def decay(self):
+        """
+        decay
+        """
+        raise NotImplementedError
+
+    def sample(self):
+        """
+        Sample random state.
+
+        # Returns
+            sample (abstract): Random state.
+        """
+        raise NotImplementedError
 
 
 # another class to make the noise decayed, parent class for all

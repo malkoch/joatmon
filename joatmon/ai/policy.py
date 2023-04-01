@@ -1,6 +1,42 @@
 import numpy as np
 
-from joatmon.ai.core import CorePolicy
+
+class CorePolicy(object):
+    """
+    Abstract base class for all implemented policy.
+
+    Do not use this abstract base class directly but
+    instead use one of the concrete policy implemented.
+
+    To implement your own policy, you have to implement the following methods:
+
+    - `decay`
+    - `use_network`
+    """
+
+    def __init__(self):
+        super(CorePolicy, self).__init__()
+
+    def reset(self):
+        """
+        reset
+        """
+        raise NotImplementedError
+
+    def decay(self):
+        """
+        Decaying the epsilon / sigma value of the policy.
+        """
+        raise NotImplementedError
+
+    def use_network(self):
+        """
+        Sample an experience replay batch with size.
+
+        # Returns
+            use (bool): Boolean value for using the nn.
+        """
+        raise NotImplementedError
 
 
 class GreedyQPolicy(CorePolicy):

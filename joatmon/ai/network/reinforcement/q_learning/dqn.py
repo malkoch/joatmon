@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from joatmon.ai.core import CoreModel
+from joatmon.ai.network.core import CoreNetwork
 from joatmon.ai.utility import (
     load,
     range_tensor,
@@ -18,7 +18,7 @@ from joatmon.ai.utility import (
 __all__ = ['DQNModel']
 
 
-class DQNModel(CoreModel):
+class DQNModel(CoreNetwork):
     """
     Deep Q Network
 

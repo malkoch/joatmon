@@ -1,5 +1,5 @@
-from joatmon.core.serializable import Serializable
-from joatmon.core.utility import get_converter
+from joatmon.serializable import Serializable
+from joatmon.utility import get_converter
 from joatmon.orm.meta import Meta
 
 

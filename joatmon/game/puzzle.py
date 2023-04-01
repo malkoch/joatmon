@@ -3,9 +3,9 @@ import random
 import cv2
 import numpy as np
 
-from joatmon.ai.core import CoreEnv
-
 __all__ = ['Puzzle2048']
+
+from joatmon.game.core import CoreEnv
 
 
 class Puzzle2048(CoreEnv):
@@ -176,7 +176,7 @@ class Puzzle2048(CoreEnv):
                     cv2.putText(
                         state, str(2 ** self.matrix[row][col]), (int((col + 1) * rect_size - w[0]), int((row + 0.5) * rect_size + h)),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA
-                        )
+                    )
         cv2.imshow('state', state)
         cv2.waitKey(1)
 

@@ -79,7 +79,7 @@ def to_enumerable(value, string=False):
     if value is None:
         return None
 
-    from joatmon.core.serializable import Serializable
+    from joatmon.serializable import Serializable
     from joatmon.orm.enum import Enum
 
     if isinstance(value, dict):
@@ -100,7 +100,7 @@ def to_enumerable(value, string=False):
 
 
 def to_case(case, value, key=None, convert_value=False):
-    from joatmon.core.serializable import Serializable
+    from joatmon.serializable import Serializable
 
     enumerable = to_enumerable(value)
 

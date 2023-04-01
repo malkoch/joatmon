@@ -4,7 +4,7 @@ from enum import (
     IntEnum
 )
 
-from joatmon.core.utility import (
+from joatmon.utility import (
     to_pascal_string,
     to_snake_string
 )

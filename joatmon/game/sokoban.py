@@ -10,9 +10,9 @@ from pygame.color import THECOLORS
 from pymunk.body import Body
 from pymunk.vec2d import Vec2d
 
-from joatmon.ai.core import CoreEnv
-
 __all__ = ['SokobanEnv']
+
+from joatmon.game.core import CoreEnv
 
 TYPE_LOOKUP = {
     0: 'wall',
@@ -371,7 +371,7 @@ class SokobanEnv(CoreEnv):
                 'num_boxes': 1,
                 'tries': 4
             }
-            )
+        )
         object_specs = env_specs.get(
             'object', {
                 'size': 32,
@@ -401,42 +401,42 @@ class SokobanEnv(CoreEnv):
                     'sprite': 'obstacle.png'
                 }
             }
-            )
+        )
         ground_specs = object_specs.get(
             'ground', {
                 'collision': 0,
                 'color': 'black',
                 'sprite': 'ground.png'
             }
-            )
+        )
         goal_specs = object_specs.get(
             'goal', {
                 'collision': 1,
                 'color': 'green3',
                 'sprite': 'goal.png'
             }
-            )
+        )
         block_specs = object_specs.get(
             'block', {
                 'collision': 2,
                 'color': 'blue3',
                 'sprite': 'block.png'
             }
-            )
+        )
         player_specs = object_specs.get(
             'player', {
                 'collision': 4,
                 'color': 'orange3',
                 'sprite': 'player.png'
             }
-            )
+        )
         obstacle_specs = object_specs.get(
             'obstacle', {
                 'collision': 8,
                 'color': 'red3',
                 'sprite': 'obstacle.png'
             }
-            )
+        )
         space_specs = env_specs.get(
             'space', {
                 'gravity': {
@@ -448,13 +448,13 @@ class SokobanEnv(CoreEnv):
                 'steps': 2,
                 'force_multiplier': 250.0
             }
-            )
+        )
         gravity_specs = space_specs.get(
             'gravity', {
                 'x': 0.0,
                 'y': 0.0
             }
-            )
+        )
         reward_specs = env_specs.get(
             'reward', {
                 'movement': -0.25,
@@ -462,7 +462,7 @@ class SokobanEnv(CoreEnv):
                 'off_target': -5.0,
                 'success': 10.0
             }
-            )
+        )
 
         self.new_layout = layout_getter(layout_specs)
         self.layout = None
@@ -540,19 +540,19 @@ class SokobanEnv(CoreEnv):
 
                 if object_type == 0:
                     body, points = create_rectangle_body(mass=1000000, body_type=Body.STATIC, half_size=self.obj_size * 0.5)
-                    body.position = Vec2d(object_position)
+                    body.position = Vec2d(object_position.x, object_position.y)
                     shape = create_rectangle_shape(body=body, points=points, friction=0, elasticity=0, collision_type=self.obstacle_collision, sensor=False)
                 elif object_type == 2:
                     body, points = create_rectangle_body(mass=1000000, body_type=Body.STATIC, half_size=self.obj_size * 0.5)
-                    body.position = Vec2d(object_position)
+                    body.position = Vec2d(object_position.x, object_position.y)
                     shape = create_rectangle_shape(body=body, points=points, friction=0, elasticity=0, collision_type=self.goal_collision, sensor=True)
                 elif object_type == 4:
                     body, points = create_rectangle_body(mass=1, body_type=Body.DYNAMIC, half_size=self.obj_size * 0.5)
-                    body.position = Vec2d(object_position)
+                    body.position = Vec2d(object_position.x, object_position.y)
                     shape = create_rectangle_shape(body=body, points=points, friction=0, elasticity=0, collision_type=self.block_collision, sensor=False)
                 elif object_type == 5:
                     body = create_circle_body(mass=1, body_type=Body.DYNAMIC, radius=self.obj_size * 0.5)
-                    body.position = Vec2d(object_position)
+                    body.position = Vec2d(object_position.x, object_position.y)
                     shape = create_circle_shape(body=body, radius=self.obj_size * 0.5, friction=0, elasticity=0, collision_type=self.player_collision, sensor=False)
                 else:
                     continue
@@ -767,7 +767,7 @@ class SokobanEnv(CoreEnv):
             x, y = action
             vector = Vec2d(x, y)
             if vector.length > 1.0:
-                vector.length = 1.0
+                vector = vector.normalized
         except TypeError:
             vector = Vec2d(0.0, 0.0)
         self._play_step(force=vector * self.force)

@@ -1,8 +1,8 @@
 import random
 
-from joatmon.ai.core import CoreEnv
-
 __all__ = ['TilesEnv']
+
+from joatmon.game.core import CoreEnv
 
 
 class TilesEnv(CoreEnv):

@@ -13,10 +13,10 @@ import schedule
 from colorama import Fore
 
 from joatmon import context
-from joatmon.core.utility import first
-from joatmon.system.core import RWLock
 from joatmon.hid.microphone import InputDriver
 from joatmon.hid.speaker import OutputDevice
+from joatmon.system.lock import RWLock
+from joatmon.utility import first
 
 
 class CTX:
