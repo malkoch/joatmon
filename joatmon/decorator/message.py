@@ -4,9 +4,10 @@ import time
 from threading import Thread
 
 from joatmon import context
-from joatmon.event.core import Event
 
 __all__ = ['producer', 'consumer']
+
+from joatmon.event import Event
 
 
 def producer(kafka, topic):

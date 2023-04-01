@@ -2,9 +2,9 @@ import cv2
 import numpy as np
 import pygame
 
-from joatmon.ai.core import CoreEnv
-
 __all__ = ['CubeEnv']
+
+from joatmon.game.core import CoreEnv
 
 cube_colors = ['blue', 'red', 'yellow', 'green', 'orange', 'white']
 cube_colors = list(map(lambda x: pygame.color.THECOLORS[x], cube_colors))

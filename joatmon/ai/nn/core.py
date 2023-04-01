@@ -27,7 +27,6 @@ from joatmon.ai.nn.utility import (
     required,
     typename
 )
-from joatmon.core import CoreException
 
 __all__ = ['Tensor', 'Module', 'Parameter', 'Optimizer', 'LRScheduler', 'Loss', 'ModuleAttributeException', 'Sequential']
 
@@ -39,7 +38,7 @@ warnings.filterwarnings(
     )
 
 
-class ModuleAttributeException(CoreException, AttributeError):
+class ModuleAttributeException(AttributeError):
     pass
 
 

@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from joatmon.ai.core import CoreModel
+from joatmon.ai.models.core import CoreModel
 from joatmon.ai.utility import (
     load,
     range_tensor,

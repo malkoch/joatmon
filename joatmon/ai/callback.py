@@ -1,6 +1,76 @@
 import os
 
-from joatmon.ai.core import CoreCallback
+import numpy as np
+
+
+class CoreCallback(object):
+    """
+    Abstract base class for all implemented callback.
+
+    Do not use this abstract base class directly but instead use one of the concrete callback implemented.
+
+    To implement your own callback, you have to implement the following methods:
+
+    - `on_action_begin`
+    - `on_action_end`
+    - `on_replay_begin`
+    - `on_replay_end`
+    - `on_episode_begin`
+    - `on_episode_end`
+    - `on_agent_begin`
+    - `on_agent_end`
+    """
+
+    def __init__(self):
+        super(CoreCallback, self).__init__()
+
+    def on_agent_begin(self, *args, **kwargs):
+        """
+        Called at beginning of each agent play
+        """
+        pass
+
+    def on_agent_end(self, *args, **kwargs):
+        """
+        Called at end of each agent play
+        """
+        pass
+
+    def on_episode_begin(self, *args, **kwargs):
+        """
+        Called at beginning of each game episode
+        """
+        pass
+
+    def on_episode_end(self, *args, **kwargs):
+        """
+        Called at end of each game episode
+        """
+        pass
+
+    def on_action_begin(self, *args, **kwargs):
+        """
+        Called at beginning of each agent action
+        """
+        pass
+
+    def on_action_end(self, *args, **kwargs):
+        """
+        Called at end of each agent action
+        """
+        pass
+
+    def on_replay_begin(self, *args, **kwargs):
+        """
+        Called at beginning of each nn replay
+        """
+        pass
+
+    def on_replay_end(self, *args, **kwargs):
+        """
+        Called at end of each nn replay
+        """
+        pass
 
 
 class CallbackList(CoreCallback):
@@ -119,196 +189,6 @@ class TrainLogger(CoreCallback):
                 file.write(','.join(list(map(str, kwargs['loss']))) + '\n')
 
 
-import sys
-from PyQt5.QtWidgets import (
-    QApplication,
-    QStyleFactory
-)
-import matplotlib
-
-matplotlib.use("Qt5Agg")
-
-from PyQt5.QtWidgets import (
-    QMainWindow,
-    QFrame,
-    QGridLayout
-)
-from PyQt5.QtCore import (
-    QObject,
-    pyqtSignal
-)
-from PyQt5.QtGui import QColor
-import numpy as np
-import matplotlib
-
-matplotlib.use("Qt5Agg")
-from matplotlib.figure import Figure
-from matplotlib.animation import TimedAnimation
-from matplotlib.lines import Line2D
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-import time
-
-
-class CustomMainWindow(QMainWindow):
-    def __init__(self):
-        super(CustomMainWindow, self).__init__()
-        # Define the geometry of the main window
-        self.setGeometry(300, 300, 800, 400)
-        self.setWindowTitle("my first window")
-        # Create FRAME_A
-        self.FRAME_A = QFrame(self)
-        self.FRAME_A.setStyleSheet("QWidget { background-color: %s }" % QColor(210, 210, 235, 255).name())
-        self.LAYOUT_A = QGridLayout()
-        self.FRAME_A.setLayout(self.LAYOUT_A)
-        self.setCentralWidget(self.FRAME_A)
-        # Place the matplotlib figure
-        self.fig = CustomFigCanvas()
-        self.LAYOUT_A.addWidget(self.fig, *(0, 1))
-        self.show()
-        return
-
-    def callback(self, value):
-        self.fig.add_data(value)
-        return
-
-
-class CustomFigCanvas(FigureCanvas, TimedAnimation):
-    def __init__(self):
-        print(matplotlib.__version__)
-
-        self.x = [0]
-        self.y = [0]
-
-        # The window
-        self.fig = Figure(figsize=(5, 5), dpi=100)
-        self.ax1 = self.fig.add_subplot(111)
-        # self.ax1 settings
-        self.ax1.set_xlabel('time')
-        self.ax1.set_ylabel('raw data')
-        self.line = Line2D([], [], color='blue', marker='o')
-        self.ax1.add_line(self.line)
-        self.ax1.set_xlim(1, 12)
-        self.ax1.set_ylim(-500, 500)
-        self.ax1.get_xaxis().set_visible(False)
-        self.ax1.get_yaxis().set_visible(False)
-        FigureCanvas.__init__(self, self.fig)
-        TimedAnimation.__init__(self, self.fig, interval=50, blit=True)
-        return
-
-    def new_frame_seq(self):
-        return iter(range(20000))
-
-    def _init_draw(self):
-        # lines = [self.line1, self.line1_tail, self.line1_head]
-        lines = [self.line]
-        for line in lines:
-            line.set_data([], [])
-        return
-
-    def add_data(self, value):
-        self.x.append(self.x[-1] + 1 if len(self.x) > 0 else 1)
-        self.y.append(value)
-        return
-
-    def _step(self, *args):
-        try:
-            TimedAnimation._step(self, *args)
-        except Exception as e:
-            TimedAnimation._stop(self)
-            pass
-        return
-
-    def _draw_frame(self, framedata):
-        margin = 2
-        # while len(self.data) > 0:
-        #     self.y = np.roll(self.y, -1)
-        #     self.y[-1] = self.data[0]
-        #     del (self.data[0])
-
-        # self.line.set_data(self.n[0: self.n.size - margin], self.y[0: self.n.size - margin])
-        try:
-            if len(self.y) // 40 > 0:
-                import pandas as pd
-                df = pd.DataFrame(self.y)
-                y = df.rolling(window=len(self.y) // 40).mean().values
-                y = y[~np.isnan(y)]
-            else:
-                y = self.y
-            x = [x for x in range(len(y))]
-            if len(self.x) > 0:
-                x_max = max(x)
-                x_min = min(x)
-                y_max = max(y)
-                y_min = min(y)
-                x_lim_min, x_lim_max = self.ax1.get_xlim()
-                y_lim_min, y_lim_max = self.ax1.get_ylim()
-                self.ax1.set_xlim(x_min, x_max + 3)
-                self.ax1.set_ylim(y_min - 3, y_max + 3)
-
-                self.line.set_data(x, y)
-                self._drawn_artists = [self.line]
-        except Exception as ex:
-            print(str(ex))
-        return
-
-
-class Communicate(QObject):
-    data_signal = pyqtSignal(float)
-
-
-def send_data(callback):
-    # Setup the signal-slot mechanism.
-
-    # Simulate some data
-    n = np.linspace(0, 499, 500)
-    y = 50 + 25 * (np.sin(n / 8.3)) + 10 * (np.sin(n / 7.5)) - 5 * (np.sin(n / 1.5))
-    i = 0
-
-    while True:
-        if i > 499:
-            i = 0
-        time.sleep(0.1)
-        i += 1
-
-
-class TrainPlotter(CoreCallback):
-
-    def __init__(self):
-        super().__init__()
-
-        import threading
-        threading.Thread(target=self.draw).start()
-
-        self.episode_numbers = []
-        self.action_numbers = []
-        self.episode_rewards = []
-        self.losses = []
-        self.gui = None
-        self.src = None
-
-    def draw(self):
-        app = QApplication(sys.argv)
-        QApplication.setStyle(QStyleFactory.create('Plastique'))
-        self.gui = CustomMainWindow()
-
-        self.src = Communicate()
-        self.src.data_signal.connect(self.gui.callback)
-
-        sys.exit(app.exec_())
-
-    def on_episode_end(self, *args, **kwargs):
-        if 'episode_number' in kwargs and 'action_number' in kwargs and 'episode_reward' in kwargs:
-            episode_number = kwargs['episode_number']
-            action_number = kwargs['action_number']
-            episode_reward = kwargs['episode_reward']
-
-            self.src.data_signal.emit(episode_reward)  # <- Here you emit a signal!
-
-    def on_replay_end(self, *args, **kwargs):
-        if 'loss' in kwargs:
-            loss = kwargs['loss']
-
-
 class ValidationLogger(CoreCallback):
     def __init__(self, run_path, interval):
         super().__init__()
@@ -335,17 +215,6 @@ class ValidationLogger(CoreCallback):
             print(self.episode_end_message_raw.format(kwargs['episode_number'], kwargs['action_number'], kwargs['episode_reward']), end=end)
             with open(self.agent_data_path, 'a') as file:
                 file.write(','.join(list(map(str, [kwargs['episode_number'], kwargs['action_number'], kwargs['episode_reward']]))) + '\n')
-
-
-class ValidationPlotter(CoreCallback):
-    def __init__(self):
-        super().__init__()
-
-    def on_episode_end(self, *args, **kwargs):
-        if 'episode_number' in kwargs and 'action_number' in kwargs and 'episode_reward' in kwargs:
-            episode_number = kwargs['episode_number']
-            action_number = kwargs['action_number']
-            episode_reward = kwargs['episode_reward']
 
 
 class Visualizer(CoreCallback):

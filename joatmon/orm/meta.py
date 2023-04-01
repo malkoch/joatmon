@@ -1,7 +1,7 @@
 import inspect
 import typing
 
-from joatmon.core.utility import get_converter
+from joatmon.utility import get_converter
 from joatmon.orm.constraint import Constraint
 from joatmon.orm.field import Field
 from joatmon.orm.index import Index

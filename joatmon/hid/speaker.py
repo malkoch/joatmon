@@ -1,7 +1,7 @@
 import sys
 import threading
 
-from joatmon.system.core import RWLock
+from joatmon.system.lock import RWLock
 
 
 class OutputDevice:

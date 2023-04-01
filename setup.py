@@ -8,21 +8,21 @@ from distutils.core import setup
 from setuptools import find_packages
 
 extras = {
-    'ai': ['numpy'],
+    'ai': ['numpy', 'torch'],
     'algorithm': [],
-    'assistant': ['feedparser', 'requests', 'colorama'],
+    'assistant': ['feedparser', 'requests', 'colorama', 'schedule', 'psutil'],
     'content': [],
     'core': [],
-    'decorator': ['feedparser', 'requests', 'colorama'],
-    'download': [],
+    'decorator': [],
+    'download': ['pycurl'],
     'event': [],
-    'game': ['feedparser', 'requests', 'colorama'],
-    'hid': [],
+    'game': ['gym', 'pygame', 'cv2', 'pymunk'],
+    'hid': ['whisper', 'pyttsx3'],
     'orm': [],
-    'plugin': [],
-    'search': [],
+    'plugin': ['jwt', 'redis', 'couchbase', 'elasticsearch', 'pymongo', 'psycopg2', 'pykafka', 'pyotp'],
+    'search': ['requests'],
     'structure': [],
-    'system': [],
+    'system': ['cv2', 'numpy'],
 }
 if sys.platform == 'win32':
     extras['system'].extend(['pywin32'])

@@ -3,7 +3,7 @@ from datetime import datetime
 
 import psycopg2
 
-from joatmon.core.utility import get_converter
+from joatmon.utility import get_converter
 from joatmon.orm.constraint import UniqueConstraint
 from joatmon.orm.meta import normalize_kwargs
 from joatmon.orm.query import (

@@ -1,6 +1,6 @@
 import typing
 
-from joatmon.core.serializable import Serializable
+from joatmon.serializable import Serializable
 
 
 class Field(Serializable):

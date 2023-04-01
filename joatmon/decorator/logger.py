@@ -6,7 +6,7 @@ import time
 import traceback
 
 from joatmon import context
-from joatmon.core.utility import (
+from joatmon.utility import (
     get_function_args,
     get_function_kwargs,
     to_enumerable
