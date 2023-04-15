@@ -1,4 +1,4 @@
-from .. import functional as f
+from joatmon.ai.nn import functional as f
 
 __all__ = ['Dropout']
 
