@@ -480,13 +480,13 @@ class Query:
                     sql += f'{jtype} join {jtable.build(dialect)} on {condition.build(dialect)}' + '\n'
 
             if self.condition is not None:
-                sql += self.condition.build(dialect)
+                sql += 'where ' + self.condition.build(dialect)
 
             if len(self.grouping) > 0:
                 sql += 'group by ' + ', '.join([x.build(dialect) for x in self.grouping]) + '\n'
 
             if len(self.sort) > 0:
-                sql += 'order by ' + ', '.join([x.build(dialect) for x in self.sort]) + '\n'
+                sql += 'order by ' + ', '.join([x.build(dialect) for (x, y) in self.sort]) + '\n'
 
             return sql
         if dialect == Dialects.MONGO:
