@@ -2,6 +2,7 @@ from joatmon.plugin.core import Plugin
 
 
 class DatabasePlugin(Plugin):
+    # query can be a dictionary, query builder or formatted query
     async def __aenter__(self):
         await self.start()
 
@@ -17,6 +18,15 @@ class DatabasePlugin(Plugin):
 
         return self
 
+    async def create(self):
+        raise NotImplementedError
+
+    async def alter(self):
+        raise NotImplementedError
+
+    async def drop(self):
+        raise NotImplementedError
+
     async def insert(self, document, *docs):
         raise NotImplementedError
 
@@ -30,6 +40,12 @@ class DatabasePlugin(Plugin):
         raise NotImplementedError
 
     async def view(self, document):
+        raise NotImplementedError
+
+    async def execute(self, document, query):
+        raise NotImplementedError
+
+    async def count(self, query):
         raise NotImplementedError
 
     async def start(self):

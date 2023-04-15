@@ -435,34 +435,23 @@ class Query:
         self.limit = limit
         return self
 
-    def get_columns(self, criteria):
-        ret = []
-
-        if hasattr(criteria, 'left'):
-            ret.extend(self.get_columns(criteria.left))
-        if hasattr(criteria, 'right'):
-            ret.extend(self.get_columns(criteria.right))
-        if not hasattr(criteria, 'left') and not hasattr(criteria, 'right'):
-            ret.append(criteria)
-        return ret
-
     def build(self, dialect):
-        if dialect == Dialects.MSSQL:
-            columns_in_projection = [(column._table if isinstance(column, Column) else None, column) for column in self.projection]
-            columns_in_condition = [(column._table, column) for column in filter(lambda x: isinstance(x, Column), self.get_columns(self.condition))]
-            columns_in_group = [(column._table, column) for column in self.grouping]
-            columns_in_sort = [(column[0]._table, column[0], column[1]) for column in self.sort or []]
+        # if dialect == Dialects.MSSQL:
+        #     columns_in_projection = [(column._table if isinstance(column, Column) else None, column) for column in self.projection]
+        #     columns_in_condition = [(column._table, column) for column in filter(lambda x: isinstance(x, Column), self.get_columns(self.condition))]
+        #     columns_in_group = [(column._table, column) for column in self.grouping]
+        #     columns_in_sort = [(column[0]._table, column[0], column[1]) for column in self.sort or []]
 
-            tables = list(set([c[0]._name for c in columns_in_projection if c[0] is not None] + [c[0]._name for c in columns_in_condition]))
+        #     tables = list(set([c[0]._name for c in columns_in_projection if c[0] is not None] + [c[0]._name for c in columns_in_condition]))
 
-            select = ', '.join([x.build(dialect) for x in self.projection])
-            group = ', '.join([f'{x[0]._name}.{x[1]._name}' for x in columns_in_group])
-            order = ', '.join([f'{x[0]._name}.{x[1]._name} {"asc" if x[2] == 0 else "desc"}' for x in columns_in_sort])
+        #     select = ', '.join([x.build(dialect) for x in self.projection])
+        #     group = ', '.join([f'{x[0]._name}.{x[1]._name}' for x in columns_in_group])
+        #     order = ', '.join([f'{x[0]._name}.{x[1]._name} {"asc" if x[2] == 0 else "desc"}' for x in columns_in_sort])
 
-            return f'select {f"top {self.limit}" if self.limit is not None else ""} {select} \n' \
-                   f'from {", ".join(tables)} \nwhere {self.condition.build(dialect)} \n' \
-                   f'group by {group} \n' \
-                   f'order by {order}'
+        #     return f'select {f"top {self.limit}" if self.limit is not None else ""} {select} \n' \
+        #            f'from {", ".join(tables)} \nwhere {self.condition.build(dialect)} \n' \
+        #            f'group by {group} \n' \
+        #            f'order by {order}'
         if dialect == Dialects.POSTGRESQL:
             sql = ''
             if len(self.projection) == 0:
