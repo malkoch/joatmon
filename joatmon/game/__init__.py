@@ -1,9 +1,9 @@
 from gym.envs.registration import register
 
-from .cube import *
-from .puzzle import *
-from .sokoban import *
-from .tiles import *
+from joatmon.game.cube import *
+from joatmon.game.puzzle import *
+from joatmon.game.sokoban import *
+from joatmon.game.tiles import *
 
 register(
     'Sokoban-v0',

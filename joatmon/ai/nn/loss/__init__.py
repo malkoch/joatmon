@@ -1,1 +1,1 @@
-from .mse import *
+from joatmon.ai.nn.loss.mse import *

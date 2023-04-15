@@ -1,5 +1,5 @@
-from ... import functional as f
-from ...core import Module
+from joatmon.ai.nn import functional as f
+from joatmon.ai.nn.core import Module
 
 __all__ = ['Softmax']
 

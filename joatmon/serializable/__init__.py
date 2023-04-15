@@ -1,7 +1,7 @@
 import json
 import pickle
 
-from .utility import (
+from joatmon.utility import (
     JSONEncoder,
     to_case,
     to_enumerable

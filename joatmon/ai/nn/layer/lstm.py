@@ -6,11 +6,11 @@ from typing import (
 
 import numpy as np
 
-from .. import (
+from joatmon.ai.nn import (
     functional as f,
     init
 )
-from ..core import (
+from joatmon.ai.nn.core import (
     Module,
     Parameter,
     Tensor
