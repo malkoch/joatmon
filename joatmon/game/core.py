@@ -1,6 +1,21 @@
 import gym
 
 
+class CoreSpace(gym.Space):
+    def __init__(self, shape=None, dtype=None):
+        super(CoreSpace, self).__init__(shape, dtype)
+
+    @property
+    def is_np_flattenable(self):
+        raise NotImplementedError
+
+    def sample(self, mask=None):
+        raise NotImplementedError
+
+    def contains(self, x) -> bool:
+        raise NotImplementedError
+
+
 class CoreEnv(gym.Env):
     """
     The abstract game class that is used by all agents. This class has the exact same API that OpenAI Gym uses so that integrating
@@ -16,6 +31,10 @@ class CoreEnv(gym.Env):
 
     Refer to the [Gym documentation](https://gym.openai.com/docs/#environment).
     """
+
+    reward_range = (-float("inf"), float("inf"))
+    action_space: CoreSpace
+    observation_space: CoreSpace
 
     def __init__(self):
         super(CoreEnv, self).__init__()
@@ -40,7 +59,7 @@ class CoreEnv(gym.Env):
         """
         raise NotImplementedError
 
-    def reset(self):
+    def reset(self, *args):
         """
         Resets the state of the game and returns an initial observation.
 
