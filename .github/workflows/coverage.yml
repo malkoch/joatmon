@@ -1,8 +1,24 @@
-- name: Upload coverage to Codecov
-  uses: codecov/codecov-action@v1
-  with:
-    token: ${{ secrets.CODECOV_TOKEN }}
-    file: ./coverage.xml
-    flags: unittests
-    name: codecov-umbrella
-    fail_ci_if_error: true
+name: Python Coverage
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ "3.10" ]
+
+    steps:
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: true
