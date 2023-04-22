@@ -2,8 +2,7 @@
 
 [![Documentation Status](https://readthedocs.org/projects/joatmon/badge/?version=latest)](https://joatmon.readthedocs.io/en/latest/?badge=latest)
 [![PyPI version](https://badge.fury.io/py/joatmon.svg)](https://badge.fury.io/py/joatmon)
-[![Build Status](https://app.travis-ci.com/malkoch/joatmon.svg?token=zo7DTgcVysWxrnWTSbJw&branch=master)](https://travis-ci.com/malkoch/joatmon)
-[![Coverage Status](https://coveralls.io/repos/github/malkoch/joatmon/badge.svg)](https://coveralls.io/github/malkoch/joatmon)
+[![codecov](https://codecov.io/gh/malkoch/joatmon/branch/master/graph/badge.svg?token=LLMWHT1CN1)](https://codecov.io/gh/malkoch/joatmon)
 [![GitHub license](https://img.shields.io/github/license/malkoch/joatmon)](https://github.com/malkoch/joatmon/blob/master/LICENSE)
 [![Pylint](https://github.com/malkoch/joatmon/actions/workflows/pylint.yml/badge.svg)](https://github.com/malkoch/joatmon/actions/workflows/pylint.yml)
 [![Python package](https://github.com/malkoch/joatmon/actions/workflows/python-package.yml/badge.svg)](https://github.com/malkoch/joatmon/actions/workflows/python-package.yml)
