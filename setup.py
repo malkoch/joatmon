@@ -16,13 +16,13 @@ extras = {
     'decorator': [],
     'download': ['pycurl'],
     'event': [],
-    'game': ['gym', 'pygame', 'cv2', 'pymunk'],
+    'game': ['gym', 'pygame', 'opencv-contrib-python', 'pymunk'],
     'hid': ['whisper', 'pyttsx3'],
     'orm': [],
     'plugin': ['jwt', 'redis', 'couchbase', 'elasticsearch', 'pymongo', 'psycopg2', 'pykafka', 'pyotp'],
     'search': ['requests'],
     'structure': [],
-    'system': ['cv2', 'numpy'],
+    'system': ['opencv-contrib-python', 'numpy'],
 }
 if sys.platform == 'win32':
     extras['system'].extend(['pywin32'])
