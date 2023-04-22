@@ -11,7 +11,7 @@ def preorder(root):
     while stack:
         curr = stack.pop()
 
-        print(curr.data, end=' ')
+        yield curr.data
         if curr.right:
             stack.append(curr.right)
         if curr.left:
@@ -22,6 +22,6 @@ def preorder_r(root):
     if root is None:
         return
 
-    print(root.data, end=' ')
+    yield root.data
     preorder_r(root.left)
     preorder_r(root.right)

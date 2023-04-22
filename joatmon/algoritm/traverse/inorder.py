@@ -11,7 +11,7 @@ def inorder(root):
             curr = curr.left
         else:
             curr = stack.pop()
-            print(curr.data, end=' ')
+            yield curr.data
             curr = curr.right
 
 
@@ -20,5 +20,5 @@ def inorder_r(root):
         return
 
     inorder_r(root.left)
-    print(root.data, end=' ')
+    yield root.data
     inorder_r(root.right)
