@@ -6,7 +6,10 @@ def test_display():
 
 
 def test_easy_range():
-    assert True is True
+    from joatmon.ai.utility import easy_range
+
+    for range_idx, easy_range_idx in zip(range(10), easy_range(end=10)):
+        assert range_idx == easy_range_idx
 
 
 def test_load():
@@ -14,11 +17,16 @@ def test_load():
 
 
 def test_normalize():
-    assert True is True
+    import numpy as np
+    from joatmon.ai.utility import normalize
+
+    assert normalize(np.asarray([1, 2]), 0, 255).tolist() == np.asarray([0, 255]).astype('float32').tolist()
 
 
 def test_range_tensor():
-    assert True is True
+    from joatmon.ai.utility import range_tensor
+
+    assert range_tensor(2).cpu().detach().numpy().tolist() == [0, 1]
 
 
 def test_save():
@@ -26,11 +34,22 @@ def test_save():
 
 
 def test_to_numpy():
-    assert True is True
+    from joatmon.ai.utility import (
+        to_numpy,
+        range_tensor
+    )
+
+    assert to_numpy(range_tensor(2)).tolist() == [0, 1]
 
 
 def test_to_tensor():
-    assert True is True
+    from joatmon.ai.utility import (
+        to_numpy,
+        range_tensor,
+        to_tensor
+    )
+
+    assert to_tensor(to_numpy(range_tensor(2))).cpu().detach().numpy().tolist() == [0, 1]
 
 
 if __name__ == '__main__':
