@@ -50,7 +50,7 @@ def run():
     pages = [
         {
             'page': 'core.md',
-            'all_module_classes': [core]
+            #            'all_module_classes': [core]
         },
 
         {
