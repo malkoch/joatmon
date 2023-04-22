@@ -18,7 +18,7 @@ def postorder(root):
             stack.append(curr.right)
 
     while out:
-        print(out.pop(), end=' ')
+        yield out.pop()
 
 
 def postorder_r(root):
@@ -27,4 +27,4 @@ def postorder_r(root):
 
     postorder_r(root.left)
     postorder_r(root.right)
-    print(root.data, end=' ')
+    yield root.data
