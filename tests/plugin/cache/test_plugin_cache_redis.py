@@ -17,8 +17,5 @@ def test_redis_cache_update():
 	assert True is True
 
 
-
-
-
 if __name__ == '__main__':
 	pytest.main([__file__])

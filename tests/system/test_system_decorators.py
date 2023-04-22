@@ -1,9 +1,6 @@
 import pytest
 
 
-
-
-
 def test_auto_pause():
 	assert True is True
 

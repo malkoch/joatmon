@@ -29,8 +29,5 @@ def test_core_space_sample():
 	assert True is True
 
 
-
-
-
 if __name__ == '__main__':
 	pytest.main([__file__])

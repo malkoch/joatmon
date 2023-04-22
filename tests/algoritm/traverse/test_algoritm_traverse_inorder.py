@@ -1,9 +1,6 @@
 import pytest
 
 
-
-
-
 def test_inorder():
 	assert True is True
 

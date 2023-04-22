@@ -1,9 +1,6 @@
 import pytest
 
 
-
-
-
 def test_cached():
 	assert True is True
 

@@ -1,9 +1,6 @@
 import pytest
 
 
-
-
-
 def test_authorized():
 	assert True is True
 

@@ -1,9 +1,6 @@
 import pytest
 
 
-
-
-
 def test_add_consumer():
 	assert True is True
 

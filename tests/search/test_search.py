@@ -1,9 +1,6 @@
 import pytest
 
 
-
-
-
 def test__wiki_request():
 	assert True is True
 

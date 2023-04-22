@@ -1,9 +1,6 @@
 import pytest
 
 
-
-
-
 def test_crop():
 	assert True is True
 

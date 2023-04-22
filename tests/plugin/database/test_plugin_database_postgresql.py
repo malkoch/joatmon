@@ -49,8 +49,5 @@ def test_postgre_s_q_l_database_view():
 	assert True is True
 
 
-
-
-
 if __name__ == '__main__':
 	pytest.main([__file__])

@@ -1,9 +1,6 @@
 import pytest
 
 
-
-
-
 def test_linear_search():
 	assert True is True
 

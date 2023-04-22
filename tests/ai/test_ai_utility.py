@@ -1,9 +1,6 @@
 import pytest
 
 
-
-
-
 def test_display():
 	assert True is True
 

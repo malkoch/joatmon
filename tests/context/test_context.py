@@ -1,9 +1,6 @@
 import pytest
 
 
-
-
-
 def test_get_ctx():
 	assert True is True
 

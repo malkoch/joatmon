@@ -1,9 +1,6 @@
 import pytest
 
 
-
-
-
 def test_cursor():
 	assert True is True
 

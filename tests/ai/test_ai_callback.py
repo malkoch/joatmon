@@ -225,8 +225,5 @@ def test_visualizer_on_replay_end():
 	assert True is True
 
 
-
-
-
 if __name__ == '__main__':
 	pytest.main([__file__])
