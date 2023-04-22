@@ -8,7 +8,7 @@ import os
 import re
 import shutil
 
-from joatmon.ai.callback import (
+from joatmon.callback import (
     CallbackList,
     CoreCallback,
     Loader,
@@ -17,19 +17,19 @@ from joatmon.ai.callback import (
     ValidationLogger,
     Visualizer
 )
-from joatmon.ai.memory import (
+from joatmon.memory import (
     CoreMemory,
     RingMemory
 )
 from joatmon.ai.models.core import CoreModel
 from joatmon.ai.models.reinforcement.hybrid.ddpg import DDPGModel
 from joatmon.ai.models.reinforcement.q_learning.dqn import DQNModel
-from joatmon.ai.policy import (
+from joatmon.policy import (
     CorePolicy,
     EpsilonGreedyPolicy,
     GreedyQPolicy
 )
-from joatmon.ai.random import (
+from joatmon.random import (
     CoreRandom,
     GaussianRandom,
     OrnsteinUhlenbeck

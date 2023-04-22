@@ -7,16 +7,16 @@ import torch
 import torch.nn as nn
 from PIL import Image
 
-from joatmon.ai.callback import (
+from joatmon.callback import (
     CallbackList,
     Loader,
     Renderer,
     TrainLogger,
     ValidationLogger
 )
-from joatmon.ai.memory import RingMemory
+from joatmon.memory import RingMemory
 from joatmon.ai.models import DDPGModel
-from joatmon.ai.random import OrnsteinUhlenbeck as RandomProcess
+from joatmon.random import OrnsteinUhlenbeck as RandomProcess
 from joatmon.ai.utility import easy_range
 from joatmon.game import SokobanEnv
 
