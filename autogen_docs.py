@@ -8,31 +8,29 @@ import os
 import re
 import shutil
 
-from joatmon.ai import core
 from joatmon.ai.callback import (
     CallbackList,
+    CoreCallback,
     Loader,
     Renderer,
     TrainLogger,
     ValidationLogger,
     Visualizer
 )
-from joatmon.ai.core import (
-    CoreCallback,
-    CoreEnv,
+from joatmon.ai.memory import (
     CoreMemory,
-    CoreModel,
-    CorePolicy,
-    CoreRandom
+    RingMemory
 )
-from joatmon.ai.memory import RingMemory
+from joatmon.ai.models.core import CoreModel
 from joatmon.ai.models.reinforcement.hybrid.ddpg import DDPGModel
 from joatmon.ai.models.reinforcement.q_learning.dqn import DQNModel
 from joatmon.ai.policy import (
+    CorePolicy,
     EpsilonGreedyPolicy,
     GreedyQPolicy
 )
 from joatmon.ai.random import (
+    CoreRandom,
     GaussianRandom,
     OrnsteinUhlenbeck
 )
@@ -42,6 +40,7 @@ from joatmon.game import (
     SokobanEnv,
     TilesEnv
 )
+from joatmon.game.core import CoreEnv
 
 
 # need to add the buffer as well
