@@ -7,8 +7,10 @@ from distutils.core import setup
 
 from setuptools import find_packages
 
+from joatmon.version import get_version
+
 extras = {
-    'ai': ['numpy', 'torch', 'matplotlib'],
+    'ai': ['numpy', 'torch', 'matplotlib', 'six'],
     'algorithm': [],
     'assistant': ['feedparser', 'requests', 'colorama', 'schedule', 'psutil'],
     'content': [],
@@ -48,32 +50,26 @@ if __name__ == '__main__':
     version_range_max = max(sys.version_info[1], 8) + 1
     setup(
         name=os.getenv('JOATMON_PACKAGE_NAME', 'joatmon'),
-        version='1.0.1rc1',
+        version=get_version(),
         description="General Purpose Python Library",
         long_description=long_description,
         long_description_content_type="text/markdown",
-        packages=[package for package in find_packages() if package.startswith('joatmon')],
+        packages=[package for package in find_packages(exclude='tests')],
         entry_points={
             'console_scripts': [
-                'assistant = scripts.assistant:main',
-                'arxiv = scripts.arxiv:main',
-                'download = scripts.download:main',
-                'openai = scripts.openai:main',
-                'weather = scripts.weather:main',
+                'assistant = scripts.assistant:main'
             ]
         },
-        install_requires=[
-            'six',
-        ],
+        install_requires=[],
         tests_require=[
             'pytest',
         ],
         extras_require=extras,
         package_data={
             'joatmon': [
-                'game/chess/*.png',
-                'game/sokoban/sprites/*.png',
-                'game/sokoban/xmls/*.xml'
+                'game/assets/chess/*.png',
+                'game/assets/sokoban/sprites/*.png',
+                'game/assets/sokoban/xmls/*.xml'
             ]
         },
         url='https://github.com/malkoch/joatmon',
@@ -90,5 +86,5 @@ if __name__ == '__main__':
                         'Programming Language :: Python :: 3',
                     ] + ['Programming Language :: Python :: 3.{}'.format(i) for i in range(python_min_version[1], version_range_max)],
         license='MIT',
-        keywords='joatmon ndarray machine-learning internet-download-manager automation intelligent-virtual-assistant',
+        keywords='joatmon ml idm automation iva',
     )
