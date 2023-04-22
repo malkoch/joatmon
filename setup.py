@@ -8,7 +8,7 @@ from distutils.core import setup
 from setuptools import find_packages
 
 extras = {
-    'ai': ['numpy', 'torch'],
+    'ai': ['numpy', 'torch', 'matplotlib'],
     'algorithm': [],
     'assistant': ['feedparser', 'requests', 'colorama', 'schedule', 'psutil'],
     'content': [],
