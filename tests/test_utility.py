@@ -18,7 +18,8 @@ def test_empty_object_id():
 
 
 def test_first():
-	assert True is True
+	from joatmon.utility import first
+	assert first([1, 2, 3]) == 1
 
 
 def test_first_async():
