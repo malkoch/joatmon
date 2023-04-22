@@ -1083,7 +1083,7 @@ def eye(rows, columns=None, requires_grad=False, device='cpu', dtype='float32') 
 
 def empty(size, requires_grad=False, device='cpu', dtype='float32') -> 'Tensor':
     engine = _get_engine(device)
-    return from_array(engine.empty(size).astype(dtype), requires_grad, device)
+    return from_array(engine.zeros(size).astype(dtype), requires_grad, device)
 
 
 def full(size, fill_value, requires_grad=False, device='cpu', dtype='float32') -> 'Tensor':
