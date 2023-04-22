@@ -65,6 +65,9 @@ for path, folders, files in os.walk('joatmon'):
         else:
             module_test_path = os.path.join(module_folder, f'test_{"_".join(module_name.split(".")[1:])}.py')
 
+        if os.path.exists(module_test_path):
+            continue
+
         with open(module_test_path, 'w') as f:
             class_function_tests = '\n\n\n'.join(
                 [
