@@ -9,16 +9,16 @@ import torch.nn as nn
 from numpy import linalg
 from PIL import Image
 
-from joatmon.ai.callback import (
+from joatmon.callback import (
     CallbackList,
     Loader,
     Renderer,
     TrainLogger,
     ValidationLogger
 )
-from joatmon.ai.memory import RingMemory
+from joatmon.memory import RingMemory
 from joatmon.ai.models import DQNModel
-from joatmon.ai.policy import (
+from joatmon.policy import (
     EpsilonGreedyPolicy as EGreedy,
     GreedyQPolicy as GreedyQ
 )
