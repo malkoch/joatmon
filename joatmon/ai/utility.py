@@ -98,6 +98,6 @@ def to_numpy(t):
 def to_tensor(x):
     if isinstance(x, torch.Tensor):
         return x
-    x = np.asarray(x, dtype=np.float)
+    x = np.asarray(x, dtype=np.float32)
     x = torch.tensor(x, dtype=torch.float32)
     return x
