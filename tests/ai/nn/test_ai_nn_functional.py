@@ -22,11 +22,21 @@ def test__set_grad():
 
 
 def test_absolute():
-    assert True is True
+    from joatmon.ai.nn.functional import absolute
+    from joatmon.ai.nn.core import Tensor
+
+    assert absolute(Tensor.from_array([0, -1])).data.tolist() == [0, 1]
+    assert absolute(Tensor.from_array([0, 1])).data.tolist() == [0, 1]
 
 
 def test_absolute_backward():
-    assert True is True
+    from joatmon.ai.nn.functional import absolute_backward
+    from joatmon.ai.nn.core import Tensor
+
+    inp = Tensor.from_array([1, 2])
+    absolute_backward(Tensor.from_array([1, 1]), inp)
+
+    assert inp.grad.data.tolist() == [1, 1]
 
 
 def test_adam():
@@ -34,23 +44,46 @@ def test_adam():
 
 
 def test_add():
-    assert True is True
+    from joatmon.ai.nn.functional import add
+    from joatmon.ai.nn.core import Tensor
+
+    assert add(Tensor.from_array([0, -1]), Tensor.from_array([0, 2])).data.tolist() == [0, 1]
+    assert add(Tensor.from_array([0, -1]), 1).data.tolist() == [1, 0]
 
 
 def test_add_backward():
-    assert True is True
+    from joatmon.ai.nn.functional import add_backward
+    from joatmon.ai.nn.core import Tensor
+
+    inp1 = Tensor.from_array([1, 2])
+    inp2 = Tensor.from_array([3, 4])
+    add_backward(Tensor.from_array([1, 1]), inp1, inp2)
+
+    assert inp1.grad.data.tolist() == [1, 1]
+    assert inp2.grad.data.tolist() == [1, 1]
 
 
 def test_arange():
-    assert True is True
+    from joatmon.ai.nn.functional import arange
+
+    assert arange(1, 3, 1).data.tolist() == [1, 2]
 
 
 def test_around():
-    assert True is True
+    from joatmon.ai.nn.functional import around
+    from joatmon.ai.nn.core import Tensor
+
+    assert around(Tensor.from_array([0, -1])).data.tolist() == [0, -1]
 
 
 def test_around_backward():
-    assert True is True
+    from joatmon.ai.nn.functional import around_backward
+    from joatmon.ai.nn.core import Tensor
+
+    inp = Tensor.from_array([1, 2])
+    around_backward(Tensor.from_array([1, 1]), inp)
+
+    assert inp.grad.data.tolist() == [1, 1]
 
 
 def test_avg_pool():
@@ -70,11 +103,20 @@ def test_batch_norm_backward():
 
 
 def test_ceil():
-    assert True is True
+    from joatmon.ai.nn.functional import ceil
+    from joatmon.ai.nn.core import Tensor
+
+    assert ceil(Tensor.from_array([0, -1])).data.tolist() == [0, -1]
 
 
 def test_ceil_backward():
-    assert True is True
+    from joatmon.ai.nn.functional import ceil_backward
+    from joatmon.ai.nn.core import Tensor
+
+    inp = Tensor.from_array([1, 2])
+    ceil_backward(Tensor.from_array([1, 1]), inp)
+
+    assert inp.grad.data.tolist() == [1, 1]
 
 
 def test_chunk():
@@ -86,19 +128,37 @@ def test_chunk_backward():
 
 
 def test_clip():
-    assert True is True
+    from joatmon.ai.nn.functional import clip
+    from joatmon.ai.nn.core import Tensor
+
+    assert clip(Tensor.from_array([0, -1]), -3, 3).data.tolist() == [0, -1]
 
 
 def test_clip_backward():
-    assert True is True
+    from joatmon.ai.nn.functional import clip_backward
+    from joatmon.ai.nn.core import Tensor
+
+    inp = Tensor.from_array([1, 2])
+    clip_backward(Tensor.from_array([1, 1]), inp)
+
+    assert inp.grad.data.tolist() == [1, 1]
 
 
 def test_clone():
-    assert True is True
+    from joatmon.ai.nn.functional import clone
+    from joatmon.ai.nn.core import Tensor
+
+    assert clone(Tensor.from_array([0, -1])).data.tolist() == [0, -1]
 
 
 def test_clone_backward():
-    assert True is True
+    from joatmon.ai.nn.functional import clone_backward
+    from joatmon.ai.nn.core import Tensor
+
+    inp = Tensor.from_array([1, 2])
+    clone_backward(Tensor.from_array([1, 1]), inp)
+
+    assert inp.grad.data.tolist() == [1, 1]
 
 
 def test_concat():
@@ -118,7 +178,10 @@ def test_conv_backward():
 
 
 def test_cpu():
-    assert True is True
+    from joatmon.ai.nn.functional import cpu
+    from joatmon.ai.nn.core import Tensor
+
+    assert cpu(Tensor.from_array([0, -1])).data.tolist() == [0, -1]
 
 
 def test_dense():
@@ -130,19 +193,37 @@ def test_dense_backward():
 
 
 def test_detach():
-    assert True is True
+    from joatmon.ai.nn.functional import detach
+    from joatmon.ai.nn.core import Tensor
+
+    assert detach(Tensor.from_array([0, -1])).data.tolist() == [0, -1]
 
 
 def test_div():
-    assert True is True
+    from joatmon.ai.nn.functional import div
+    from joatmon.ai.nn.core import Tensor
+
+    assert div(Tensor.from_array([0, -2]), Tensor.from_array([1, 1])).data.tolist() == [0, -2]
+    assert div(Tensor.from_array([0, -2]), 1).data.tolist() == [0, -2]
 
 
 def test_div_backward():
-    assert True is True
+    from joatmon.ai.nn.functional import div_backward
+    from joatmon.ai.nn.core import Tensor
+
+    inp1 = Tensor.from_array([3, 4])
+    inp2 = Tensor.from_array([1, 2])
+    div_backward(Tensor.from_array([1, 1]), inp1, inp2)
+
+    assert inp1.grad.data.tolist() == [1, 0.5]
+    assert inp2.grad.data.tolist() == [3, 4]
 
 
 def test_double():
-    assert True is True
+    from joatmon.ai.nn.functional import double
+    from joatmon.ai.nn.core import Tensor
+
+    assert double(Tensor.from_array([0, -1])).data.tolist() == [0, -1]
 
 
 def test_dropout():
@@ -154,11 +235,16 @@ def test_dropout_backward():
 
 
 def test_empty():
-    assert True is True
+    from joatmon.ai.nn.functional import empty
+
+    assert empty(3).data.tolist() == [0, 0, 0]
 
 
 def test_empty_like():
-    assert True is True
+    from joatmon.ai.nn.functional import empty_like
+    from joatmon.ai.nn.core import Tensor
+
+    assert empty_like(Tensor.from_array([0, -1])).data.tolist() == [0, 0]
 
 
 def test_expand_dim():
@@ -170,43 +256,73 @@ def test_expand_dim_backward():
 
 
 def test_eye():
-    assert True is True
+    from joatmon.ai.nn.functional import eye
+
+    assert eye(2, 2).data.tolist() == [[1, 0], [0, 1]]
 
 
 def test_eye_like():
-    assert True is True
+    from joatmon.ai.nn.functional import eye_like
+    from joatmon.ai.nn.core import Tensor
+
+    assert eye_like(Tensor.from_array([[1, 0], [0, 1]])).data.tolist() == [[1, 0], [0, 1]]
 
 
 def test_fill():
-    assert True is True
+    from joatmon.ai.nn.functional import fill
+    from joatmon.ai.nn.core import Tensor
+
+    assert fill(Tensor.from_array([0, -1]), 3).data.tolist() == [3, 3]
 
 
 def test_floor():
-    assert True is True
+    from joatmon.ai.nn.functional import floor
+    from joatmon.ai.nn.core import Tensor
+
+    assert floor(Tensor.from_array([0, -1])).data.tolist() == [0, -1]
 
 
 def test_floor_backward():
-    assert True is True
+    from joatmon.ai.nn.functional import floor_backward
+    from joatmon.ai.nn.core import Tensor
+
+    inp = Tensor.from_array([1, 2])
+    floor_backward(Tensor.from_array([1, 1]), inp)
+
+    assert inp.grad.data.tolist() == [1, 1]
 
 
 def test_from_array():
-    assert True is True
+    from joatmon.ai.nn.functional import from_array
+
+    assert from_array([0, -1]).data.tolist() == [0, -1]
 
 
 def test_full():
-    assert True is True
+    from joatmon.ai.nn.functional import full
+
+    assert full(3, 3).data.tolist() == [3, 3, 3]
 
 
 def test_full_like():
-    assert True is True
+    from joatmon.ai.nn.functional import full_like
+    from joatmon.ai.nn.core import Tensor
+
+    assert full_like(Tensor.from_array([0, -1]), 2).data.tolist() == [2, 2]
 
 
 def test_gpu():
-    assert True is True
+    from joatmon.ai.nn.functional import gpu
+    from joatmon.ai.nn.core import Tensor
+
+    assert gpu(Tensor.from_array([0, -1])).data.tolist() == [0, -1]
 
 
 def test_half():
-    assert True is True
+    from joatmon.ai.nn.functional import half
+    from joatmon.ai.nn.core import Tensor
+
+    assert half(Tensor.from_array([0, -1])).data.tolist() == [0, -1]
 
 
 def test_index_select():
@@ -222,7 +338,9 @@ def test_is_tensor():
 
 
 def test_linspace():
-    assert True is True
+    from joatmon.ai.nn.functional import linspace
+
+    assert linspace(0, 3, 4).data.tolist() == [0, 1, 2, 3]
 
 
 def test_lstm():
@@ -250,27 +368,57 @@ def test_max_pool_backward():
 
 
 def test_mean():
-    assert True is True
+    from joatmon.ai.nn.functional import mean
+    from joatmon.ai.nn.core import Tensor
+
+    assert mean(Tensor.from_array([0, -2])).data.tolist() == -1
 
 
 def test_mean_backward():
-    assert True is True
+    from joatmon.ai.nn.functional import mean_backward
+    from joatmon.ai.nn.core import Tensor
+
+    inp = Tensor.from_array([1, 2])
+    mean_backward(Tensor.from_array([1, 1]), inp)
+
+    assert inp.grad.data.tolist() == [1, 1]
 
 
 def test_mul():
-    assert True is True
+    from joatmon.ai.nn.functional import mul
+    from joatmon.ai.nn.core import Tensor
+
+    assert mul(Tensor.from_array([0, -1]), Tensor.from_array([0, 2])).data.tolist() == [0, -2]
+    assert mul(Tensor.from_array([0, -1]), 1).data.tolist() == [0, -1]
 
 
 def test_mul_backward():
-    assert True is True
+    from joatmon.ai.nn.functional import mul_backward
+    from joatmon.ai.nn.core import Tensor
+
+    inp1 = Tensor.from_array([1, 2])
+    inp2 = Tensor.from_array([3, 4])
+    mul_backward(Tensor.from_array([1, 1]), inp1, inp2)
+
+    assert inp1.grad.data.tolist() == [3, 4]
+    assert inp2.grad.data.tolist() == [1, 2]
 
 
 def test_negative():
-    assert True is True
+    from joatmon.ai.nn.functional import negative
+    from joatmon.ai.nn.core import Tensor
+
+    assert negative(Tensor.from_array([0, 1])).data.tolist() == [0, -1]
 
 
 def test_negative_backward():
-    assert True is True
+    from joatmon.ai.nn.functional import negative_backward
+    from joatmon.ai.nn.core import Tensor
+
+    inp = Tensor.from_array([1, 2])
+    negative_backward(Tensor.from_array([1, 1]), inp)
+
+    assert inp.grad.data.tolist() == [1, 1]
 
 
 def test_normal():
@@ -282,23 +430,40 @@ def test_normal_like():
 
 
 def test_one():
-    assert True is True
+    from joatmon.ai.nn.functional import one
+    from joatmon.ai.nn.core import Tensor
+
+    assert one(Tensor.from_array([0, -1])).data.tolist() == [1, 1]
 
 
 def test_ones():
-    assert True is True
+    from joatmon.ai.nn.functional import ones
+
+    assert ones(2).data.tolist() == [1, 1]
 
 
 def test_ones_like():
-    assert True is True
+    from joatmon.ai.nn.functional import ones_like
+    from joatmon.ai.nn.core import Tensor
+
+    assert ones_like(Tensor.from_array([0, -1])).data.tolist() == [1, 1]
 
 
 def test_power():
-    assert True is True
+    from joatmon.ai.nn.functional import power
+    from joatmon.ai.nn.core import Tensor
+
+    assert power(Tensor.from_array([0, -1]), 1).data.tolist() == [0, -1]
 
 
 def test_power_backward():
-    assert True is True
+    from joatmon.ai.nn.functional import power_backward
+    from joatmon.ai.nn.core import Tensor
+
+    inp = Tensor.from_array([1, 2])
+    power_backward(Tensor.from_array([1, 1]), inp, 1)
+
+    assert inp.grad.data.tolist() == [1, 1]
 
 
 def test_rand():
@@ -326,11 +491,20 @@ def test_randn_like():
 
 
 def test_relu():
-    assert True is True
+    from joatmon.ai.nn.functional import relu
+    from joatmon.ai.nn.core import Tensor
+
+    assert relu(Tensor.from_array([0, -1]), 0).data.tolist() == [0, 0]
 
 
 def test_relu_backward():
-    assert True is True
+    from joatmon.ai.nn.functional import relu_backward
+    from joatmon.ai.nn.core import Tensor
+
+    inp = Tensor.from_array([1, 2])
+    relu_backward(Tensor.from_array([1, 1]), inp, 0)
+
+    assert inp.grad.data.tolist() == [1, 1]
 
 
 def test_rmsprop():
@@ -346,7 +520,10 @@ def test_sigmoid_backward():
 
 
 def test_single():
-    assert True is True
+    from joatmon.ai.nn.functional import single
+    from joatmon.ai.nn.core import Tensor
+
+    assert single(Tensor.from_array([0, -1])).data.tolist() == [0, -1]
 
 
 def test_softmax():
@@ -382,19 +559,40 @@ def test_std_backward():
 
 
 def test_sub():
-    assert True is True
+    from joatmon.ai.nn.functional import sub
+    from joatmon.ai.nn.core import Tensor
+
+    assert sub(Tensor.from_array([0, -1]), Tensor.from_array([0, 2])).data.tolist() == [0, -3]
+    assert sub(Tensor.from_array([0, -1]), 1).data.tolist() == [-1, -2]
 
 
 def test_sub_backward():
-    assert True is True
+    from joatmon.ai.nn.functional import sub_backward
+    from joatmon.ai.nn.core import Tensor
+
+    inp1 = Tensor.from_array([1, 2])
+    inp2 = Tensor.from_array([3, 4])
+    sub_backward(Tensor.from_array([1, 1]), inp1, inp2)
+
+    assert inp1.grad.data.tolist() == [1, 1]
+    assert inp2.grad.data.tolist() == [-1, -1]
 
 
 def test_summation():
-    assert True is True
+    from joatmon.ai.nn.functional import summation
+    from joatmon.ai.nn.core import Tensor
+
+    assert summation(Tensor.from_array([0, -1])).data.tolist() == -1
 
 
 def test_summation_backward():
-    assert True is True
+    from joatmon.ai.nn.functional import summation_backward
+    from joatmon.ai.nn.core import Tensor
+
+    inp = Tensor.from_array([1, 2])
+    summation_backward(Tensor.from_array([1, 1]), inp)
+
+    assert inp.grad.data.tolist() == [1, 1]
 
 
 def test_tanh():
@@ -406,15 +604,28 @@ def test_tanh_backward():
 
 
 def test_to_array():
-    assert True is True
+    from joatmon.ai.nn.functional import to_array
+    from joatmon.ai.nn.core import Tensor
+
+    assert to_array(Tensor.from_array([0, -1])).tolist() == [0, -1]
 
 
 def test_transpose():
-    assert True is True
+    from joatmon.ai.nn.functional import transpose
+    from joatmon.ai.nn.core import Tensor
+
+    assert transpose(Tensor.from_array([0, -1])).data.tolist() == [0, -1]
+    assert transpose(Tensor.from_array([[0, -1]])).data.tolist() == [[0], [-1]]
 
 
 def test_transpose_backward():
-    assert True is True
+    from joatmon.ai.nn.functional import transpose_backward
+    from joatmon.ai.nn.core import Tensor
+
+    inp = Tensor.from_array([1, 2])
+    transpose_backward(Tensor.from_array([1, 1]), inp)
+
+    assert inp.grad.data.tolist() == [1, 1]
 
 
 def test_uniform():
@@ -434,11 +645,20 @@ def test_var_backward():
 
 
 def test_view():
-    assert True is True
+    from joatmon.ai.nn.functional import view
+    from joatmon.ai.nn.core import Tensor
+
+    assert view(Tensor.from_array([0, -1])).data.tolist() == [0, -1]
 
 
 def test_view_backward():
-    assert True is True
+    from joatmon.ai.nn.functional import view_backward
+    from joatmon.ai.nn.core import Tensor
+
+    inp = Tensor.from_array([1, 2])
+    view_backward(Tensor.from_array([1, 1]), inp)
+
+    assert inp.grad.data.tolist() == [1, 1]
 
 
 def test_wrapped_partial():
@@ -446,15 +666,23 @@ def test_wrapped_partial():
 
 
 def test_zero():
-    assert True is True
+    from joatmon.ai.nn.functional import zero
+    from joatmon.ai.nn.core import Tensor
+
+    assert zero(Tensor.from_array([0, -1])).data.tolist() == [0, 0]
 
 
 def test_zeros():
-    assert True is True
+    from joatmon.ai.nn.functional import zeros
+
+    assert zeros(2).data.tolist() == [0, 0]
 
 
 def test_zeros_like():
-    assert True is True
+    from joatmon.ai.nn.functional import zeros_like
+    from joatmon.ai.nn.core import Tensor
+
+    assert zeros_like(Tensor.from_array([0, -1])).data.tolist() == [0, 0]
 
 
 if __name__ == '__main__':
