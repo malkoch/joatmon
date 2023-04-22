@@ -1,4 +1,4 @@
-# joatmon (jack of all trades, master of none)
+# joatmon
 
 [![Documentation Status](https://readthedocs.org/projects/joatmon/badge/?version=latest)](https://joatmon.readthedocs.io/en/latest/?badge=latest)
 [![PyPI version](https://badge.fury.io/py/joatmon.svg)](https://badge.fury.io/py/joatmon)
