@@ -1,9 +1,6 @@
 import pytest
 
 
-
-
-
 def test__check_tensor_devices():
 	assert True is True
 

@@ -25,8 +25,5 @@ def test_r_w_lock_w_release():
 	assert True is True
 
 
-
-
-
 if __name__ == '__main__':
 	pytest.main([__file__])

@@ -21,8 +21,5 @@ def test_input_driver_transcribe_forever():
 	assert True is True
 
 
-
-
-
 if __name__ == '__main__':
 	pytest.main([__file__])

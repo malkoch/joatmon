@@ -1,9 +1,6 @@
 import pytest
 
 
-
-
-
 def test_register():
 	assert True is True
 

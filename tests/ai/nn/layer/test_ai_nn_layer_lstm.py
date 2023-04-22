@@ -57,8 +57,5 @@ def test_l_s_t_m_cell_reset_parameters():
 	assert True is True
 
 
-
-
-
 if __name__ == '__main__':
 	pytest.main([__file__])

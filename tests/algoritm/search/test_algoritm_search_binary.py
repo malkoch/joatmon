@@ -1,9 +1,6 @@
 import pytest
 
 
-
-
-
 def test_binary_search():
 	assert True is True
 

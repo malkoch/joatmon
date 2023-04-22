@@ -9,8 +9,5 @@ def test_t_o_t_p_verify():
 	assert True is True
 
 
-
-
-
 if __name__ == '__main__':
 	pytest.main([__file__])

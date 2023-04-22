@@ -81,8 +81,5 @@ def test_user_plugin_set():
 	assert True is True
 
 
-
-
-
 if __name__ == '__main__':
 	pytest.main([__file__])

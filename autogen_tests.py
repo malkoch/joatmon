@@ -80,4 +80,9 @@ for path, folders, files in os.walk('joatmon'):
                 ]
             )
 
-            f.write(f'''import pytest\n\n\n{class_function_tests}\n\n\n{function_tests}\n\n\nif __name__ == '__main__':\n\tpytest.main([__file__])\n''')
+            if class_function_tests:
+                class_function_tests += '\n\n\n'
+            if function_tests:
+                function_tests += '\n\n\n'
+
+            f.write(f'''import pytest\n\n\n{class_function_tests}{function_tests}if __name__ == '__main__':\n\tpytest.main([__file__])\n''')

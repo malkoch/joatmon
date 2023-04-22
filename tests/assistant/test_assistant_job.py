@@ -17,8 +17,5 @@ def test_base_job_stop():
 	assert True is True
 
 
-
-
-
 if __name__ == '__main__':
 	pytest.main([__file__])

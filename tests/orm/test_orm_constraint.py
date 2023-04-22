@@ -57,8 +57,5 @@ def test_unique_constraint_create():
 	assert True is True
 
 
-
-
-
 if __name__ == '__main__':
 	pytest.main([__file__])

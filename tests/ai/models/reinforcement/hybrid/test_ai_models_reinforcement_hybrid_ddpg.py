@@ -33,8 +33,5 @@ def test_d_d_p_g_model_train():
 	assert True is True
 
 
-
-
-
 if __name__ == '__main__':
 	pytest.main([__file__])
