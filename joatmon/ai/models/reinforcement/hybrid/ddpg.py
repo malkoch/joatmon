@@ -6,6 +6,10 @@ import torch.nn as nn
 import torch.optim as optim
 
 from joatmon.ai.models.core import CoreModel
+from joatmon.ai.network.reinforcement.hybrid.ddpg import (
+    DDPGActor,
+    DDPGCritic
+)
 from joatmon.ai.utility import (
     load,
     save,
@@ -31,15 +35,15 @@ class DDPGModel(CoreModel):
         gamma (float): gamma.
     """
 
-    def __init__(self, lr=1e-3, tau=1e-4, gamma=0.99, actor=None, critic=None):
+    def __init__(self, lr=1e-3, tau=1e-4, gamma=0.99, in_features=1, out_features=1):
         super(DDPGModel, self).__init__()
 
-        self.actor_local = actor
-        self.actor_target = copy.deepcopy(actor)
+        self.actor_local = DDPGActor(in_features, out_features)
+        self.actor_target = copy.deepcopy(self.actor_local)
         self.hardupdate('actor')
 
-        self.critic_local = critic
-        self.critic_target = copy.deepcopy(critic)
+        self.critic_local = DDPGCritic(in_features, out_features)
+        self.critic_target = copy.deepcopy(self.critic_local)
         self.hardupdate('critic')
 
         self.lr = lr

@@ -772,3 +772,72 @@ class SokobanEnv(CoreEnv):
             vector = Vec2d(0.0, 0.0)
         self._play_step(force=vector * self.force)
         return self._get_observation(), self._get_reward(), self._get_terminal(), self._get_info()
+
+    def goal(self):
+        screen = pygame.Surface(self.world_metrics)
+        screen.fill(self.ground_color)
+
+        for obstacle in self.obstacles:
+            if self.obstacle_sprite is not None:
+                draw_sprite(
+                    screen,
+                    image=self.obstacle_sprite,
+                    position=obstacle.body.position,
+                    half_size=self.obj_size * 0.5
+                )
+            else:
+                draw_rectangle(
+                    screen,
+                    color=self.obstacle_color,
+                    position=obstacle.body.position,
+                    half_size=self.obj_size * 0.5
+                )
+
+        player = self.players[0]
+        for goal in self.goals:
+            if self.goal_sprite is not None:
+                draw_sprite(
+                    screen,
+                    image=self.goal_sprite,
+                    position=goal.body.position,
+                    half_size=self.obj_size * 0.5
+                )
+            else:
+                draw_rectangle(
+                    screen,
+                    color=self.goal_color,
+                    position=goal.body.position,
+                    half_size=self.obj_size * 0.5
+                )
+
+            if self.block_sprite is not None:
+                draw_sprite(
+                    screen,
+                    image=self.block_sprite,
+                    position=player.body.position - (player.body.position - goal.body.position) * 0.95,
+                    half_size=self.obj_size * 0.5
+                )
+            else:
+                draw_rectangle(
+                    screen,
+                    color=self.block_color,
+                    position=player.body.position - (player.body.position - goal.body.position) * 0.95,
+                    half_size=self.obj_size * 0.5
+                )
+
+        player = self.players[0]
+        block = self.blocks[0]
+        if self.player_sprite is not None:
+            draw_sprite(
+                screen, image=self.player_sprite, position=player.body.position - (player.body.position - block.body.position) * 0.9,
+                half_size=self.obj_size * 0.5
+            )
+        else:
+            draw_circle(
+                screen, color=self.player_color, position=player.body.position - (player.body.position - block.body.position) * 0.9,
+                radius=self.obj_size * 0.5
+            )
+
+        image = pygame.surfarray.array3d(screen)
+        image = np.swapaxes(image, 0, 1)
+        return image

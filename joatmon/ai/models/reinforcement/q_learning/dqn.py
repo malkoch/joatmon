@@ -7,6 +7,7 @@ import torch.nn as nn
 import torch.optim as optim
 
 from joatmon.ai.models.core import CoreModel
+from joatmon.ai.network import DQN
 from joatmon.ai.utility import (
     load,
     range_tensor,
@@ -30,11 +31,11 @@ class DQNModel(CoreModel):
         gamma (float): gamma.
     """
 
-    def __init__(self, lr=1e-3, tau=1e-4, gamma=0.99, network=None):
+    def __init__(self, lr=1e-3, tau=1e-4, gamma=0.99, in_features=1, out_features=1):
         super().__init__()
 
-        self.local = network
-        self.target = copy.deepcopy(network)
+        self.local = DQN(in_features, out_features)
+        self.target = copy.deepcopy(self.local)
         self.hardupdate()
 
         self.lr = lr

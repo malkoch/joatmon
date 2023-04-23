@@ -10,7 +10,7 @@ from setuptools import find_packages
 from joatmon.version import get_version
 
 extras = {
-    'ai': ['numpy', 'torch', 'matplotlib', 'six'],
+    'ai': ['numpy', 'torch', 'matplotlib', 'six', 'Pillow'],
     'algorithm': [],
     'assistant': ['feedparser', 'requests', 'colorama', 'schedule', 'psutil'],
     'content': [],

@@ -90,3 +90,6 @@ class CoreEnv(gym.Env):
             info (dict): Contains auxiliary diagnostic information (helpful for debugging, and sometimes learning).
         """
         raise NotImplementedError
+
+    def goal(self):
+        raise NotImplementedError
