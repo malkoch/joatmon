@@ -25,8 +25,7 @@ class DQNTrainer:
 
     def goal(self):
         goal = self.environment.goal()
-        if goal:
-            return self.processor.process_state(goal)
+        return self.processor.process_state(goal)
 
     def get_step(self, action, mode='q_learning', action_number=4):
         if mode == 'q_learning':
@@ -226,8 +225,7 @@ class DDPGTrainer:
 
     def goal(self):
         goal = self.environment.goal()
-        if goal:
-            return self.processor.process_state(goal)
+        return self.processor.process_state(goal)
 
     def get_action(self, state, goal_state):
         if self.her:

@@ -18,12 +18,21 @@ As of today, the following environments have been implemented:
 - [ ] 2048 Puzzle
 - [x] Sokoban
 - [ ] Game of 15
-- [x] Chess
+- [ ] Chess
 
 As of today, the following networks have been implemented:
 
 - [x] DQN [[1]](http://arxiv.org/abs/1312.5602)
 - [x] DDPG [[2]](http://arxiv.org/abs/1509.02971)
+- [ ] SAC
+- [ ] TD3
+- [ ] A3C
+- [ ] PG
+- [ ] PPO
+- [ ] TRPO
+- [ ] C51
+- [ ] HER
+- [ ] QRDQN
 
 You can find more information in the [doc](https://joatmon.readthedocs.io/en/latest/).
 
