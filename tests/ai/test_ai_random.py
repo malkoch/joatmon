@@ -14,26 +14,56 @@ def test_core_random_sample():
 
 
 def test_gaussian_random_decay():
+    from joatmon.random import GaussianRandom
+
+    random = GaussianRandom()
+    random.decay()
+
     assert True is True
 
 
 def test_gaussian_random_reset():
+    from joatmon.random import GaussianRandom
+
+    random = GaussianRandom()
+    random.reset()
+
     assert True is True
 
 
 def test_gaussian_random_sample():
+    from joatmon.random import GaussianRandom
+
+    random = GaussianRandom()
+    random.sample()
+
     assert True is True
 
 
 def test_ornstein_uhlenbeck_decay():
+    from joatmon.random import OrnsteinUhlenbeck
+
+    random = OrnsteinUhlenbeck()
+    random.decay()
+
     assert True is True
 
 
 def test_ornstein_uhlenbeck_reset():
+    from joatmon.random import OrnsteinUhlenbeck
+
+    random = OrnsteinUhlenbeck()
+    random.reset()
+
     assert True is True
 
 
 def test_ornstein_uhlenbeck_sample():
+    from joatmon.random import OrnsteinUhlenbeck
+
+    random = OrnsteinUhlenbeck()
+    random.sample()
+
     assert True is True
 
 
