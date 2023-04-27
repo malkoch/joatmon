@@ -2,6 +2,13 @@ import pytest
 
 
 def test_log():
+    from joatmon.decorator.logger import log
+
+    def t():
+        ...
+
+    log('logger')(t)
+
     assert True is True
 
 

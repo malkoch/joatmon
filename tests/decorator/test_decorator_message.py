@@ -6,6 +6,13 @@ def test_add_consumer():
 
 
 def test_consumer():
+    from joatmon.decorator.message import consumer
+
+    def t():
+        ...
+
+    consumer('kafka', 'topic')
+
     assert True is True
 
 
@@ -18,6 +25,10 @@ def test_loop():
 
 
 def test_producer():
+    from joatmon.decorator.message import producer
+
+    producer('kafka', 'topic')
+
     assert True is True
 
 
