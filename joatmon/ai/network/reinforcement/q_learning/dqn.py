@@ -24,4 +24,5 @@ class DQN(nn.Module):
         )
 
     def forward(self, x):
-        return self.predictor(self.extractor(x))
+        x = self.extractor(x)
+        return self.predictor(x.view(x.size(0), -1))
