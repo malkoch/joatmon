@@ -28,6 +28,9 @@ class RLProcessor:
 
     @staticmethod
     def process_state(state):
+        if state is None:
+            return
+
         state = Image.fromarray(state)
         state = state.resize((84, 84))
         state = np.array(state)
