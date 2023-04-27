@@ -12,9 +12,8 @@ from joatmon.event import Event
 
 def producer(kafka, topic):
     def _decorator(func):
-        p = context.get_value(kafka).get_producer(topic)
-
         def _wrapper(*args, **kwargs):
+            p = context.get_value(kafka).get_producer(topic)
             message = json.dumps({'args': args, 'kwargs': kwargs}).encode('utf-8')
             p.produce(message)
             return func(*args, **kwargs)
