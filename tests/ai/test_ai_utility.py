@@ -14,7 +14,10 @@ def test_easy_range():
 
 def test_load():
     import torch
-    from joatmon.ai.utility import load, save
+    from joatmon.ai.utility import (
+        load,
+        save
+    )
 
     save(torch.nn.Linear(1, 2), 'weights/test')
     load(torch.nn.Linear(1, 2), 'weights/test')
@@ -37,7 +40,7 @@ def test_range_tensor():
 
 def test_save():
     import torch
-    from joatmon.ai.utility import load, save
+    from joatmon.ai.utility import save
 
     save(torch.nn.Linear(1, 2), 'weights/test')
 
