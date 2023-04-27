@@ -28,6 +28,12 @@ class CoreModel(object):
         """
         raise NotImplementedError
 
+    def initialize(self):
+        """
+        initialize
+        """
+        raise NotImplementedError
+
     def predict(self):
         """
         Get the action for given state.
