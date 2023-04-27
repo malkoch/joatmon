@@ -2,34 +2,74 @@ import pytest
 
 
 def test_callback_list_on_action_begin():
+    from joatmon.callback import CallbackList
+
+    cl = CallbackList([])
+    cl.on_action_begin()
+
     assert True is True
 
 
 def test_callback_list_on_action_end():
+    from joatmon.callback import CallbackList
+
+    cl = CallbackList([])
+    cl.on_action_end()
+
     assert True is True
 
 
 def test_callback_list_on_agent_begin():
+    from joatmon.callback import CallbackList
+
+    cl = CallbackList([])
+    cl.on_agent_begin()
+
     assert True is True
 
 
 def test_callback_list_on_agent_end():
+    from joatmon.callback import CallbackList
+
+    cl = CallbackList([])
+    cl.on_agent_end()
+
     assert True is True
 
 
 def test_callback_list_on_episode_begin():
+    from joatmon.callback import CallbackList
+
+    cl = CallbackList([])
+    cl.on_episode_begin()
+
     assert True is True
 
 
 def test_callback_list_on_episode_end():
+    from joatmon.callback import CallbackList
+
+    cl = CallbackList([])
+    cl.on_episode_end()
+
     assert True is True
 
 
 def test_callback_list_on_replay_begin():
+    from joatmon.callback import CallbackList
+
+    cl = CallbackList([])
+    cl.on_replay_begin()
+
     assert True is True
 
 
 def test_callback_list_on_replay_end():
+    from joatmon.callback import CallbackList
+
+    cl = CallbackList([])
+    cl.on_replay_end()
+
     assert True is True
 
 
