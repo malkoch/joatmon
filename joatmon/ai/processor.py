@@ -31,7 +31,7 @@ class RLProcessor:
         if state is None:
             return
 
-        state = Image.fromarray(state)
+        state = Image.fromarray(state, 'RGB')
         state = state.resize((84, 84))
         state = np.array(state)
         state = np.expand_dims(state, 0)
