@@ -12,7 +12,6 @@ class Meta(type):
 
     structured = True
     force = True
-    encrypt = False
 
     qb = None
 
