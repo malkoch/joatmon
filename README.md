@@ -24,15 +24,8 @@ As of today, the following networks have been implemented:
 
 - [x] DQN [[1]](http://arxiv.org/abs/1312.5602)
 - [x] DDPG [[2]](http://arxiv.org/abs/1509.02971)
-- [ ] SAC
-- [ ] TD3
-- [ ] A3C
-- [ ] PG
+- [x] TD3
 - [ ] PPO
-- [ ] TRPO
-- [ ] C51
-- [ ] HER
-- [ ] QRDQN
 
 You can find more information in the [doc](https://joatmon.readthedocs.io/en/latest/).
 
