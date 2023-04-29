@@ -15,7 +15,7 @@ extras = {
     'assistant': ['feedparser', 'requests', 'colorama', 'schedule', 'psutil'],
     'content': [],
     'core': [],
-    'decorator': [],
+    'decorator': ['async_exit_stack'],
     'download': ['pycurl'],
     'event': [],
     'game': ['gym', 'pygame', 'opencv-contrib-python', 'pymunk'],

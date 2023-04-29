@@ -41,7 +41,7 @@ class Document(Serializable):  # need to have copy and deepcopy functions as wel
         return list(map(lambda x: getattr(self, x, None), self.__dict__.keys()))
 
     def validate(self):
-        if not self.__metaclass__.structured:
+        if not self.__metaclass__.structured and not self.__metaclass__.force:
             raise ValueError('unstructured document cannot be validated')
 
         ret = {}

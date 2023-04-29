@@ -11,6 +11,7 @@ class Meta(type):
     __collection__ = 'meta'
 
     structured = True
+    force = True
     encrypt = False
 
     qb = None
