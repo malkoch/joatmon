@@ -399,3 +399,193 @@ class DDPGTrainer:
                 'total_steps': total_steps
             }
         )
+
+
+class TD3Trainer:
+    def __init__(self, environment, random_process, processor, memory, model, callbacks, her=False):
+        super(TD3Trainer, self).__init__()
+
+        self.environment = environment
+        self.memory = memory
+        self.processor = processor
+        self.model = model
+        self.callbacks = callbacks
+        self.random_process = random_process
+        self.her = her
+
+    def goal(self):
+        goal = self.environment.goal()
+        return self.processor.process_state(goal)
+
+    def get_action(self, state, goal_state):
+        if self.her:
+            action = self.model.predict(np.concatenate((state, goal_state), axis=2))
+        else:
+            action = self.model.predict(state)
+        action += self.random_process.sample()
+
+        return action
+
+    def train(self, batch_size=32, max_action=50, max_episode=120, warmup=0, replay_interval=4, update_interval=1, test_interval=1000):
+        total_steps = 0
+        self.callbacks.on_agent_begin(
+            **{
+                'agent_headers': ['episode_number', 'action_number', 'episode_reward'],
+                'network_headers': ['actor_loss', 'critic_loss', 'critic_extra_loss']
+            }
+        )
+        for episode_number in easy_range(1, max_episode):
+            episode_reward = 0
+            state = self.environment.reset()
+            state = self.processor.process_state(state)
+            self.callbacks.on_episode_begin(
+                **{
+                    'episode_number': episode_number,
+                    'state': state
+                }
+            )
+
+            goal_state = self.goal()
+
+            for action_number in easy_range(1, max_action):
+                action = self.get_action(state, goal_state)
+                self.callbacks.on_action_begin(
+                    **{
+                        'episode_number': episode_number,
+                        'action_number': action_number,
+                        'state': state,
+                        'action': action
+                    }
+                )
+
+                if hasattr(self.environment, 'get_step'):
+                    step = self.environment.get_step(action, 'policy_optimization')
+                else:
+                    step = action
+                next_state, reward, terminal, _ = self.environment.step(step)
+                next_state = self.processor.process_state(next_state)
+                if action_number >= max_action:
+                    terminal = True
+
+                self.callbacks.on_action_end(
+                    **{
+                        'episode_number': episode_number,
+                        'action_number': action_number,
+                        'state': state,
+                        'action': action,
+                        'reward': reward,
+                        'terminal': terminal,
+                        'next_state': next_state
+                    }
+                )
+
+                processed_state = np.concatenate((state, goal_state), axis=2) if self.her else state
+                clipped_reward = np.clip(reward - 0.25, -1, 1)
+                processed_next_state = np.concatenate((next_state, goal_state), axis=2) if self.her else next_state
+                self.memory.remember(processed_state, action, clipped_reward, processed_next_state, terminal)
+
+                if total_steps > warmup:
+                    self.random_process.decay()
+                    if total_steps % replay_interval == 0:
+                        self.callbacks.on_replay_begin()
+                        mini_batch = self.memory.sample()
+                        batch = self.processor.process_batch(mini_batch)
+                        loss = self.model.train(batch, ((total_steps - warmup) // replay_interval) % update_interval == 0)
+                        self.callbacks.on_replay_end(
+                            **{
+                                'loss': loss
+                            }
+                        )
+
+                episode_reward += reward
+                state = deepcopy(next_state)
+                total_steps += 1
+
+                if terminal:
+                    self.callbacks.on_episode_end(
+                        **{
+                            'episode_number': episode_number,
+                            'action_number': action_number,
+                            'episode_reward': episode_reward
+                        }
+                    )
+                    gc.collect()
+                    break
+
+        self.environment.close()
+        self.callbacks.on_agent_end(
+            **{
+                'total_steps': total_steps
+            }
+        )
+
+    def evaluate(self, max_action=50, max_episode=12):
+        total_steps = 0
+        self.callbacks.on_agent_begin()
+        for episode_number in easy_range(1, max_episode):
+            episode_reward = 0
+            state = self.environment.reset()
+            state = self.processor.process_state(state)
+            self.callbacks.on_episode_begin(
+                **{
+                    'episode_number': episode_number,
+                    'state': state
+                }
+            )
+
+            goal_state = self.goal()
+
+            for action_number in easy_range(1, max_action):
+                action = self.get_action(state, goal_state)
+                self.callbacks.on_action_begin(
+                    **{
+                        'episode_number': episode_number,
+                        'action_number': action_number,
+                        'state': state,
+                        'action': action
+                    }
+                )
+
+                if hasattr(self.environment, 'get_step'):
+                    step = self.environment.get_step(action, 'policy_optimization')
+                else:
+                    step = action
+                next_state, reward, terminal, _ = self.environment.step(step)
+                next_state = self.processor.process_state(next_state)
+                if action_number >= max_action:
+                    terminal = True
+
+                self.callbacks.on_action_end(
+                    **{
+                        'episode_number': episode_number,
+                        'action_number': action_number,
+                        'state': state,
+                        'action': action,
+                        'reward': reward,
+                        'terminal': terminal,
+                        'next_state': next_state
+                    }
+                )
+
+                episode_reward += reward
+                state = deepcopy(next_state)
+                total_steps += 1
+
+                if terminal:
+                    self.callbacks.on_episode_end(
+                        **{
+                            'episode_number': episode_number,
+                            'action_number': action_number,
+                            'episode_reward': episode_reward
+                        }
+                    )
+
+                    gc.collect()
+                    break
+
+        self.environment.close()
+        self.callbacks.on_agent_end(
+            **{
+                'total_steps': total_steps
+            }
+        )
