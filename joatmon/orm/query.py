@@ -72,10 +72,10 @@ class Dialects(Enum):
 
 class Node:
     def __init__(self, alias):
-        self._alias = alias
+        self.alias = alias
 
     def as_(self, alias):
-        self._alias = alias
+        self.alias = alias
         return self
 
 
@@ -113,7 +113,7 @@ class Term(Node):
     def __truediv__(self, other):
         return ArithmeticExpression(Arithmetic.div, self, other)
 
-    def build(self, dialect):
+    def build(self, dialect, depth=0):
         raise NotImplementedError
 
 
@@ -121,7 +121,7 @@ class ValueWrapper:
     def __init__(self, value):
         self.value = value
 
-    def build(self, dialect):
+    def build(self, dialect, depth=0):
         if self.value is None:
             return 'null'
         elif self.value is True:
@@ -164,7 +164,7 @@ class BasicCriteria(Criterion):
             right = ValueWrapper(right)
         self.right = right
 
-    def build(self, dialect):
+    def build(self, dialect, depth=0):
         if dialect == Dialects.MSSQL:
             ret = ''
             if self.comparator == Equality.eq:
@@ -184,23 +184,23 @@ class BasicCriteria(Criterion):
             ret = ''
             if self.comparator == Equality.eq:
                 if isinstance(self.right, ValueWrapper) and self.right.value is None:
-                    return f'{self.left.build(dialect)} is {self.right.build(dialect)}'
-
-                return f'{self.left.build(dialect)} = {self.right.build(dialect)}'
+                    ret += f'{self.left.build(dialect)} is {self.right.build(dialect)}'
+                else:
+                    ret += f'{self.left.build(dialect)} = {self.right.build(dialect)}'
             if self.comparator == Equality.ne:
                 if isinstance(self.right, ValueWrapper) and self.right.value is None:
-                    return f'{self.left.build(dialect)} is not {self.right.build(dialect)}'
-
-                return f'{self.left.build(dialect)} != {self.right.build(dialect)}'
+                    ret += f'{self.left.build(dialect)} is not {self.right.build(dialect)}'
+                else:
+                    ret += f'{self.left.build(dialect)} != {self.right.build(dialect)}'
             if self.comparator == Equality.gt:
-                return f'{self.left.build(dialect)} > {self.right.build(dialect)}'
+                ret += f'{self.left.build(dialect)} > {self.right.build(dialect)}'
             if self.comparator == Equality.gte:
-                return f'{self.left.build(dialect)} >= {self.right.build(dialect)}'
+                ret += f'{self.left.build(dialect)} >= {self.right.build(dialect)}'
             if self.comparator == Equality.lt:
-                return f'{self.left.build(dialect)} < {self.right.build(dialect)}'
+                ret += f'{self.left.build(dialect)} < {self.right.build(dialect)}'
             if self.comparator == Equality.lte:
-                return f'{self.left.build(dialect)} <= {self.right.build(dialect)}'
-            return ret
+                ret += f'{self.left.build(dialect)} <= {self.right.build(dialect)}'
+            return ret if self.alias is None else f'{ret} as {self.alias}'
         if dialect == Dialects.MONGO:
             ret = {}
             if self.comparator == Equality.eq:
@@ -217,7 +217,7 @@ class ComplexCriteria(Criterion):
         self.left = left
         self.right = right
 
-    def build(self, dialect):
+    def build(self, dialect, depth=0):
         if dialect == Dialects.MSSQL:
             ret = ''
             if self.comparator == Boolean.and_:
@@ -228,10 +228,10 @@ class ComplexCriteria(Criterion):
         if dialect == Dialects.POSTGRESQL:
             ret = ''
             if self.comparator == Boolean.and_:
-                return f'{self.left.build(dialect)} and \n{self.right.build(dialect)}'
+                ret += f'{self.left.build(dialect)} and \n{self.right.build(dialect)}'
             if self.comparator == Boolean.or_:
-                return f'{self.left.build(dialect)} or \n{self.right.build(dialect)}'
-            return ret
+                ret += f'{self.left.build(dialect)} or \n{self.right.build(dialect)}'
+            return ret if self.alias is None else f'{ret} as {self.alias}'
         if dialect == Dialects.MONGO:
             ret = {}
             if self.comparator == Boolean.and_:
@@ -250,7 +250,7 @@ class ArithmeticExpression(Term):
             right = ValueWrapper(right)
         self.right = right
 
-    def build(self, dialect):
+    def build(self, dialect, depth=0):
         if dialect == Dialects.MSSQL:
             ret = '('
             if self.operator == Arithmetic.add:
@@ -262,7 +262,7 @@ class ArithmeticExpression(Term):
             if self.operator == Arithmetic.div:
                 ret += f'{self.left.build(dialect)} / {self.right.build(dialect)}'
             ret += ')'
-            return ret if self._alias is None else f'{ret} as {self._alias}'
+            return ret if self.alias is None else f'{ret} as {self.alias}'
         if dialect == Dialects.POSTGRESQL:
             ret = '('
             if self.operator == Arithmetic.add:
@@ -274,7 +274,7 @@ class ArithmeticExpression(Term):
             if self.operator == Arithmetic.div:
                 ret += f'{self.left.build(dialect)} / {self.right.build(dialect)}'
             ret += ')'
-            return ret if self._alias is None else f'{ret} as {self._alias}'
+            return ret if self.alias is None else f'{ret} as {self.alias}'
         if dialect == Dialects.MONGO:
             ret = {}
             if self.operator == Arithmetic.sub:
@@ -289,18 +289,18 @@ class Column(Term):
 
         self._name = name
         self._table = table
-        self._alias = None
+        self.alias = None
 
-    def build(self, dialect):
+    def build(self, dialect, depth=0):
         if dialect == Dialects.POSTGRESQL:
             return f'{self._table.build(dialect)}."{self._name}"'
 
 
 class Table:
-    def __init__(self, name, schema):
+    def __init__(self, name, schema=None):
         self._name = name
         self._schema = schema
-        self._alias = None
+        self.alias = None
 
     def __getattr__(self, item):
         return Column(item, self)
@@ -309,28 +309,31 @@ class Table:
         return Column('*', self)
 
     def as_(self, alias):
-        self._alias = alias
+        self.alias = alias
         return self
 
-    def build(self, dialect):
+    def build(self, dialect, depth=0):
         if dialect == Dialects.POSTGRESQL:
-            return f'{self._schema.build(dialect)}."{self._name}"'
+            if self._schema is None:
+                return f'"{self._name}"'
+            else:
+                return f'{self._schema.build(dialect)}."{self._name}"'
 
 
 class Schema:
     def __init__(self, name, database):
         self._name = name
         self._database = database
-        self._alias = None
+        self.alias = None
 
     def __getattr__(self, item):
         return Table(item, self)
 
     def as_(self, alias):
-        self._alias = alias
+        self.alias = alias
         return self
 
-    def build(self, dialect):
+    def build(self, dialect, depth=0):
         if dialect == Dialects.POSTGRESQL:
             return f'{self._database.build(dialect)}."{self._name}"'
 
@@ -338,16 +341,16 @@ class Schema:
 class Database:
     def __init__(self, name):
         self._name = name
-        self._alias = None
+        self.alias = None
 
     def __getattr__(self, item):
         return Schema(item, self)
 
     def as_(self, alias):
-        self._alias = alias
+        self.alias = alias
         return self
 
-    def build(self, dialect):
+    def build(self, dialect, depth=0):
         if dialect == Dialects.POSTGRESQL:
             return f'"{self._name}"'
 
@@ -361,7 +364,7 @@ class Count:
         self.alias = alias
         return self
 
-    def build(self, dialect):
+    def build(self, dialect, depth=0):
         if dialect == Dialects.MSSQL:
             if isinstance(self.column, Column):
                 return f'count({self.column._table._name}.{self.column._name})'
@@ -369,9 +372,83 @@ class Count:
                 return f'count({self.column.build(dialect)})'
         if dialect == Dialects.POSTGRESQL:
             if isinstance(self.column, Column):
-                return f'count({self.column._table._name}.{self.column._name}) as {self.alias}'
+                return f'count({self.column._table._name}.{self.column._name})'
             elif isinstance(self.column, Criterion):
-                return f'count(*) filter(where {self.column.build(dialect)}) as {self.alias}'
+                return f'count(*) filter(where {self.column.build(dialect)})'
+        if dialect == Dialects.MONGO:
+            ...
+
+
+class Array:
+    def __init__(self, *column):
+        self.column = column
+        self.alias = None
+
+        self.dtype = None
+
+    def as_(self, alias):
+        self.alias = alias
+        return self
+
+    def as_text(self):
+        self.dtype = 'text'
+        return self
+
+    def build(self, dialect, depth=0):
+        if dialect == Dialects.MSSQL:
+            raise ValueError
+        if dialect == Dialects.POSTGRESQL:
+            if isinstance(self.column[0], Column):
+                return f'array_agg(({",".join([x._table._name + "." + x._name for x in self.column])}))'
+            elif isinstance(self.column[0], Table):
+                return f'array_agg({self.column[0]._name})'
+            elif isinstance(self.column[0], Query):
+                # print('-' * 30)
+                # print(self.column[0].build(dialect))
+                # print('-' * 30)
+                return f'ARRAY({self.column[0].build(dialect)}){f"::{self.dtype}[]" if self.dtype is not None else ""}'
+            elif isinstance(self.column[0], Criterion):
+                return f'count(*) filter(where {self.column[0].build(dialect)})'
+        if dialect == Dialects.MONGO:
+            ...
+
+
+class JSON:
+    def __init__(self, **kwargs):
+        self.column = kwargs
+        self.alias = None
+
+        self.dtype = None
+        self.is_array = True
+
+    def as_(self, alias):
+        self.alias = alias
+        return self
+
+    def as_text(self):
+        self.dtype = 'text'
+        return self
+
+    def array(self):
+        self.is_array = True
+        return self
+
+    def object(self):
+        self.is_array = False
+        return self
+
+    def build(self, dialect, depth=0):
+        # print('-' * 30)
+        # print(self.column)
+        # print('-' * 30)
+        if dialect == Dialects.MSSQL:
+            raise ValueError
+        if dialect == Dialects.POSTGRESQL:
+            x = ','.join(["'" + k + "'" + ', ' + v.build(dialect) for k, v in self.column.items()])
+            if self.is_array:
+                return f"json_agg(json_build_object({x}))"
+            else:
+                return f"json_build_object({x})"
         if dialect == Dialects.MONGO:
             ...
 
@@ -380,7 +457,7 @@ class Sum:
     def __init__(self, column):
         self.column = column
 
-    def build(self, dialect):
+    def build(self, dialect, depth=0):
         if dialect == Dialects.MSSQL:
             return f'sum({self.column._table._name}.{self.column._name})'
         if dialect == Dialects.POSTGRESQL:
@@ -399,6 +476,21 @@ class Query:
 
         self.tables = []
         self.joins = []
+
+        self.withs = []
+
+        self.alias = None
+
+    def as_table(self):
+        return Table(self.alias)
+
+    def as_(self, alias):
+        self.alias = alias
+        return self
+
+    def with_(self, *query):
+        self.withs = query
+        return self
 
     def select(self, *terms):
         self.projection += list(terms)
@@ -435,28 +527,18 @@ class Query:
         self.limit = limit
         return self
 
-    def build(self, dialect):
-        # if dialect == Dialects.MSSQL:
-        #     columns_in_projection = [(column._table if isinstance(column, Column) else None, column) for column in self.projection]
-        #     columns_in_condition = [(column._table, column) for column in filter(lambda x: isinstance(x, Column), self.get_columns(self.condition))]
-        #     columns_in_group = [(column._table, column) for column in self.grouping]
-        #     columns_in_sort = [(column[0]._table, column[0], column[1]) for column in self.sort or []]
-
-        #     tables = list(set([c[0]._name for c in columns_in_projection if c[0] is not None] + [c[0]._name for c in columns_in_condition]))
-
-        #     select = ', '.join([x.build(dialect) for x in self.projection])
-        #     group = ', '.join([f'{x[0]._name}.{x[1]._name}' for x in columns_in_group])
-        #     order = ', '.join([f'{x[0]._name}.{x[1]._name} {"asc" if x[2] == 0 else "desc"}' for x in columns_in_sort])
-
-        #     return f'select {f"top {self.limit}" if self.limit is not None else ""} {select} \n' \
-        #            f'from {", ".join(tables)} \nwhere {self.condition.build(dialect)} \n' \
-        #            f'group by {group} \n' \
-        #            f'order by {order}'
+    def build(self, dialect, depth=0):
         if dialect == Dialects.POSTGRESQL:
             sql = ''
+            if len(self.withs) > 0:
+                sql += f'with {",".join([x.alias + " as (" + x.build(dialect) + ")" for x in self.withs])}\n'
+
             if len(self.projection) == 0:
                 raise ValueError('select clause cannot be empty')
-            sql += 'select ' + ', '.join([x.build(dialect) for x in self.projection]) + '\n'
+
+            if depth >= 0:
+                sql += '('
+            sql += 'select ' + ', '.join([x.build(dialect, depth+1) + " as " + x.alias for x in self.projection]) + '\n'
 
             if len(self.tables) == 0:
                 raise ValueError('from clause cannot be empty')
@@ -466,16 +548,22 @@ class Query:
                 for join in self.joins:
                     jtype, jtable, condition = join
 
-                    sql += f'{jtype} join {jtable.build(dialect)} on {condition.build(dialect)}' + '\n'
+                    sql += f'{jtype} join {jtable.build(dialect) if not isinstance(jtable, Query) else jtable.as_table().build(dialect)} on {condition.build(dialect)}' + '\n'
 
             if self.condition is not None:
-                sql += 'where ' + self.condition.build(dialect)
+                sql += 'where ' + self.condition.build(dialect) + '\n'
 
             if len(self.grouping) > 0:
                 sql += 'group by ' + ', '.join([x.build(dialect) for x in self.grouping]) + '\n'
 
             if len(self.sort) > 0:
                 sql += 'order by ' + ', '.join([x.build(dialect) for (x, y) in self.sort]) + '\n'
+
+            if self.limit is not None:
+                sql += f'limit {self.limit}\n'
+
+            if depth >= 0:
+                sql += ')'
 
             return sql
         if dialect == Dialects.MONGO:

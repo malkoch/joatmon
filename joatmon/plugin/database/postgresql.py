@@ -3,13 +3,13 @@ from datetime import datetime
 
 import psycopg2
 
-from joatmon.utility import get_converter
 from joatmon.orm.constraint import UniqueConstraint
 from joatmon.orm.meta import normalize_kwargs
 from joatmon.orm.query import (
     Dialects
 )
 from joatmon.plugin.database.core import DatabasePlugin
+from joatmon.utility import get_converter
 
 
 class PostgreSQLDatabase(DatabasePlugin):
@@ -65,9 +65,29 @@ class PostgreSQLDatabase(DatabasePlugin):
             index_names.add(index_name)
             cursor.execute(f'create {"unique" if isinstance(index, UniqueConstraint) else ""} index {collection.__collection__}_{index_name} on {collection.__collection__} ({c})')
 
+    async def _create_view(self, collection):
+        cursor = self.connection.cursor()
+
+        sql = f'drop VIEW if exists {collection.__collection__}'
+        cursor.execute(sql)
+
+        sql = f'CREATE OR REPLACE VIEW {collection.__collection__} AS {collection.query(collection).build(Dialects.POSTGRESQL)}'
+        cursor.execute(sql)
+
     async def _ensure_collection(self, collection):
         if not await self._check_collection(collection):
             await self._create_collection(collection)
+
+    async def create(self, document):
+        ...
+
+    async def alter(self, document):
+        ...
+
+    async def drop(self, document):
+        cursor = self.connection.cursor()
+        sql = f'drop table if exists {document.__metaclass__.__collection__} cascade'
+        cursor.execute(sql)
 
     async def insert(self, document, *docs):
         cursor = self.connection.cursor()
@@ -245,10 +265,42 @@ class PostgreSQLDatabase(DatabasePlugin):
         await self._ensure_collection(document.__metaclass__)
         cursor.execute(sql)
 
-    async def view(self, document):
-        query = document.__metaclass__.query(document.__metaclass__).build(Dialects.POSTGRESQL)
+    async def view(self, document, query):
+        await self._create_view(document.__metaclass__)
+
+        keys = list(document.__metaclass__.fields(document.__metaclass__).keys())
+
+        sql = f'select {", ".join(keys)} from {document.__metaclass__.__collection__}'
+
+        def normalize(d, kwargs):
+            fields = d.__metaclass__.fields(d.__metaclass__)
+
+            keys = []
+            values = []
+            for k, v in kwargs.items():
+                keys.append(k)
+
+                field = fields[k]
+
+                field_value = get_converter(field.dtype)(kwargs[k])
+
+                if field_value is None:
+                    values.append('null')
+                elif field.dtype in (uuid.UUID, str, datetime):
+                    values.append(f'\'{str(field_value)}\'')
+                else:
+                    values.append(str(field_value))
+
+            return keys, values
+
+        normalized = normalize_kwargs(document.__metaclass__, **query)
+        k, v = normalize(document, normalized)
+
+        if len(query) > 0:
+            sql += f' where {" and ".join([f"{_k}={_v}" if _v != "null" else f"{_k} is {_v}" for _k, _v in zip(k, v)])}'
+
         cursor = self.connection.cursor()
-        cursor.execute(query)
+        cursor.execute(sql)
 
         # keys = list(document.__metaclass__.fields(document.__metaclass__).keys())
         keys = [desc[0] for desc in cursor.description]

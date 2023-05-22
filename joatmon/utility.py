@@ -260,7 +260,10 @@ def get_converter(kind: type):
         if value is None:
             return value
 
-        if isinstance(value, list):
+        # if isinstance(value, str):
+        #     value = json.loads(value)
+
+        if isinstance(value, (list, tuple, set)):
             ret = []
             for v in value:
                 ret.append(to_enumerable(v))
@@ -272,11 +275,30 @@ def get_converter(kind: type):
         if value is None:
             return value
 
-        if isinstance(value, (tuple, list)):
+        # if isinstance(value, str):
+        #     value = json.loads(value)
+
+        if isinstance(value, (list, tuple, set)):
             ret = []
             for v in value:
                 ret.append(to_enumerable(v))
             ret = tuple(ret)
+            return ret
+
+        raise ValueError(f'cannot convert {value} with type {type(value)} to tuple')
+
+    def _set_converter(value: object) -> typing.Optional[set]:
+        if value is None:
+            return value
+
+        # if isinstance(value, str):
+        #     value = json.loads(value)
+
+        if isinstance(value, (list, tuple, set)):
+            ret = []
+            for v in value:
+                ret.append(to_enumerable(v))
+            ret = set(ret)
             return ret
 
         raise ValueError(f'cannot convert {value} with type {type(value)} to tuple')
@@ -313,7 +335,8 @@ def get_converter(kind: type):
         dict: _dictionary_converter,
         list: _list_converter,
         tuple: _tuple_converter,
-        object: _object_converter,
+        set: _set_converter,
+        object: _object_converter
     }
 
     return converters.get(kind, _object_converter)
