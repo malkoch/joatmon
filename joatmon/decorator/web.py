@@ -27,23 +27,23 @@ def incoming(case, json, arg, form):
             c = context.get_value(case).get()
             c = 'snake'
 
-            if context.get_value(json).get() is not None:
+            if (j := context.get_value(json).get()) is not None:
                 if c is not None:
-                    kwargs.update(to_case(c, context.get_value(json).get()))
+                    kwargs.update(to_case(c, j))
                 else:
-                    kwargs.update(context.get_value(json).get())
+                    kwargs.update(j)
 
-            if context.get_value(arg).get() is not None:
+            if (a := context.get_value(arg).get()) is not None:
                 if c is not None:
-                    kwargs.update(to_case(c, context.get_value(arg).get()))
+                    kwargs.update(to_case(c, a))
                 else:
-                    kwargs.update(context.get_value(arg).get())
+                    kwargs.update(a)
 
-            if context.get_value(form).get() is not None:
+            if (f := context.get_value(form).get()) is not None:
                 if c is not None:
-                    kwargs.update(to_case(c, context.get_value(form).get()))
+                    kwargs.update(to_case(c, f))
                 else:
-                    kwargs.update(context.get_value(form).get())
+                    kwargs.update(f)
 
             return await func(*args, **kwargs)
 
@@ -72,6 +72,7 @@ def outgoing(case):
         async def _wrapper(*args, **kwargs):
             response = await func(*args, **kwargs)
             c = context.get_value(case).get()
+            c = 'pascal'
             if c is not None:
                 response = to_case(c, response)
             return response

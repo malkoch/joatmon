@@ -21,7 +21,7 @@ extras = {
     'game': ['gym', 'pygame', 'opencv-contrib-python', 'pymunk'],
     'hid': ['whisper', 'pyttsx3'],
     'orm': [],
-    'plugin': ['jwt', 'redis', 'couchbase', 'elasticsearch', 'pymongo', 'psycopg2', 'pykafka', 'pyotp'],
+    'plugin': ['pyjwt', 'redis', 'couchbase', 'elasticsearch', 'pymongo', 'psycopg2', 'pykafka', 'pyotp'],
     'search': ['requests'],
     'structure': [],
     'system': ['opencv-contrib-python', 'numpy'],

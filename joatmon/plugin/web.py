@@ -110,3 +110,25 @@ class FormPlugin(Plugin):
 
     def get(self):
         return context.get_value(self.key)
+
+
+class HeadersPlugin(Plugin):
+    def __init__(self, key):
+        self.key = key
+
+    def set(self, value):
+        context.set_value(self.key, value)
+
+    def get(self):
+        return context.get_value(self.key)
+
+
+class CookiesPlugin(Plugin):
+    def __init__(self, key):
+        self.key = key
+
+    def set(self, value):
+        context.set_value(self.key, value)
+
+    def get(self):
+        return context.get_value(self.key)

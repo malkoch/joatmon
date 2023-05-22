@@ -18,13 +18,13 @@ class DatabasePlugin(Plugin):
 
         return self
 
-    async def create(self):
+    async def create(self, document):
         raise NotImplementedError
 
-    async def alter(self):
+    async def alter(self, document):
         raise NotImplementedError
 
-    async def drop(self):
+    async def drop(self, document):
         raise NotImplementedError
 
     async def insert(self, document, *docs):
@@ -39,7 +39,7 @@ class DatabasePlugin(Plugin):
     async def delete(self, document, query):
         raise NotImplementedError
 
-    async def view(self, document):
+    async def view(self, document, query):
         raise NotImplementedError
 
     async def execute(self, document, query):
