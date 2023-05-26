@@ -49,12 +49,19 @@ class CouchBaseDatabase(DatabasePlugin):
         await self._create_collection(document.__metaclass__)
 
         values = 'and '.join([f'`{k}` = ${k}' for k, v in query.items()])
-        result = self.db.query(
-            f'SELECT * '
-            f'FROM `{self.bucket}`.{self.scope}.{document.__metaclass__.__collection__} '
-            f'WHERE {values}',
-            QueryOptions(named_parameters={k: str(v) if isinstance(v, uuid.UUID) else v for k, v in query.items()}, scan_consistency=QueryScanConsistency.REQUEST_PLUS)
-        ).execute()
+        if len(values) > 0:
+            result = self.db.query(
+                f'SELECT * '
+                f'FROM `{self.bucket}`.{self.scope}.{document.__metaclass__.__collection__} '
+                f'WHERE {values}',
+                QueryOptions(named_parameters={k: str(v) if isinstance(v, uuid.UUID) else v for k, v in query.items()}, scan_consistency=QueryScanConsistency.REQUEST_PLUS)
+            ).execute()
+        else:
+            result = self.db.query(
+                f'SELECT * '
+                f'FROM `{self.bucket}`.{self.scope}.{document.__metaclass__.__collection__} ',
+                QueryOptions(named_parameters={k: str(v) if isinstance(v, uuid.UUID) else v for k, v in query.items()}, scan_consistency=QueryScanConsistency.REQUEST_PLUS)
+            ).execute()
         for r in result:
             yield document(**r[document.__metaclass__.__collection__])
 

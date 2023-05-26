@@ -1,5 +1,5 @@
+from joatmon.orm.field import get_converter
 from joatmon.serializable import Serializable
-from joatmon.utility import get_converter
 from joatmon.orm.meta import Meta
 
 
@@ -22,7 +22,8 @@ class Document(Serializable):  # need to have copy and deepcopy functions as wel
             return
 
         field = self.__metaclass__.fields(self.__metaclass__)[key]
-        self.__dict__[key] = get_converter(field.dtype)(value)
+        # self.__dict__[key] = get_converter(field.dtype)(value)
+        self.__dict__[key] = get_converter(field)(value)
 
     def __len__(self):
         return len(self.__dict__.keys())
