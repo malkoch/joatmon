@@ -1,3 +1,4 @@
+import re
 import typing
 import uuid
 from datetime import datetime
@@ -20,6 +21,7 @@ class Field(Serializable):
             encrypt: bool = False,
             hash_: bool = False,
             resource: str = None,
+            regex: str = None,
             fields: dict = None
     ):
         super(Field, self).__init__()
@@ -29,6 +31,11 @@ class Field(Serializable):
         self.primary = primary
         self.encrypt = encrypt
         self.hash_ = hash_
+        self.resource = resource
+        self.regex = regex
+        self.fields = fields or {}
+
+        # is resource template changed
 
         if not callable(default):
             self.default = lambda: default
@@ -37,8 +44,6 @@ class Field(Serializable):
 
         self.encrypted = False
         self.hashed = False
-        self.resource = resource
-        self.fields = fields or {}
 
 
 def get_converter(field: Field):
@@ -92,7 +97,8 @@ def get_converter(field: Field):
             return value
 
         if isinstance(value, str):
-            if field.resource is not None:
+            # print(re.findall(r'{@resource\.(.*?)}', value))
+            if field.resource is not None and len(re.findall(field.regex, value)) == 0:
                 value = field.resource.format(value)
             return value
 
