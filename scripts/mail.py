@@ -13,23 +13,42 @@ from joatmon.plugin.message.kafka import KafkaPlugin
 
 
 class Task(BaseTask):
-    run_arguments = {
-        'subject': '',
-        'content': '',
-        'receiver': ''
-    }
-
     def __init__(self, api, **kwargs):
         super(Task, self).__init__(api, **kwargs)
 
+    @staticmethod
+    def create(api):
+        api.output('what do you want the subject to be')
+        subject = api.input()
+        api.output('what do you want the content to be')
+        content = api.input()
+        api.output('what do you want the receiver to be')
+        receiver = api.input()
+        return {'subject': subject, 'content': content, 'receiver': receiver}
+
     def run(self):
-        receivers = [self.kwargs['receiver']]
+        subject = self.kwargs.get('subject', '')
+        if not subject:
+            self.api.output('what do you want the subject to be')
+            subject = self.api.input()
+
+        content = self.kwargs.get('content', '')
+        if not content:
+            self.api.output('what do you want the content to be')
+            content = self.api.input()
+
+        receiver = self.kwargs.get('receiver', '')
+        if not receiver:
+            self.api.output('what do you want the receiver to be')
+            receiver = self.api.input()
+
+        receivers = [receiver]
 
         config = json.loads(open('iva.json', 'r').read())['configs']['mail']
 
         text_subtype = 'plain'
-        content = self.kwargs['content']
-        subject = self.kwargs['subject']
+        content = content
+        subject = subject
 
         smtp_server = config['smtp_server']
         port = config['smtp_port']
@@ -56,6 +75,10 @@ class Service(BaseService):
         register(KafkaPlugin, 'kafka_plugin', 'localhost:9092')
 
         self.send_mail = consumer('kafka_plugin', 'mail')(self.send_mail)
+
+    @staticmethod
+    def create(api):
+        return {}
 
     def send_mail(self, mail):
         config = json.loads(open('iva.json', 'r').read())['configs']['mail']

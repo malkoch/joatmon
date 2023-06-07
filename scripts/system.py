@@ -19,15 +19,22 @@ def convert_size(size_bytes):
 
 
 class Task(BaseTask):
-    run_arguments = {
-        'action': ''
-    }
-
     def __init__(self, api, **kwargs):
         super(Task, self).__init__(api, **kwargs)
 
+    @staticmethod
+    def create(api):
+        api.output('what do you want the action to be')
+        action = api.input()
+        return {'action': action}
+
     def run(self):
-        if self.kwargs['action'] == 'memory':
+        action = self.kwargs.get('action', '')
+        if not action:
+            self.api.output('what do you want the action to be')
+            action = self.api.input()
+
+        if action == 'memory':
             self.api.output(
                 f'Memory Total: {convert_size(psutil.virtual_memory().total)}, '
                 f'Memory Used: {convert_size(psutil.virtual_memory().used)}, '
@@ -38,14 +45,14 @@ class Task(BaseTask):
                 f'Swap Free: {convert_size(psutil.swap_memory().free)}, '
                 f'Swap Percent: {psutil.swap_memory().percent}'
             )
-        if self.kwargs['action'] == 'cpu':
+        if action == 'cpu':
             self.api.output(
                 f'CPU Total Usage: {psutil.cpu_percent(percpu=False)}, '
                 f'CPU Per Usage: {psutil.cpu_percent(percpu=True)}, '
                 f'CPU Count: {psutil.cpu_count(logical=False)}, '
                 f'CPU Count Logical: {psutil.cpu_count(logical=True)}'
             )
-        if self.kwargs['action'] == 'disk':
+        if action == 'disk':
             for d in psutil.disk_partitions():
                 self.api.output(
                     f'Disk Device: {d.device}, '
@@ -60,13 +67,13 @@ class Task(BaseTask):
                     f'Disk Percent: {psutil.disk_usage(d.device).percent}'
                 )
 
-        if self.kwargs['action'] == 'battery':
+        if action == 'battery':
             self.api.output(
                 f'Battery Percent: {psutil.sensors_battery().percent}, '
                 f'Battery Plugged: {psutil.sensors_battery().power_plugged}, '
                 f'Batter Left: {psutil.sensors_battery().secsleft}'
             )
-        # if self.kwargs['action'] == 'process':
+        # if action == 'process':
         #     for p in psutil.pids():
         #         process = psutil.Process(p)
         #         print(process)
@@ -76,57 +83,83 @@ class Task(BaseTask):
 
 
 class Job(BaseJob):
-    arguments = {
-        'action': ''
-    }
-
     def __init__(self, api, **kwargs):
         super(Job, self).__init__(api, **kwargs)
 
+    @staticmethod
+    def create(api):
+        api.output('what do you want the message to be')
+        message = api.input()
+        return {'message': message}
+
     def run(self):
-        if self.kwargs['action'] == 'memory':
-            self.api.output(
-                f'Memory Total: {convert_size(psutil.virtual_memory().total)}, '
-                f'Memory Used: {convert_size(psutil.virtual_memory().used)}, '
-                f'Memory Free: {convert_size(psutil.virtual_memory().free)}, '
-                f'Memory Percent: {psutil.virtual_memory().percent}, '
-                f'Swap Total: {convert_size(psutil.swap_memory().total)}, '
-                f'Swap Used: {convert_size(psutil.swap_memory().used)}, '
-                f'Swap Free: {convert_size(psutil.swap_memory().free)}, '
-                f'Swap Percent: {psutil.swap_memory().percent}'
+        action = self.kwargs.get('action', '')
+
+        if action == 'memory':
+            self.api.show_(
+                'r1',
+                'memory',
+                [
+                    f'Memory Total: {convert_size(psutil.virtual_memory().total)} ',
+                    f'Memory Used: {convert_size(psutil.virtual_memory().used)} ',
+                    f'Memory Free: {convert_size(psutil.virtual_memory().free)} ',
+                    f'Memory Percent: {psutil.virtual_memory().percent} ',
+                    f'Swap Total: {convert_size(psutil.swap_memory().total)} ',
+                    f'Swap Used: {convert_size(psutil.swap_memory().used)} ',
+                    f'Swap Free: {convert_size(psutil.swap_memory().free)} ',
+                    f'Swap Percent: {psutil.swap_memory().percent}'
+                ]
             )
-        if self.kwargs['action'] == 'cpu':
-            self.api.output(
-                f'CPU Total Usage: {psutil.cpu_percent(percpu=False)}, '
-                f'CPU Per Usage: {psutil.cpu_percent(percpu=True)}, '
-                f'CPU Count: {psutil.cpu_count(logical=False)}, '
-                f'CPU Count Logical: {psutil.cpu_count(logical=True)}'
+        if action == 'cpu':
+            self.api.show_(
+                'r1',
+                'cpu',
+                [
+                    f'CPU Total Usage: {psutil.cpu_percent(percpu=False)} ',
+                    f'CPU Per Usage: {psutil.cpu_percent(percpu=True)} ',
+                    f'CPU Count: {psutil.cpu_count(logical=False)} ',
+                    f'CPU Count Logical: {psutil.cpu_count(logical=True)}'
+                ]
             )
-        if self.kwargs['action'] == 'disk':
+        if action == 'disk':
             for d in psutil.disk_partitions():
-                self.api.output(
-                    f'Disk Device: {d.device}, '
-                    f'Disk Mount: {d.mountpoint}, '
-                    f'Disk File System Type: {d.fstype}'
+                self.api.show_(
+                    'r1',
+                    'disks',
+                    [
+                        f'Disk Device: {d.device} ',
+                        f'Disk Mount: {d.mountpoint} ',
+                        f'Disk File System Type: {d.fstype}'
+                    ]
                 )
 
-                self.api.output(
-                    f'Disk Total: {convert_size(psutil.disk_usage(d.device).total)}, '
-                    f'Disk Used: {convert_size(psutil.disk_usage(d.device).used)}, '
-                    f'Disk Free: {convert_size(psutil.disk_usage(d.device).free)}, '
-                    f'Disk Percent: {psutil.disk_usage(d.device).percent}'
+                self.api.show_(
+                    'r1',
+                    'disk',
+                    [
+                        f'Disk Total: {convert_size(psutil.disk_usage(d.device).total)} ',
+                        f'Disk Used: {convert_size(psutil.disk_usage(d.device).used)} ',
+                        f'Disk Free: {convert_size(psutil.disk_usage(d.device).free)} ',
+                        f'Disk Percent: {psutil.disk_usage(d.device).percent}'
+                    ]
                 )
 
-        if self.kwargs['action'] == 'battery':
-            self.api.output(
-                f'Battery Percent: {psutil.sensors_battery().percent}, '
-                f'Battery Plugged: {psutil.sensors_battery().power_plugged}, '
-                f'Batter Left: {psutil.sensors_battery().secsleft}'
+        if action == 'battery':
+            self.api.show_(
+                'r1',
+                'battery',
+                [
+                    f'Battery Percent: {psutil.sensors_battery().percent} ',
+                    f'Battery Plugged: {psutil.sensors_battery().power_plugged} ',
+                    f'Battery Left: {psutil.sensors_battery().secsleft}'
+                ]
             )
-        if self.kwargs['action'] == 'process':
-            for p in psutil.pids():
-                process = psutil.Process(p)
-                print(process)
+        if action == 'process':
+            self.api.show_(
+                'r2',
+                'process',
+                [str(psutil.Process(p)) for p in psutil.pids()[:10]]
+            )
 
         if not self.event.is_set():
             self.event.set()

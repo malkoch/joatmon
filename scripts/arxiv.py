@@ -44,7 +44,7 @@ def query(category=None, fetched=0):
 
     url = config['url'] + 'query?' + urlencode(
         {
-            "search_query": category, "start": 0, "max_results": 1000, "sortBy": sort_by, "sortOrder": sort_order
+            "search_query": category, "start": 0, "max_results": 100, "sortBy": sort_by, "sortOrder": sort_order
         }
     )
     result = feedparser.parse(url)
@@ -144,6 +144,10 @@ class Task(BaseTask):
 
         self.database = MongoDatabase('mongodb://malkoch:malkoch@127.0.0.1:27017/?replicaSet=rs0', 'arxiv')
 
+    @staticmethod
+    def create(api):
+        return {}
+
     def reinit(self):
         # self.database.drop_database()
         for doc_type in Document.__subclasses__():
@@ -180,6 +184,10 @@ class Job(BaseJob):
         self.database = MongoDatabase('mongodb://malkoch:malkoch@127.0.0.1:27017/?replicaSet=rs0', 'arxiv')
 
         self.create_event = producer('kafka_plugin', 'arxiv')(self.create_event)
+
+    @staticmethod
+    def create(api):
+        return {}
 
     def create_event(self, source):
         ...
@@ -302,6 +310,10 @@ class Service(BaseService):
 
         self.buffer = []
 
+    @staticmethod
+    def create(api):
+        return {}
+
     def create_event(self, source):
         self.buffer.append(source)
 
@@ -314,7 +326,7 @@ class Service(BaseService):
                 break
             time.sleep(1)
 
-            if datetime.datetime.now() - self.last_mail_time > datetime.timedelta(hours=1):
+            if datetime.datetime.now() - self.last_mail_time > datetime.timedelta(seconds=3600):
                 self.last_mail_time = datetime.datetime.now()
 
                 if len(self.buffer) == 0:

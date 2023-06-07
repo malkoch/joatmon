@@ -5,23 +5,33 @@ from datetime import datetime
 
 import requests
 
+from joatmon.assistant.job import BaseJob
 from joatmon.assistant.task import BaseTask
 
 
 class Task(BaseTask):
-    run_arguments = {
-        'functionality': '',
-        'location': ''
-    }
-
     def __init__(self, api, **kwargs):
         super(Task, self).__init__(api, **kwargs)
 
+    @staticmethod
+    def params():
+        return ['functionality', 'location']
+
     def run(self):
+        functionality = self.kwargs.get('functionality', '')
+        if not functionality:
+            self.api.output('what do you want the functionality to be')
+            functionality = self.api.input()
+
+        location = self.kwargs.get('location', '')
+        if not location:
+            self.api.output('what do you want the location to be')
+            location = self.api.input()
+
         config = json.loads(open('iva.json', 'r').read())['configs']['weather']
         base_url = config['url']
         key = config['key']
-        if self.kwargs['functionality'] == 'current':
+        if functionality == 'current':
             resp = requests.get(base_url + 'current.json', params={'key': key, 'q': self.kwargs['location']})
 
             response = json.loads(resp.content.decode('utf-8'))
@@ -41,11 +51,11 @@ class Task(BaseTask):
                 f'Current Temperature is: {temp_c} and it feels like {feelslike_c}, '
                 f'Current Humidity is: {humidity}'
             )
-        elif self.kwargs['functionality'] == 'forecast':
+        elif functionality == 'forecast':
             resp = requests.get(base_url + 'forecast.json', params={'key': key, 'q': self.kwargs['location'], 'days': 3})
-        elif self.kwargs['functionality'] == 'search':
+        elif functionality == 'search':
             resp = requests.get(base_url + 'search.json', params={'key': key, 'q': self.kwargs['location']})
-        elif self.kwargs['functionality'] == 'history':
+        elif functionality == 'history':
             resp = requests.get(base_url + 'history.json', params={'key': key, 'q': self.kwargs['location'], 'dt': datetime.now().isoformat()})
         else:
             raise ValueError(f'arguments are not recognized')
@@ -54,21 +64,23 @@ class Task(BaseTask):
             self.event.set()
 
 
-class Job(BaseTask):
-    arguments = {
-        'functionality': '',
-        'location': ''
-    }
-
+class Job(BaseJob):
     def __init__(self, api, **kwargs):
         super(Job, self).__init__(api, **kwargs)
 
+    @staticmethod
+    def params():
+        return ['functionality', 'location']
+
     def run(self):
+        functionality = self.kwargs.get('functionality', '')
+        location = self.kwargs.get('location', '')
+
         config = json.loads(open('iva.json', 'r').read())['configs']['weather']
         base_url = config['url']
         key = config['key']
-        if self.kwargs['functionality'] == 'current':
-            resp = requests.get(base_url + 'current.json', params={'key': key, 'q': self.kwargs['location']})
+        if functionality == 'current':
+            resp = requests.get(base_url + 'current.json', params={'key': key, 'q': location})
 
             response = json.loads(resp.content.decode('utf-8'))
             current = response.get('current', {})
@@ -83,22 +95,25 @@ class Job(BaseTask):
             feelslike_c = current.get('feelslike_c', None)
             vis_km = current.get('vis_km', None)
 
-            if self.api is not None:
-                self.api.output(
-                    f'Current Temperature is: {temp_c} and it feels like {feelslike_c}, '
-                    f'Current Humidity is: {humidity}'
-                )
-            else:
-                print(
-                    f'Current Temperature is: {temp_c} and it feels like {feelslike_c}, '
-                    f'Current Humidity is: {humidity}'
-                )
-        elif self.kwargs['functionality'] == 'forecast':
-            resp = requests.get(base_url + 'forecast.json', params={'key': key, 'q': self.kwargs['location'], 'days': 3})
-        elif self.kwargs['functionality'] == 'search':
-            resp = requests.get(base_url + 'search.json', params={'key': key, 'q': self.kwargs['location']})
-        elif self.kwargs['functionality'] == 'history':
-            resp = requests.get(base_url + 'history.json', params={'key': key, 'q': self.kwargs['location'], 'dt': datetime.now().isoformat()})
+            self.api.show_(
+                'l1',
+                'weather',
+                [
+                    f'Current Temperature is: {temp_c} and it feels like {feelslike_c}',
+                    f'Current Humidity is: {humidity}',
+                    f'Cloud is: {cloud}',
+                    f'Wind is: {wind_dir} {wind_degree} {wind_kph}',
+                    f'Condition is: {condition}',
+                    f'Visibility is: {vis_km}',
+                    f'Pressure is: {pressure_mb}',
+                ]
+            )
+        elif functionality == 'forecast':
+            resp = requests.get(base_url + 'forecast.json', params={'key': key, 'q': location, 'days': 3})
+        elif functionality == 'search':
+            resp = requests.get(base_url + 'search.json', params={'key': key, 'q': location})
+        elif functionality == 'history':
+            resp = requests.get(base_url + 'history.json', params={'key': key, 'q': location, 'dt': datetime.now().isoformat()})
         else:
             raise ValueError(f'arguments are not recognized')
 
