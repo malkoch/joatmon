@@ -1,4 +1,6 @@
 import argparse
+import dataclasses
+import enum
 import importlib.util
 import inspect
 import json
@@ -13,6 +15,9 @@ import schedule
 from colorama import Fore
 
 from joatmon import context
+from joatmon.assistant.job import BaseJob
+from joatmon.assistant.service import BaseService
+from joatmon.assistant.task import BaseTask
 from joatmon.hid.microphone import InputDriver
 from joatmon.hid.speaker import OutputDevice
 from joatmon.system.lock import RWLock
@@ -30,6 +35,43 @@ PROMPT_CHAR = '~>'
 COMMA_MATCHER = re.compile(r" (?=(?:[^\"']*[\"'][^\"']*[\"'])*[^\"']*$)")
 
 
+class TaskState(enum.Enum):
+    running = enum.auto()
+    finished = enum.auto()
+
+
+@dataclasses.dataclass
+class TaskInfo:
+    name: str
+    state: TaskState
+    task: BaseTask
+
+
+class JobState(enum.Enum):
+    running = enum.auto()
+    finished = enum.auto()
+
+
+@dataclasses.dataclass
+class JobInfo:
+    name: str
+    state: JobState
+    job: BaseJob
+
+
+class ServiceState(enum.Enum):
+    running = enum.auto()
+    finished = enum.auto()
+    stopped = enum.auto()
+
+
+@dataclasses.dataclass
+class ServiceInfo:
+    name: str
+    state: ServiceState
+    service: BaseService
+
+
 class Interpreter(Cmd):
     first_reaction_text = ""
     # first_reaction_text += Fore.BLUE + 'IVA\'s sound is by default disabled.' + Fore.RESET
@@ -43,6 +85,9 @@ class Interpreter(Cmd):
     prompt = first_reaction_text + Fore.RED + "{} What can I do for you?: ".format(PROMPT_CHAR) + Fore.RESET
 
     def __init__(self):
+        self.parent_os_path = os.path.abspath(os.path.curdir)
+        self.os_path = os.sep
+
         self._tts = False
         self._stt = False
 
@@ -75,9 +120,9 @@ class Interpreter(Cmd):
         self.use_rawinput = False
 
         self.lock = RWLock()
-        self.running_tasks = {}
-        self.running_jobs = {}
-        self.running_services = {}
+        self.running_tasks = {}  # running, finished
+        self.running_jobs = {}  # running, enabled, disabled, finished
+        self.running_services = {}  # running, enabled, disabled, stopped, finished
 
         self.event = threading.Event()
 
@@ -126,6 +171,8 @@ class Interpreter(Cmd):
             schedule.run_pending()
             time.sleep(0.1)
 
+        schedule.clear()
+
     def run_services(self):
         settings = json.loads(open('iva.json', 'r').read())
 
@@ -133,12 +180,11 @@ class Interpreter(Cmd):
 
         # if the service is closed for some reason and it is configured as restart automatically, need to restart the service
 
-        # while not self.event.is_set():
-        #     for service in sorted(filter(lambda x: x['status'], services), key=lambda x: x['priority']):
-        #         if service['name'] in self.running_services:
-        #             continue
-        #         self.start_service(service['name'])  # need to do them in background
-        #     time.sleep(0.1)
+        while not self.event.is_set():
+            for service in sorted(filter(lambda x: x['status'], services), key=lambda x: x['priority']):
+                if service['name'] not in self.running_services or self.running_services[service['name']].state == ServiceState.finished:
+                    self.start_service(service['name'])  # need to do them in background
+            time.sleep(1)
 
     def clean(self):
         while not self.event.is_set():
@@ -149,18 +195,18 @@ class Interpreter(Cmd):
 
             delete_task_keys = []
             for key in task_keys:
-                task = self.running_tasks[key]
-                if not task.running():
+                task_info = self.running_tasks[key]
+                if not task_info.task.running():
                     delete_task_keys.append(key)
             delete_job_keys = []
             for key in job_keys:
-                task = self.running_jobs[key]
-                if not task.running():
+                task_info = self.running_jobs[key]
+                if not task_info.job.running():
                     delete_job_keys.append(key)
             delete_service_keys = []
             for key in service_keys:
-                task = self.running_services[key]
-                if not task.running():
+                task_info = self.running_services[key]
+                if not task_info.service.running() and task_info.state != ServiceState.stopped:
                     delete_service_keys.append(key)
 
             for key in delete_task_keys:
@@ -173,12 +219,27 @@ class Interpreter(Cmd):
                 with self.lock.w_locked():
                     del self.running_services[key]
 
-            time.sleep(0.1)
+            time.sleep(1)
 
-    def input(self):
+    def input(self, force=False):
         return self.input_device.input()
 
-    def output(self, text):
+    def output(self, text, force=False, order=None):
+        order = order or ['terminal']
+
+        for out_type, *extras in order:
+            match out_type:
+                case 'gui':
+                    ...
+                case 'pretty':
+                    ...
+                case 'terminal':
+                    ...
+                case 'voice':
+                    ...
+                case _:
+                    ...
+
         self.output_device.output(text)
 
     def precmd(self, line):
@@ -189,37 +250,42 @@ class Interpreter(Cmd):
             if line is None or line == '':
                 return False
 
-            action, *_ = COMMA_MATCHER.split(line)
+            action, *args = COMMA_MATCHER.split(line)
 
             if action is None or action == '':
                 return False
 
-            if action.lower() == 'enable':
-                return self.enable()
-            if action.lower() == 'disable':
-                return self.disable()
-            if action.lower() == 'create':
-                return self.create()
-            if action.lower() == 'update':
-                return self.update()
-            if action.lower() == 'delete':
-                return self.delete()
-            if action.lower() == 'configure':
-                return self.configure()
-            if action.lower() == 'run':
-                return self.run()
-            if action.lower() == 'start':
-                return self.start()
-            if action.lower() == 'stop':
-                return self.stop()
-            if action.lower() == 'restart':
-                return self.restart()
-            if action.lower() == 'help':
-                return self.help()
-            if action.lower() == 'exit':
-                return self.exit()
+            match action.lower():
+                case 'enable':
+                    return self.enable()
+                case 'disable':
+                    return self.disable()
+                case 'create':
+                    return self.create_()
+                case 'update':
+                    return self.update()
+                case 'delete':
+                    return self.delete()
+                case 'configure':
+                    return self.configure()
+                case 'run':
+                    return self.run()
+                case 'start':
+                    return self.start()
+                case 'stop':
+                    return self.stop()
+                case 'restart':
+                    return self.restart()
+                case 'help':
+                    return self.help()
+                case 'exit':
+                    return self.exit()
+                case _:
+                    parser = argparse.ArgumentParser()
+                    _, extras = parser.parse_known_args(args)
+                    # for k, v in zip(*(iter(extras),) * 2):
 
-            return False
+                    return self.run_task(action, [k for k in extras])
         except Exception as ex:
             print(str(ex))  # use stacktrace and write all exception details, line number, function name, file name etc.
             # return self.exit()
@@ -340,7 +406,7 @@ class Interpreter(Cmd):
 
         return False
 
-    def create(self):
+    def create_(self):
         self.output('what do you want me to create')
         action_type = self.input()
 
@@ -379,13 +445,7 @@ class Interpreter(Cmd):
         create_args['on'] = on
         create_args['script'] = script
         create_args['status'] = True
-        create_args['args'] = {}
-
-        for arg in task.arguments:
-            self.output(f'you need to tell me which value should i use for argument {arg}')
-            value = self.input()
-
-            create_args['args'][arg] = value
+        create_args['args'] = task.create(self)
 
         settings = json.loads(open('iva.json', 'r').read())
         tasks = settings.get('tasks', [])
@@ -415,13 +475,7 @@ class Interpreter(Cmd):
         create_args['every'] = int(every)
         create_args['script'] = script
         create_args['status'] = True
-        create_args['args'] = {}
-
-        for arg in task.arguments:
-            self.output(f'you need to tell me which value should i use for argument {arg}')
-            value = self.input()
-
-            create_args['args'][arg] = value
+        create_args['args'] = task.create(self)
 
         settings = json.loads(open('iva.json', 'r').read())
         tasks = settings.get('jobs', [])
@@ -451,13 +505,7 @@ class Interpreter(Cmd):
         create_args['mode'] = mode
         create_args['script'] = script
         create_args['status'] = True
-        create_args['args'] = {}
-
-        for arg in task.arguments:
-            self.output(f'you need to tell me which value should i use for argument {arg}')
-            value = self.input()
-
-            create_args['args'][arg] = value
+        create_args['args'] = task.create(self)
 
         settings = json.loads(open('iva.json', 'r').read())
         tasks = settings.get('services', [])
@@ -491,12 +539,15 @@ class Interpreter(Cmd):
 
         return False
 
-    def run_task(self, task_name):
+    def run_task(self, task_name, args=None):
+        args = args or []
+
         settings = json.loads(open('iva.json', 'r').read())
         task_info = first(filter(lambda x: x['name'] == task_name, settings.get('tasks', [])))
 
         if task_info is None:
-            return False
+            task_info = {'script': task_name, 'args': {}}
+            # return False
 
         script = task_info['script']
 
@@ -506,16 +557,16 @@ class Interpreter(Cmd):
             self.output('task is not found')
             return False
 
-        args = task_info['args']
+        kwargs = task_info['args']
+        kwargs['parent_os_path'] = self.parent_os_path
+        kwargs['os_path'] = self.os_path
 
-        for arg in task.run_arguments:
-            self.output(f'you need to tell me which value should i use for argument {arg}')
-            value = self.input()
-
-            args[arg] = value
-
-        task = task(self, **args)
-        self.running_tasks[task_name] = task
+        task = task(self, *args, **kwargs)
+        if task_name not in self.running_tasks:
+            self.running_tasks[task_name] = TaskInfo(task_name, TaskState.running, task)
+        else:
+            self.running_tasks[task_name].state = TaskState.running
+            self.running_tasks[task_name].task = task
         task.start()
 
         return False
@@ -525,7 +576,8 @@ class Interpreter(Cmd):
         task_info = first(filter(lambda x: x['name'] == job_name, settings.get('jobs', [])))
 
         if task_info is None:
-            return False
+            task_info = {'script': job_name, 'args': {}}
+            # return False
 
         script = task_info['script']
 
@@ -535,8 +587,16 @@ class Interpreter(Cmd):
             self.output('job is not found')
             return False
 
-        task = task(self, **task_info['args'])
-        self.running_jobs[job_name] = task
+        args = task_info['args']
+        args['parent_os_path'] = self.parent_os_path
+        args['os_path'] = self.os_path
+
+        task = task(self, *[], **args)
+        if job_name not in self.running_jobs:
+            self.running_jobs[job_name] = JobInfo(job_name, JobState.running, task)
+        else:
+            self.running_jobs[job_name].state = JobState.running
+            self.running_jobs[job_name].job = task
         task.start()
 
         return False
@@ -551,7 +611,8 @@ class Interpreter(Cmd):
         task_info = first(filter(lambda x: x['name'] == service_name, settings.get('services', [])))
 
         if task_info is None:
-            return False
+            task_info = {'script': service_name, 'args': {}}
+            # return False
 
         script = task_info['script']
 
@@ -561,8 +622,16 @@ class Interpreter(Cmd):
             self.output('service is not found')
             return False
 
-        task = task(self, **task_info['args'])
-        self.running_services[service_name] = task
+        args = task_info['args']
+        args['parent_os_path'] = self.parent_os_path
+        args['os_path'] = self.os_path
+
+        task = task(self, *[], **args)
+        if service_name not in self.running_services:
+            self.running_services[service_name] = ServiceInfo(service_name, ServiceState.running, task)
+        else:
+            self.running_services[service_name].state = ServiceState.running
+            self.running_services[service_name].service = task
         task.start()
 
         return False
@@ -573,7 +642,8 @@ class Interpreter(Cmd):
         return self.stop_service(action)
 
     def stop_service(self, service_name):
-        self.running_tasks[service_name].stop()
+        self.running_services[service_name].state = ServiceState.stopped
+        self.running_services[service_name].service.stop()
         return False
 
     def restart(self):
@@ -595,7 +665,6 @@ class Interpreter(Cmd):
 
         namespace, _ = parser.parse_known_args(args)
 
-        config = None
         if namespace.create:
             config = {
                 'action': 'create',
@@ -694,14 +763,15 @@ class Interpreter(Cmd):
             service_keys = [key for key in self.running_services.keys()]
 
         for key in task_keys:
-            task = self.running_tasks[key]
-            task.stop()
+            task_info = self.running_tasks[key]
+            task_info.task.stop()
         for key in job_keys:
-            task = self.running_jobs[key]
-            task.stop()
+            task_info = self.running_jobs[key]
+            task_info.job.stop()
         for key in service_keys:
-            task = self.running_services[key]
-            task.stop()
+            # task = self.running_services[key]
+            self.stop_service(key)
+            # task.stop()
 
         self.event.set()
         self.input_device.stop()
