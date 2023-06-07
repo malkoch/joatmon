@@ -2,30 +2,24 @@ import threading
 
 
 class BaseTask:
-    arguments = {
-
-    }
-    run_arguments = {
-
-    }
-
-    def __init__(self, api, **kwargs):
+    def __init__(self, api, *args, **kwargs):
         self.api = api
+        self.args = args
         self.kwargs = kwargs
         self.event = threading.Event()
-        self.thread = threading.Thread(target=self.run)
+
+    @staticmethod
+    def params():
+        raise NotImplementedError
 
     def run(self):
-        if not self.event.is_set():
-            self.event.set()
+        raise NotImplementedError
 
     def running(self):
         return not self.event.is_set()
 
     def start(self):
-        if not self.event.is_set():
-            self.thread.start()
+        self.run()
 
     def stop(self):
-        if not self.event.is_set():
-            self.event.set()
+        self.event.set()
