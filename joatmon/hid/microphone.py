@@ -1,71 +1,59 @@
-import sys
+import queue
 import threading
 
 
 class InputDriver:
-    def __init__(self, stt_enabled):
+    def __init__(self):
         super(InputDriver, self).__init__()
 
-        self._stt = stt_enabled
-
-        if self.stt_enabled:
-            import queue
-            import whisper
-
-            self.audio_model = whisper.load_model('small.en').cuda()
-            self.audio_queue = queue.Queue()
-            self.result_queue = queue.Queue()
-
-            self.listening_thread = threading.Thread(target=self.record_audio)
-            self.translator_thread = threading.Thread(target=self.transcribe_forever)
-
-            self.listening_thread.start()
-            self.translator_thread.start()
+        import whisper
+        self.audio_model = whisper.load_model('small.en').cuda()
+        self.audio_queue = queue.Queue()
+        self.result_queue = queue.Queue()
 
         self.stop_event = threading.Event()
 
-    @property
-    def stt_enabled(self):
-        return self._stt
+        self.listening_thread = threading.Thread(target=self.record_audio)
+        self.translator_thread = threading.Thread(target=self.transcribe_forever)
 
-    @stt_enabled.setter
-    def stt_enabled(self, value):
-        self._stt = value
+        self.listening_thread.start()
+        self.translator_thread.start()
 
     def record_audio(self):
         import speech_recognition as sr
+        import speech_recognition.exceptions
 
         r = sr.Recognizer()
         r.energy_threshold = 100
         r.pause_threshold = 0.8
         r.dynamic_energy_threshold = True
+        r.timeout = 1
 
         with sr.Microphone(sample_rate=16000) as source:
             import numpy as np
             import torch
-            print("Say something!")
-            while not self.stop_event.is_set():
-                audio = r.listen(source)
-                torch_audio = torch.from_numpy(np.frombuffer(audio.get_raw_data(), np.int16).flatten().astype(np.float32) / 32768.0)
-                audio_data = torch_audio
 
-                self.audio_queue.put_nowait(audio_data)
+            while not self.stop_event.is_set():
+                try:
+                    audio = r.listen(source, timeout=1)
+                    audio_data = torch.from_numpy(np.frombuffer(audio.get_raw_data(), np.int16).flatten().astype(np.float32) / 32768.0)
+
+                    self.audio_queue.put_nowait(audio_data)
+                except speech_recognition.exceptions.WaitTimeoutError:
+                    ...
 
     def transcribe_forever(self):
         while not self.stop_event.is_set():
-            audio_data = self.audio_queue.get().cuda()
-            result = self.audio_model.transcribe(audio_data, language='english')
-            self.result_queue.put_nowait(result)
+            try:
+                audio_data = self.audio_queue.get_nowait().cuda()
+                result = self.audio_model.transcribe(audio_data, language='english')
+                self.result_queue.put_nowait(result)
+            except queue.Empty:
+                ...
 
-    def input(self):
-        return self.readline()
-
-    def readline(self, **kwargs):
+    def listen(self):
         # need to find a way to remove these and keep punctuations as well
-        if not self.stt_enabled:
-            return sys.stdin.readline().lower().strip()
-        else:
-            return self.result_queue.get()['text'].lower().strip()
+        return self.result_queue.get()['text'].lower().strip()
 
     def stop(self):
         self.stop_event.set()
