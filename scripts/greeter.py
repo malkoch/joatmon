@@ -4,20 +4,22 @@ from joatmon.assistant.task import BaseTask
 
 
 class Task(BaseTask):
-    arguments = {
-        'message': 'message to greet with'
-    }
-
     def __init__(self, api, **kwargs):
         super(Task, self).__init__(api, **kwargs)
 
+    @staticmethod
+    def params():
+        return ['message']
+
     def run(self):
         message = self.kwargs.get('message', '')
-        if message:
-            self.api.output(message)
+        if not message:
+            self.api.output('what do you want the message to be')
+            message = self.api.input()
 
-        if not self.event.is_set():
-            self.event.set()
+        self.api.say(message)
+
+        self.event.set()
 
 
 if __name__ == '__main__':
