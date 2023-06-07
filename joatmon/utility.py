@@ -1,6 +1,7 @@
 import functools
 import inspect
 import json
+import os
 import re
 import typing
 import uuid
@@ -400,6 +401,53 @@ async def single_async(items):
         return None
     except StopAsyncIteration:
         return first_item
+
+
+def pretty_printer(headers, m=None):
+    def get_max_size(idx):
+        max_size = m or os.get_terminal_size().columns
+        weight = headers[idx][1]
+        # if idx == len(headers) - 1:
+        #     return max_size - (int(max_size * (weight / sum(x[1] for x in headers))) * len(headers) - 1)
+        # else:
+        #     return int(max_size * (weight / sum(x[1] for x in headers)))
+        return int(max_size * (weight / sum(x[1] for x in headers)))
+
+    def left_padding(idx, value):
+        max_size = get_max_size(idx)
+        return (max_size - len(value)) // 2
+
+    def right_padding(idx, value):
+        max_size = get_max_size(idx)
+        return max_size - (((max_size - len(value)) // 2) + len(value))
+
+    def prettify_header(idx, value):
+        if len(value) > get_max_size(idx):
+            return value[:get_max_size(idx)]
+
+        return ' ' * left_padding(idx, value) + value + ' ' * right_padding(idx, value)
+
+    def prettify_value(idx, value):
+        if len(value) > get_max_size(idx):
+            return value[:get_max_size(idx)]
+
+        return ' ' * left_padding(idx, value) + value + ' ' * right_padding(idx, value)
+
+    def pretty_print(values):
+        return ' '.join([prettify_value(idx, value) for idx, value in enumerate(values)])
+
+    return ' '.join([prettify_header(idx, header) for idx, (header, max_size) in enumerate(headers)]), pretty_print
+
+
+def convert_size(size_bytes):
+    import math
+    if size_bytes == 0:
+        return "0B"
+    size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
+    i = int(math.floor(math.log(size_bytes, 1024)))
+    p = math.pow(1024, i)
+    s = round(size_bytes / p, 2)
+    return "%s %s" % (s, size_name[i])
 
 
 def get_class_that_defined_method(meth):
