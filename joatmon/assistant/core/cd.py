@@ -6,15 +6,13 @@ from joatmon.assistant.task import BaseTask
 
 
 class Task(BaseTask):
-    def __init__(self, api, *args, **kwargs):
-        super(Task, self).__init__(api, *args, **kwargs)
-
-    @staticmethod
-    def create(api):
-        return {}
+    def __init__(self, api, **kwargs):
+        super(Task, self).__init__(api, **kwargs)
 
     def run(self):
-        path = self.args[0]
+        if (path := self.kwargs.get('path', None)) is None:
+            self.api.say('what is path that you want to change')
+            path = self.api.listen()
 
         parent_os_path = self.kwargs.get('parent_os_path', '')
         os_path = self.kwargs.get('os_path', '')
@@ -31,6 +29,8 @@ class Task(BaseTask):
                 os_path = os.path.join(os_path, path)
 
         self.api.os_path = os_path
+
+        self.api.say(f'current path is: {os_path}')
 
         if not self.event.is_set():
             self.event.set()

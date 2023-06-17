@@ -1,7 +1,5 @@
 from __future__ import print_function
 
-import os
-
 from joatmon.assistant.task import BaseTask
 
 
@@ -9,16 +7,11 @@ class Task(BaseTask):
     def __init__(self, api, **kwargs):
         super(Task, self).__init__(api, **kwargs)
 
-    @staticmethod
-    def create(api):
-        return {}
-
     def run(self):
-        self.api.output('path: ')
-        message = self.api.input()
+        parent_os_path = self.kwargs.get('parent_os_path', '')
+        os_path = self.kwargs.get('os_path', '')
 
-        for item in os.listdir(message):
-            self.api.output(item)
+        self.api.say(os_path)
 
         if not self.event.is_set():
             self.event.set()

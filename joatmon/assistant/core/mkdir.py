@@ -6,15 +6,11 @@ from joatmon.assistant.task import BaseTask
 
 
 class Task(BaseTask):
-    def __init__(self, api, *args, **kwargs):
-        super(Task, self).__init__(api, *args, **kwargs)
-
-    @staticmethod
-    def create(api):
-        return {}
+    def __init__(self, api, **kwargs):
+        super(Task, self).__init__(api, **kwargs)
 
     def run(self):
-        path = self.args[0]
+        path = self.kwargs.get('path', '') or self.api.listen('what is the new folder name')
 
         parent_os_path = self.kwargs.get('parent_os_path', '')
         os_path = self.kwargs.get('os_path', '')
