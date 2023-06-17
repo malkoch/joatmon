@@ -1,49 +1,25 @@
 import pygame
 
 from joatmon.event import Event
+from joatmon.gui.widgets.widget import Element
 
 
-class Button:
-    def __init__(self):
-        self._x = None
-        self._y = None
-
-        self._width = None
-        self._height = None
+class Button(Element):
+    def __init__(self, id_):
+        super(Button, self).__init__(id_)
 
         self._text = None
-        self._font = None
+        self._font = pygame.font.SysFont(None, 24)
 
-        self._text_color = None
-        self._background_color = None
-        self._hover_color = None
-        self._click_color = None
+        self._text_color = (0, 0, 0)
+        self._background_color = (255, 255, 255)
+        self._hover_color = (127, 127, 127)
+        self._click_color = (63, 63, 63)
 
-        self._border = None
-        self._rect = None
         self._icon = None
-
-        self._events = {
-            'hover': Event(),
-            'click': Event()
-        }
 
         self.is_hovered = False
         self.is_clicked = False
-
-    def position(self, x, y):
-        self._x = x
-        self._y = y
-
-        return self
-
-    def size(self, width, height):
-        self._width = width
-        self._height = height
-
-        self._rect = pygame.Rect(self._x, self._y, self._width, self._height)
-
-        return self
 
     def icon(self, icon):
         _icon = pygame.image.load(icon)
@@ -56,28 +32,17 @@ class Button:
 
         return self
 
-    def text(self, text, font):
+    def text(self, text):
         self._text = text
-        self._font = font
 
         return self
 
-    def color(self, t_color, b_color, h_color, c_color):
-        self._text_color = t_color
-        self._background_color = b_color
-        self._hover_color = h_color
-        self._click_color = c_color
+    def style(self, style):
+        super(Button, self).style(style)
 
-        return self
-
-    def border(self, border):
-        self._border = border
-        return self
-
-    def on(self, event, func):
-        _event = self._events.get(event, None)
-        if _event:
-            _event += func
+        self._text_color = style.get('text_color', self._text_color)
+        self._hover_color = style.get('hover_color', self._hover_color)
+        self._click_color = style.get('click_color', self._click_color)
 
         return self
 
