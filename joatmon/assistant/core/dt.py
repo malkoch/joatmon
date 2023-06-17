@@ -6,15 +6,11 @@ from joatmon.assistant.task import BaseTask
 
 
 class Task(BaseTask):
-    def __init__(self, api, *args, **kwargs):
-        super(Task, self).__init__(api, *args, **kwargs)
-
-    @staticmethod
-    def create(api):
-        return {}
+    def __init__(self, api, **kwargs):
+        super(Task, self).__init__(api, **kwargs)
 
     def run(self):
-        self.api.show_('t1', 'datetime', [datetime.datetime.now().isoformat()])
+        self.api.show_('t1', 'datetime', [datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')])
 
         if not self.event.is_set():
             self.event.set()
