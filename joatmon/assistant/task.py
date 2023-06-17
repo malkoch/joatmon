@@ -2,15 +2,14 @@ import threading
 
 
 class BaseTask:
-    def __init__(self, api, *args, **kwargs):
+    def __init__(self, api, **kwargs):
         self.api = api
-        self.args = args
         self.kwargs = kwargs
         self.event = threading.Event()
 
     @staticmethod
     def params():
-        raise NotImplementedError
+        return ['todo']
 
     def run(self):
         raise NotImplementedError
@@ -23,3 +22,7 @@ class BaseTask:
 
     def stop(self):
         self.event.set()
+
+
+def run():
+    ...
