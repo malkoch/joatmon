@@ -16,12 +16,24 @@ class Task(BaseTask):
     def run(self):
         mode = self.kwargs.get('mode', '')
 
-        contacts = json.loads(open('iva.json', 'r').read()).get('contacts', [])
+        settings = json.loads(open('iva.json', 'r').read())
+        contacts = settings.get('contacts', [])
 
         if mode == 'list':
             ...
         elif mode == 'create':
+            name = self.api.listen('what is the name of the contact')
+            email = self.api.listen('what is the email')
+            phone = self.api.listen('what is the phone number')
+
+            contacts.append({'name': name, 'email': email, 'phone': phone})
+        elif mode == 'update':
             ...
+        elif mode == 'search':
+            ...
+
+        settings['contacts'] = contacts
+        open('iva.json', 'w').write(json.dumps(settings, indent=4))
 
         if not self.event.is_set():
             self.event.set()

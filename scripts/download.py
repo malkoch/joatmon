@@ -7,6 +7,10 @@ class Task(BaseTask):
     def __init__(self, api, **kwargs):
         super(Task, self).__init__(api, **kwargs)
 
+    @staticmethod
+    def params():
+        return []
+
     def run(self):
         if not self.event.is_set():
             self.event.set()

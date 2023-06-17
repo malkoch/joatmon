@@ -17,37 +17,24 @@ class Task(BaseTask):
         super(Task, self).__init__(api, **kwargs)
 
     @staticmethod
-    def create(api):
-        api.output('what do you want the subject to be')
-        subject = api.input()
-        api.output('what do you want the content to be')
-        content = api.input()
-        api.output('what do you want the receiver to be')
-        receiver = api.input()
-        return {'subject': subject, 'content': content, 'receiver': receiver}
+    def params():
+        return []
 
     def run(self):
-        subject = self.kwargs.get('subject', '')
-        if not subject:
-            self.api.output('what do you want the subject to be')
-            subject = self.api.input()
+        subject = self.kwargs.get('subject', '') or self.api.listen('what do you want the subject to be')
+        message = self.kwargs.get('message', '') or self.api.listen('what do you want the content to be')
+        receiver = self.kwargs.get('receiver', '') or self.api.listen('what do you want the receiver to be')
 
-        content = self.kwargs.get('content', '')
-        if not content:
-            self.api.output('what do you want the content to be')
-            content = self.api.input()
-
-        receiver = self.kwargs.get('receiver', '')
-        if not receiver:
-            self.api.output('what do you want the receiver to be')
-            receiver = self.api.input()
+        contacts = json.loads(open('iva.json', 'r').read()).get('contacts', [])
+        contact = list(filter(lambda x: x['name'] == receiver, contacts))
+        if len(contact) > 0:
+            receiver = contact[0]['email']
 
         receivers = [receiver]
 
         config = json.loads(open('iva.json', 'r').read())['configs']['mail']
 
         text_subtype = 'plain'
-        content = content
         subject = subject
 
         smtp_server = config['smtp_server']
@@ -55,7 +42,7 @@ class Task(BaseTask):
         sender_email = config['sender_mail']
         password = config['sender_password']
 
-        msg = MIMEText(content, text_subtype)
+        msg = MIMEText(message, text_subtype)
         msg['Subject'] = subject
         msg['From'] = sender_email
 
@@ -84,7 +71,7 @@ class Service(BaseService):
         config = json.loads(open('iva.json', 'r').read())['configs']['mail']
 
         text_subtype = mail['content_type']
-        content = mail['content']
+        message = mail['message']
         subject = mail['subject']
 
         smtp_server = config['smtp_server']
@@ -93,7 +80,7 @@ class Service(BaseService):
         password = config['sender_password']
         receivers = mail['receivers']
 
-        msg = MIMEText(content, text_subtype)
+        msg = MIMEText(message, text_subtype)
         msg['Subject'] = subject
         msg['From'] = sender_email
 

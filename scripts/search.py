@@ -9,16 +9,11 @@ class Task(BaseTask):
         super(Task, self).__init__(api, **kwargs)
 
     @staticmethod
-    def create(api):
-        api.output('what do you want the message to be')
-        message = api.input()
-        return {'message': message}
+    def params():
+        return []
 
     def run(self):
-        message = self.kwargs.get('message', '')
-        if not message:
-            self.api.output('what do you want the message to be')
-            message = self.api.input()
+        message = self.kwargs.get('message', '') or self.api.listen('what do you want the message to be')
 
         result = summary(message)
         self.api.output(result)

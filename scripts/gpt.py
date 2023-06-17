@@ -12,10 +12,8 @@ class Task(BaseTask):
         super(Task, self).__init__(api, **kwargs)
 
     @staticmethod
-    def create(api):
-        api.output('what do you want the message to be')
-        message = api.input()
-        return {'message': message}
+    def params():
+        return []
 
     def run(self):
         config = json.loads(open('iva.json', 'r').read())['configs']['openai']
@@ -37,8 +35,7 @@ class Task(BaseTask):
             history.append({"role": "assistant", "content": response})
             self.api.output(response)
 
-            self.api.output('what do you want the message to be')
-            message = self.api.input()
+            message = self.api.input('what do you want the message to be')
             if message == '':
                 break
 
