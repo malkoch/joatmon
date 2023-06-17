@@ -12,7 +12,7 @@ from joatmon.version import get_version
 extras = {
     'ai': ['numpy', 'torch', 'matplotlib', 'six', 'Pillow'],
     'algorithm': [],
-    'assistant': ['feedparser', 'requests', 'colorama', 'schedule', 'psutil'],
+    'assistant': ['feedparser', 'requests', 'colorama', 'schedule', 'psutil', 'nltk', 'tensorflow', 'openai'],
     'content': [],
     'core': [],
     'decorator': ['async_exit_stack'],
