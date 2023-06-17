@@ -1,13 +1,26 @@
+import json
 import queue
 import threading
 
+import openai
+import speech_recognition as sr
+import speech_recognition.exceptions
+
 
 class InputDriver:
-    def __init__(self):
+    def __init__(self, o):
         super(InputDriver, self).__init__()
 
-        import whisper
-        self.audio_model = whisper.load_model('small.en').cuda()
+        self.o = o
+
+        openai.api_key = json.loads(open('iva.json', 'r').read())['configs']['openai']['key']
+
+        self.r = sr.Recognizer()
+        self.r.energy_threshold = 350
+        self.r.pause_threshold = 0.8
+        self.r.dynamic_energy_threshold = False
+        self.r.timeout = 1
+
         self.audio_queue = queue.Queue()
         self.result_queue = queue.Queue()
 
@@ -20,40 +33,37 @@ class InputDriver:
         self.translator_thread.start()
 
     def record_audio(self):
-        import speech_recognition as sr
-        import speech_recognition.exceptions
-
-        r = sr.Recognizer()
-        r.energy_threshold = 100
-        r.pause_threshold = 0.8
-        r.dynamic_energy_threshold = True
-        r.timeout = 1
-
         with sr.Microphone(sample_rate=16000) as source:
-            import numpy as np
-            import torch
+            # self.r.adjust_for_ambient_noise(source)
+
+            print('listening')
 
             while not self.stop_event.is_set():
                 try:
-                    audio = r.listen(source, timeout=1)
-                    audio_data = torch.from_numpy(np.frombuffer(audio.get_raw_data(), np.int16).flatten().astype(np.float32) / 32768.0)
-
-                    self.audio_queue.put_nowait(audio_data)
+                    audio = self.r.listen(source, timeout=1)
+                    self.audio_queue.put_nowait(audio)
                 except speech_recognition.exceptions.WaitTimeoutError:
                     ...
 
     def transcribe_forever(self):
         while not self.stop_event.is_set():
             try:
-                audio_data = self.audio_queue.get_nowait().cuda()
-                result = self.audio_model.transcribe(audio_data, language='english')
+                audio = self.audio_queue.get_nowait()
+
+                result = self.r.recognize_whisper_api(audio, model='whisper-1', api_key=json.loads(open('iva.json', 'r').read())['configs']['openai']['key'])
+
                 self.result_queue.put_nowait(result)
             except queue.Empty:
                 ...
 
-    def listen(self):
+    def listen(self, prompt=None):
+        if prompt is not None:
+            self.o.say(prompt)
+
+        ignore = ['!', '?', ',', '.']
         # need to find a way to remove these and keep punctuations as well
-        return self.result_queue.get()['text'].lower().strip()
+        return ''.join([c.lower() for c in self.result_queue.get().lower().strip() if c not in ignore])
+        # return input()
 
     def stop(self):
         self.stop_event.set()
