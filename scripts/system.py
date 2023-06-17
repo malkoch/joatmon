@@ -1,21 +1,9 @@
 from __future__ import print_function
 
-import math
-
 import psutil
 
-from joatmon.assistant.job import BaseJob
 from joatmon.assistant.task import BaseTask
-
-
-def convert_size(size_bytes):
-    if size_bytes == 0:
-        return "0B"
-    size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
-    i = int(math.floor(math.log(size_bytes, 1024)))
-    p = math.pow(1024, i)
-    s = round(size_bytes / p, 2)
-    return "%s %s" % (s, size_name[i])
+from joatmon.utility import convert_size
 
 
 class Task(BaseTask):
@@ -23,19 +11,14 @@ class Task(BaseTask):
         super(Task, self).__init__(api, **kwargs)
 
     @staticmethod
-    def create(api):
-        api.output('what do you want the action to be')
-        action = api.input()
-        return {'action': action}
+    def params():
+        return ['action']
 
     def run(self):
-        action = self.kwargs.get('action', '')
-        if not action:
-            self.api.output('what do you want the action to be')
-            action = self.api.input()
+        action = self.kwargs.get('action', '') or self.api.listen('what do you want the action to be')
 
         if action == 'memory':
-            self.api.output(
+            self.api.say(
                 f'Memory Total: {convert_size(psutil.virtual_memory().total)}, '
                 f'Memory Used: {convert_size(psutil.virtual_memory().used)}, '
                 f'Memory Free: {convert_size(psutil.virtual_memory().free)}, '
@@ -46,7 +29,7 @@ class Task(BaseTask):
                 f'Swap Percent: {psutil.swap_memory().percent}'
             )
         if action == 'cpu':
-            self.api.output(
+            self.api.say(
                 f'CPU Total Usage: {psutil.cpu_percent(percpu=False)}, '
                 f'CPU Per Usage: {psutil.cpu_percent(percpu=True)}, '
                 f'CPU Count: {psutil.cpu_count(logical=False)}, '
@@ -54,13 +37,13 @@ class Task(BaseTask):
             )
         if action == 'disk':
             for d in psutil.disk_partitions():
-                self.api.output(
+                self.api.say(
                     f'Disk Device: {d.device}, '
                     f'Disk Mount: {d.mountpoint}, '
                     f'Disk File System Type: {d.fstype}'
                 )
 
-                self.api.output(
+                self.api.say(
                     f'Disk Total: {convert_size(psutil.disk_usage(d.device).total)}, '
                     f'Disk Used: {convert_size(psutil.disk_usage(d.device).used)}, '
                     f'Disk Free: {convert_size(psutil.disk_usage(d.device).free)}, '
@@ -68,7 +51,7 @@ class Task(BaseTask):
                 )
 
         if action == 'battery':
-            self.api.output(
+            self.api.say(
                 f'Battery Percent: {psutil.sensors_battery().percent}, '
                 f'Battery Plugged: {psutil.sensors_battery().power_plugged}, '
                 f'Batter Left: {psutil.sensors_battery().secsleft}'
@@ -77,89 +60,6 @@ class Task(BaseTask):
         #     for p in psutil.pids():
         #         process = psutil.Process(p)
         #         print(process)
-
-        if not self.event.is_set():
-            self.event.set()
-
-
-class Job(BaseJob):
-    def __init__(self, api, **kwargs):
-        super(Job, self).__init__(api, **kwargs)
-
-    @staticmethod
-    def create(api):
-        api.output('what do you want the message to be')
-        message = api.input()
-        return {'message': message}
-
-    def run(self):
-        action = self.kwargs.get('action', '')
-
-        if action == 'memory':
-            self.api.show_(
-                'r1',
-                'memory',
-                [
-                    f'Memory Total: {convert_size(psutil.virtual_memory().total)} ',
-                    f'Memory Used: {convert_size(psutil.virtual_memory().used)} ',
-                    f'Memory Free: {convert_size(psutil.virtual_memory().free)} ',
-                    f'Memory Percent: {psutil.virtual_memory().percent} ',
-                    f'Swap Total: {convert_size(psutil.swap_memory().total)} ',
-                    f'Swap Used: {convert_size(psutil.swap_memory().used)} ',
-                    f'Swap Free: {convert_size(psutil.swap_memory().free)} ',
-                    f'Swap Percent: {psutil.swap_memory().percent}'
-                ]
-            )
-        if action == 'cpu':
-            self.api.show_(
-                'r1',
-                'cpu',
-                [
-                    f'CPU Total Usage: {psutil.cpu_percent(percpu=False)} ',
-                    f'CPU Per Usage: {psutil.cpu_percent(percpu=True)} ',
-                    f'CPU Count: {psutil.cpu_count(logical=False)} ',
-                    f'CPU Count Logical: {psutil.cpu_count(logical=True)}'
-                ]
-            )
-        if action == 'disk':
-            for d in psutil.disk_partitions():
-                self.api.show_(
-                    'r1',
-                    'disks',
-                    [
-                        f'Disk Device: {d.device} ',
-                        f'Disk Mount: {d.mountpoint} ',
-                        f'Disk File System Type: {d.fstype}'
-                    ]
-                )
-
-                self.api.show_(
-                    'r1',
-                    'disk',
-                    [
-                        f'Disk Total: {convert_size(psutil.disk_usage(d.device).total)} ',
-                        f'Disk Used: {convert_size(psutil.disk_usage(d.device).used)} ',
-                        f'Disk Free: {convert_size(psutil.disk_usage(d.device).free)} ',
-                        f'Disk Percent: {psutil.disk_usage(d.device).percent}'
-                    ]
-                )
-
-        if action == 'battery':
-            self.api.show_(
-                'r1',
-                'battery',
-                [
-                    f'Battery Percent: {psutil.sensors_battery().percent} ',
-                    f'Battery Plugged: {psutil.sensors_battery().power_plugged} ',
-                    f'Battery Left: {psutil.sensors_battery().secsleft}'
-                ]
-            )
-        if action == 'process':
-            self.api.show_(
-                'r2',
-                'process',
-                [str(psutil.Process(p)) for p in psutil.pids()[:10]]
-            )
 
         if not self.event.is_set():
             self.event.set()

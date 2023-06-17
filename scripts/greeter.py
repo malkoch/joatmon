@@ -12,13 +12,8 @@ class Task(BaseTask):
         return ['message']
 
     def run(self):
-        message = self.kwargs.get('message', '')
-        if not message:
-            self.api.output('what do you want the message to be')
-            message = self.api.input()
-
+        message = self.kwargs.get('message', '') or self.api.listen('what do you want the message to be')
         self.api.say(message)
-
         self.event.set()
 
 

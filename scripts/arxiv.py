@@ -11,7 +11,6 @@ from urllib.parse import urlencode
 import feedparser
 import requests
 
-from joatmon.assistant.job import BaseJob
 from joatmon.assistant.service import BaseService
 from joatmon.assistant.task import BaseTask
 from joatmon.utility import (
@@ -136,58 +135,58 @@ SourceFile = create_new_type(SourceFile, (Document,))
 SourceLink = create_new_type(SourceLink, (Document,))
 SourceAuthor = create_new_type(SourceAuthor, (Document,))
 SourceTag = create_new_type(SourceTag, (Document,))
+#
+#
+# class Task(BaseTask):
+#     def __init__(self, api, **kwargs):
+#         super(Task, self).__init__(api, **kwargs)
+#
+#         self.database = MongoDatabase('mongodb://malkoch:malkoch@127.0.0.1:27017/?replicaSet=rs0', 'arxiv')
+#
+#     @staticmethod
+#     def create(api):
+#         return {}
+#
+#     def reinit(self):
+#         # self.database.drop_database()
+#         for doc_type in Document.__subclasses__():
+#             asyncio.run(self.database.delete(doc_type, {}))
+#
+#         self.init()
+#
+#     def init(self):
+#         for tag in [
+#             'cs.AI', 'cs.CL', 'cs.CC', 'cs.CE', 'cs.CG', 'cs.GT', 'cs.CV', 'cs.CY', 'cs.CR', 'cs.DS',
+#             'cs.DB', 'cs.DL', 'cs.DM', 'cs.DC', 'cs.ET', 'cs.FL', 'cs.GL', 'cs.GR', 'cs.AR', 'cs.HC',
+#             'cs.IR', 'cs.IT', 'cs.LO', 'cs.LG', 'cs.MS', 'cs.MA', 'cs.MM', 'cs.NI', 'cs.NE', 'cs.NA',
+#             'cs.OS', 'cs.OH', 'cs.PF', 'cs.PL', 'cs.RO', 'cs.SI', 'cs.SE', 'cs.SD', 'cs.SC', 'cs.SY'
+#         ]:
+#             tag = Tag(**{'object_id': uuid.uuid4(), 'name': tag, 'count': 0})
+#             asyncio.run(self.database.insert(Tag, tag))
+#
+#     def run(self):
+#         self.api.output(asyncio.run(to_list_async(self.database.read(Tag, {}))))
+#
+#         if not self.event.is_set():
+#             self.event.set()
 
 
 class Task(BaseTask):
-    def __init__(self, api, **kwargs):
-        super(Task, self).__init__(api, **kwargs)
-
-        self.database = MongoDatabase('mongodb://malkoch:malkoch@127.0.0.1:27017/?replicaSet=rs0', 'arxiv')
-
-    @staticmethod
-    def create(api):
-        return {}
-
-    def reinit(self):
-        # self.database.drop_database()
-        for doc_type in Document.__subclasses__():
-            asyncio.run(self.database.delete(doc_type, {}))
-
-        self.init()
-
-    def init(self):
-        for tag in [
-            'cs.AI', 'cs.CL', 'cs.CC', 'cs.CE', 'cs.CG', 'cs.GT', 'cs.CV', 'cs.CY', 'cs.CR', 'cs.DS',
-            'cs.DB', 'cs.DL', 'cs.DM', 'cs.DC', 'cs.ET', 'cs.FL', 'cs.GL', 'cs.GR', 'cs.AR', 'cs.HC',
-            'cs.IR', 'cs.IT', 'cs.LO', 'cs.LG', 'cs.MS', 'cs.MA', 'cs.MM', 'cs.NI', 'cs.NE', 'cs.NA',
-            'cs.OS', 'cs.OH', 'cs.PF', 'cs.PL', 'cs.RO', 'cs.SI', 'cs.SE', 'cs.SD', 'cs.SC', 'cs.SY'
-        ]:
-            tag = Tag(**{'object_id': uuid.uuid4(), 'name': tag, 'count': 0})
-            asyncio.run(self.database.insert(Tag, tag))
-
-    def run(self):
-        self.api.output(asyncio.run(to_list_async(self.database.read(Tag, {}))))
-
-        if not self.event.is_set():
-            self.event.set()
-
-
-class Job(BaseJob):
     arguments = {
         'fetch': '',
         'download': ''
     }
 
     def __init__(self, api=None, **kwargs):
-        super(Job, self).__init__(api, **kwargs)
+        super(Task, self).__init__(api, **kwargs)
 
         self.database = MongoDatabase('mongodb://malkoch:malkoch@127.0.0.1:27017/?replicaSet=rs0', 'arxiv')
 
         self.create_event = producer('kafka_plugin', 'arxiv')(self.create_event)
 
     @staticmethod
-    def create(api):
-        return {}
+    def params():
+        return ['fetch', 'download']
 
     def create_event(self, source):
         ...
@@ -337,7 +336,7 @@ class Service(BaseService):
 
                 mail = {
                     'receivers': receivers,
-                    'content': """    
+                    'message': """    
                 <html>
                     <head></head>
                     <body>
