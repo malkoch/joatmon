@@ -469,6 +469,10 @@ def get_module_functions(module):
     return inspect.getmembers(module, inspect.isfunction)
 
 
+def get_module_classes(module):
+    return inspect.getmembers(module, inspect.isclass)
+
+
 class JSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, (datetime, date, time)):
