@@ -35,20 +35,13 @@ class GenericAssistant:
         documents = []
         ignore_letters = ['!', '?', ',', '.']
 
-        for task in self.intents['tasks']:
-            for pattern in task['patterns']:
+        for intent in self.intents['intents']:
+            for pattern in intent['patterns']:
                 word = nltk.word_tokenize(pattern)
                 self.words.extend(word)
-                documents.append((word, task['name']))
-                if task['name'] not in self.classes:
-                    self.classes.append(task['name'])
-        for contact in self.intents['contacts']:
-            for pattern in contact['patterns']:
-                word = nltk.word_tokenize(pattern)
-                self.words.extend(word)
-                documents.append((word, contact['name']))
-                if contact['name'] not in self.classes:
-                    self.classes.append(contact['name'])
+                documents.append((word, intent['name']))
+                if intent['name'] not in self.classes:
+                    self.classes.append(intent['name'])
 
         self.words = [self.lemmatizer.lemmatize(w.lower()) for w in self.words if w not in ignore_letters]
         self.words = sorted(list(set(self.words)))
