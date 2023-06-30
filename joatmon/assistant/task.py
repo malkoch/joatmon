@@ -21,6 +21,10 @@ class BaseTask:
         self.event = threading.Event()
 
     @staticmethod
+    def help():
+        return ''
+
+    @staticmethod
     def params():
         return ['todo']
 
@@ -45,6 +49,7 @@ class TaskState(enum.Enum):
     finished = enum.auto()
 
 
+# create from json and to json methods
 @dataclasses.dataclass
 class TaskInfo:
     name: str
@@ -61,6 +66,9 @@ def create(api):
     for k in get_class(script).params():
         kwargs[k] = api.listen(k)
 
+    # need last run time
+    # need last run result
+    # need interval
     create_args = {
         'name': name,
         'priority': priority,

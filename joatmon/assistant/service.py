@@ -16,6 +16,10 @@ class BaseService:
         self.thread = threading.Thread(target=self.run)
 
     @staticmethod
+    def help():
+        return ''
+
+    @staticmethod
     def params():
         return []
 
@@ -38,6 +42,7 @@ class ServiceState(enum.Enum):
     stopped = enum.auto()
 
 
+# create from json and to json methods
 @dataclasses.dataclass
 class ServiceInfo:
     name: str

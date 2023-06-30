@@ -66,6 +66,8 @@ class API:
         self.service_thread = threading.Thread(target=self.run_services)
         self.service_thread.start()
 
+        # need to run tasks as job if they have interval
+
         # self.do_action('ls .')
         # self.do_action('dt')
 
