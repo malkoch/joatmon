@@ -9,6 +9,14 @@ class Task(BaseTask):
     def __init__(self, api, **kwargs):
         super(Task, self).__init__(api, **kwargs)
 
+    @staticmethod
+    def help():
+        return ''
+
+    @staticmethod
+    def params():
+        return []
+
     def run(self):
         if (path := self.kwargs.get('path', None)) is None:
             self.api.say('what is path that you want to change')

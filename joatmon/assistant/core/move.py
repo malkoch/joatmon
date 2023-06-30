@@ -10,6 +10,14 @@ class Task(BaseTask):
     def __init__(self, api, **kwargs):
         super(Task, self).__init__(api, **kwargs)
 
+    @staticmethod
+    def help():
+        return ''
+
+    @staticmethod
+    def params():
+        return []
+
     def run(self):
         old_file = self.kwargs.get('old_file', '') or self.api.listen('what is the old file')
         new_file = self.kwargs.get('new_file', '') or self.api.listen('what is the new file')

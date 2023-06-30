@@ -13,16 +13,12 @@ class Task(BaseTask):
 
     @staticmethod
     def params():
-        return []
+        return ['message']
 
     def run(self):
-        parent_os_path = self.kwargs.get('parent_os_path', '')
-        os_path = self.kwargs.get('os_path', '')
-
-        self.api.say(os_path)
-
-        if not self.event.is_set():
-            self.event.set()
+        message = self.kwargs.get('message', '') or self.api.listen('what do you want the message to be')
+        self.api.say(message)
+        self.event.set()
 
 
 if __name__ == '__main__':
