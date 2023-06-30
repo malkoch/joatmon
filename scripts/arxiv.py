@@ -35,7 +35,7 @@ from joatmon.plugin.database.mongo import MongoDatabase
 from joatmon.plugin.message.kafka import KafkaPlugin
 
 
-def query(category=None, fetched=0):
+def query(category=None, fetched=0, count=10):
     sort_by = "submittedDate"
     sort_order = "descending"
 
@@ -43,7 +43,7 @@ def query(category=None, fetched=0):
 
     url = config['url'] + 'query?' + urlencode(
         {
-            "search_query": category, "start": 0, "max_results": 100, "sortBy": sort_by, "sortOrder": sort_order
+            "search_query": category, "start": 0, "max_results": count, "sortBy": sort_by, "sortOrder": sort_order
         }
     )
     result = feedparser.parse(url)
@@ -172,21 +172,20 @@ SourceTag = create_new_type(SourceTag, (Document,))
 
 
 class Task(BaseTask):
-    arguments = {
-        'fetch': '',
-        'download': ''
-    }
-
     def __init__(self, api=None, **kwargs):
-        super(Task, self).__init__(api, **kwargs)
+        super(Task, self).__init__(api, True, **kwargs)
 
         self.database = MongoDatabase('mongodb://malkoch:malkoch@127.0.0.1:27017/?replicaSet=rs0', 'arxiv')
 
         self.create_event = producer('kafka_plugin', 'arxiv')(self.create_event)
 
     @staticmethod
+    def help():
+        return ''
+
+    @staticmethod
     def params():
-        return ['fetch', 'download']
+        return ['mode', 'tag']
 
     def create_event(self, source):
         ...
@@ -240,28 +239,28 @@ class Task(BaseTask):
             asyncio.run(self.database.update(Tag, {'object_id': source_tag.object_id}, source_tag))
 
     def run(self):
-        fetch = self.kwargs.get('fetch', '')
-        down = self.kwargs.get('download', '')
+        mode = self.kwargs.get('mode', '')
+        subject = self.kwargs.get('subject', '')
+        count = int(self.kwargs.get('count', '1'))
 
-        if fetch:
+        if mode == 'fetch':
             # fetch category that is wanted
             # fetch all categories
 
-            tag = asyncio.run(first_async(self.database.read(Tag, {'name': fetch})))
+            tag = asyncio.run(first_async(self.database.read(Tag, {'name': subject})))
             if tag is not None:
                 tag_count = tag.count
             else:
-                raise ValueError(f'{fetch} is not found')
+                raise ValueError(f'{subject} is not found')
                 # tag_count = 0
 
-            for results in query(fetch, fetched=tag_count):
+            for results in query(subject, fetched=tag_count, count=count):
                 for result in results:
-                    self.add_pdf(result, fetch)
+                    self.add_pdf(result, subject)
 
                 if self.event.is_set():
                     break
-
-        if down:
+        if mode == 'download':
             for source in asyncio.run(to_list_async(self.database.read(Source, {}))):
                 pdf_link = asyncio.run(first_async(self.database.read(SourceLink, {'source_id': source.object_id, 'type': 'application/pdf'})))
                 if pdf_link is None:

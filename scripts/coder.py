@@ -12,8 +12,12 @@ class Task(BaseTask):
         super(Task, self).__init__(api, **kwargs)
 
     @staticmethod
+    def help():
+        return ''
+
+    @staticmethod
     def params():
-        return ['template']
+        return []
 
     def run(self):
         config = json.loads(open('iva.json', 'r').read())['configs']['openai']

@@ -6,8 +6,12 @@ from joatmon.assistant.task import BaseTask
 
 
 class Task(BaseTask):
-    def __init__(self, api, *args, **kwargs):
-        super(Task, self).__init__(api, *args, **kwargs)
+    def __init__(self, api, **kwargs):
+        super(Task, self).__init__(api, **kwargs)
+
+    @staticmethod
+    def help():
+        return ''
 
     @staticmethod
     def params():

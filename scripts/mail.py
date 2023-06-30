@@ -17,6 +17,10 @@ class Task(BaseTask):
         super(Task, self).__init__(api, **kwargs)
 
     @staticmethod
+    def help():
+        return ''
+
+    @staticmethod
     def params():
         return []
 
