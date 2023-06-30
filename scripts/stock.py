@@ -157,17 +157,18 @@ class Service(BaseService):
                 )
                 data = json.loads(response.content.decode('utf-8'))
 
-                if os.path.exists('stock.json'):
-                    stock = json.loads(open('stock.json', 'r').read())
-                else:
-                    stock = []
+                stock = []
 
                 for info in data['data']:
                     s, d = info['s'], info['d']
 
                     dictionary = dict(zip(fields, d))
                     dictionary['symbol'] = s
-                    dictionary['date'] = datetime.datetime.now()
+                    dictionary['date'] = last_time
                     stock.append(dictionary)
 
-                open('stock.json', 'w').write(json.dumps(stock, indent=4, cls=JSONEncoder))
+                path = os.path.join(r'X:\Cloud\OneDrive\Stock', datetime.datetime.now().strftime('%Y/%m/%d/%H-%M.json'))
+                if not os.path.exists(os.path.dirname(path)):
+                    os.makedirs(os.path.dirname(path))
+
+                open(path, 'w').write(json.dumps(stock, indent=4, cls=JSONEncoder))
