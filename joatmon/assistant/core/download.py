@@ -5,7 +5,7 @@ from joatmon.assistant.task import BaseTask
 
 class Task(BaseTask):
     def __init__(self, api, **kwargs):
-        super(Task, self).__init__(api, **kwargs)
+        super(Task, self).__init__(api, True, **kwargs)
 
     @staticmethod
     def help():
@@ -16,11 +16,9 @@ class Task(BaseTask):
         return []
 
     def run(self):
-        parent_os_path = self.kwargs.get('parent_os_path', '')
-        os_path = self.kwargs.get('os_path', '')
-
-        self.api.say(os_path)
-
+        # need to do this in background
+        # after it is done, need to notify user and prompt action to continue
+        # it should not interfere with the current task that the user running
         if not self.event.is_set():
             self.event.set()
 

@@ -7,6 +7,14 @@ class Task(BaseTask):
     def __init__(self, api, **kwargs):
         super(Task, self).__init__(api, **kwargs)
 
+    @staticmethod
+    def help():
+        return ''
+
+    @staticmethod
+    def params():
+        return []
+
     def run(self):
         to_say = self.kwargs.get('message', '') or self.api.listen('what do you want me to say')
         self.api.say(to_say)

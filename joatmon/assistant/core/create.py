@@ -1,5 +1,7 @@
-from __future__ import print_function
-
+from joatmon.assistant import (
+    service,
+    task
+)
 from joatmon.assistant.task import BaseTask
 
 
@@ -13,17 +15,13 @@ class Task(BaseTask):
 
     @staticmethod
     def params():
-        return []
+        return ['mode']
 
     def run(self):
-        parent_os_path = self.kwargs.get('parent_os_path', '')
-        os_path = self.kwargs.get('os_path', '')
-
-        self.api.say(os_path)
+        if self.kwargs.get('mode', '') == 'task':
+            task.create(self.api)
+        if self.kwargs.get('mode', '') == 'service':
+            service.create(self.api)
 
         if not self.event.is_set():
             self.event.set()
-
-
-if __name__ == '__main__':
-    Task(None).run()

@@ -9,6 +9,14 @@ class Task(BaseTask):
     def __init__(self, api, **kwargs):
         super(Task, self).__init__(api, **kwargs)
 
+    @staticmethod
+    def help():
+        return ''
+
+    @staticmethod
+    def params():
+        return []
+
     def run(self):
         path = self.kwargs.get('path', '') or self.api.listen('which folder/file do you want to remove')
 
