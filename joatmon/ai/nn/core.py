@@ -35,7 +35,7 @@ warnings.filterwarnings(
             "attribute won't be populated during autograd.backward(). If you indeed want the gradient "
             "for a non-leaf Tensor, use .retain_grad() on the non-leaf Tensor. If you access the "
             "non-leaf Tensor by mistake, make sure you access the leaf Tensor instead.", UserWarning
-    )
+)
 
 
 class ModuleAttributeException(AttributeError):
@@ -276,7 +276,7 @@ class Tensor:
                 "attribute won't be populated during autograd.backward(). If you indeed want the gradient "
                 "for a non-leaf Tensor, use .retain_grad() on the non-leaf Tensor. If you access the "
                 "non-leaf Tensor by mistake, make sure you access the leaf Tensor instead.", UserWarning
-                )
+            )
 
         return self._grad
 
@@ -409,7 +409,7 @@ class Module:
             raise ValueError(
                 "Cannot assign non-leaf Tensor to parameter '{0}'. Model parameters must be created explicitly. "
                 "To express '{0}' as a function of another Tensor, compute the value in the forward() method.".format(name)
-                )
+            )
         else:
             self._parameters[name] = param
 
@@ -783,7 +783,7 @@ class Optimizer(object):
             raise TypeError(
                 'optimizer parameters need to be organized in ordered collections, but '
                 'the ordering of tensors in sets will change between runs. Please use a list instead.'
-                )
+            )
         else:
             param_group['params'] = list(params)
 
@@ -804,7 +804,7 @@ class Optimizer(object):
             warnings.warn(
                 "optimizer contains a parameter group with duplicate parameters; "
                 "in future, this will cause an error", stacklevel=3
-                )
+            )
 
         param_set = set()
         for group in self.param_groups:
@@ -891,7 +891,7 @@ class LRScheduler(object):
                     "Seems like `optimizer.step()` has been overridden after learning rate scheduler "
                     "initialization. Please, make sure to call `optimizer.step()` before "
                     "`lr_scheduler.step()`.", UserWarning
-                    )
+                )
 
             # Just check if there were two first lr_scheduler.step() calls before optimizer.step()
             elif self.optimizer._step_count < 1:
@@ -900,7 +900,7 @@ class LRScheduler(object):
                     "In PyTorch 1.1.0 and later, you should call them in the opposite order: "
                     "`optimizer.step()` before `lr_scheduler.step()`.  Failure to do this "
                     "will result in PyTorch skipping the first value of the learning rate schedule.", UserWarning
-                    )
+                )
         self._step_count += 1
 
         class _enable_get_lr_call:

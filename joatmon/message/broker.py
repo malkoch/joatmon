@@ -427,7 +427,8 @@ class Broker:
             if a_filter not in self._subscriptions:
                 self._subscriptions[a_filter] = []
             already_subscribed = next(
-                (s for (s, qos) in self._subscriptions[a_filter] if s.client_id == session.client_id), None)
+                (s for (s, qos) in self._subscriptions[a_filter] if s.client_id == session.client_id), None
+            )
             if not already_subscribed:
                 self._subscriptions[a_filter].append((session, qos))
             else:
@@ -492,17 +493,25 @@ class Broker:
                                 qos = broadcast['qos']
                             if target_session.transitions.state == 'connected':
                                 if self.logger.isEnabledFor(logging.DEBUG):
-                                    self.logger.debug("broadcasting application message from %s on topic '%s' to %s" % (format_client_message(session=broadcast['session']), broadcast['topic'], format_client_message(session=target_session)))
+                                    self.logger.debug(
+                                        "broadcasting application message from %s on topic '%s' to %s" % (
+                                        format_client_message(session=broadcast['session']), broadcast['topic'], format_client_message(session=target_session))
+                                        )
                                 handler = self._get_handler(target_session)
                                 task = asyncio.ensure_future(
                                     handler.mqtt_publish(broadcast['topic'], broadcast['data'], qos, retain=False),
-                                    loop=self._loop)
+                                    loop=self._loop
+                                )
                                 running_tasks.append(task)
                             elif qos is not None and qos > 0:
                                 if self.logger.isEnabledFor(logging.DEBUG):
-                                    self.logger.debug("retaining application message from %s on topic '%s' to client '%s'" % (format_client_message(session=broadcast['session']), broadcast['topic'], format_client_message(session=target_session)))
+                                    self.logger.debug(
+                                        "retaining application message from %s on topic '%s' to client '%s'" % (
+                                        format_client_message(session=broadcast['session']), broadcast['topic'], format_client_message(session=target_session))
+                                        )
                                 retained_message = RetainedApplicationMessage(
-                                    broadcast['session'], broadcast['topic'], broadcast['data'], qos)
+                                    broadcast['session'], broadcast['topic'], broadcast['data'], qos
+                                )
                                 await target_session.retained_messages.put(retained_message)
                                 if self.logger.isEnabledFor(logging.DEBUG):
                                     self.logger.debug(f'target_session.retained_messages={target_session.retained_messages.qsize()}')
@@ -523,8 +532,11 @@ class Broker:
         handler = self._get_handler(session)
         while not session.retained_messages.empty():
             retained = await session.retained_messages.get()
-            publish_tasks.append(asyncio.ensure_future(
-                handler.mqtt_publish(retained.topic, retained.data, retained.qos, True), loop=self._loop))
+            publish_tasks.append(
+                asyncio.ensure_future(
+                    handler.mqtt_publish(retained.topic, retained.data, retained.qos, True), loop=self._loop
+                )
+            )
         if publish_tasks:
             await asyncio.wait(publish_tasks, loop=self._loop)
 

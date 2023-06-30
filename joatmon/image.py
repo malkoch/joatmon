@@ -4,7 +4,7 @@ import cv2
 import numpy
 import numpy as np
 
-from joatmon.system.screen import grab
+from joatmon.system.hid.screen import grab
 
 __all__ = ['watermark', 'crop', 'show', 'save', 'mask', 'match_template']
 

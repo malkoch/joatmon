@@ -122,7 +122,7 @@ class MQTTFixedHeader:
             return None
 
     def __repr__(self):
-        return type(self).__name__ + '(length={0}, flags={1})'.\
+        return type(self).__name__ + '(length={0}, flags={1})'. \
             format(self.remaining_length, hex(self.flags))
 
 
@@ -436,7 +436,9 @@ class ConnectPayload(MQTTPayload):
         self.password = password
 
     def __repr__(self):
-        return "ConnectVariableHeader(client_id={0}, will_topic={1}, will_message={2}, username={3}, password={4})".format(self.client_id, self.will_topic, self.will_message, self.username, self.password)
+        return "ConnectVariableHeader(client_id={0}, will_topic={1}, will_message={2}, username={3}, password={4})".format(
+            self.client_id, self.will_topic, self.will_message, self.username, self.password
+            )
 
     @classmethod
     async def from_stream(cls, reader: ReaderAdapter, fixed_header: MQTTFixedHeader, variable_header: ConnectVariableHeader):
@@ -1104,8 +1106,10 @@ class UnubscribePayload(MQTTPayload):
         return out
 
     @classmethod
-    async def from_stream(cls, reader: asyncio.StreamReader, fixed_header: MQTTFixedHeader,
-                          variable_header: MQTTVariableHeader):
+    async def from_stream(
+            cls, reader: asyncio.StreamReader, fixed_header: MQTTFixedHeader,
+            variable_header: MQTTVariableHeader
+            ):
         topics = []
         payload_length = fixed_header.remaining_length - variable_header.bytes_length
         read_bytes = 0

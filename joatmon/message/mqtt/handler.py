@@ -163,10 +163,10 @@ class ProtocolHandler:
         print("Stopping %d purec waiters" % len(self._pubrec_waiters))
         print("Stopping %d purel waiters" % len(self._pubrel_waiters))
         for waiter in itertools.chain(
-            self._puback_waiters.values(),
-            self._pubcomp_waiters.values(),
-            self._pubrec_waiters.values(),
-            self._pubrel_waiters.values()
+                self._puback_waiters.values(),
+                self._pubcomp_waiters.values(),
+                self._pubrec_waiters.values(),
+                self._pubrel_waiters.values()
         ):
             waiter.cancel()
 
@@ -332,7 +332,8 @@ class ProtocolHandler:
 
                 fixed_header = await asyncio.wait_for(
                     MQTTFixedHeader.from_stream(self.reader),
-                    keepalive_timeout, loop=self._loop)
+                    keepalive_timeout, loop=self._loop
+                )
                 if fixed_header:
                     if fixed_header.packet_type == RESERVED_0 or fixed_header.packet_type == RESERVED_15:
                         print("%s Received reserved packet, which is forbidden: closing connection" % self.session.client_id)

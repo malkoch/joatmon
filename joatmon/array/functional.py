@@ -1,9 +1,9 @@
 import math
 from typing import (
     List,
+    Optional,
     Tuple,
-    Union,
-    Optional
+    Union
 )
 
 from joatmon.array.array import Array

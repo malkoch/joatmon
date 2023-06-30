@@ -1,6 +1,6 @@
 import pygame
 
-from joatmon.gui.widgets.widget import Element
+from joatmon.system.gui.widgets.widget import Element
 
 
 class Label(Element):

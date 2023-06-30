@@ -1,9 +1,9 @@
 import pygame
 
 from joatmon.event import Event
-from joatmon.gui.widgets.label import Label
-from joatmon.gui.widgets.panel import Panel
-from joatmon.gui.widgets.widget import Element
+from joatmon.system.gui.widgets.label import Label
+from joatmon.system.gui.widgets.panel import Panel
+from joatmon.system.gui.widgets.widget import Element
 
 
 class TabView(Element):

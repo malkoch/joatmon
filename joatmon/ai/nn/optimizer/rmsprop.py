@@ -61,4 +61,4 @@ class RMSprop(Optimizer):
             f.rmsprop(
                 params_with_grad, grads, square_avgs, alphas, momentum_buffers,
                 grad_avgs, group['momentum'], group['centered'], group['lr'], group['weight_decay'], group['eps']
-                )
+            )
