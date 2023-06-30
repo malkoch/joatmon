@@ -111,7 +111,7 @@ class Rectangle(object):
     def __init__(
             self, left=0, top=0, width=0, height=0,
             enable_float=False, read_only=False, on_change=None, on_read=None
-            ):
+    ):
         _check_for_int_or_float(width)
         _check_for_int_or_float(height)
         _check_for_int_or_float(left)

@@ -538,7 +538,7 @@ class Query:
 
             if depth >= 0:
                 sql += '('
-            sql += 'select ' + ', '.join([x.build(dialect, depth+1) + " as " + x.alias for x in self.projection]) + '\n'
+            sql += 'select ' + ', '.join([x.build(dialect, depth + 1) + " as " + x.alias for x in self.projection]) + '\n'
 
             if len(self.tables) == 0:
                 raise ValueError('from clause cannot be empty')

@@ -2,8 +2,6 @@ import dataclasses
 import math
 
 import pygame
-from pygame.color import THECOLORS
-
 from chess import (
     BB_LIGHT_SQUARES,
     BB_SQUARES,
@@ -19,6 +17,7 @@ from chess import (
     Square,
     WHITE
 )
+from pygame.color import THECOLORS
 
 __all__ = ['ChessEnv', 'create_move_labels']
 

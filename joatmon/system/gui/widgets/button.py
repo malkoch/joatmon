@@ -1,7 +1,6 @@
 import pygame
 
-from joatmon.event import Event
-from joatmon.gui.widgets.widget import Element
+from joatmon.system.gui.widgets.widget import Element
 
 
 class Button(Element):

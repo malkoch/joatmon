@@ -1,11 +1,11 @@
 import pygame
 
-from joatmon.gui.widgets.widget import Element
+from joatmon.system.gui.widgets.widget import Element
 
 
 class Label(Element):
-    def __init__(self):
-        super(Label, self).__init__()
+    def __init__(self, id_):
+        super(Label, self).__init__(id_)
 
         self._text = None
         self._text_color = (0, 0, 0)
@@ -21,6 +21,8 @@ class Label(Element):
 
         self._text_color = style.get('text_color', self._text_color)
         self._font = style.get('font', self._font)
+
+        return self
 
     def draw(self, screen):
         super(Label, self).draw(screen)

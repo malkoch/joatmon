@@ -1,6 +1,6 @@
 from joatmon.orm.field import get_converter
-from joatmon.serializable import Serializable
 from joatmon.orm.meta import Meta
+from joatmon.serializable import Serializable
 
 
 class Document(Serializable):  # need to have copy and deepcopy functions as well
@@ -60,7 +60,7 @@ class Document(Serializable):  # need to have copy and deepcopy functions as wel
                 raise ValueError(f'field {name} is not nullable')
 
             if isinstance(field.dtype, (tuple, list)):
-                if ((value is not None and field.nullable) or not field.nullable) and not isinstance(value,field.dtype):
+                if ((value is not None and field.nullable) or not field.nullable) and not isinstance(value, field.dtype):
                     raise ValueError(
                         f'field {name} has to be one of the following {field.dtype} not {type(value).__name__}'
                     )

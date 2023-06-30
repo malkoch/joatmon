@@ -18,8 +18,8 @@ from joatmon.assistant.task import (
     TaskInfo,
     TaskState
 )
-from joatmon.hid.microphone import InputDriver
-from joatmon.hid.speaker import OutputDevice
+from joatmon.system.hid import InputDriver
+from joatmon.system.hid.speaker import OutputDevice
 from joatmon.system.lock import RWLock
 
 

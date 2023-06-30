@@ -2,7 +2,7 @@ import ctypes
 import sys
 
 from joatmon.system.decorators import auto_pause
-from joatmon.system.screen import (
+from joatmon.system.hid.screen import (
     cursor,
     resolution
 )

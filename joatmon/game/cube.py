@@ -160,7 +160,7 @@ class Face:
                              self.top_left + self.increment[0] * (i + 1) + self.increment[1] * (j + 1),
                              self.top_left + self.increment[0] * (i + 1) + self.increment[1] * (j + 0),
                              self.top_left + self.increment[0] * (i + 0) + self.increment[1] * (j + 0)), view, rotation, vertical
-                    )
+                )
 
     def rotate(self, times):
         for _ in range(times):
@@ -188,27 +188,27 @@ class Cube:
             'L': Face(
                 n, 0, np.asarray([-1, +1, -1]).astype('float32'),
                 (np.asarray([0, -1, 0]).astype('float32') * (2.0 / n), np.asarray([0, 0, +1]).astype('float32') * (2.0 / n))
-                ),
+            ),
             'F': Face(
                 n, 1, np.asarray([-1, +1, +1]).astype('float32'),
                 (np.asarray([0, -1, 0]).astype('float32') * (2.0 / n), np.asarray([+1, 0, 0]).astype('float32') * (2.0 / n))
-                ),
+            ),
             'U': Face(
                 n, 2, np.asarray([-1, +1, -1]).astype('float32'),
                 (np.asarray([0, 0, +1]).astype('float32') * (2.0 / n), np.asarray([+1, 0, 0]).astype('float32') * (2.0 / n))
-                ),
+            ),
             'R': Face(
                 n, 3, np.asarray([+1, +1, +1]).astype('float32'),
                 (np.asarray([0, -1, 0]).astype('float32') * (2.0 / n), np.asarray([0, 0, -1]).astype('float32') * (2.0 / n))
-                ),
+            ),
             'B': Face(
                 n, 4, np.asarray([+1, +1, -1]).astype('float32'),
                 (np.asarray([0, -1, 0]).astype('float32') * (2.0 / n), np.asarray([-1, 0, 0]).astype('float32') * (2.0 / n))
-                ),
+            ),
             'D': Face(
                 n, 5, np.asarray([-1, -1, +1]).astype('float32'),
                 (np.asarray([0, 0, -1]).astype('float32') * (2.0 / n), np.asarray([+1, 0, 0]).astype('float32') * (2.0 / n))
-                )
+            )
         }
         self.order = ['D', 'B', 'L', 'R', 'F', 'U']
 
