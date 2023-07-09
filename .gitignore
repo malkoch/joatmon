@@ -116,9 +116,7 @@ _*
 !__init__.py
 
 *.json
-*.pkl
-*.pickle
-*.h5
 t_*.py
 test*.py
-./weights/*
+/runnables/
+/weights/
