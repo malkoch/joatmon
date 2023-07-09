@@ -111,13 +111,16 @@ class MongoDatabase(DatabasePlugin):
 
     async def insert(self, document, *docs):
         for doc in docs:
+            d = dict(**doc)
+
             if document.__metaclass__.structured and document.__metaclass__.force:
                 await self._ensure_collection(document.__metaclass__)
+                d = document(**doc).validate()
             elif document.__metaclass__.structured:
                 warnings.warn(f'document validation will be ignored')
 
             collection = await self._get_collection(document.__metaclass__.__collection__)
-            collection.insert_one(dict(**doc), session=self.session)
+            collection.insert_one(d, session=self.session)
 
     async def read(self, document, query):
         if document.__metaclass__.structured and document.__metaclass__.force:

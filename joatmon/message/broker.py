@@ -495,8 +495,8 @@ class Broker:
                                 if self.logger.isEnabledFor(logging.DEBUG):
                                     self.logger.debug(
                                         "broadcasting application message from %s on topic '%s' to %s" % (
-                                        format_client_message(session=broadcast['session']), broadcast['topic'], format_client_message(session=target_session))
-                                        )
+                                            format_client_message(session=broadcast['session']), broadcast['topic'], format_client_message(session=target_session))
+                                    )
                                 handler = self._get_handler(target_session)
                                 task = asyncio.ensure_future(
                                     handler.mqtt_publish(broadcast['topic'], broadcast['data'], qos, retain=False),
@@ -507,8 +507,8 @@ class Broker:
                                 if self.logger.isEnabledFor(logging.DEBUG):
                                     self.logger.debug(
                                         "retaining application message from %s on topic '%s' to client '%s'" % (
-                                        format_client_message(session=broadcast['session']), broadcast['topic'], format_client_message(session=target_session))
-                                        )
+                                            format_client_message(session=broadcast['session']), broadcast['topic'], format_client_message(session=target_session))
+                                    )
                                 retained_message = RetainedApplicationMessage(
                                     broadcast['session'], broadcast['topic'], broadcast['data'], qos
                                 )

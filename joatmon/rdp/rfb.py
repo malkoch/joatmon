@@ -931,7 +931,7 @@ class RFBClient:
         self.bpp, self.depth, self.bigendian, self.truecolor, self.redmax, self.greenmax, self.bluemax, self.redshift, self.greenshift, self.blueshift = unpack(
             "!BBBBHHHBBBxxx",
             pixformat
-            )
+        )
         self.bypp = self.bpp // 8
 
         buffer = await self.reader.read(namelen)
