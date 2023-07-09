@@ -12,7 +12,7 @@ from joatmon.version import get_version
 extras = {
     'ai': ['numpy', 'torch', 'matplotlib', 'six', 'Pillow'],
     'algorithm': [],
-    'assistant': ['feedparser', 'requests', 'colorama', 'schedule', 'psutil', 'nltk', 'tensorflow', 'openai'],
+    'assistant': ['feedparser', 'requests', 'colorama', 'schedule', 'psutil', 'nltk', 'tensorflow', 'openai', 'transitions'],
     'content': [],
     'core': [],
     'decorator': ['async_exit_stack'],
@@ -24,7 +24,7 @@ extras = {
     'plugin': ['pyjwt', 'redis', 'couchbase', 'elasticsearch', 'pymongo', 'psycopg2', 'pykafka', 'pyotp'],
     'search': ['requests'],
     'structure': [],
-    'system': ['opencv-contrib-python', 'numpy'],
+    'system': ['opencv-contrib-python', 'numpy', 'elevenlabs', 'openai'],
 }
 if sys.platform == 'win32':
     extras['system'].extend(['pywin32'])
