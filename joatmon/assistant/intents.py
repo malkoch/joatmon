@@ -12,14 +12,13 @@ nltk.download('wordnet', quiet=True)
 
 
 class GenericAssistant:
-    def __init__(self, intents, model_name="assistant_model"):
+    def __init__(self, intents):
         self.hist = None
         self.model = None
         self.classes = None
         self.words = None
 
         self.intents = intents
-        self.model_name = model_name
 
         if intents.endswith(".json"):
             self.load_json_intents(intents)
@@ -81,24 +80,14 @@ class GenericAssistant:
         self.hist = self.model.fit(np.array(train_x), np.array(train_y), epochs=200, batch_size=5, verbose=0)
 
     def save_model(self, model_name=None):
-        if model_name is None:
-            self.model.save(f"weights/{self.model_name}/weights.h5", self.hist)
-            pickle.dump(self.words, open(f'weights/{self.model_name}/words.pkl', 'wb'))
-            pickle.dump(self.classes, open(f'weights/{self.model_name}/classes.pkl', 'wb'))
-        else:
-            self.model.save(f"weights/{model_name}/weights.h5", self.hist)
-            pickle.dump(self.words, open(f'weights/{model_name}/words.pkl', 'wb'))
-            pickle.dump(self.classes, open(f'weights/{model_name}/classes.pkl', 'wb'))
+        self.model.save(f"weights/{model_name}/weights.h5", self.hist)
+        pickle.dump(self.words, open(f'weights/{model_name}/words.pkl', 'wb'))
+        pickle.dump(self.classes, open(f'weights/{model_name}/classes.pkl', 'wb'))
 
     def load_model(self, model_name=None):
-        if model_name is None:
-            self.words = pickle.load(open(f'weights/{self.model_name}/words.pkl', 'rb'))
-            self.classes = pickle.load(open(f'weights/{self.model_name}/classes.pkl', 'rb'))
-            self.model = tf.keras.models.load_model(f'weights/{self.model_name}/weights.h5')
-        else:
-            self.words = pickle.load(open(f'weights/{model_name}/words.pkl', 'rb'))
-            self.classes = pickle.load(open(f'weights/{model_name}/classes.pkl', 'rb'))
-            self.model = tf.keras.models.load_model(f'weights/{model_name}.weights.h5')
+        self.words = pickle.load(open(f'weights/{model_name}/words.pkl', 'rb'))
+        self.classes = pickle.load(open(f'weights/{model_name}/classes.pkl', 'rb'))
+        self.model = tf.keras.models.load_model(f'weights/{model_name}.weights.h5')
 
     def _clean_up_sentence(self, sentence):
         sentence_words = nltk.word_tokenize(sentence)
