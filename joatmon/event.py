@@ -1,16 +1,28 @@
+import functools
+
+
 class Event:
     def __init__(self):
         self._subscribers = {}
 
     def __iadd__(self, fn):
-        if fn.__qualname__ not in self._subscribers:
-            self._subscribers[fn.__qualname__] = fn
+        func = fn
+        runnable = fn
+
+        if isinstance(fn, functools.partial):
+            func = fn.func
+
+        if func.__qualname__ not in self._subscribers:
+            self._subscribers[func.__qualname__] = runnable
         else:
-            raise ValueError(f'{fn.__qualname__} already subscribed to this event')
+            raise ValueError(f'{func.__qualname__} already subscribed to this event')
 
         return self
 
     def __isub__(self, fn):
+        if isinstance(fn, functools.partial):
+            fn = fn.func
+
         if fn.__qualname__ in self._subscribers:
             del self._subscribers[fn.__qualname__]
         else:
