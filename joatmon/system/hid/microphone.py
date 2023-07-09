@@ -4,7 +4,7 @@ class InputDriver:
 
         self.o = o
 
-        # openai.api_key = json.loads(open('iva.json', 'r').read())['configs']['openai']['key']
+        # openai.api_key = json.loads(open('iva.json', 'r').read())['config']['openai']['key']
 
         # self.r = sr.Recognizer()
         # self.r.energy_threshold = 350
@@ -41,7 +41,7 @@ class InputDriver:
     #         try:
     #             audio = self.audio_queue.get_nowait()
     #
-    #             result = self.r.recognize_whisper_api(audio, model='whisper-1', api_key=json.loads(open('iva.json', 'r').read())['configs']['openai']['key'])
+    #             result = self.r.recognize_whisper_api(audio, model='whisper-1', api_key=json.loads(open('iva.json', 'r').read())['config']['openai']['key'])
     #
     #             self.result_queue.put_nowait(result)
     #         except queue.Empty:
