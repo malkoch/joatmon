@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 from joatmon.assistant.task import BaseTask
+from joatmon.search import summary
 
 
 class Task(BaseTask):
@@ -10,14 +11,14 @@ class Task(BaseTask):
     @staticmethod
     def help():
         return {
-            "name": "weather",
-            "description": "a function for user to greet someone",
+            "name": "search",
+            "description": "a function for user to search an expression",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "message": {
                         "type": "string",
-                        "description": "message to greet someone"
+                        "description": "message to search for"
                     }
                 },
                 "required": ["message"]
@@ -26,5 +27,9 @@ class Task(BaseTask):
 
     def run(self):
         message = self.kwargs.get('message', '') or self.api.listen('what do you want the message to be')
-        self.api.say(message)
-        self.stop_event.set()
+
+        result = summary(message)
+        self.api.output(result)
+
+        if not self.stop_event.is_set():
+            self.stop_event.set()

@@ -10,8 +10,8 @@ class Task(BaseTask):
     @staticmethod
     def help():
         return {
-            "name": "cwd",
-            "description": "a function for user to learn current working directory",
+            "name": "viewer",
+            "description": "a function for user to view event of the iva",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -21,10 +21,5 @@ class Task(BaseTask):
         }
 
     def run(self):
-        parent_os_path = self.kwargs.get('parent_os_path', '')
-        os_path = self.kwargs.get('os_path', '')
-
-        self.api.say(os_path)
-
         if not self.stop_event.is_set():
             self.stop_event.set()

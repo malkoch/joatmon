@@ -11,11 +11,24 @@ class Task(BaseTask):
 
     @staticmethod
     def help():
-        return ''
-
-    @staticmethod
-    def params():
-        return []
+        return {
+            "name": "save",
+            "description": "a function for user to save a message to a file",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "description": "content of the file"
+                    },
+                    "path": {
+                        "type": "string",
+                        "description": "path of the file"
+                    }
+                },
+                "required": ["message", "path"]
+            }
+        }
 
     def run(self):
         path = self.kwargs.get('path', '') or self.api.listen('what is the path')
@@ -29,9 +42,5 @@ class Task(BaseTask):
         with open(p, 'wb') as file:
             file.write(message.encode('utf-8', errors='ignore'))
 
-        if not self.event.is_set():
-            self.event.set()
-
-
-if __name__ == '__main__':
-    Task(None).run()
+        if not self.stop_event.is_set():
+            self.stop_event.set()

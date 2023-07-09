@@ -12,11 +12,20 @@ class Task(BaseTask):
 
     @staticmethod
     def help():
-        return ''
-
-    @staticmethod
-    def params():
-        return []
+        return {
+            "name": "help",
+            "description": "a function for user to learn about a function",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "function": {
+                        "type": "string",
+                        "description": "name of the function that the user want to learn about"
+                    }
+                },
+                "required": ["name"]
+            }
+        }
 
     def run(self):
         settings = json.loads(open('iva.json', 'r').read())
@@ -42,5 +51,5 @@ class Task(BaseTask):
                         continue
                     task.help(self)
 
-        if not self.event.is_set():
-            self.event.set()
+        if not self.stop_event.is_set():
+            self.stop_event.set()

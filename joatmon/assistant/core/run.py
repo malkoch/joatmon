@@ -1,5 +1,7 @@
 from __future__ import print_function
 
+import subprocess
+
 from joatmon.assistant.task import BaseTask
 
 
@@ -10,21 +12,24 @@ class Task(BaseTask):
     @staticmethod
     def help():
         return {
-            "name": "cwd",
-            "description": "a function for user to learn current working directory",
+            "name": "run",
+            "description": "a function for user to run an executable",
             "parameters": {
                 "type": "object",
                 "properties": {
+                    "executable": {
+                        "type": "string",
+                        "description": "executable to run"
+                    }
                 },
-                "required": []
+                "required": ["executable"]
             }
         }
 
     def run(self):
-        parent_os_path = self.kwargs.get('parent_os_path', '')
-        os_path = self.kwargs.get('os_path', '')
+        executable = self.kwargs.get('executable', '') or self.api.listen('what do you want to run')
 
-        self.api.say(os_path)
+        subprocess.run(['python.exe', executable])
 
         if not self.stop_event.is_set():
             self.stop_event.set()

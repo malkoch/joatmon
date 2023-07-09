@@ -10,11 +10,15 @@ class Task(BaseTask):
     @staticmethod
     def help():
         return {
-            "name": "cwd",
-            "description": "a function for user to learn current working directory",
+            "name": "ls",
+            "description": "a function for user to list the given directory, if path is not given it will list the current working directory",
             "parameters": {
                 "type": "object",
                 "properties": {
+                    "path": {
+                        "type": "string",
+                        "description": "directory to list"
+                    }
                 },
                 "required": []
             }

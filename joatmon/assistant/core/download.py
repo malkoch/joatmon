@@ -9,19 +9,28 @@ class Task(BaseTask):
 
     @staticmethod
     def help():
-        return ''
-
-    @staticmethod
-    def params():
-        return []
+        return {
+            "name": "download",
+            "description": "a function for user to download a file from given url to given path",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "url": {
+                        "type": "string",
+                        "description": "url of the file to be downloaded"
+                    },
+                    "path": {
+                        "type": "string",
+                        "description": "path of the file to be saved"
+                    }
+                },
+                "required": ["url", "path"]
+            }
+        }
 
     def run(self):
         # need to do this in background
         # after it is done, need to notify user and prompt action to continue
         # it should not interfere with the current task that the user running
-        if not self.event.is_set():
-            self.event.set()
-
-
-if __name__ == '__main__':
-    Task(None).run()
+        if not self.stop_event.is_set():
+            self.stop_event.set()

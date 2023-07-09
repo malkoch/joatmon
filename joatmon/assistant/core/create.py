@@ -11,11 +11,20 @@ class Task(BaseTask):
 
     @staticmethod
     def help():
-        return ''
-
-    @staticmethod
-    def params():
-        return ['mode']
+        return {
+            "name": "create",
+            "description": "a function for user to create service or task",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "mode": {
+                        "type": "string",
+                        "enum": ["task", "service"]
+                    }
+                },
+                "required": ["mode"]
+            }
+        }
 
     def run(self):
         if self.kwargs.get('mode', '') == 'task':
@@ -23,5 +32,5 @@ class Task(BaseTask):
         if self.kwargs.get('mode', '') == 'service':
             service.create(self.api)
 
-        if not self.event.is_set():
-            self.event.set()
+        if not self.stop_event.is_set():
+            self.stop_event.set()
