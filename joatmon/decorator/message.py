@@ -4,17 +4,17 @@ import time
 from threading import Thread
 
 from joatmon import context
+from joatmon.event import Event
+from joatmon.utility import JSONEncoder
 
 __all__ = ['producer', 'consumer']
-
-from joatmon.event import Event
 
 
 def producer(kafka, topic):
     def _decorator(func):
         def _wrapper(*args, **kwargs):
             p = context.get_value(kafka).get_producer(topic)
-            message = json.dumps({'args': args, 'kwargs': kwargs}).encode('utf-8')
+            message = json.dumps({'args': args, 'kwargs': kwargs}, cls=JSONEncoder).encode('utf-8')
             p.produce(message)
             return func(*args, **kwargs)
 
