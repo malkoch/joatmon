@@ -5,7 +5,10 @@ import json
 import os
 import threading
 
-from joatmon.utility import first
+from joatmon.utility import (
+    first,
+    JSONEncoder
+)
 
 
 class BaseService:
@@ -17,11 +20,7 @@ class BaseService:
 
     @staticmethod
     def help():
-        return ''
-
-    @staticmethod
-    def params():
-        return []
+        return {}
 
     def run(self):
         raise NotImplementedError
@@ -50,6 +49,20 @@ class ServiceInfo:
     service: BaseService
 
 
+def on_begin(name, *args, **kwargs):
+    ...
+
+
+def on_error(name, *args, **kwargs):
+    # if the service has recovery option, run it
+    # else end
+    ...
+
+
+def on_end(name, *args, **kwargs):
+    ...
+
+
 def create(api):
     name = api.listen('name')
     priority = api.listen('priority')
@@ -59,6 +72,8 @@ def create(api):
     for k in get_class(script).params():
         kwargs[k] = api.listen(k)
 
+    # on error
+    # on recovery
     create_args = {
         'name': name,
         'priority': priority,
@@ -74,7 +89,7 @@ def create(api):
     services.append(create_args)
 
     settings['services'] = services
-    open('iva.json', 'w').write(json.dumps(settings, indent=4))
+    open('iva.json', 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
 
 
 def get_class(name):
@@ -107,7 +122,7 @@ def get_class(name):
 
 def get(api, name):
     settings = json.loads(open('iva.json', 'r').read())
-    task_info = first(filter(lambda x: x['name'] == name, settings.get('services', [])))
+    task_info = first(filter(lambda x: x['status'] and x['name'] == name, settings.get('services', [])))
 
     if task_info is None:
         task_info = {'script': name, 'kwargs': {}}

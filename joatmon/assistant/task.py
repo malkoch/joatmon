@@ -1,13 +1,19 @@
 import dataclasses
+import datetime
 import enum
+import functools
 import importlib.util
 import json
 import os
 import threading
 
+from transitions import Machine
+
+from joatmon.event import Event
 from joatmon.utility import (
     first,
-    get_module_classes
+    get_module_classes,
+    JSONEncoder
 )
 
 
@@ -15,33 +21,52 @@ class BaseTask:
     def __init__(self, api, background=False, **kwargs):
         self.api = api
         self.kwargs = kwargs
-        self.background = background
+        self._background = background
         if self.background:
             self.thread = threading.Thread(target=self.run)
-        self.event = threading.Event()
+        self.stop_event = threading.Event()
+
+        self.events = {
+            'begin': Event(),
+            'end': Event(),
+            'error': Event()
+        }
+
+        states = ['none', 'started', 'stopped', 'running', 'exception', 'starting', 'stopping']
+        self.machine = Machine(model=self, states=states, initial='none')
+
+    @property
+    def background(self):
+        return self._background
+
+    @background.setter
+    def background(self, value):
+        self._background = value
+        if self.background:
+            self.thread = threading.Thread(target=self.run)
 
     @staticmethod
     def help():
-        return ''
-
-    @staticmethod
-    def params():
-        return ['todo']
+        return {}
 
     def run(self):
         raise NotImplementedError
 
     def running(self):
-        return not self.event.is_set()
+        return not self.stop_event.is_set()
 
     def start(self):
+        self.events['begin'].fire()
+
         if self.background:
             self.thread.start()
         else:
             self.run()
 
     def stop(self):
-        self.event.set()
+        self.stop_event.set()
+
+        self.events['end'].fire()
 
 
 class TaskState(enum.Enum):
@@ -57,6 +82,35 @@ class TaskInfo:
     task: BaseTask
 
 
+def on_begin(name, *args, **kwargs):
+    settings = json.loads(open('iva.json', 'r').read())
+    tasks = settings.get('tasks', [])
+
+    task_info = first(filter(lambda x: x['name'] == name, tasks))
+    if task_info is None:
+        return
+
+    task_info['last_run_time'] = datetime.datetime.now()
+    if task_info['on'] == 'interval':
+        task_info['next_run_time'] = task_info['last_run_time'] + datetime.timedelta(seconds=task_info['interval'])
+
+    for idx, task in enumerate(tasks):
+        if task['name'] == task_info['name']:
+            tasks[idx] = task_info
+            break
+
+    settings['tasks'] = tasks
+    open('iva.json', 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
+
+
+def on_error(name, *args, **kwargs):
+    ...
+
+
+def on_end(name, *args, **kwargs):
+    ...
+
+
 def create(api):
     name = api.listen('name')
     priority = api.listen('priority')
@@ -67,8 +121,10 @@ def create(api):
         kwargs[k] = api.listen(k)
 
     # need last run time
+    # need next run time
     # need last run result
     # need interval
+    # if on == 'interval' need to as for interval as well
     create_args = {
         'name': name,
         'priority': priority,
@@ -84,7 +140,7 @@ def create(api):
     tasks.append(create_args)
 
     settings['tasks'] = tasks
-    open('iva.json', 'w').write(json.dumps(settings, indent=4))
+    open('iva.json', 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
 
 
 def get_class(name):
@@ -119,9 +175,9 @@ def get_class(name):
     return task
 
 
-def get(api, name, kwargs):
+def get(api, name, kwargs, background):
     settings = json.loads(open('iva.json', 'r').read())
-    task_info = first(filter(lambda x: x['name'] == name, settings.get('tasks', [])))
+    task_info = first(filter(lambda x: x['status'] and x['name'] == name, settings.get('tasks', [])))
 
     if task_info is None:
         task_info = {'script': name, 'kwargs': {}}
@@ -137,4 +193,9 @@ def get(api, name, kwargs):
     kwargs = {**(kwargs or {}), **task_info['kwargs'], 'parent_os_path': api.parent_os_path, 'os_path': api.os_path}
 
     task = task(api, **kwargs)
+    task.background = background
+
+    task.events['begin'] += functools.partial(on_begin, name=name)
+    task.events['end'] += functools.partial(on_end, name=name)
+    task.events['error'] += functools.partial(on_error, name=name)
     return task

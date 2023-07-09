@@ -1,8 +1,11 @@
+import datetime
+import importlib.util
 import json
 import os
-import queue
 import threading
 import time
+
+import openai
 
 from joatmon import context
 from joatmon.assistant import (
@@ -15,12 +18,14 @@ from joatmon.assistant.service import (
     ServiceState
 )
 from joatmon.assistant.task import (
+    BaseTask,
     TaskInfo,
     TaskState
 )
-from joatmon.system.hid import InputDriver
+from joatmon.system.hid.microphone import InputDriver
 from joatmon.system.hid.speaker import OutputDevice
 from joatmon.system.lock import RWLock
+from joatmon.utility import get_module_classes
 
 
 class CTX:
@@ -30,15 +35,14 @@ class CTX:
 ctx = CTX()
 context.set_ctx(ctx)
 
+openai.api_key = json.loads(open('iva.json', 'r').read())['config']['openai']['key']
+
 
 class API:
     def __init__(self):
         settings = json.loads(open('iva.json', 'r').read())
 
-        self.work_queue = queue.Queue()
-        self.work_stack = queue.Queue()
-
-        self.assistant = GenericAssistant('iva.json', model_name="iva")
+        self.assistant = GenericAssistant('iva.json')
         self.assistant.train_model()
         self.assistant.save_model('iva')
 
@@ -63,13 +67,43 @@ class API:
 
         self.cleaning_thread = threading.Thread(target=self.clean)
         self.cleaning_thread.start()
+        time.sleep(1)
+
         self.service_thread = threading.Thread(target=self.run_services)
         self.service_thread.start()
+        time.sleep(1)
 
-        # need to run tasks as job if they have interval
+        self.interval_thread = threading.Thread(target=self.run_interval)
+        self.interval_thread.start()
+        time.sleep(1)
 
-        # self.do_action('ls .')
-        # self.do_action('dt')
+        # make it async
+        # need event viewer
+
+    def run_interval(self):
+        while not self.event.is_set():
+            settings = json.loads(open('iva.json', 'r').read())
+            tasks = settings.get('tasks', [])
+            tasks = filter(lambda x: x['status'], tasks)
+            tasks = filter(lambda x: x['on'] == 'interval', tasks)
+            tasks = filter(lambda x: x['interval'] > 0, tasks)
+            tasks = list(tasks)
+
+            new_tasks = filter(lambda x: x.get('last_run_time', None) is None, tasks)
+            new_tasks = list(new_tasks)
+            old_tasks = filter(lambda x: x.get('next_run_time', None) is not None, tasks)
+            old_tasks = filter(lambda x: datetime.datetime.now() > datetime.datetime.fromisoformat(x['next_run_time']), old_tasks)
+            old_tasks = list(old_tasks)
+
+            for _task in sorted(new_tasks, key=lambda x: x['priority']):
+                self.run_task(task_name=_task['name'], kwargs=None, background=True)  # need to do them in background
+            for _task in sorted(old_tasks, key=lambda x: x['priority']):
+                self.run_task(task_name=_task['name'], kwargs=None, background=True)  # need to do them in background
+
+            # need to run to do as well
+            # need to run agenda as well
+
+            time.sleep(1)
 
     def run_services(self):
         settings = json.loads(open('iva.json', 'r').read())
@@ -83,12 +117,6 @@ class API:
                 if _service['name'] not in self.running_services or self.running_services[_service['name']].state == ServiceState.finished:
                     self.start_service(_service['name'])  # need to do them in background
             time.sleep(1)
-
-    def consumer(self):
-        while not self.event.is_set() and self.work_stack.qsize():
-            time.sleep(0.01)
-        while not self.event.is_set() and self.work_queue.qsize():
-            time.sleep(0.01)
 
     def clean(self):
         while not self.event.is_set():
@@ -116,17 +144,86 @@ class API:
 
             time.sleep(1)
 
-    def listen(self, prompt=None):
-        # put the input to the queue
-        # if the task is called from outside, putting inputs to the queue by hand will make it work
-
-        response = self.input_device.listen(prompt)
+    def listen_intent(self):
+        response = self.input_device.listen('what is your intent')
         intent, prob = self.intent(response)
         if prob > .9:
             return intent
         else:
             return response
 
+    def listen_command(self):
+        response = self.input_device.listen('what is your command')
+
+        tasks = []
+
+        settings = json.loads(open('iva.json', 'r').read())
+        for scripts_folder in settings.get('scripts', []):
+            if os.path.isabs(scripts_folder):
+                for script_file in os.listdir(scripts_folder):
+                    spec = importlib.util.spec_from_file_location(scripts_folder, os.path.join(scripts_folder, script_file))
+                    action_module = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(action_module)
+
+                    for class_ in get_module_classes(action_module):
+                        if not issubclass(class_[1], BaseTask) or class_[1] is BaseTask:
+                            continue
+
+                        tasks.append(class_[1])
+            else:
+                try:
+                    _module = __import__('.'.join(scripts_folder.split('.')), fromlist=[scripts_folder.split('.')[-1]])
+
+                    scripts_folder = _module.__path__[0]
+
+                    for script_file in os.listdir(scripts_folder):
+                        if '__' in script_file:
+                            continue
+
+                        spec = importlib.util.spec_from_file_location(scripts_folder, os.path.join(scripts_folder, script_file))
+                        action_module = importlib.util.module_from_spec(spec)
+                        spec.loader.exec_module(action_module)
+
+                        for class_ in get_module_classes(action_module):
+                            if not issubclass(class_[1], BaseTask) or class_[1] is BaseTask:
+                                continue
+
+                            tasks.append(class_[1])
+                except ModuleNotFoundError:
+                    print('module not found')
+                    continue
+
+        functions = list(map(lambda x: x.help(), tasks))
+        functions = list(filter(lambda x: x, functions))
+
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo-0613",
+            messages=[{"role": "user", "content": response}],
+            functions=functions
+        )
+
+        result = response['choices'][0]
+        if result['finish_reason'] == 'function_call':
+            message = result['message']
+
+            return message['function_call']['name'], json.loads(message['function_call']['arguments'])
+
+    # listen -> input
+    def listen(self, prompt=None):
+        # put the input to the queue
+        # if the task is called from outside, putting inputs to the queue by hand will make it work
+
+        # if not english, translate to english
+        # then get the response
+        # get the intent
+        # run the action
+        # translate the response if needed
+        # output the response
+
+        response = self.input_device.listen(prompt)
+        return response
+
+    # say -> output
     def say(self, text):
         self.output_device.say(text)
 
@@ -162,16 +259,16 @@ class API:
                 case 'exit':
                     return self.exit()
                 case 'activate':
-                    action = self.listen('yes sir')
-                    return self.run_task(action)
+                    command, arguments = self.listen_command()
+                    return self.run_task(task_name=command, kwargs=arguments)
                 case _:
-                    return self.run_task(line)
+                    raise ValueError('default case is not implemented')
         except Exception as ex:
             print(str(ex))  # use stacktrace and write all exception details, line number, function name, file name etc.
             # return self.exit()
 
-    def run_task(self, task_name, kwargs=None):
-        _task = task.get(self, task_name, kwargs)
+    def run_task(self, task_name, kwargs=None, background=False):
+        _task = task.get(self, task_name, kwargs, background)
         if _task is None:
             return False
 
@@ -232,7 +329,7 @@ class API:
 
     def mainloop(self):
         while not self.event.is_set():
-            command = self.listen()
+            command = self.listen_intent()
             self.do_action(command)
 
 
