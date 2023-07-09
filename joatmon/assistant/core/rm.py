@@ -11,11 +11,20 @@ class Task(BaseTask):
 
     @staticmethod
     def help():
-        return ''
-
-    @staticmethod
-    def params():
-        return []
+        return {
+            "name": "rm",
+            "description": "a function for user to remove a file or a folder with its content",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "type": "string",
+                        "description": "path to remove"
+                    }
+                },
+                "required": ["path"]
+            }
+        }
 
     def run(self):
         path = self.kwargs.get('path', '') or self.api.listen('which folder/file do you want to remove')
@@ -28,9 +37,5 @@ class Task(BaseTask):
         else:
             os.remove(os.path.join(parent_os_path, os_path[1:], path))
 
-        if not self.event.is_set():
-            self.event.set()
-
-
-if __name__ == '__main__':
-    Task(None).run()
+        if not self.stop_event.is_set():
+            self.stop_event.set()

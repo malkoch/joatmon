@@ -11,11 +11,20 @@ class Task(BaseTask):
 
     @staticmethod
     def help():
-        return ''
-
-    @staticmethod
-    def params():
-        return []
+        return {
+            "name": "mkdir",
+            "description": "a function for user to create a new directory",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "type": "string",
+                        "description": "name of the new directory"
+                    }
+                },
+                "required": ["path"]
+            }
+        }
 
     def run(self):
         path = self.kwargs.get('path', '') or self.api.listen('what is the new folder name')
@@ -26,9 +35,5 @@ class Task(BaseTask):
         if path.isalpha():
             os.mkdir(os.path.join(parent_os_path, os_path[1:], path))
 
-        if not self.event.is_set():
-            self.event.set()
-
-
-if __name__ == '__main__':
-    Task(None).run()
+        if not self.stop_event.is_set():
+            self.stop_event.set()

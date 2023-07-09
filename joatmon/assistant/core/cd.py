@@ -11,16 +11,23 @@ class Task(BaseTask):
 
     @staticmethod
     def help():
-        return ''
-
-    @staticmethod
-    def params():
-        return []
+        return {
+            "name": "cd",
+            "description": "a function for user to change the current directory to given path",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "type": "string",
+                        "description": "the path that the user want to change to"
+                    }
+                },
+                "required": ["path"]
+            }
+        }
 
     def run(self):
-        if (path := self.kwargs.get('path', None)) is None:
-            self.api.say('what is path that you want to change')
-            path = self.api.listen()
+        path = self.kwargs.get('path', None) or self.api.listen('what is path that you want to change')
 
         parent_os_path = self.kwargs.get('parent_os_path', '')
         os_path = self.kwargs.get('os_path', '')
@@ -40,9 +47,5 @@ class Task(BaseTask):
 
         self.api.say(f'current path is: {os_path}')
 
-        if not self.event.is_set():
-            self.event.set()
-
-
-if __name__ == '__main__':
-    Task(None).run()
+        if not self.stop_event.is_set():
+            self.stop_event.set()

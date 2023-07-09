@@ -1,5 +1,7 @@
 from __future__ import print_function
 
+import webbrowser
+
 from joatmon.assistant.task import BaseTask
 
 
@@ -10,23 +12,23 @@ class Task(BaseTask):
     @staticmethod
     def help():
         return {
-            "name": "say",
-            "description": "a function for user to make iva say something",
+            "name": "browser",
+            "description": "a function for user to open a browser using a link",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "message": {
+                    "url": {
                         "type": "string",
-                        "description": "the message to say"
+                        "description": "url to open in the browser"
                     }
                 },
-                "required": ["message"]
+                "required": ["url"]
             }
         }
 
     def run(self):
-        to_say = self.kwargs.get('message', '') or self.api.listen('what do you want me to say')
-        self.api.say(to_say)
+        webbrowser.register('firefox', None, webbrowser.BackgroundBrowser(r'C:\Program Files\Mozilla Firefox\firefox.exe'))
+        webbrowser.get('firefox').open_new_tab(self.kwargs.get('url', None))
 
         if not self.stop_event.is_set():
             self.stop_event.set()

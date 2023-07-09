@@ -12,11 +12,20 @@ class Task(BaseTask):
 
     @staticmethod
     def help():
-        return ''
-
-    @staticmethod
-    def params():
-        return ['action']
+        return {
+            "name": "system",
+            "description": "a function for user to learn current status of the system",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {
+                        "type": "string",
+                        "enum": ["memory", "cpu", "disk", "battery"]
+                    }
+                },
+                "required": ["action"]
+            }
+        }
 
     def run(self):
         action = self.kwargs.get('action', '') or self.api.listen('what do you want the action to be')
@@ -65,9 +74,5 @@ class Task(BaseTask):
         #         process = psutil.Process(p)
         #         print(process)
 
-        if not self.event.is_set():
-            self.event.set()
-
-
-if __name__ == '__main__':
-    Task(None).run()
+        if not self.stop_event.is_set():
+            self.stop_event.set()
