@@ -40,17 +40,21 @@ openai.api_key = json.loads(open('iva.json', 'r').read())['config']['openai']['k
 
 class API:
     def __init__(self):
+        self.output_device = OutputDevice()
+        self.input_device = InputDriver(self.output_device)
+
+        self.output_device.say('input and output devices are initialized')
+
         settings = json.loads(open('iva.json', 'r').read())
 
         self.assistant = GenericAssistant('iva.json')
         self.assistant.train_model()
         self.assistant.save_model('iva')
 
+        self.output_device.say('intent assistant is initialized')
+
         self.parent_os_path = os.path.abspath(os.path.curdir)
         self.os_path = os.sep
-
-        self.output_device = OutputDevice()
-        self.input_device = InputDriver(self.output_device)
 
         self.lock = RWLock()
         self.running_tasks = {}  # running, finished
@@ -58,21 +62,27 @@ class API:
 
         self.event = threading.Event()
 
+        self.output_device.say('running startup tasks')
         tasks = settings.get('tasks', [])
         for _task in sorted(filter(lambda x: x['status'] and x['on'] == 'startup', tasks), key=lambda x: x['priority']):
             self.run_task(_task['name'])  # need to do them in background
+
+        self.output_device.say('starting automatic services')
         services = settings.get('services', [])
         for _service in sorted(filter(lambda x: x['status'] and x['mode'] == 'automatic', services), key=lambda x: x['priority']):
             self.start_service(_service['name'])  # need to do them in background
 
+        self.output_device.say('creating cleanup thread')
         self.cleaning_thread = threading.Thread(target=self.clean)
         self.cleaning_thread.start()
         time.sleep(1)
 
+        self.output_device.say('starting service runner thread')
         self.service_thread = threading.Thread(target=self.run_services)
         self.service_thread.start()
         time.sleep(1)
 
+        self.output_device.say('creating task scheduler thread')
         self.interval_thread = threading.Thread(target=self.run_interval)
         self.interval_thread.start()
         time.sleep(1)
@@ -262,7 +272,7 @@ class API:
                     command, arguments = self.listen_command()
                     return self.run_task(task_name=command, kwargs=arguments)
                 case _:
-                    raise ValueError('default case is not implemented')
+                    raise ValueError(f'wanted command is {line}, default case is not implemented')
         except Exception as ex:
             print(str(ex))  # use stacktrace and write all exception details, line number, function name, file name etc.
             # return self.exit()
@@ -307,12 +317,16 @@ class API:
         return False
 
     def exit(self):
+        self.output_device.say('shutting down the system')
+
         settings = json.loads(open('iva.json', 'r').read())
 
+        self.output_device.say('running shutdown tasks')
         tasks = settings.get('tasks', [])
         for _task in sorted(filter(lambda x: x['status'] and x['on'] == 'shutdown', tasks), key=lambda x: x['priority']):
             self.run_task(_task['name'])
 
+        self.output_device.say('stopping background tasks, jobs and services')
         with self.lock.r_locked():
             task_keys = [key for key in self.running_tasks.keys()]
             service_keys = [key for key in self.running_services.keys()]
@@ -324,7 +338,9 @@ class API:
             self.stop_service(key)
 
         self.event.set()
+        self.output_device.say('closing input device')
         self.input_device.stop()
+        self.output_device.say('shutdown')
         return True
 
     def mainloop(self):
