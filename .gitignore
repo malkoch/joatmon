@@ -116,7 +116,9 @@ _*
 !__init__.py
 
 *.json
+*.csv
 t_*.py
 test*.py
 /runnables/
 /weights/
+/cache/
