@@ -1,1 +1,1 @@
-VERSION = (1, 2, 0, 'alpha', 0)
+VERSION = (2, 1, 2, 'final', 0)
