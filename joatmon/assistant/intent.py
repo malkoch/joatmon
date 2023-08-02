@@ -80,14 +80,14 @@ class GenericAssistant:
         self.hist = self.model.fit(np.array(train_x), np.array(train_y), epochs=200, batch_size=5, verbose=0)
 
     def save_model(self, model_name=None):
-        self.model.save(f"weights/{model_name}/weights.h5", self.hist)
-        pickle.dump(self.words, open(f'weights/{model_name}/words.pkl', 'wb'))
-        pickle.dump(self.classes, open(f'weights/{model_name}/classes.pkl', 'wb'))
+        self.model.save(f"iva/weights/{model_name}/weights.h5", self.hist)
+        pickle.dump(self.words, open(f'iva/weights/{model_name}/words.pkl', 'wb'))
+        pickle.dump(self.classes, open(f'iva/weights/{model_name}/classes.pkl', 'wb'))
 
     def load_model(self, model_name=None):
-        self.words = pickle.load(open(f'weights/{model_name}/words.pkl', 'rb'))
-        self.classes = pickle.load(open(f'weights/{model_name}/classes.pkl', 'rb'))
-        self.model = tf.keras.models.load_model(f'weights/{model_name}.weights.h5')
+        self.words = pickle.load(open(f'iva/weights/{model_name}/words.pkl', 'rb'))
+        self.classes = pickle.load(open(f'iva/weights/{model_name}/classes.pkl', 'rb'))
+        self.model = tf.keras.models.load_model(f'iva/weights/{model_name}.weights.h5')
 
     def _clean_up_sentence(self, sentence):
         sentence_words = nltk.word_tokenize(sentence)
