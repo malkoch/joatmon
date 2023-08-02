@@ -23,7 +23,7 @@ class Task(BaseTask):
         }
 
     def run(self):
-        self.api.say(datetime.datetime.now().isoformat())
+        self.api.output(datetime.datetime.now().isoformat())
 
         if not self.stop_event.is_set():
             self.stop_event.set()

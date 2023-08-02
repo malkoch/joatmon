@@ -34,10 +34,10 @@ class Task(BaseTask):
         }
 
     def run(self):
-        action = self.kwargs.get('action', '') or self.api.listen('what do you want to configure')
+        action = self.kwargs.get('action', '') or self.api.input('what do you want to configure')
         assert action in ('create', 'update', 'delete')
-        name = self.kwargs.get('name', '') or self.api.listen('what is the name')
-        value = self.kwargs.get('value', '') or self.api.listen('what is the value')
+        name = self.kwargs.get('name', '') or self.api.input('what is the name')
+        value = self.kwargs.get('value', '') or self.api.input('what is the value')
 
         cfg = {
             'action': action,
@@ -66,21 +66,21 @@ class Task(BaseTask):
                         del _parent[names[0]]
             set_config(_parent[names[0]], '.'.join(names[1:]), _value)
 
-        settings = json.loads(open('iva.json', 'r').read())
+        settings = json.loads(open('iva/iva.json', 'r').read())
         config = settings.get('config', {})
 
         if cfg['action'] == 'create':
             set_config(config, cfg['name'], cfg['value'])
             settings['config'] = config
-            open('iva.json', 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
+            open('iva/iva.json', 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
         elif cfg['action'] == 'update':
             set_config(config, cfg['name'], cfg['value'])
             settings['config'] = config
-            open('iva.json', 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
+            open('iva/iva.json', 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
         elif cfg['action'] == 'delete':
             set_config(config, cfg['name'], None)
             settings['config'] = config
-            open('iva.json', 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
+            open('iva/iva.json', 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
         else:
             raise ValueError(f'arguments are not recognized')
 

@@ -25,7 +25,7 @@ class Task(BaseTask):
         }
 
     def run(self):
-        key = json.loads(open('iva.json', 'r').read())['config']['exchange']['key']
+        key = json.loads(open('iva/iva.json', 'r').read())['config']['exchange']['key']
 
         data = []
 
@@ -37,7 +37,7 @@ class Task(BaseTask):
         response = json.loads(resp.content.decode('utf-8'))
         data.append(f'{response["symbol"]} : {response["rate"]}')
 
-        self.api.say('\n'.join(data))
+        self.api.output('\n'.join(data))
 
         if not self.stop_event.is_set():
             self.stop_event.set()

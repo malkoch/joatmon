@@ -71,7 +71,7 @@ docs/_build/
 target/
 
 # Jupyter Notebook
-.ipynb_checkpoints
+iva/.ipynb_checkpoints
 *.ipynb
 
 # ML Model
@@ -115,10 +115,4 @@ saves/
 _*
 !__init__.py
 
-*.json
-*.csv
-t_*.py
-test*.py
-/runnables/
-/weights/
-/cache/
+/iva/

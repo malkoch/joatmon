@@ -42,18 +42,18 @@ class Task(BaseTask):
         }
 
     def run(self):
-        subject = self.kwargs.get('subject', '') or self.api.listen('what do you want the subject to be')
-        message = self.kwargs.get('message', '') or self.api.listen('what do you want the content to be')
-        receiver = self.kwargs.get('receiver', '') or self.api.listen('what do you want the receiver to be')
+        subject = self.kwargs.get('subject', '') or self.api.input('what do you want the subject to be')
+        message = self.kwargs.get('message', '') or self.api.input('what do you want the content to be')
+        receiver = self.kwargs.get('receiver', '') or self.api.input('what do you want the receiver to be')
 
-        contacts = json.loads(open('iva.json', 'r').read()).get('contacts', [])
+        contacts = json.loads(open('iva/iva.json', 'r').read()).get('contacts', [])
         contact = list(filter(lambda x: x['name'] == receiver, contacts))
         if len(contact) > 0:
             receiver = contact[0]['email']
 
         receivers = [receiver]
 
-        config = json.loads(open('iva.json', 'r').read())['config']['mail']
+        config = json.loads(open('iva/iva.json', 'r').read())['config']['mail']
 
         text_subtype = 'plain'
         subject = subject
@@ -89,10 +89,10 @@ class Service(BaseService):
         return {}
 
     def send_mail(self, mail):
-        config = json.loads(open('iva.json', 'r').read())['config']['mail']
+        config = json.loads(open('iva/iva.json', 'r').read())['config']['mail']
 
         text_subtype = mail['content_type']
-        message = mail['message']
+        content = mail['content']
         subject = mail['subject']
 
         server = config['server']
@@ -101,7 +101,7 @@ class Service(BaseService):
         password = config['password']
         receivers = mail['receivers']
 
-        msg = MIMEText(message, text_subtype)
+        msg = MIMEText(content, text_subtype)
         msg['Subject'] = subject
         msg['From'] = address
 

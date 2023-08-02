@@ -28,10 +28,10 @@ class Task(BaseTask):
         }
 
     def run(self):
-        action = self.kwargs.get('action', '') or self.api.listen('what do you want the action to be')
+        action = self.kwargs.get('action', '') or self.api.input('what do you want the action to be')
 
         if action == 'memory':
-            self.api.say(
+            self.api.output(
                 f'Memory Total: {convert_size(psutil.virtual_memory().total)}, '
                 f'Memory Used: {convert_size(psutil.virtual_memory().used)}, '
                 f'Memory Free: {convert_size(psutil.virtual_memory().free)}, '
@@ -42,7 +42,7 @@ class Task(BaseTask):
                 f'Swap Percent: {psutil.swap_memory().percent}'
             )
         if action == 'cpu':
-            self.api.say(
+            self.api.output(
                 f'CPU Total Usage: {psutil.cpu_percent(percpu=False)}, '
                 f'CPU Per Usage: {psutil.cpu_percent(percpu=True)}, '
                 f'CPU Count: {psutil.cpu_count(logical=False)}, '
@@ -50,13 +50,13 @@ class Task(BaseTask):
             )
         if action == 'disk':
             for d in psutil.disk_partitions():
-                self.api.say(
+                self.api.output(
                     f'Disk Device: {d.device}, '
                     f'Disk Mount: {d.mountpoint}, '
                     f'Disk File System Type: {d.fstype}'
                 )
 
-                self.api.say(
+                self.api.output(
                     f'Disk Total: {convert_size(psutil.disk_usage(d.device).total)}, '
                     f'Disk Used: {convert_size(psutil.disk_usage(d.device).used)}, '
                     f'Disk Free: {convert_size(psutil.disk_usage(d.device).free)}, '
@@ -64,7 +64,7 @@ class Task(BaseTask):
                 )
 
         if action == 'battery':
-            self.api.say(
+            self.api.output(
                 f'Battery Percent: {psutil.sensors_battery().percent}, '
                 f'Battery Plugged: {psutil.sensors_battery().power_plugged}, '
                 f'Batter Left: {psutil.sensors_battery().secsleft}'

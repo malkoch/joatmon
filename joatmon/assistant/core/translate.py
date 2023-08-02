@@ -29,7 +29,7 @@ class Task(BaseTask):
         }
 
     def run(self):
-        config = json.loads(open('iva.json', 'r').read())['config']['openai']
+        config = json.loads(open('iva/iva.json', 'r').read())['config']['openai']
         openai.api_key = config['key']
 
         message = self.kwargs.get('message', None) or self.api.input('what do you want the message to be')

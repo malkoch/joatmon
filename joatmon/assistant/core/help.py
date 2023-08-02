@@ -28,7 +28,7 @@ class Task(BaseTask):
         }
 
     def run(self):
-        settings = json.loads(open('iva.json', 'r').read())
+        settings = json.loads(open('iva/iva.json', 'r').read())
         for scripts in settings.get('scripts', []):
             if os.path.isabs(scripts) and os.path.exists(scripts):
                 for module in list(filter(lambda x: '__' not in x, map(lambda x: x.replace('.py', ''), os.listdir(scripts.replace('.', '/'))))):

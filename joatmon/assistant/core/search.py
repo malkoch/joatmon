@@ -26,7 +26,7 @@ class Task(BaseTask):
         }
 
     def run(self):
-        message = self.kwargs.get('message', '') or self.api.listen('what do you want the message to be')
+        message = self.kwargs.get('message', '') or self.api.input('what do you want the message to be')
 
         result = summary(message)
         self.api.output(result)

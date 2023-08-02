@@ -25,12 +25,16 @@ class Service(BaseService):
         return {}
 
     def notification(self, notification):
+        subject = notification['subject']
+        content_type = notification['content_type']
+        content = notification['content']
+
         if self.kwargs.get('type', None) == 'mail':
             self.mail(
                 {
-                    "content_type": "html",
-                    "message": '\n\n'.join([repr(data) for data in notification]),
-                    "subject": "notification",
+                    "content_type": content_type,
+                    "content": content,
+                    "subject": subject,
                     "receivers": self.kwargs.get('receivers', [])
                 }
             )
