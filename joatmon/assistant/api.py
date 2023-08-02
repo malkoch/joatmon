@@ -12,18 +12,24 @@ from joatmon.assistant import (
     service,
     task
 )
-from joatmon.assistant.intents import GenericAssistant
+from joatmon.assistant.intent import GenericAssistant
 from joatmon.assistant.service import (
     ServiceInfo,
     ServiceState
 )
+from joatmon.assistant.stt import STTAgent
 from joatmon.assistant.task import (
     BaseTask,
     TaskInfo,
     TaskState
 )
-from joatmon.system.hid.microphone import InputDriver
-from joatmon.system.hid.speaker import OutputDevice
+from joatmon.assistant.tts import TTSAgent
+from joatmon.system.hid.console import (
+    ConsoleReader,
+    ConsoleWriter
+)
+from joatmon.system.hid.microphone import Microphone
+from joatmon.system.hid.speaker import Speaker
 from joatmon.system.lock import RWLock
 from joatmon.utility import get_module_classes
 
@@ -35,23 +41,35 @@ class CTX:
 ctx = CTX()
 context.set_ctx(ctx)
 
-openai.api_key = json.loads(open('iva.json', 'r').read())['config']['openai']['key']
+openai.api_key = json.loads(open('iva/iva.json', 'r').read())['config']['openai']['key']
 
 
 class API:
     def __init__(self):
-        self.output_device = OutputDevice()
-        self.input_device = InputDriver(self.output_device)
+        settings = json.loads(open('iva/iva.json', 'r').read())
 
-        self.output_device.say('input and output devices are initialized')
+        self.tts = settings.get('config', {}).get('tts', False)
+        self.stt = settings.get('config', {}).get('stt', False)
 
-        settings = json.loads(open('iva.json', 'r').read())
+        if self.tts:
+            self.tts_agent = TTSAgent()
+            self.speaker = Speaker()
+        else:
+            self.writer = ConsoleWriter()
 
-        self.assistant = GenericAssistant('iva.json')
+        if self.stt:
+            self.stt_agent = STTAgent()
+            self.microphone = Microphone()
+        else:
+            self.reader = ConsoleReader()
+
+        self.output('input and output devices are initialized')
+
+        self.assistant = GenericAssistant('iva/iva.json')
         self.assistant.train_model()
         self.assistant.save_model('iva')
 
-        self.output_device.say('intent assistant is initialized')
+        self.output('intent assistant is initialized')
 
         self.parent_os_path = os.path.abspath(os.path.curdir)
         self.os_path = os.sep
@@ -62,27 +80,27 @@ class API:
 
         self.event = threading.Event()
 
-        self.output_device.say('running startup tasks')
+        self.output('running startup tasks')
         tasks = settings.get('tasks', [])
         for _task in sorted(filter(lambda x: x['status'] and x['on'] == 'startup', tasks), key=lambda x: x['priority']):
             self.run_task(_task['name'])  # need to do them in background
 
-        self.output_device.say('starting automatic services')
+        self.output('starting automatic services')
         services = settings.get('services', [])
         for _service in sorted(filter(lambda x: x['status'] and x['mode'] == 'automatic', services), key=lambda x: x['priority']):
             self.start_service(_service['name'])  # need to do them in background
 
-        self.output_device.say('creating cleanup thread')
+        self.output('creating cleanup thread')
         self.cleaning_thread = threading.Thread(target=self.clean)
         self.cleaning_thread.start()
         time.sleep(1)
 
-        self.output_device.say('starting service runner thread')
+        self.output('starting service runner thread')
         self.service_thread = threading.Thread(target=self.run_services)
         self.service_thread.start()
         time.sleep(1)
 
-        self.output_device.say('creating task scheduler thread')
+        self.output('creating task scheduler thread')
         self.interval_thread = threading.Thread(target=self.run_interval)
         self.interval_thread.start()
         time.sleep(1)
@@ -92,7 +110,7 @@ class API:
 
     def run_interval(self):
         while not self.event.is_set():
-            settings = json.loads(open('iva.json', 'r').read())
+            settings = json.loads(open('iva/iva.json', 'r').read())
             tasks = settings.get('tasks', [])
             tasks = filter(lambda x: x['status'], tasks)
             tasks = filter(lambda x: x['on'] == 'interval', tasks)
@@ -116,7 +134,7 @@ class API:
             time.sleep(1)
 
     def run_services(self):
-        settings = json.loads(open('iva.json', 'r').read())
+        settings = json.loads(open('iva/iva.json', 'r').read())
 
         services = settings.get('services', [])
 
@@ -155,7 +173,7 @@ class API:
             time.sleep(1)
 
     def listen_intent(self):
-        response = self.input_device.listen('what is your intent')
+        response = self.input('what is your intent')
         intent, prob = self.intent(response)
         if prob > .9:
             return intent
@@ -163,11 +181,11 @@ class API:
             return response
 
     def listen_command(self):
-        response = self.input_device.listen('what is your command')
+        response = self.input('what is your command')
 
         tasks = []
 
-        settings = json.loads(open('iva.json', 'r').read())
+        settings = json.loads(open('iva/iva.json', 'r').read())
         for scripts_folder in settings.get('scripts', []):
             if os.path.isabs(scripts_folder):
                 for script_file in os.listdir(scripts_folder):
@@ -218,8 +236,7 @@ class API:
 
             return message['function_call']['name'], json.loads(message['function_call']['arguments'])
 
-    # listen -> input
-    def listen(self, prompt=None):
+    def input(self, prompt=None):
         # put the input to the queue
         # if the task is called from outside, putting inputs to the queue by hand will make it work
 
@@ -228,14 +245,23 @@ class API:
         # get the intent
         # run the action
         # translate the response if needed
-        # output the response
 
-        response = self.input_device.listen(prompt)
+        if prompt:
+            self.output(prompt)
+
+        if self.stt:
+            response = self.microphone.listen()
+            response = self.stt_agent.transcribe(response)
+        else:
+            response = self.reader.read()
         return response
 
-    # say -> output
-    def say(self, text):
-        self.output_device.say(text)
+    def output(self, text):
+        if self.tts:
+            text = self.tts_agent.convert(text)
+            self.speaker.say(text)
+        else:
+            self.writer.write(text)
 
     def intent(self, text):
         return self.assistant.request(text)
@@ -317,16 +343,16 @@ class API:
         return False
 
     def exit(self):
-        self.output_device.say('shutting down the system')
+        self.output('shutting down the system')
 
-        settings = json.loads(open('iva.json', 'r').read())
+        settings = json.loads(open('iva/iva.json', 'r').read())
 
-        self.output_device.say('running shutdown tasks')
+        self.output('running shutdown tasks')
         tasks = settings.get('tasks', [])
         for _task in sorted(filter(lambda x: x['status'] and x['on'] == 'shutdown', tasks), key=lambda x: x['priority']):
             self.run_task(_task['name'])
 
-        self.output_device.say('stopping background tasks, jobs and services')
+        self.output('stopping background tasks, jobs and services')
         with self.lock.r_locked():
             task_keys = [key for key in self.running_tasks.keys()]
             service_keys = [key for key in self.running_services.keys()]
@@ -338,9 +364,10 @@ class API:
             self.stop_service(key)
 
         self.event.set()
-        self.output_device.say('closing input device')
-        self.input_device.stop()
-        self.output_device.say('shutdown')
+        self.output('closing input device')
+        if self.stt:
+            self.microphone.stop()
+        self.output('shutdown')
         return True
 
     def mainloop(self):

@@ -3,6 +3,10 @@ from joatmon.plugin.core import Plugin
 
 class DatabasePlugin(Plugin):
     # query can be a dictionary, query builder or formatted query
+    # read write strategy
+    # when reading, might read on cache so that the read operation will be reduced
+    # when writing, might write to message queue and consume in batcher so that the write operation will be reduced
+    # after writing the read cache should be updated as well
     async def __aenter__(self):
         await self.start()
 

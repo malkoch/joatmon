@@ -27,7 +27,7 @@ class Task(BaseTask):
         }
 
     def run(self):
-        path = self.kwargs.get('path', '') or self.api.listen('which folder/file do you want to remove')
+        path = self.kwargs.get('path', '') or self.api.input('which folder/file do you want to remove')
 
         parent_os_path = self.kwargs.get('parent_os_path', '')
         os_path = self.kwargs.get('os_path', '')

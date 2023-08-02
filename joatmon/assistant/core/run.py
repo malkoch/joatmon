@@ -27,7 +27,7 @@ class Task(BaseTask):
         }
 
     def run(self):
-        executable = self.kwargs.get('executable', '') or self.api.listen('what do you want to run')
+        executable = self.kwargs.get('executable', '') or self.api.input('what do you want to run')
 
         subprocess.run(['python.exe', executable])
 

@@ -18,7 +18,7 @@ from joatmon.utility import (
 
 
 class BaseTask:
-    def __init__(self, api, background=False, **kwargs):
+    def __init__(self, api, background=False, **kwargs):  # another parameter called cache output
         self.api = api
         self.kwargs = kwargs
         self._background = background
@@ -83,7 +83,7 @@ class TaskInfo:
 
 
 def on_begin(name, *args, **kwargs):
-    settings = json.loads(open('iva.json', 'r').read())
+    settings = json.loads(open('iva/iva.json', 'r').read())
     tasks = settings.get('tasks', [])
 
     task_info = first(filter(lambda x: x['name'] == name, tasks))
@@ -100,7 +100,7 @@ def on_begin(name, *args, **kwargs):
             break
 
     settings['tasks'] = tasks
-    open('iva.json', 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
+    open('iva/iva.json', 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
 
 
 def on_error(name, *args, **kwargs):
@@ -112,13 +112,13 @@ def on_end(name, *args, **kwargs):
 
 
 def create(api):
-    name = api.listen('name')
-    priority = api.listen('priority')
-    on = api.listen('on')
-    script = api.listen('script')
+    name = api.input('name')
+    priority = api.input('priority')
+    on = api.input('on')
+    script = api.input('script')
     kwargs = {}
     for k in get_class(script).params():
-        kwargs[k] = api.listen(k)
+        kwargs[k] = api.input(k)
 
     # need last run time
     # need next run time
@@ -134,19 +134,19 @@ def create(api):
         'kwargs': kwargs
     }
 
-    settings = json.loads(open('iva.json', 'r').read())
+    settings = json.loads(open('iva/iva.json', 'r').read())
     tasks = settings.get('tasks', [])
 
     tasks.append(create_args)
 
     settings['tasks'] = tasks
-    open('iva.json', 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
+    open('iva/iva.json', 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
 
 
 def get_class(name):
     task = None
 
-    settings = json.loads(open('iva.json', 'r').read())
+    settings = json.loads(open('iva/iva.json', 'r').read())
     for scripts in settings.get('scripts', []):
         if os.path.isabs(scripts):
             if os.path.exists(scripts) and os.path.exists(os.path.join(scripts, f'{name}.py')):
@@ -176,7 +176,7 @@ def get_class(name):
 
 
 def get(api, name, kwargs, background):
-    settings = json.loads(open('iva.json', 'r').read())
+    settings = json.loads(open('iva/iva.json', 'r').read())
     task_info = first(filter(lambda x: x['status'] and x['name'] == name, settings.get('tasks', [])))
 
     if task_info is None:
@@ -187,7 +187,7 @@ def get(api, name, kwargs, background):
     task = get_class(script)
 
     if task is None:
-        api.say(f'task {name} is not found')
+        api.output(f'task {name} is not found')
         return None
 
     kwargs = {**(kwargs or {}), **task_info['kwargs'], 'parent_os_path': api.parent_os_path, 'os_path': api.os_path}

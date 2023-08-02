@@ -31,8 +31,8 @@ class Task(BaseTask):
         }
 
     def run(self):
-        path = self.kwargs.get('path', '') or self.api.listen('what is the path')
-        message = self.kwargs.get('message', '') or self.api.listen('what is the message')
+        path = self.kwargs.get('path', '') or self.api.input('what is the path')
+        message = self.kwargs.get('message', '') or self.api.input('what is the message')
 
         parent_os_path = self.kwargs.get('parent_os_path', '')
         os_path = self.kwargs.get('os_path', '')

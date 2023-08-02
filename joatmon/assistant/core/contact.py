@@ -42,15 +42,15 @@ class Task(BaseTask):
     def run(self):
         mode = self.kwargs.get('mode', '')
 
-        settings = json.loads(open('iva.json', 'r').read())
+        settings = json.loads(open('iva/iva.json', 'r').read())
         contacts = settings.get('contacts', [])
 
         if mode == 'list':
             ...
         elif mode == 'create':
-            name = self.kwargs.get('name', None) or self.api.listen('what is the name of the contact')
-            email = self.kwargs.get('email', None) or self.api.listen('what is the email')
-            phone = self.kwargs.get('phone', None) or self.api.listen('what is the phone number')
+            name = self.kwargs.get('name', None) or self.api.input('what is the name of the contact')
+            email = self.kwargs.get('email', None) or self.api.input('what is the email')
+            phone = self.kwargs.get('phone', None) or self.api.input('what is the phone number')
 
             contacts.append({'name': name, 'email': email, 'phone': phone})
         elif mode == 'update':
@@ -59,7 +59,7 @@ class Task(BaseTask):
             ...
 
         settings['contacts'] = contacts
-        open('iva.json', 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
+        open('iva/iva.json', 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
 
         if not self.stop_event.is_set():
             self.stop_event.set()

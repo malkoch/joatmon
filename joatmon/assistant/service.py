@@ -5,6 +5,8 @@ import json
 import os
 import threading
 
+from transitions import Machine
+
 from joatmon.utility import (
     first,
     JSONEncoder
@@ -17,6 +19,9 @@ class BaseService:
         self.kwargs = kwargs
         self.event = threading.Event()
         self.thread = threading.Thread(target=self.run)
+
+        states = ['none', 'started', 'stopped', 'running', 'exception', 'starting', 'stopping']
+        self.machine = Machine(model=self, states=states, initial='none')
 
     @staticmethod
     def help():
@@ -64,13 +69,13 @@ def on_end(name, *args, **kwargs):
 
 
 def create(api):
-    name = api.listen('name')
-    priority = api.listen('priority')
-    mode = api.listen('mode')
-    script = api.listen('script')
+    name = api.input('name')
+    priority = api.input('priority')
+    mode = api.input('mode')
+    script = api.input('script')
     kwargs = {}
     for k in get_class(script).params():
-        kwargs[k] = api.listen(k)
+        kwargs[k] = api.input(k)
 
     # on error
     # on recovery
@@ -83,19 +88,19 @@ def create(api):
         'kwargs': kwargs
     }
 
-    settings = json.loads(open('iva.json', 'r').read())
+    settings = json.loads(open('iva/iva.json', 'r').read())
     services = settings.get('services', [])
 
     services.append(create_args)
 
     settings['services'] = services
-    open('iva.json', 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
+    open('iva/iva.json', 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
 
 
 def get_class(name):
     service = None
 
-    settings = json.loads(open('iva.json', 'r').read())
+    settings = json.loads(open('iva/iva.json', 'r').read())
     for scripts in settings.get('scripts', []):
         if os.path.isabs(scripts):
             if os.path.exists(scripts) and os.path.exists(os.path.join(scripts, f'{name}.py')):
@@ -121,7 +126,7 @@ def get_class(name):
 
 
 def get(api, name):
-    settings = json.loads(open('iva.json', 'r').read())
+    settings = json.loads(open('iva/iva.json', 'r').read())
     task_info = first(filter(lambda x: x['status'] and x['name'] == name, settings.get('services', [])))
 
     if task_info is None:
@@ -132,7 +137,7 @@ def get(api, name):
     service = get_class(script)
 
     if service is None:
-        api.say('service is not found')
+        api.output('service is not found')
         return None
 
     kwargs = {**task_info['kwargs'], 'parent_os_path': api.parent_os_path, 'os_path': api.os_path}

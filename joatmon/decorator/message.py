@@ -66,6 +66,9 @@ def add_consumer(topic, c):
         consumer_events[topic] = Event()
 
 
+# need to have another parameter called is_batch or batch_size
+# if False or None consumer will be working with one message at a time
+# if not False and None consumer will be working in batch mode
 def consumer(kafka, topic):
     def _decorator(func):
         c = context.get_value(kafka).get_consumer(topic)

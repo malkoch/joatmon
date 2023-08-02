@@ -25,8 +25,8 @@ class Task(BaseTask):
         }
 
     def run(self):
-        to_say = self.kwargs.get('message', '') or self.api.listen('what do you want me to say')
-        self.api.say(to_say)
+        to_say = self.kwargs.get('message', '') or self.api.input('what do you want me to say')
+        self.api.output(to_say)
 
         if not self.stop_event.is_set():
             self.stop_event.set()

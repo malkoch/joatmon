@@ -27,7 +27,7 @@ class Task(BaseTask):
         }
 
     def run(self):
-        path = self.kwargs.get('path', None) or self.api.listen('what is path that you want to change')
+        path = self.kwargs.get('path', None) or self.api.input('what is path that you want to change')
 
         parent_os_path = self.kwargs.get('parent_os_path', '')
         os_path = self.kwargs.get('os_path', '')
@@ -45,7 +45,7 @@ class Task(BaseTask):
 
         self.api.os_path = os_path
 
-        self.api.say(f'current path is: {os_path}')
+        self.api.output(f'current path is: {os_path}')
 
         if not self.stop_event.is_set():
             self.stop_event.set()

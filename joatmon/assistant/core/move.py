@@ -32,8 +32,8 @@ class Task(BaseTask):
         }
 
     def run(self):
-        old_file = self.kwargs.get('old', '') or self.api.listen('what is the old file')
-        new_file = self.kwargs.get('new', '') or self.api.listen('what is the new file')
+        old_file = self.kwargs.get('old', '') or self.api.input('what is the old file')
+        new_file = self.kwargs.get('new', '') or self.api.input('what is the new file')
 
         parent_os_path = self.kwargs.get('parent_os_path', '')
         os_path = self.kwargs.get('os_path', '')

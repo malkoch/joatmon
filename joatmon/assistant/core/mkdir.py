@@ -27,7 +27,7 @@ class Task(BaseTask):
         }
 
     def run(self):
-        path = self.kwargs.get('path', '') or self.api.listen('what is the new folder name')
+        path = self.kwargs.get('path', '') or self.api.input('what is the new folder name')
 
         parent_os_path = self.kwargs.get('parent_os_path', '')
         os_path = self.kwargs.get('os_path', '')
