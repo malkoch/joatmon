@@ -45,7 +45,7 @@ jobs:
           name: codecov-umbrella
           fail_ci_if_error: true
   release:
-    if: $({ github.ref == 'master' })
+#    if: $({ github.ref == 'master' })
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -80,3 +80,24 @@ jobs:
 #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 #    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 #    if: env.WORKFLOW_CONCLUSION == 'failure' # notify only if failure
+
+#jobs:
+#  build-and-deploy:
+#    name: Build and Deploy
+#    runs-on: ubuntu-latest
+#    steps:
+#    ...
+#   - name: notify of failure
+#      if: ${{ failure() }}
+#      uses: tokorom/action-slack-incoming-webhook@main
+#      env:
+#        INCOMING_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+#      with:
+#        text: XXX Build failed - Deploy - Server - TEST - Azure Web Apps CI/CD. XXX
+#    - name: notify of success
+#      if: ${{ success() }}
+#     uses: tokorom/action-slack-incoming-webhook@main
+#      env:
+#        INCOMING_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+#      with:
+#        text: ":heavy_check_mark: Build success - Deploy -  Server - TEST - Azure Web pps CI/CD. :heavy_check_mark:"
