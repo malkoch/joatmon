@@ -7,7 +7,7 @@ from distutils.core import setup
 
 from setuptools import find_packages
 
-from joatmon.version import get_version
+from joatmon import VERSION
 
 extras = {
     'ai': ['numpy', 'torch', 'matplotlib', 'six', 'Pillow'],
@@ -62,7 +62,7 @@ if __name__ == '__main__':
     version_range_max = max(sys.version_info[1], 8) + 1
     setup(
         name=os.getenv('JOATMON_PACKAGE_NAME', 'joatmon'),
-        version=get_version(),
+        version=VERSION,
         description="General Purpose Python Library",
         long_description=long_description,
         long_description_content_type="text/markdown",
@@ -72,7 +72,9 @@ if __name__ == '__main__':
                 'assistant = scripts.assistant:main'
             ]
         },
-        install_requires=[],
+        install_requires=[
+            'bumpversion'
+        ],
         tests_require=[
             'pytest',
         ],
