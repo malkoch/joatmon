@@ -45,7 +45,7 @@ jobs:
           name: codecov-umbrella
           fail_ci_if_error: true
   release:
-#    if: $({ github.ref == 'master' })
+    if: ${{ github.ref == 'master' }}
     needs: build
     runs-on: ubuntu-latest
     steps:
