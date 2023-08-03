@@ -1,0 +1,69 @@
+name: Python package
+
+on:
+  pull_request:
+    branches:
+      - master
+    types: [closed]
+
+jobs:
+  version:
+    if: ${{ github.event.pull_request.merged }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ "3.10" ]
+
+    steps:
+      - uses: actions/setup-python@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          sudo apt install libcurl4-openssl-dev libssl-dev
+          python -m pip install --upgrade pip
+          python -m pip install flake8 pytest pytest-cov
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install .[all]
+          bumpversion minor
+
+#  slack:
+#    name: Slack
+#    needs: publish # set needs only last job except this job
+#    runs-on: ubuntu-latest
+#    if: always() # set always
+#    steps:
+#      # run this action to get workflow conclusion
+#      # You can get conclusion by env (env.WORKFLOW_CONCLUSION)
+#      - uses: technote-space/workflow-conclusion-action@v1
+#      - uses: 8398a7/action-slack@v2
+#    with:
+#    # status: ${{ env.WORKFLOW_CONCLUSION }} # neutral, success, cancelled, timed_out, failure
+#    status: failure
+#    env:
+#    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+#    if: env.WORKFLOW_CONCLUSION == 'failure' # notify only if failure
+
+#jobs:
+#  build-and-deploy:
+#    name: Build and Deploy
+#    runs-on: ubuntu-latest
+#    steps:
+#    ...
+#   - name: notify of failure
+#      if: ${{ failure() }}
+#      uses: tokorom/action-slack-incoming-webhook@main
+#      env:
+#        INCOMING_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+#      with:
+#        text: XXX Build failed - Deploy - Server - TEST - Azure Web Apps CI/CD. XXX
+#    - name: notify of success
+#      if: ${{ success() }}
+#     uses: tokorom/action-slack-incoming-webhook@main
+#      env:
+#        INCOMING_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+#      with:
+#        text: ":heavy_check_mark: Build success - Deploy -  Server - TEST - Azure Web pps CI/CD. :heavy_check_mark:"
