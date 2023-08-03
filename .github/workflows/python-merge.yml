@@ -7,28 +7,19 @@ on:
     types: [closed]
 
 jobs:
-  version:
-    if: ${{ github.event.pull_request.merged }}
+  build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [ "3.10" ]
-
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+      - name: Bump version and push tag
+        uses: jaumann/github-bumpversion-action@v0.0.7
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push changes
+        uses: ad-m/github-push-action@master
         with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
-        run: |
-          sudo apt install libcurl4-openssl-dev libssl-dev
-          python -m pip install --upgrade pip
-          python -m pip install flake8 pytest pytest-cov
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          pip install .[all]
-          bumpversion minor
-
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tags: true
 #  slack:
 #    name: Slack
 #    needs: publish # set needs only last job except this job
