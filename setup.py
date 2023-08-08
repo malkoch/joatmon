@@ -12,6 +12,7 @@ from joatmon import VERSION
 extras = {
     'ai': ['numpy', 'torch', 'matplotlib', 'six', 'Pillow'],
     'algorithm': [],
+    'analysis': ['pandas'],
     'array': [],
     'assistant': ['feedparser', 'requests', 'colorama', 'schedule', 'psutil', 'nltk', 'tensorflow', 'openai', 'transitions'],
     'backend': [],
