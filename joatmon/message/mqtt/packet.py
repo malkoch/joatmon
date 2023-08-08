@@ -2,11 +2,11 @@ import asyncio
 from datetime import datetime
 from struct import unpack
 
-from ..adapters import (
+from joatmon.message.adapters import (
     ReaderAdapter,
     WriterAdapter
 )
-from ..codecs import (
+from joatmon.message.codecs import (
     bytes_to_hex_str,
     bytes_to_int,
     decode_data_with_length,
@@ -17,13 +17,13 @@ from ..codecs import (
     int_to_bytes,
     read_or_raise
 )
-from ..errors import (
+from joatmon.message.errors import (
     CodecException,
     HZMQTTException,
     MQTTException,
     NoDataException
 )
-from ..utils import gen_client_id
+from joatmon.message.utils import gen_client_id
 
 RESERVED_0 = 0x00
 CONNECT = 0x01

@@ -4,7 +4,7 @@ from struct import (
     unpack
 )
 
-from .errors import NoDataException
+from joatmon.message.errors import NoDataException
 
 
 def bytes_to_hex_str(data):

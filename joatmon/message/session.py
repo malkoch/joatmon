@@ -4,8 +4,8 @@ from collections import OrderedDict
 
 from transitions import Machine
 
-from .errors import HZMQTTException
-from .mqtt.packet import PublishPacket
+from joatmon.message.errors import HZMQTTException
+from joatmon.message.mqtt.packet import PublishPacket
 
 OUTGOING = 0
 INCOMING = 1
