@@ -1,17 +1,14 @@
-from joatmon.core import CoreException
-
-
-class HZMQTTException(CoreException):
+class HZMQTTException:
     pass
 
 
-class MQTTException(CoreException):
+class MQTTException:
     pass
 
 
-class CodecException(CoreException):
+class CodecException:
     pass
 
 
-class NoDataException(CoreException):
+class NoDataException:
     pass

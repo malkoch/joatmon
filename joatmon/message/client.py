@@ -13,24 +13,24 @@ import websockets
 from websockets.exceptions import InvalidHandshake
 from websockets.uri import InvalidURI
 
-from .adapters import (
+from joatmon.message.adapters import (
     StreamReaderAdapter,
     StreamWriterAdapter,
     WebSocketsReader,
     WebSocketsWriter
 )
-from .mqtt.constants import (
+from joatmon.message.mqtt.constants import (
     QOS_0,
     QOS_1,
     QOS_2
 )
-from .mqtt.handler import (
+from joatmon.message.mqtt.handler import (
     ClientProtocolHandler,
     ProtocolHandlerException
 )
-from .mqtt.packet import CONNECTION_ACCEPTED
-from .session import Session
-from .utils import not_in_dict_or_none
+from joatmon.message.mqtt.packet import CONNECTION_ACCEPTED
+from joatmon.message.session import Session
+from joatmon.message.utils import not_in_dict_or_none
 
 _defaults = {
     'keep_alive': 10,
