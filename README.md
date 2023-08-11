@@ -8,7 +8,9 @@
 [![Build](https://github.com/malkoch/joatmon/actions/workflows/build.yml/badge.svg)](https://github.com/malkoch/joatmon/actions/workflows/build.yml)
 [![Release](https://github.com/malkoch/joatmon/actions/workflows/release.yml/badge.svg)](https://github.com/malkoch/joatmon/actions/workflows/release.yml)
 
-Welcome to the Joatmon repository! Here you'll find a collection of codes and scripts I've written over the past 6 years, spanning a wide range of topics and applications. From automation and neural networks to OpenAI Gym environments, this repository truly lives up to its name – a jack of all trades.
+Welcome to the Joatmon repository! Here you'll find a collection of codes and scripts I've written over the past 6 years, spanning a wide range of topics and applications. This repository truly lives up to its name – a jack of all trades.
+
+The Joatmon repository is a testament to my journey and exploration in the world of programming and technology. As such, it might not represent best practices, and some parts might be outdated. Use the resources here as a reference or a starting point for your projects, but always exercise due diligence and consider best practices for your specific use case.
 
 ## Disclaimer
 
@@ -28,12 +30,24 @@ Please exercise caution when using the scripts and modules in this repository. W
 
 This repository is a testament to my journey over the years as I've dabbled in various domains of programming and technology. You'll find scripts, modules, and projects covering a wide spectrum, including:
 
-    Automation scripts to simplify repetitive tasks.
-    Neural network implementations for various machine learning experiments.
-    OpenAI Gym environments and reinforcement learning projects.
+    Automation: Collection of scripts for automating repetitive tasks.
+    Neural Networks: Implementations of neural network architectures and training procedures.
+    OpenAI Gym: Code for interacting with and developing agents for the OpenAI Gym environment.
+    ORM (Object-Relational Mapping): Tools for simplifying database interactions using an ORM.
+    Databases: Scripts demonstrating connectivity and operations with different databases.
+    Cache: Implementations of caching mechanisms for optimizing data retrieval.
+    Logger: Utilities for logging and error tracking.
+    Message Queue: Code related to message queuing systems for asynchronous processing.
+    OTP (One-Time Password): Implementations of OTP generation and validation.
+    Authorization: Modules for implementing user authentication and authorization.
+    Intelligent Virtual Assistant: Code for creating an AI-powered virtual assistant.
+    Algorithms & Data Structures: Implementations of various algorithms and data structures.
+    Machine Learning: Supervised, unsupervised, and reinforcement learning algorithm examples.
     And much more!
 
 While the repository is a reflection of my curiosity and eagerness to explore different fields, please be aware that the quality and stability of the scripts may vary. Some of the codes might be outdated due to evolving technologies and practices, and others might not be thoroughly tested.
+
+You can find more information in the [doc](https://joatmon.readthedocs.io/en/latest/).
 
 ## Usage
 
@@ -44,6 +58,7 @@ To make the best use of this repository:
     Contribute: If you find a bug, want to improve existing code, or have a new script to add, contributions are welcome! Please follow the Contributing guidelines below.
 
 ## Contributing
+While contributions to this repository are welcome, please ensure that any additions align with the repository's theme of versatility. Bug fixes, optimizations, and improvements are appreciated.
 
 If you'd like to contribute to Joatmon, follow these steps:
 
@@ -119,4 +134,8 @@ Thank you for exploring Joatmon! Your caution, curiosity, and contributions are 
 ## Disclaimer
 Use these scripts at your own risk. I am not responsible for any damages, losses, or inconveniences caused by the use of these resources. Always prioritize proper testing and validation in your projects.
 
-You can find more information in the [doc](https://joatmon.readthedocs.io/en/latest/).
+Happy coding!
+
+**Hamitcan Malkoç**
+
+For more information or inquiries, please contact me at info@hamitcanmalkoc.com.
