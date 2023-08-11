@@ -2,6 +2,7 @@ import ast
 import importlib
 import os.path
 import re
+import subprocess
 from collections import defaultdict
 from pathlib import Path
 from typing import (
@@ -104,6 +105,8 @@ def automate_mkdocs_from_docstring(
 
     with open(f'{repo_dir}/{mkgendocs_f}', 'w') as mkgen_config:
         mkgen_config.writelines(contents)
+
+    subprocess.Popen(['gendocs',  '--config', 'mkgendocs.yml'])
 
     return f'Added to {mkgendocs_f}: {tuple(functions.values())}.'
 

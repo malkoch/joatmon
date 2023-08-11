@@ -1,36 +1,6 @@
 #
 
 
-## CoreBuffer
-```python 
-CoreBuffer(
-   values, batch_size
-)
-```
-
-
-
-
-**Methods:**
-
-
-### .add
-```python
-.add(
-   element
-)
-```
-
-
-### .sample
-```python
-.sample()
-```
-
-
-----
-
-
 ## CoreMemory
 ```python 
 CoreMemory(
@@ -79,30 +49,6 @@ Sample an experience replay batch with size.
 # Returns
 batch (abstract): Randomly selected batch
 from experience replay memory.
-
-----
-
-
-## RingBuffer
-```python 
-RingBuffer(
-   size, batch_size
-)
-```
-
-
-
-
-**Methods:**
-
-
-### .add
-```python
-.add(
-   element
-)
-```
-
 
 ----
 
