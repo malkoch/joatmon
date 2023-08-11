@@ -24,20 +24,18 @@ extras = {
     'game': ['gym', 'pygame', 'opencv-contrib-python', 'pymunk'],
     'image': [],
     'memory': [],
-    'message': ["websockets==8.1", 'yaml'],
     'nn': [],
     'noise': [],
     'orm': [],
     'plugin': ['pyjwt', 'redis', 'couchbase', 'elasticsearch', 'pymongo', 'psycopg2', 'pykafka', 'pyotp'],
     'policy': [],
     'random': [],
-    'vnc': [],
     'search': ['requests'],
-    'structure': [],
     'serializable': [],
+    'structure': [],
+    'system': ['opencv-contrib-python', 'numpy', 'elevenlabs', 'openai', 'SpeechRecognition', 'whisper', 'pyttsx3'],
     'utility': [],
     'version': [],
-    'system': ['opencv-contrib-python', 'numpy', 'elevenlabs', 'openai', 'SpeechRecognition', 'whisper', 'pyttsx3'],
 }
 if sys.platform == 'win32':
     extras['system'].extend(['pywin32'])
