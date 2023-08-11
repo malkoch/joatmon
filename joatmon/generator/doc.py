@@ -1,5 +1,6 @@
 import ast
 import importlib
+import importlib.util
 import os.path
 import re
 import subprocess
@@ -9,7 +10,6 @@ from typing import (
     get_type_hints,
     Union
 )
-import importlib.util
 
 
 def automate_mkdocs_from_docstring(
@@ -48,6 +48,8 @@ def automate_mkdocs_from_docstring(
                 if child.name not in ['main']:
                     # module = importlib.import_module(script.stem)
                     spec = importlib.util.spec_from_file_location(script.stem, script)
+                    if spec is None or spec.loader is None:
+                        continue
                     module = importlib.util.module_from_spec(spec)
                     spec.loader.exec_module(module)
                     f_ = getattr(module, child.name)
@@ -57,6 +59,8 @@ def automate_mkdocs_from_docstring(
                 if child.name not in ['main']:
                     # module = importlib.import_module(script.stem)
                     spec = importlib.util.spec_from_file_location(script.stem, script)
+                    if spec is None or spec.loader is None:
+                        continue
                     module = importlib.util.module_from_spec(spec)
                     spec.loader.exec_module(module)
                     f_ = getattr(module, child.name)
@@ -106,7 +110,7 @@ def automate_mkdocs_from_docstring(
     with open(f'{repo_dir}/{mkgendocs_f}', 'w') as mkgen_config:
         mkgen_config.writelines(contents)
 
-    subprocess.Popen(['gendocs',  '--config', 'mkgendocs.yml'])
+    subprocess.Popen(['gendocs', '--config', 'mkgendocs.yml'])
 
     return f'Added to {mkgendocs_f}: {tuple(functions.values())}.'
 
@@ -153,6 +157,8 @@ def docstring_from_type_hints(repo_dir: Path, overwrite_script: bool = False, te
                     docstring_node = child.body[0]
                     # module = importlib.import_module(script.stem)
                     spec = importlib.util.spec_from_file_location(script.stem, script)
+                    if spec is None or spec.loader is None:
+                        continue
                     module = importlib.util.module_from_spec(spec)
                     spec.loader.exec_module(module)
 
@@ -318,7 +324,7 @@ def docstring_from_type_hints(repo_dir: Path, overwrite_script: bool = False, te
 
         if overwrite_script:
             if test:
-                script = f'{repo_dir}/test_it.py'
+                script = repo_dir.joinpath('test_it.py')
             with open(script, 'w') as script_file:
                 script_file.writelines(script_lines)
 
