@@ -5,8 +5,8 @@
 [![codecov](https://codecov.io/gh/malkoch/joatmon/branch/master/graph/badge.svg?token=LLMWHT1CN1)](https://codecov.io/gh/malkoch/joatmon)
 ![GitHub](https://img.shields.io/github/license/malkoch/joatmon)
 [![Pylint](https://github.com/malkoch/joatmon/actions/workflows/pylint.yml/badge.svg)](https://github.com/malkoch/joatmon/actions/workflows/pylint.yml)
-[![Python package](https://github.com/malkoch/joatmon/actions/workflows/package.yml/badge.svg)](https://github.com/malkoch/joatmon/actions/workflows/package.yml)
-[![Upload Python Package](https://github.com/malkoch/joatmon/actions/workflows/release.yml/badge.svg)](https://github.com/malkoch/joatmon/actions/workflows/release.yml)
+[![Package](https://github.com/malkoch/joatmon/actions/workflows/package.yml/badge.svg)](https://github.com/malkoch/joatmon/actions/workflows/package.yml)
+[![Release](https://github.com/malkoch/joatmon/actions/workflows/release.yml/badge.svg)](https://github.com/malkoch/joatmon/actions/workflows/release.yml)
 
 Welcome to the Joatmon repository! Here you'll find a collection of codes and scripts I've written over the past 6 years, spanning a wide range of topics and applications. From automation and neural networks to OpenAI Gym environments, this repository truly lives up to its name – a jack of all trades.
 
