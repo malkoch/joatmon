@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class CoreRandom(object):
+class CoreNoise(object):
     """
     Abstract base class for all implemented random processes.
 
@@ -17,7 +17,7 @@ class CoreRandom(object):
     """
 
     def __init__(self):
-        super(CoreRandom, self).__init__()
+        super(CoreNoise, self).__init__()
 
     def reset(self):
         """
@@ -42,7 +42,7 @@ class CoreRandom(object):
 
 
 # another class to make the noise decayed, parent class for all
-class GaussianRandom(CoreRandom):
+class GaussianRandom(CoreNoise):
     """
     Gaussian Noise
 
@@ -82,7 +82,7 @@ class GaussianRandom(CoreRandom):
         return x
 
 
-class OrnsteinUhlenbeck(CoreRandom):
+class OrnsteinUhlenbeck(CoreNoise):
     """
     Ornstein Uhlenbeck Process
 

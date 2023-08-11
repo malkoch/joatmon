@@ -14,7 +14,7 @@ def test_core_policy_use_network():
 
 
 def test_epsilon_greedy_policy_decay():
-    from joatmon.policy import EpsilonGreedyPolicy
+    from joatmon.ai.policy import EpsilonGreedyPolicy
 
     policy = EpsilonGreedyPolicy()
     policy.decay()
@@ -23,7 +23,7 @@ def test_epsilon_greedy_policy_decay():
 
 
 def test_epsilon_greedy_policy_reset():
-    from joatmon.policy import EpsilonGreedyPolicy
+    from joatmon.ai.policy import EpsilonGreedyPolicy
 
     policy = EpsilonGreedyPolicy()
     policy.reset()
@@ -32,7 +32,7 @@ def test_epsilon_greedy_policy_reset():
 
 
 def test_epsilon_greedy_policy_use_network():
-    from joatmon.policy import EpsilonGreedyPolicy
+    from joatmon.ai.policy import EpsilonGreedyPolicy
 
     policy = EpsilonGreedyPolicy()
     policy.use_network()
@@ -41,7 +41,7 @@ def test_epsilon_greedy_policy_use_network():
 
 
 def test_greedy_q_policy_decay():
-    from joatmon.policy import GreedyQPolicy
+    from joatmon.ai.policy import GreedyQPolicy
 
     policy = GreedyQPolicy()
     policy.decay()
@@ -50,7 +50,7 @@ def test_greedy_q_policy_decay():
 
 
 def test_greedy_q_policy_reset():
-    from joatmon.policy import GreedyQPolicy
+    from joatmon.ai.policy import GreedyQPolicy
 
     policy = GreedyQPolicy()
     policy.reset()
@@ -59,7 +59,7 @@ def test_greedy_q_policy_reset():
 
 
 def test_greedy_q_policy_use_network():
-    from joatmon.policy import GreedyQPolicy
+    from joatmon.ai.policy import GreedyQPolicy
 
     policy = GreedyQPolicy()
     policy.use_network()

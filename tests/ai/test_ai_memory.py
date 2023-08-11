@@ -2,7 +2,7 @@ import pytest
 
 
 def test_core_buffer_add():
-    from joatmon.memory import CoreBuffer
+    from joatmon.ai.memory import CoreBuffer
 
     buffer = CoreBuffer([], 5)
     buffer.add(1)
@@ -10,7 +10,7 @@ def test_core_buffer_add():
 
 
 def test_core_buffer_sample():
-    from joatmon.memory import CoreBuffer
+    from joatmon.ai.memory import CoreBuffer
 
     buffer = CoreBuffer([], 5)
     buffer.add(1)
@@ -24,7 +24,7 @@ def test_core_buffer_sample():
 
 
 def test_core_memory_remember():
-    from joatmon.memory import CoreMemory, CoreBuffer
+    from joatmon.ai.memory import CoreMemory, CoreBuffer
 
     buffer = CoreBuffer([], 5)
     memory = CoreMemory(buffer, 5)
@@ -34,7 +34,7 @@ def test_core_memory_remember():
 
 
 def test_core_memory_sample():
-    from joatmon.memory import CoreMemory, CoreBuffer
+    from joatmon.ai.memory import CoreMemory, CoreBuffer
 
     buffer = CoreBuffer([], 5)
     memory = CoreMemory(buffer, 5)
@@ -49,7 +49,7 @@ def test_core_memory_sample():
 
 
 def test_ring_buffer_add():
-    from joatmon.memory import RingBuffer
+    from joatmon.ai.memory import RingBuffer
 
     buffer = RingBuffer(10, 5)
     buffer.add(1)
@@ -58,7 +58,7 @@ def test_ring_buffer_add():
 
 
 def test_ring_buffer_sample():
-    from joatmon.memory import RingBuffer
+    from joatmon.ai.memory import RingBuffer
 
     buffer = RingBuffer(10, 5)
     buffer.add(1)
@@ -72,7 +72,7 @@ def test_ring_buffer_sample():
 
 
 def test_ring_memory_remember():
-    from joatmon.memory import RingMemory
+    from joatmon.ai.memory import RingMemory
 
     memory = RingMemory(5, 10)
     memory.remember(1)
@@ -81,7 +81,7 @@ def test_ring_memory_remember():
 
 
 def test_ring_memory_sample():
-    from joatmon.memory import RingMemory
+    from joatmon.ai.memory import RingMemory
 
     memory = RingMemory(5, 10)
     memory.remember(1)

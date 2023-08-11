@@ -3,31 +3,72 @@
 [![Documentation Status](https://readthedocs.org/projects/joatmon/badge/?version=latest)](https://joatmon.readthedocs.io/en/latest/?badge=latest)
 [![PyPI version](https://badge.fury.io/py/joatmon.svg)](https://badge.fury.io/py/joatmon)
 [![codecov](https://codecov.io/gh/malkoch/joatmon/branch/master/graph/badge.svg?token=LLMWHT1CN1)](https://codecov.io/gh/malkoch/joatmon)
-[![GitHub license](https://img.shields.io/github/license/malkoch/joatmon)](https://github.com/malkoch/joatmon/blob/master/LICENSE)
+![GitHub](https://img.shields.io/github/license/malkoch/joatmon)
 [![Pylint](https://github.com/malkoch/joatmon/actions/workflows/pylint.yml/badge.svg)](https://github.com/malkoch/joatmon/actions/workflows/pylint.yml)
-[![Python package](https://github.com/malkoch/joatmon/actions/workflows/python-package.yml/badge.svg)](https://github.com/malkoch/joatmon/actions/workflows/python-package.yml)
-[![Upload Python Package](https://github.com/malkoch/joatmon/actions/workflows/python-publish.yml/badge.svg)](https://github.com/malkoch/joatmon/actions/workflows/python-publish.yml)
+[![Build](https://github.com/malkoch/joatmon/actions/workflows/build.yml/badge.svg)](https://github.com/malkoch/joatmon/actions/workflows/build.yml)
+[![Release](https://github.com/malkoch/joatmon/actions/workflows/release.yml/badge.svg)](https://github.com/malkoch/joatmon/actions/workflows/release.yml)
 
-## What is included?
+Welcome to the Joatmon repository! Here you'll find a collection of codes and scripts I've written over the past 6 years, spanning a wide range of topics and applications. This repository truly lives up to its name â€“ a jack of all trades.
 
-As of today, the following algorithms have been implemented:
+The Joatmon repository is a testament to my journey and exploration in the world of programming and technology. As such, it might not represent best practices, and some parts might be outdated. Use the resources here as a reference or a starting point for your projects, but always exercise due diligence and consider best practices for your specific use case.
 
-As of today, the following environments have been implemented:
+## Disclaimer
 
-- [ ] Rubick's Cube
-- [ ] 2048 Puzzle
-- [x] Sokoban
-- [ ] Game of 15
-- [ ] Chess
+Please exercise caution when using the scripts and modules in this repository. While I've put in a lot of effort to create these resources, they might contain bugs, glitches, or unforeseen issues. It's essential to thoroughly review and test any code you intend to use in your projects. I strongly recommend not using these scripts in production environments without proper testing and validation.
 
-As of today, the following networks have been implemented:
+## Table of Contents
+    About the Repository
+    Usage
+    Contributing
+    Installation
+    Examples
+    How to run the tests
+    License
+    Disclaimer
 
-- [x] DQN [[1]](http://arxiv.org/abs/1312.5602)
-- [x] DDPG [[2]](http://arxiv.org/abs/1509.02971)
-- [x] TD3
-- [ ] PPO
+## About the Repository
+
+This repository is a testament to my journey over the years as I've dabbled in various domains of programming and technology. You'll find scripts, modules, and projects covering a wide spectrum, including:
+
+    Automation: Collection of scripts for automating repetitive tasks.
+    Neural Networks: Implementations of neural network architectures and training procedures.
+    OpenAI Gym: Code for interacting with and developing agents for the OpenAI Gym environment.
+    ORM (Object-Relational Mapping): Tools for simplifying database interactions using an ORM.
+    Databases: Scripts demonstrating connectivity and operations with different databases.
+    Cache: Implementations of caching mechanisms for optimizing data retrieval.
+    Logger: Utilities for logging and error tracking.
+    Message Queue: Code related to message queuing systems for asynchronous processing.
+    OTP (One-Time Password): Implementations of OTP generation and validation.
+    Authorization: Modules for implementing user authentication and authorization.
+    Intelligent Virtual Assistant: Code for creating an AI-powered virtual assistant.
+    Algorithms & Data Structures: Implementations of various algorithms and data structures.
+    Machine Learning: Supervised, unsupervised, and reinforcement learning algorithm examples.
+    And much more!
+
+While the repository is a reflection of my curiosity and eagerness to explore different fields, please be aware that the quality and stability of the scripts may vary. Some of the codes might be outdated due to evolving technologies and practices, and others might not be thoroughly tested.
 
 You can find more information in the [doc](https://joatmon.readthedocs.io/en/latest/).
+
+## Usage
+
+To make the best use of this repository:
+
+    Review Code Thoroughly: Carefully review the code and scripts you're interested in before integrating them into your projects. This will help you understand their functionality and potential pitfalls.
+    Test Rigorously: Before deploying any code to production or critical systems, conduct thorough testing in controlled environments to identify and rectify any issues.
+    Contribute: If you find a bug, want to improve existing code, or have a new script to add, contributions are welcome! Please follow the Contributing guidelines below.
+
+## Contributing
+While contributions to this repository are welcome, please ensure that any additions align with the repository's theme of versatility. Bug fixes, optimizations, and improvements are appreciated.
+
+If you'd like to contribute to Joatmon, follow these steps:
+
+    Fork the repository.
+    Create a new branch for your changes: git checkout -b feature/your-feature-name.
+    Make your modifications and improvements.
+    Test your changes rigorously.
+    Commit your changes: git commit -m "Add your meaningful commit message here".
+    Push to the branch: git push origin feature/your-feature-name.
+    Open a Pull Request in this repository, detailing your changes and the motivation behind them.
 
 ## Installation
 
@@ -84,23 +125,17 @@ If you want to check the code coverage, run the following command:
 py.test --cov=joatmon tests/
 ```
 
-## References
+## License
 
-1. Mnih, Volodymyr, et al. "Playing atari with deep reinforcement learning." *arXiv preprint arXiv:1312.5602* (2013).
-2. Lillicrap, Timothy P., et al. "Continuous control with deep reinforcement learning." *arXiv preprint arXiv:
-   1509.02971* (2015).
-3. Fujimoto, Scott, Herke van Hoof, and David Meger. "Addressing function approximation error in actor-critic
-   methods." *arXiv preprint arXiv:1802.09477* (2018).
-4. Krizhevsky, Alex, Ilya Sutskever, and Geoffrey E. Hinton. "Imagenet classification with deep convolutional neural
-   networks." *Advances in neural information processing systems.* 2012.
-5. Goodfellow, Ian, et al. "Generative adversarial nets." *Advances in neural information processing systems.* 2014.
-6. Mirza, Mehdi, and Simon Osindero. "Conditional generative adversarial nets." *arXiv preprint arXiv:1411.1784* (2014).
-7. Karras, Tero, et al. "Progressive growing of gans for improved quality, stability, and variation." *arXiv preprint
-   arXiv:1710.10196* (2017).
-8. He, Kaiming, et al. "Deep residual learning for image recognition." *Proceedings of the IEEE conference on computer
-   vision and pattern recognition.* 2016.
-9. Ronneberger, Olaf, Philipp Fischer, and Thomas Brox. "U-net: Convolutional networks for biomedical image
-   segmentation." *International Conference on Medical image computing and computer-assisted intervention.* Springer,
-   Cham, 2015.
-10. Simonyan, Karen, and Andrew Zisserman. "Very deep convolutional networks for large-scale image recognition." *arXiv
-    preprint arXiv:1409.1556* (2014).
+This repository is available under the MIT License. However, please be aware that the license applies to the codebase as it exists at the time of your usage. Some portions of the code might have their own licenses or restrictions. Make sure to review and respect the licensing terms of any third-party libraries or assets used in the scripts.
+
+Thank you for exploring Joatmon! Your caution, curiosity, and contributions are highly appreciated.
+
+## Disclaimer
+Use these scripts at your own risk. I am not responsible for any damages, losses, or inconveniences caused by the use of these resources. Always prioritize proper testing and validation in your projects.
+
+Happy coding!
+
+**Hamitcan MalkoÃ§**
+
+For more information or inquiries, please contact me at info@hamitcanmalkoc.com.

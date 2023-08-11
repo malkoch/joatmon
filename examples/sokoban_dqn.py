@@ -13,8 +13,8 @@ from joatmon.callback import (
 from joatmon.game.sokoban import (
     SokobanEnv
 )
-from joatmon.memory import RingMemory
-from joatmon.policy import (
+from joatmon.ai.memory import RingMemory
+from joatmon.ai.policy import (
     EpsilonGreedyPolicy as EGreedy,
     GreedyQPolicy as GreedyQ
 )

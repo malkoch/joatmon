@@ -1,7 +1,7 @@
 #
 
 
-## CoreRandom
+## CoreNoise
 ```python 
 
 ```

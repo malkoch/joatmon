@@ -14,8 +14,8 @@ from joatmon.callback import (
     ValidationLogger
 )
 from joatmon.game import SokobanEnv
-from joatmon.memory import RingMemory
-from joatmon.random import OrnsteinUhlenbeck as RandomProcess
+from joatmon.ai.memory import RingMemory
+from joatmon.ai.random import OrnsteinUhlenbeck as RandomProcess
 
 
 def create_env():

@@ -14,7 +14,7 @@ def test_core_random_sample():
 
 
 def test_gaussian_random_decay():
-    from joatmon.random import GaussianRandom
+    from joatmon.ai.random import GaussianRandom
 
     random = GaussianRandom()
     random.decay()
@@ -23,7 +23,7 @@ def test_gaussian_random_decay():
 
 
 def test_gaussian_random_reset():
-    from joatmon.random import GaussianRandom
+    from joatmon.ai.random import GaussianRandom
 
     random = GaussianRandom()
     random.reset()
@@ -32,7 +32,7 @@ def test_gaussian_random_reset():
 
 
 def test_gaussian_random_sample():
-    from joatmon.random import GaussianRandom
+    from joatmon.ai.random import GaussianRandom
 
     random = GaussianRandom()
     random.sample()
@@ -41,7 +41,7 @@ def test_gaussian_random_sample():
 
 
 def test_ornstein_uhlenbeck_decay():
-    from joatmon.random import OrnsteinUhlenbeck
+    from joatmon.ai.random import OrnsteinUhlenbeck
 
     random = OrnsteinUhlenbeck()
     random.decay()
@@ -50,7 +50,7 @@ def test_ornstein_uhlenbeck_decay():
 
 
 def test_ornstein_uhlenbeck_reset():
-    from joatmon.random import OrnsteinUhlenbeck
+    from joatmon.ai.random import OrnsteinUhlenbeck
 
     random = OrnsteinUhlenbeck()
     random.reset()
@@ -59,7 +59,7 @@ def test_ornstein_uhlenbeck_reset():
 
 
 def test_ornstein_uhlenbeck_sample():
-    from joatmon.random import OrnsteinUhlenbeck
+    from joatmon.ai.random import OrnsteinUhlenbeck
 
     random = OrnsteinUhlenbeck()
     random.sample()
