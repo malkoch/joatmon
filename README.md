@@ -5,8 +5,8 @@
 [![codecov](https://codecov.io/gh/malkoch/joatmon/branch/master/graph/badge.svg?token=LLMWHT1CN1)](https://codecov.io/gh/malkoch/joatmon)
 [![GitHub license](https://img.shields.io/github/license/malkoch/joatmon)](https://github.com/malkoch/joatmon/blob/master/LICENSE)
 [![Pylint](https://github.com/malkoch/joatmon/actions/workflows/pylint.yml/badge.svg)](https://github.com/malkoch/joatmon/actions/workflows/pylint.yml)
-[![Python package](https://github.com/malkoch/joatmon/actions/workflows/python-package.yml/badge.svg)](https://github.com/malkoch/joatmon/actions/workflows/python-package.yml)
-[![Upload Python Package](https://github.com/malkoch/joatmon/actions/workflows/python-publish.yml/badge.svg)](https://github.com/malkoch/joatmon/actions/workflows/python-publish.yml)
+[![Python package](https://github.com/malkoch/joatmon/actions/workflows/package.yml/badge.svg)](https://github.com/malkoch/joatmon/actions/workflows/package.yml)
+[![Upload Python Package](https://github.com/malkoch/joatmon/actions/workflows/release.yml/badge.svg)](https://github.com/malkoch/joatmon/actions/workflows/release.yml)
 
 ## What is included?
 
