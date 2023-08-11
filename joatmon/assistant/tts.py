@@ -28,5 +28,6 @@ class TTSAgent:
                 voice=json.loads(open('iva/iva.json', 'r').read())['config']['elevenlabs']['voice'],
                 model=json.loads(open('iva/iva.json', 'r').read())['config']['elevenlabs']['model']
             )
+            open(text_audio_path, 'wb').write(audio)
 
         return audio
