@@ -23,8 +23,6 @@ jobs:
           sudo apt install libcurl4-openssl-dev libssl-dev
           python -m pip install --upgrade pip
           python -m pip install flake8 pytest pytest-cov
-          python -m pip install mkgendocs
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           pip install .[all]
       - name: Lint with flake8
         run: |
