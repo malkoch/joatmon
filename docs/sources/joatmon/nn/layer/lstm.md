@@ -2,7 +2,7 @@
 
 
 ## LSTMCell
-```python
+```python 
 LSTMCell(
    input_size: int, hidden_size: int
 )
@@ -144,7 +144,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## LSTM
-```python
+```python 
 LSTM(
    input_size: int, hidden_size: int, num_layers: int = 1
 )

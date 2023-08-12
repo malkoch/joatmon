@@ -2,7 +2,7 @@
 
 
 ## KafkaPlugin
-```python
+```python 
 KafkaPlugin(
    host
 )

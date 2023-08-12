@@ -2,7 +2,7 @@
 
 
 ## MongoDatabase
-```python
+```python 
 MongoDatabase(
    uri, database
 )

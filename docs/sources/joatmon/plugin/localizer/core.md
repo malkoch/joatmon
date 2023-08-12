@@ -2,7 +2,7 @@
 
 
 ## Localizer
-```python
+```python 
 Localizer()
 ```
 

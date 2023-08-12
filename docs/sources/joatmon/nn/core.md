@@ -2,7 +2,7 @@
 
 
 ## ModuleAttributeException
-```python
+```python 
 ModuleAttributeException()
 ```
 
@@ -24,7 +24,7 @@ gamma (float): gamma.
 
 
 ## RemovableHandle
-```python
+```python 
 RemovableHandle(
    hooks_dict: Any
 )
@@ -55,7 +55,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## Tensor
-```python
+```python 
 Tensor(
    data = None, requires_grad = None
 )
@@ -730,7 +730,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## Parameter
-```python
+```python 
 Parameter(
    data = None, requires_grad = True
 )
@@ -754,7 +754,7 @@ gamma (float): gamma.
 
 
 ## Module
-```python
+```python 
 
 ```
 
@@ -1066,7 +1066,7 @@ strings are acceptable.
 
 
 ## Loss
-```python
+```python 
 Loss(
    size_average = None, reduce = None, reduction: str = 'mean'
 )
@@ -1090,7 +1090,7 @@ gamma (float): gamma.
 
 
 ## Sequential
-```python
+```python 
 Sequential(
    *args: Any
 )
@@ -1133,7 +1133,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## Optimizer
-```python
+```python 
 Optimizer(
    params, defaults
 )
@@ -1204,7 +1204,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## LRScheduler
-```python
+```python 
 LRScheduler(
    optimizer, last_epoch = -1, verbose = False
 )

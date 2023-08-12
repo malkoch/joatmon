@@ -2,7 +2,7 @@
 
 
 ## MaxPool
-```python
+```python 
 MaxPool(
    kernel_size, stride, padding
 )

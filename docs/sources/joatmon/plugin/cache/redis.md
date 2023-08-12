@@ -2,7 +2,7 @@
 
 
 ## RedisCache
-```python
+```python 
 RedisCache(
    host: str, port: int, password: str
 )

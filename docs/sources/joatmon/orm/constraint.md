@@ -2,7 +2,7 @@
 
 
 ## ValidationException
-```python
+```python 
 ValidationException()
 ```
 
@@ -24,7 +24,7 @@ gamma (float): gamma.
 
 
 ## Constraint
-```python
+```python 
 Constraint(
    field, validator = None
 )
@@ -82,7 +82,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## LengthConstraint
-```python
+```python 
 LengthConstraint(
    field, min_length = None, max_length = None
 )
@@ -106,7 +106,7 @@ gamma (float): gamma.
 
 
 ## IntegerValueConstraint
-```python
+```python 
 IntegerValueConstraint(
    field, min_value = None, max_value = None
 )
@@ -130,7 +130,7 @@ gamma (float): gamma.
 
 
 ## PrimaryKeyConstraint
-```python
+```python 
 PrimaryKeyConstraint(
    field
 )
@@ -154,7 +154,7 @@ gamma (float): gamma.
 
 
 ## ForeignKeyConstrain
-```python
+```python 
 ForeignKeyConstrain()
 ```
 
@@ -176,7 +176,7 @@ gamma (float): gamma.
 
 
 ## UniqueConstraint
-```python
+```python 
 UniqueConstraint(
    field
 )
@@ -200,7 +200,7 @@ gamma (float): gamma.
 
 
 ## CustomConstraint
-```python
+```python 
 CustomConstraint(
    field, validator = lambdax: True
 )

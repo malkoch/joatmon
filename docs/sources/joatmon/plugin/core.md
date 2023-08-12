@@ -2,7 +2,7 @@
 
 
 ## Plugin
-```python
+```python 
 Plugin()
 ```
 
@@ -24,7 +24,7 @@ gamma (float): gamma.
 
 
 ## PluginProxy
-```python
+```python 
 PluginProxy(
    cls, *args, **kwargs
 )
@@ -53,3 +53,4 @@ gamma (float): gamma.
    cls, alias, *args, **kwargs
 )
 ```
+

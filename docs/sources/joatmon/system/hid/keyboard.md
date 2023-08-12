@@ -2,7 +2,7 @@
 
 
 ## KeyBdInput
-```python
+```python 
 KeyBdInput()
 ```
 
@@ -24,7 +24,7 @@ gamma (float): gamma.
 
 
 ## HardwareInput
-```python
+```python 
 HardwareInput()
 ```
 
@@ -46,7 +46,7 @@ gamma (float): gamma.
 
 
 ## MouseInput
-```python
+```python 
 MouseInput()
 ```
 
@@ -68,7 +68,7 @@ gamma (float): gamma.
 
 
 ## POINT
-```python
+```python 
 POINT()
 ```
 
@@ -90,7 +90,7 @@ gamma (float): gamma.
 
 
 ## InputI
-```python
+```python 
 InputI()
 ```
 
@@ -112,7 +112,7 @@ gamma (float): gamma.
 
 
 ## Input
-```python
+```python 
 Input()
 ```
 
@@ -134,7 +134,7 @@ gamma (float): gamma.
 
 
 ## Keyboard
-```python
+```python 
 Keyboard()
 ```
 

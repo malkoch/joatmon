@@ -2,7 +2,7 @@
 
 
 ## CouchBaseDatabase
-```python
+```python 
 CouchBaseDatabase(
    uri, bucket, scope, username, password
 )

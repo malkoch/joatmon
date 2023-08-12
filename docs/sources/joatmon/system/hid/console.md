@@ -2,7 +2,7 @@
 
 
 ## ConsoleReader
-```python
+```python 
 
 ```
 
@@ -41,7 +41,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## ConsoleWriter
-```python
+```python 
 
 ```
 

@@ -2,7 +2,7 @@
 
 
 ## JWTAuth
-```python
+```python 
 JWTAuth(
    secret: str
 )

@@ -2,7 +2,7 @@
 
 
 ## TerminalLogger
-```python
+```python 
 TerminalLogger(
    level: str, language, ip
 )

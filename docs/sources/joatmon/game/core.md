@@ -2,7 +2,7 @@
 
 
 ## CoreSpace
-```python
+```python 
 CoreSpace(
    shape = None, dtype = None
 )
@@ -73,7 +73,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## CoreEnv
-```python
+```python 
 
 ```
 

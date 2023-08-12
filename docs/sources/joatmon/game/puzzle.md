@@ -2,7 +2,7 @@
 
 
 ## Puzzle2048
-```python
+```python 
 Puzzle2048(
    size
 )

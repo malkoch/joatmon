@@ -2,7 +2,7 @@
 
 
 ## ModuleEntry32
-```python
+```python 
 ModuleEntry32()
 ```
 
@@ -24,7 +24,7 @@ gamma (float): gamma.
 
 
 ## MemoryBasicInformation
-```python
+```python 
 MemoryBasicInformation()
 ```
 
@@ -46,7 +46,7 @@ gamma (float): gamma.
 
 
 ## SystemInfo
-```python
+```python 
 SystemInfo()
 ```
 
@@ -68,7 +68,7 @@ gamma (float): gamma.
 
 
 ## SecurityDescriptor
-```python
+```python 
 SecurityDescriptor()
 ```
 
@@ -90,7 +90,7 @@ gamma (float): gamma.
 
 
 ## Th32csClass
-```python
+```python 
 Th32csClass()
 ```
 

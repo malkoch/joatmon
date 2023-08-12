@@ -2,7 +2,7 @@
 
 
 ## DatabasePlugin
-```python
+```python 
 DatabasePlugin()
 ```
 

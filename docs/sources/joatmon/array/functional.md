@@ -2,7 +2,7 @@
 
 
 ## Broadcast
-```python
+```python 
 Broadcast(
    inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT]
 )

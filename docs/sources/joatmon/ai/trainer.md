@@ -2,7 +2,7 @@
 
 
 ## DQNTrainer
-```python
+```python 
 DQNTrainer(
    environment, memory, processor, model, callbacks, test_policy, train_policy,
    her = False, action_num = 4
@@ -104,7 +104,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## DDPGTrainer
-```python
+```python 
 DDPGTrainer(
    environment, random_process, processor, memory, model, callbacks, her = False
 )
@@ -191,7 +191,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## TD3Trainer
-```python
+```python 
 TD3Trainer(
    environment, random_process, processor, memory, model, callbacks, her = False
 )

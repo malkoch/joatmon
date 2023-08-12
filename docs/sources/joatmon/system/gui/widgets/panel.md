@@ -2,7 +2,7 @@
 
 
 ## Panel
-```python
+```python 
 Panel()
 ```
 

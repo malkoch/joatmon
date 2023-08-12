@@ -2,7 +2,7 @@
 
 
 ## CoreModel
-```python
+```python 
 
 ```
 

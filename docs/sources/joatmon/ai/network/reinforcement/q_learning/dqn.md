@@ -2,7 +2,7 @@
 
 
 ## DQN
-```python
+```python 
 DQN(
    in_features, out_features
 )

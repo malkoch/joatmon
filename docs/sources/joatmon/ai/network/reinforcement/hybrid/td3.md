@@ -2,7 +2,7 @@
 
 
 ## TD3Actor
-```python
+```python 
 TD3Actor(
    in_features, out_features
 )
@@ -45,7 +45,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## TD3Critic
-```python
+```python 
 TD3Critic(
    in_features, out_features
 )
