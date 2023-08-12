@@ -7,7 +7,7 @@ import numpy
 __all__ = ['resolution', 'cursor', 'grab']
 
 if sys.platform != 'win32':
-    raise Exception('The screen module should only be used on a Windows system.')
+    raise RuntimeWarning('The screen module should only be used on a Windows system.')
 
 
 class POINT(ctypes.Structure):

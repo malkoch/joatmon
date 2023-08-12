@@ -6,7 +6,7 @@ from joatmon.system.decorators import auto_pause
 __all__ = ['Keyboard']
 
 if sys.platform != 'win32':
-    raise Exception('The keyboard module should only be used on a Windows system.')
+    raise RuntimeWarning('The keyboard module should only be used on a Windows system.')
 
 SendInput = ctypes.windll.user32.SendInput
 MapVirtualKey = ctypes.windll.user32.MapVirtualKeyW

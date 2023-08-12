@@ -10,7 +10,7 @@ from joatmon.system.hid.screen import (
 __all__ = ['Mouse']
 
 if sys.platform != 'win32':
-    raise Exception('The mouse module should only be used on a Windows system.')
+    raise RuntimeWarning('The mouse module should only be used on a Windows system.')
 
 
 @auto_pause(duration=0.05)
