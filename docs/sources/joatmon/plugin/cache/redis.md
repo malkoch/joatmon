@@ -2,13 +2,25 @@
 
 
 ## RedisCache
-```python 
+```python
 RedisCache(
    host: str, port: int, password: str
 )
 ```
 
 
+---
+Deep Deterministic Policy Gradient
+
+# Arguments
+actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+optimizer (`keras.optimizers.Optimizer` instance):
+See [Optimizer](#) for details.
+action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+See [Input](#) for details.
+tau (float): tau.
+gamma (float): gamma.
 
 
 **Methods:**
@@ -21,6 +33,13 @@ RedisCache(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .get
 ```python
@@ -29,6 +48,13 @@ RedisCache(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .update
 ```python
@@ -37,6 +63,13 @@ RedisCache(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .remove
 ```python
@@ -45,3 +78,10 @@ RedisCache(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.

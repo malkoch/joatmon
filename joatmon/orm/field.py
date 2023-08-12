@@ -2,27 +2,38 @@ import re
 import typing
 import uuid
 from datetime import datetime
-from time import (
-    mktime,
-    struct_time
-)
+from time import mktime, struct_time
 
 from joatmon.serializable import Serializable
 from joatmon.utility import to_enumerable
 
 
 class Field(Serializable):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(
-            self,
-            dtype: typing.Union[type, typing.List, typing.Tuple],
-            nullable: bool = True,
-            default=None,
-            primary: bool = False,
-            encrypt: bool = False,
-            hash_: bool = False,
-            resource: str = None,
-            regex: str = None,
-            fields: dict = None
+        self,
+        dtype: typing.Union[type, typing.List, typing.Tuple],
+        nullable: bool = True,
+        default=None,
+        primary: bool = False,
+        encrypt: bool = False,
+        hash_: bool = False,
+        resource: str = None,
+        regex: str = None,
+        fields: dict = None,
     ):
         super(Field, self).__init__()
 
@@ -47,6 +58,15 @@ class Field(Serializable):
 
 
 def get_converter(field: Field):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+
     def _datetime_converter(value: object) -> typing.Optional[datetime]:
         if value is None:
             return value
@@ -246,7 +266,7 @@ def get_converter(field: Field):
         list: _list_converter,
         tuple: _tuple_converter,
         set: _set_converter,
-        object: _object_converter
+        object: _object_converter,
     }
 
     return converters.get(field.dtype, _object_converter)

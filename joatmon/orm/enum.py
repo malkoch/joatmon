@@ -1,16 +1,24 @@
 import sys
-from enum import (
-    EnumMeta,
-    IntEnum
-)
+from enum import EnumMeta, IntEnum
 
-from joatmon.utility import (
-    to_pascal_string,
-    to_snake_string
-)
+from joatmon.utility import to_pascal_string, to_snake_string
 
 
 class Meta(EnumMeta):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __contains__(self, item):
         try:
             self(item)
@@ -21,6 +29,20 @@ class Meta(EnumMeta):
 
 
 class Enum(IntEnum, metaclass=Meta):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __int__(self):
         return self.value
 
@@ -57,6 +79,14 @@ class Enum(IntEnum, metaclass=Meta):
 
     @staticmethod
     def parse(value: str):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         type_name, attribute_name = value.split('.')
         type_name = to_pascal_string(type_name)
 

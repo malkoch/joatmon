@@ -2,23 +2,47 @@
 
 
 ## ValidationException
-```python 
+```python
 ValidationException()
 ```
 
 
+---
+Deep Deterministic Policy Gradient
+
+# Arguments
+actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+optimizer (`keras.optimizers.Optimizer` instance):
+See [Optimizer](#) for details.
+action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+See [Input](#) for details.
+tau (float): tau.
+gamma (float): gamma.
 
 ----
 
 
 ## Constraint
-```python 
+```python
 Constraint(
    field, validator = None
 )
 ```
 
 
+---
+Deep Deterministic Policy Gradient
+
+# Arguments
+actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+optimizer (`keras.optimizers.Optimizer` instance):
+See [Optimizer](#) for details.
+action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+See [Input](#) for details.
+tau (float): tau.
+gamma (float): gamma.
 
 
 **Methods:**
@@ -31,6 +55,13 @@ Constraint(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .check
 ```python
@@ -39,73 +70,152 @@ Constraint(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ----
 
 
 ## LengthConstraint
-```python 
+```python
 LengthConstraint(
    field, min_length = None, max_length = None
 )
 ```
 
 
+---
+Deep Deterministic Policy Gradient
+
+# Arguments
+actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+optimizer (`keras.optimizers.Optimizer` instance):
+See [Optimizer](#) for details.
+action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+See [Input](#) for details.
+tau (float): tau.
+gamma (float): gamma.
 
 ----
 
 
 ## IntegerValueConstraint
-```python 
+```python
 IntegerValueConstraint(
    field, min_value = None, max_value = None
 )
 ```
 
 
+---
+Deep Deterministic Policy Gradient
+
+# Arguments
+actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+optimizer (`keras.optimizers.Optimizer` instance):
+See [Optimizer](#) for details.
+action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+See [Input](#) for details.
+tau (float): tau.
+gamma (float): gamma.
 
 ----
 
 
 ## PrimaryKeyConstraint
-```python 
+```python
 PrimaryKeyConstraint(
    field
 )
 ```
 
 
+---
+Deep Deterministic Policy Gradient
+
+# Arguments
+actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+optimizer (`keras.optimizers.Optimizer` instance):
+See [Optimizer](#) for details.
+action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+See [Input](#) for details.
+tau (float): tau.
+gamma (float): gamma.
 
 ----
 
 
 ## ForeignKeyConstrain
-```python 
+```python
 ForeignKeyConstrain()
 ```
 
 
+---
+Deep Deterministic Policy Gradient
+
+# Arguments
+actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+optimizer (`keras.optimizers.Optimizer` instance):
+See [Optimizer](#) for details.
+action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+See [Input](#) for details.
+tau (float): tau.
+gamma (float): gamma.
 
 ----
 
 
 ## UniqueConstraint
-```python 
+```python
 UniqueConstraint(
    field
 )
 ```
 
 
+---
+Deep Deterministic Policy Gradient
+
+# Arguments
+actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+optimizer (`keras.optimizers.Optimizer` instance):
+See [Optimizer](#) for details.
+action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+See [Input](#) for details.
+tau (float): tau.
+gamma (float): gamma.
 
 ----
 
 
 ## CustomConstraint
-```python 
+```python
 CustomConstraint(
    field, validator = lambdax: True
 )
 ```
 
 
+---
+Deep Deterministic Policy Gradient
+
+# Arguments
+actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+optimizer (`keras.optimizers.Optimizer` instance):
+See [Optimizer](#) for details.
+action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+See [Input](#) for details.
+tau (float): tau.
+gamma (float): gamma.

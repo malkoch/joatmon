@@ -4,6 +4,20 @@ from joatmon.serializable import Serializable
 
 
 class Document(Serializable):  # need to have copy and deepcopy functions as well
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     __metaclass__ = Meta
 
     def __init__(self, **kwargs):
@@ -36,12 +50,36 @@ class Document(Serializable):  # need to have copy and deepcopy functions as wel
         return getattr(self, item, None)
 
     def keys(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return list(self.__dict__.keys())
 
     def values(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return list(map(lambda x: getattr(self, x, None), self.__dict__.keys()))
 
     def validate(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if not self.__metaclass__.structured and not self.__metaclass__.force:
             raise ValueError('unstructured document cannot be validated')
 
@@ -60,7 +98,9 @@ class Document(Serializable):  # need to have copy and deepcopy functions as wel
                 raise ValueError(f'field {name} is not nullable')
 
             if isinstance(field.dtype, (tuple, list)):
-                if ((value is not None and field.nullable) or not field.nullable) and not isinstance(value, field.dtype):
+                if ((value is not None and field.nullable) or not field.nullable) and not isinstance(
+                    value, field.dtype
+                ):
                     raise ValueError(
                         f'field {name} has to be one of the following {field.dtype} not {type(value).__name__}'
                     )
@@ -81,4 +121,12 @@ class Document(Serializable):  # need to have copy and deepcopy functions as wel
 
 
 def create_new_type(meta, subclasses):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     return type(meta.__collection__, subclasses, {'__metaclass__': meta})

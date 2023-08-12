@@ -1,17 +1,29 @@
 import numpy as np
 
 from joatmon.nn import functional as f
-from joatmon.nn.core import (
-    Module,
-    Parameter,
-    Tensor
-)
+from joatmon.nn.core import Module, Parameter, Tensor
 
 __all__ = ['BatchNorm']
 
 
 class BatchNorm(Module):
-    def __init__(self, features, eps: float = 1e-5, momentum: float = 0.1, affine: bool = True, track_running_stats: bool = True):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
+    def __init__(
+        self, features, eps: float = 1e-5, momentum: float = 0.1, affine: bool = True, track_running_stats: bool = True
+    ):
         super(BatchNorm, self).__init__()
 
         self._features = features
@@ -45,18 +57,42 @@ class BatchNorm(Module):
         self.reset_parameters()
 
     def reset_running_stats(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if self._track_running_stats:
             self.running_mean = Parameter(Tensor.from_array(np.zeros((self._features,))))
             self.running_var = Parameter(Tensor.from_array(np.ones((self._features,))))
             self.num_batches_tracked = 0
 
     def reset_parameters(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.reset_running_stats()
         if self._affine:
             self.weight = Parameter(Tensor.from_array(np.ones((self._features,))))
             self.bias = Parameter(Tensor.from_array(np.zeros((self._features,))))
 
     def forward(self, inp):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if self._momentum is None:
             exponential_average_factor = 0.0
         else:
@@ -78,5 +114,5 @@ class BatchNorm(Module):
             running_var=self.running_var if not self._training or self._track_running_stats else None,
             momentum=exponential_average_factor,
             eps=self._eps,
-            training=self._training or ((self.running_mean is None) and (self.running_var is None))
+            training=self._training or ((self.running_mean is None) and (self.running_var is None)),
         )

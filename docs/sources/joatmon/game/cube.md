@@ -2,13 +2,25 @@
 
 
 ## Quaternion
-```python 
+```python
 Quaternion(
    x
 )
 ```
 
 
+---
+Deep Deterministic Policy Gradient
+
+# Arguments
+actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+optimizer (`keras.optimizers.Optimizer` instance):
+See [Optimizer](#) for details.
+action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+See [Input](#) for details.
+tau (float): tau.
+gamma (float): gamma.
 
 
 **Methods:**
@@ -19,12 +31,26 @@ Quaternion(
 .as_rotation_matrix()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .as_v_theta
 ```python
 .as_v_theta()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .from_v_theta
 ```python
@@ -33,6 +59,13 @@ Quaternion(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .rotate
 ```python
@@ -41,18 +74,37 @@ Quaternion(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ----
 
 
 ## Sticker
-```python 
+```python
 Sticker(
    color
 )
 ```
 
 
+---
+Deep Deterministic Policy Gradient
+
+# Arguments
+actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+optimizer (`keras.optimizers.Optimizer` instance):
+See [Optimizer](#) for details.
+action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+See [Input](#) for details.
+tau (float): tau.
+gamma (float): gamma.
 
 
 **Methods:**
@@ -65,18 +117,37 @@ Sticker(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ----
 
 
 ## Face
-```python 
+```python
 Face(
    n, color, top_left, increment
 )
 ```
 
 
+---
+Deep Deterministic Policy Gradient
+
+# Arguments
+actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+optimizer (`keras.optimizers.Optimizer` instance):
+See [Optimizer](#) for details.
+action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+See [Input](#) for details.
+tau (float): tau.
+gamma (float): gamma.
 
 
 **Methods:**
@@ -89,6 +160,13 @@ Face(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .rotate
 ```python
@@ -97,6 +175,13 @@ Face(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .rotate_layer
 ```python
@@ -105,24 +190,50 @@ Face(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .rot90
 ```python
 .rot90()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ----
 
 
 ## Cube
-```python 
+```python
 Cube(
    n = 3
 )
 ```
 
 
+---
+Deep Deterministic Policy Gradient
+
+# Arguments
+actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+optimizer (`keras.optimizers.Optimizer` instance):
+See [Optimizer](#) for details.
+action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+See [Input](#) for details.
+tau (float): tau.
+gamma (float): gamma.
 
 
 **Methods:**
@@ -133,6 +244,13 @@ Cube(
 .draw()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .swap_faces
 ```python
@@ -141,6 +259,13 @@ Cube(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .swap_layers
 ```python
@@ -149,36 +274,71 @@ Cube(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .u
 ```python
 .u()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .x
 ```python
 .x()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .y
 ```python
 .y()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .z
 ```python
 .z()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ----
 
 
 ## CubeEnv
-```python 
+```python
 
 ```
 
@@ -193,6 +353,13 @@ Cube(
 .close()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .render
 ```python
@@ -201,12 +368,26 @@ Cube(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .reset
 ```python
 .reset()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .seed
 ```python
@@ -215,6 +396,13 @@ Cube(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .step
 ```python
@@ -223,6 +411,13 @@ Cube(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ----
 
@@ -234,6 +429,13 @@ Cube(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ----
 
@@ -245,6 +447,13 @@ Cube(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ----
 
@@ -256,3 +465,10 @@ Cube(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.

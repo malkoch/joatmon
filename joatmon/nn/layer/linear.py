@@ -1,16 +1,26 @@
 import numpy as np
 
 from joatmon.nn import functional as f
-from joatmon.nn.core import (
-    Module,
-    Parameter,
-    Tensor
-)
+from joatmon.nn.core import Module, Parameter, Tensor
 
 __all__ = ['Linear']
 
 
 class Linear(Module):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     __constants__ = ['in_features', 'out_features']
     in_features: int
     out_features: int
@@ -29,17 +39,39 @@ class Linear(Module):
         self.reset_parameters()
 
     def reset_parameters(self) -> None:
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.weight = Parameter(Tensor.from_array(data=np.ones((self.out_features, self.in_features))))
         if self.bias is not None:
             self.bias = Parameter(Tensor.from_array(data=np.zeros((self.out_features,))))
 
     def forward(self, inp):
-        x = f.dense(
-            inp=inp,
-            weight=self.weight,
-            bias=self.bias
-        )
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
+        x = f.dense(inp=inp, weight=self.weight, bias=self.bias)
         return x
 
     def extra_repr(self) -> str:
-        return 'in_features={}, out_features={}, bias={}'.format(self.in_features, self.out_features, self.bias is not None)
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
+        return 'in_features={}, out_features={}, bias={}'.format(
+            self.in_features, self.out_features, self.bias is not None
+        )

@@ -2,7 +2,7 @@
 
 
 ## UNetModel
-```python 
+```python
 UNetModel(
    lr = 0.001, channels = 3, classes = 10
 )
@@ -30,6 +30,13 @@ gamma (float): gamma.
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .save
 ```python
@@ -38,6 +45,13 @@ gamma (float): gamma.
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .initialize
 ```python
@@ -46,6 +60,13 @@ gamma (float): gamma.
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .predict
 ```python
@@ -54,6 +75,13 @@ gamma (float): gamma.
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .train
 ```python
@@ -62,9 +90,23 @@ gamma (float): gamma.
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .evaluate
 ```python
 .evaluate()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.

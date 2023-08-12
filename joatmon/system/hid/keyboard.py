@@ -18,11 +18,11 @@ FAILSAFE_POINTS = [(0, 0)]
 PAUSE = 0.1  # Tenth-second pause by default.
 
 # Constants for the mouse button names
-LEFT = "left"
-MIDDLE = "middle"
-RIGHT = "right"
-PRIMARY = "primary"
-SECONDARY = "secondary"
+LEFT = 'left'
+MIDDLE = 'middle'
+RIGHT = 'right'
+PRIMARY = 'primary'
+SECONDARY = 'secondary'
 
 # Mouse Scan Code Mappings
 MOUSEEVENTF_MOVE = 0x0001
@@ -53,46 +53,136 @@ PUL = ctypes.POINTER(ctypes.c_ulong)
 
 
 class KeyBdInput(ctypes.Structure):
-    _fields_ = [("wVk", ctypes.c_ushort),
-                ("wScan", ctypes.c_ushort),
-                ("dwFlags", ctypes.c_ulong),
-                ("time", ctypes.c_ulong),
-                ("dwExtraInfo", PUL)]
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
+    _fields_ = [
+        ('wVk', ctypes.c_ushort),
+        ('wScan', ctypes.c_ushort),
+        ('dwFlags', ctypes.c_ulong),
+        ('time', ctypes.c_ulong),
+        ('dwExtraInfo', PUL),
+    ]
 
 
 class HardwareInput(ctypes.Structure):
-    _fields_ = [("uMsg", ctypes.c_ulong),
-                ("wParamL", ctypes.c_short),
-                ("wParamH", ctypes.c_ushort)]
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
+    _fields_ = [('uMsg', ctypes.c_ulong), ('wParamL', ctypes.c_short), ('wParamH', ctypes.c_ushort)]
 
 
 class MouseInput(ctypes.Structure):
-    _fields_ = [("dx", ctypes.c_long),
-                ("dy", ctypes.c_long),
-                ("mouseData", ctypes.c_ulong),
-                ("dwFlags", ctypes.c_ulong),
-                ("time", ctypes.c_ulong),
-                ("dwExtraInfo", PUL)]
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
+    _fields_ = [
+        ('dx', ctypes.c_long),
+        ('dy', ctypes.c_long),
+        ('mouseData', ctypes.c_ulong),
+        ('dwFlags', ctypes.c_ulong),
+        ('time', ctypes.c_ulong),
+        ('dwExtraInfo', PUL),
+    ]
 
 
 class POINT(ctypes.Structure):
-    _fields_ = [("x", ctypes.c_long),
-                ("y", ctypes.c_long)]
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
+    _fields_ = [('x', ctypes.c_long), ('y', ctypes.c_long)]
 
 
 class InputI(ctypes.Union):
-    _fields_ = [("ki", KeyBdInput),
-                ("mi", MouseInput),
-                ("hi", HardwareInput)]
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
+    _fields_ = [('ki', KeyBdInput), ('mi', MouseInput), ('hi', HardwareInput)]
 
 
 class Input(ctypes.Structure):
-    _fields_ = [("type", ctypes.c_ulong),
-                ("ii", InputI)]
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
+    _fields_ = [('type', ctypes.c_ulong), ('ii', InputI)]
 
 
 @auto_pause(duration=0.05)
 def _send_keyboard_event(key, event):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if event == 0x00:
         keybd_flags = KEYEVENTF_SCANCODE
 
@@ -148,6 +238,20 @@ def _send_keyboard_event(key, event):
 
 
 class Keyboard:
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     KEY_DOWN = 0x0000
     KEY_UP = 0x0002
 
@@ -501,15 +605,39 @@ class Keyboard:
 
     @staticmethod
     def key_down(key):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         key, of_type = key
         _send_keyboard_event(key, Keyboard.KEY_DOWN)
 
     @staticmethod
     def key_up(key):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         key, of_type = key
         _send_keyboard_event(key, Keyboard.KEY_UP)
 
     @staticmethod
     def press(key):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         Keyboard.key_down(key)
         Keyboard.key_up(key)

@@ -2,7 +2,7 @@
 
 
 ## DQNModel
-```python 
+```python
 DQNModel(
    lr = 0.001, tau = 0.0001, gamma = 0.99, in_features = 1, out_features = 1
 )
@@ -30,6 +30,13 @@ gamma (float): gamma.
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .save
 ```python
@@ -38,6 +45,13 @@ gamma (float): gamma.
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .initialize
 ```python
@@ -46,18 +60,39 @@ gamma (float): gamma.
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .softupdate
 ```python
 .softupdate()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .hardupdate
 ```python
 .hardupdate()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .predict
 ```python
@@ -66,6 +101,13 @@ gamma (float): gamma.
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .train
 ```python
@@ -74,9 +116,23 @@ gamma (float): gamma.
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .evaluate
 ```python
 .evaluate()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.

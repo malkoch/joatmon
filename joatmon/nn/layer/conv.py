@@ -1,16 +1,26 @@
 import numpy as np
 
 from joatmon.nn import functional as f
-from joatmon.nn.core import (
-    Module,
-    Parameter,
-    Tensor
-)
+from joatmon.nn.core import Module, Parameter, Tensor
 
 __all__ = ['Conv']
 
 
 class Conv(Module):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, in_features, out_features, kernel_size, stride=1, padding=0):
         super(Conv, self).__init__()
 
@@ -24,6 +34,14 @@ class Conv(Module):
         self.bias = Parameter(Tensor.from_array(np.ones((out_features,))))
 
     def forward(self, inp):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return f.conv(
             inp=inp,
             weight=self.weight,

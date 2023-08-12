@@ -1,19 +1,59 @@
 import ast
 import importlib
 import importlib.util
+import inspect
 import os.path
 import re
 import subprocess
 from collections import defaultdict
 from pathlib import Path
-from typing import (
-    get_type_hints,
-    Union
-)
+from typing import get_type_hints, Union
+
+
+def automate_docstring(repo_dir: Path) -> None:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+    p = repo_dir.glob('**/*.py')
+    scripts = [x for x in p if x.is_file()]
+
+    for script in scripts:
+        with open(script, 'r') as source:
+            tree = ast.parse(source.read())
+
+        for child in ast.iter_child_nodes(tree):
+            if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                if child.name not in ['main']:
+                    spec = importlib.util.spec_from_file_location(script.stem, script)
+                    if spec is None or spec.loader is None:
+                        continue
+                    module = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(module)
+                    f_ = getattr(module, child.name)
+                    print(script)
+                    print(f_.__doc__)
+                    print(inspect.getsource(f_))
+            # if isinstance(child, (ast.ClassDef,)):
+            #     if child.name not in ['main']:
+            #         # module = importlib.import_module(script.stem)
+            #         spec = importlib.util.spec_from_file_location(script.stem, script)
+            #         if spec is None or spec.loader is None:
+            #             continue
+            #         module = importlib.util.module_from_spec(spec)
+            #         spec.loader.exec_module(module)
+            #         f_ = getattr(module, child.name)
+            #         print(script)
+            #         print(f_.__doc__)
+            #         print(inspect.getsource(f_))
 
 
 def automate_mkdocs_from_docstring(
-        mkdocs_dir: Union[str, Path], mkgendocs_f: str, repo_dir: Path, match_string: str
+    mkdocs_dir: Union[str, Path], mkgendocs_f: str, repo_dir: Path, match_string: str
 ) -> str:
     """Automates the -pages for mkgendocs package by adding all Python functions in a directory to the mkgendocs config.
 
@@ -73,10 +113,7 @@ def automate_mkdocs_from_docstring(
         for path in keys:
             source_path = os.path.relpath(path, repo_dir).replace('\\', '/')
             page_path = os.path.relpath(path, repo_dir).replace('\\', '/').replace('.py', '.md')
-            insert_string += (
-                f'  - page: "{mkdocs_dir}/{page_path}"\n    '
-                f'source: "{source_path}"\n'
-            )
+            insert_string += f'  - page: "{mkdocs_dir}/{page_path}"\n    ' f'source: "{source_path}"\n'
 
             function_names = functions.get(path, [])
             f_string = ''
@@ -100,7 +137,6 @@ def automate_mkdocs_from_docstring(
         if match_string in contents[-1]:
             contents.append(insert_string)
         else:
-
             for index, line in enumerate(contents):
                 if match_string in line and insert_string not in contents[index + 1]:
                     contents = contents[: index + 1]
@@ -145,7 +181,6 @@ def docstring_from_type_hints(repo_dir: Path, overwrite_script: bool = False, te
 
     functions = defaultdict(list)
     for script in scripts:
-
         with open(script, 'r') as source:
             tree = ast.parse(source.read())
 
@@ -153,7 +188,6 @@ def docstring_from_type_hints(repo_dir: Path, overwrite_script: bool = False, te
         for child in ast.iter_child_nodes(tree):
             if isinstance(child, (ast.FunctionDef, ast.ClassDef, ast.AsyncFunctionDef)):
                 if child.name not in ['main']:
-
                     docstring_node = child.body[0]
                     # module = importlib.import_module(script.stem)
                     spec = importlib.util.spec_from_file_location(script.stem, script)
@@ -172,12 +206,10 @@ def docstring_from_type_hints(repo_dir: Path, overwrite_script: bool = False, te
                     functions[script].append(function)
 
                     if type_hints:
-
                         docstring = f'"""{ast.get_docstring(child, clean=True)}\n"""'
                         docstring_lines = docstring.split('\n')
 
                         if docstring:
-
                             args = re.search(
                                 r'Args:(.*?)(Example[s]?:|Return[s]?:|""")',
                                 docstring,
@@ -186,7 +218,6 @@ def docstring_from_type_hints(repo_dir: Path, overwrite_script: bool = False, te
 
                             new_arguments = {}
                             if args:
-
                                 arguments = args.group()
                                 argument_lines = arguments.split('\n')
 
@@ -204,10 +235,8 @@ def docstring_from_type_hints(repo_dir: Path, overwrite_script: bool = False, te
                                 for argument in argument_lines:
                                     arg_name = argument.split()[0]
                                     if arg_name in argument:
-
                                         if argument.split(':'):
                                             if '(' and ')' in argument.split(':')[0]:
-
                                                 variable_type = str(type_hints[arg_name])
                                                 class_type = re.search(r"(<class ')(.*)('>)", variable_type)
                                                 if class_type:
@@ -232,7 +261,6 @@ def docstring_from_type_hints(repo_dir: Path, overwrite_script: bool = False, te
                                 print(f'there are no arguments in this docstring: {function}')
 
                             if return_hint:
-
                                 raw_return = re.search(
                                     # r'(?<=Returns:\n).*',
                                     r'Return[s]?:\n(.*)',
@@ -241,7 +269,6 @@ def docstring_from_type_hints(repo_dir: Path, overwrite_script: bool = False, te
                                 )
 
                                 if raw_return:
-
                                     return_argument = raw_return.group(1)
                                     return_lines = return_argument.split('\n')
 
@@ -255,10 +282,8 @@ def docstring_from_type_hints(repo_dir: Path, overwrite_script: bool = False, te
                                     ]
 
                                     if return_lines and len(return_lines) == 1:
-
                                         return_arg = return_lines[0]
                                         if return_arg.split(':'):
-
                                             variable_type = str(return_hint)
                                             class_type = re.search(r"(<class ')(.*)('>)", variable_type)
                                             if class_type:
@@ -283,7 +308,7 @@ def docstring_from_type_hints(repo_dir: Path, overwrite_script: bool = False, te
                                 print(f'no return type-hint for function: {function}')
 
                             sorted_arguments = sorted(new_arguments.items(), reverse=True)
-                            for (idx, new_arg) in sorted_arguments:
+                            for idx, new_arg in sorted_arguments:
                                 docstring_lines[idx] = new_arg
 
                             docstring_lines = [f"{' ' * docstring_node.col_offset}{line}" for line in docstring_lines]
@@ -315,11 +340,11 @@ def docstring_from_type_hints(repo_dir: Path, overwrite_script: bool = False, te
             script_lines = file.readlines()
 
         function_docs.sort(key=lambda x: x[0], reverse=True)
-        for (idx, docstring_attr) in function_docs:
+        for idx, docstring_attr in function_docs:
             script_lines = (
-                    script_lines[: docstring_attr['begin_lineno'] - 1]
-                    + [f'{docstring_attr["value"]}\n']
-                    + script_lines[docstring_attr['end_lineno']:]
+                script_lines[: docstring_attr['begin_lineno'] - 1]
+                + [f'{docstring_attr["value"]}\n']
+                + script_lines[docstring_attr['end_lineno'] :]
             )
 
         if overwrite_script:
@@ -335,16 +360,18 @@ def docstring_from_type_hints(repo_dir: Path, overwrite_script: bool = False, te
 
 def main():
     """Execute when running this script."""
-    python_tips_dir = Path.cwd().joinpath('joatmon')
+    directory = Path.cwd().joinpath('joatmon')
+    automate_docstring(directory)
 
-    # docstring_from_type_hints(python_tips_dir, overwrite_script=False, test=False)
-
+    # docstring_from_type_hints(directory, overwrite_script=False, test=False)
+    """
     automate_mkdocs_from_docstring(
         mkdocs_dir='.',
         mkgendocs_f='mkgendocs.yml',
-        repo_dir=python_tips_dir,
+        repo_dir=directory,
         match_string='pages:\n',
     )
+    """
 
 
 if __name__ == '__main__':

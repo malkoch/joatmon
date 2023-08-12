@@ -6,6 +6,15 @@ __all__ = ['auto_pause']
 
 
 def auto_pause(duration):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+
     def _decorator(func):
         @functools.wraps(func)
         def _wrapper(*args, **kwargs):

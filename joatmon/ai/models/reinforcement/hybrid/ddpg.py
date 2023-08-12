@@ -6,16 +6,8 @@ import torch.nn as nn
 import torch.optim as optim
 
 from joatmon.ai.models.core import CoreModel
-from joatmon.ai.network.reinforcement.hybrid.ddpg import (
-    DDPGActor,
-    DDPGCritic
-)
-from joatmon.ai.utility import (
-    load,
-    save,
-    to_numpy,
-    to_tensor
-)
+from joatmon.ai.network.reinforcement.hybrid.ddpg import DDPGActor, DDPGCritic
+from joatmon.ai.utility import load, save, to_numpy, to_tensor
 
 __all__ = ['DDPGModel']
 
@@ -56,44 +48,84 @@ class DDPGModel(CoreModel):
         self.critic_loss = nn.SmoothL1Loss()
 
     def load(self, path=''):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         load(self.actor_local, os.path.join(path, 'actor_local'))
         load(self.actor_target, os.path.join(path, 'actor_target'))
         load(self.critic_local, os.path.join(path, 'critic_local'))
         load(self.critic_target, os.path.join(path, 'critic_target'))
 
     def save(self, path=''):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         save(self.actor_local, os.path.join(path, 'actor_local'))
         save(self.actor_target, os.path.join(path, 'actor_target'))
         save(self.critic_local, os.path.join(path, 'critic_local'))
         save(self.critic_target, os.path.join(path, 'critic_target'))
 
     def initialize(self, w_init=None, b_init=None):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         for module in self.actor_local.modules():
-            if isinstance(module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)):  # batch norm will be different
+            if isinstance(
+                module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
+            ):  # batch norm will be different
                 if w_init is not None:
                     torch.nn.init.kaiming_normal(module.weight)
                 if b_init is not None:  # bias init will be different
                     torch.nn.init.kaiming_normal(module.bias)
         for module in self.actor_target.modules():
-            if isinstance(module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)):  # batch norm will be different
+            if isinstance(
+                module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
+            ):  # batch norm will be different
                 if w_init is not None:
                     torch.nn.init.kaiming_normal(module.weight)
                 if b_init is not None:  # bias init will be different
                     torch.nn.init.kaiming_normal(module.bias)
         for module in self.critic_local.modules():
-            if isinstance(module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)):  # batch norm will be different
+            if isinstance(
+                module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
+            ):  # batch norm will be different
                 if w_init is not None:
                     torch.nn.init.kaiming_normal(module.weight)
                 if b_init is not None:  # bias init will be different
                     torch.nn.init.kaiming_normal(module.bias)
         for module in self.critic_target.modules():
-            if isinstance(module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)):  # batch norm will be different
+            if isinstance(
+                module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
+            ):  # batch norm will be different
                 if w_init is not None:
                     torch.nn.init.kaiming_normal(module.weight)
                 if b_init is not None:  # bias init will be different
                     torch.nn.init.kaiming_normal(module.bias)
 
     def softupdate(self, network: str):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if network == 'actor':
             for target_param, param in zip(self.actor_target.parameters(), self.actor_local.parameters()):
                 target_param.detach_()
@@ -106,6 +138,14 @@ class DDPGModel(CoreModel):
             raise ValueError
 
     def hardupdate(self, network: str):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if network == 'actor':
             for target_param, param in zip(self.actor_target.parameters(), self.actor_local.parameters()):
                 target_param.detach_()
@@ -118,10 +158,26 @@ class DDPGModel(CoreModel):
             raise ValueError
 
     def predict(self, state=None):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.actor_local.eval()
         return to_numpy(self.actor_local(to_tensor(state))).flatten()
 
     def train(self, batch=None, update_target=True):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.actor_local.train()
 
         states, actions, rewards, next_states, terminals = batch
@@ -160,4 +216,11 @@ class DDPGModel(CoreModel):
         return [actor_loss.item()] + [critic_loss.item()]
 
     def evaluate(self):
-        pass
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """

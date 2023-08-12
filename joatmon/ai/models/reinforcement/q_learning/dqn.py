@@ -8,13 +8,7 @@ import torch.optim as optim
 
 from joatmon.ai.models.core import CoreModel
 from joatmon.ai.network import DQN
-from joatmon.ai.utility import (
-    load,
-    range_tensor,
-    save,
-    to_numpy,
-    to_tensor
-)
+from joatmon.ai.utility import load, range_tensor, save, to_numpy, to_tensor
 
 __all__ = ['DQNModel']
 
@@ -46,42 +40,102 @@ class DQNModel(CoreModel):
         self.loss = nn.SmoothL1Loss()
 
     def load(self, path=''):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         load(self.local, os.path.join(path, 'local'))
         load(self.target, os.path.join(path, 'target'))
 
     def save(self, path=''):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         save(self.local, os.path.join(path, 'local'))
         save(self.target, os.path.join(path, 'target'))
 
     def initialize(self, w_init=None, b_init=None):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         for module in self.target.modules():
-            if isinstance(module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)):  # batch norm will be different
+            if isinstance(
+                module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
+            ):  # batch norm will be different
                 if w_init is not None:
                     torch.nn.init.kaiming_normal(module.weight)
                 if b_init is not None:  # bias init will be different
                     torch.nn.init.kaiming_normal(module.bias)
         for module in self.local.modules():
-            if isinstance(module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)):  # batch norm will be different
+            if isinstance(
+                module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
+            ):  # batch norm will be different
                 if w_init is not None:
                     torch.nn.init.kaiming_normal(module.weight)
                 if b_init is not None:  # bias init will be different
                     torch.nn.init.kaiming_normal(module.bias)
 
     def softupdate(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         for target_param, param in zip(self.target.parameters(), self.local.parameters()):
             target_param.detach_()
             target_param.copy_(target_param * (1.0 - self.tau) + param * self.tau)
 
     def hardupdate(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         for target_param, param in zip(self.target.parameters(), self.local.parameters()):
             target_param.detach_()
             target_param.copy_(param)
 
     def predict(self, state=None):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.local.eval()
         return np.argmax(to_numpy(self.local(to_tensor(state))).flatten())
 
     def train(self, batch=None, update_target=False):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.local.train()
 
         states, actions, rewards, next_states, terminals = batch
@@ -113,4 +167,11 @@ class DQNModel(CoreModel):
         return loss.item()
 
     def evaluate(self):
-        pass
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """

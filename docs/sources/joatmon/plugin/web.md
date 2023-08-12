@@ -2,13 +2,25 @@
 
 
 ## UserPlugin
-```python 
+```python
 UserPlugin(
    key
 )
 ```
 
 
+---
+Deep Deterministic Policy Gradient
+
+# Arguments
+actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+optimizer (`keras.optimizers.Optimizer` instance):
+See [Optimizer](#) for details.
+action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+See [Input](#) for details.
+tau (float): tau.
+gamma (float): gamma.
 
 
 **Methods:**
@@ -21,24 +33,50 @@ UserPlugin(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .get
 ```python
 .get()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ----
 
 
 ## TokenPlugin
-```python 
+```python
 TokenPlugin(
    key
 )
 ```
 
 
+---
+Deep Deterministic Policy Gradient
+
+# Arguments
+actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+optimizer (`keras.optimizers.Optimizer` instance):
+See [Optimizer](#) for details.
+action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+See [Input](#) for details.
+tau (float): tau.
+gamma (float): gamma.
 
 
 **Methods:**
@@ -51,24 +89,50 @@ TokenPlugin(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .get
 ```python
 .get()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ----
 
 
 ## IssuerPlugin
-```python 
+```python
 IssuerPlugin(
    key
 )
 ```
 
 
+---
+Deep Deterministic Policy Gradient
+
+# Arguments
+actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+optimizer (`keras.optimizers.Optimizer` instance):
+See [Optimizer](#) for details.
+action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+See [Input](#) for details.
+tau (float): tau.
+gamma (float): gamma.
 
 
 **Methods:**
@@ -81,24 +145,50 @@ IssuerPlugin(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .get
 ```python
 .get()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ----
 
 
 ## LanguagePlugin
-```python 
+```python
 LanguagePlugin(
    key
 )
 ```
 
 
+---
+Deep Deterministic Policy Gradient
+
+# Arguments
+actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+optimizer (`keras.optimizers.Optimizer` instance):
+See [Optimizer](#) for details.
+action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+See [Input](#) for details.
+tau (float): tau.
+gamma (float): gamma.
 
 
 **Methods:**
@@ -111,24 +201,50 @@ LanguagePlugin(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .get
 ```python
 .get()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ----
 
 
 ## IPPlugin
-```python 
+```python
 IPPlugin(
    key
 )
 ```
 
 
+---
+Deep Deterministic Policy Gradient
+
+# Arguments
+actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+optimizer (`keras.optimizers.Optimizer` instance):
+See [Optimizer](#) for details.
+action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+See [Input](#) for details.
+tau (float): tau.
+gamma (float): gamma.
 
 
 **Methods:**
@@ -141,24 +257,50 @@ IPPlugin(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .get
 ```python
 .get()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ----
 
 
 ## InCasePlugin
-```python 
+```python
 InCasePlugin(
    key
 )
 ```
 
 
+---
+Deep Deterministic Policy Gradient
+
+# Arguments
+actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+optimizer (`keras.optimizers.Optimizer` instance):
+See [Optimizer](#) for details.
+action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+See [Input](#) for details.
+tau (float): tau.
+gamma (float): gamma.
 
 
 **Methods:**
@@ -171,24 +313,50 @@ InCasePlugin(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .get
 ```python
 .get()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ----
 
 
 ## OutCasePlugin
-```python 
+```python
 OutCasePlugin(
    key
 )
 ```
 
 
+---
+Deep Deterministic Policy Gradient
+
+# Arguments
+actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+optimizer (`keras.optimizers.Optimizer` instance):
+See [Optimizer](#) for details.
+action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+See [Input](#) for details.
+tau (float): tau.
+gamma (float): gamma.
 
 
 **Methods:**
@@ -201,24 +369,50 @@ OutCasePlugin(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .get
 ```python
 .get()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ----
 
 
 ## JsonPlugin
-```python 
+```python
 JsonPlugin(
    key
 )
 ```
 
 
+---
+Deep Deterministic Policy Gradient
+
+# Arguments
+actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+optimizer (`keras.optimizers.Optimizer` instance):
+See [Optimizer](#) for details.
+action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+See [Input](#) for details.
+tau (float): tau.
+gamma (float): gamma.
 
 
 **Methods:**
@@ -231,24 +425,50 @@ JsonPlugin(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .get
 ```python
 .get()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ----
 
 
 ## ArgsPlugin
-```python 
+```python
 ArgsPlugin(
    key
 )
 ```
 
 
+---
+Deep Deterministic Policy Gradient
+
+# Arguments
+actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+optimizer (`keras.optimizers.Optimizer` instance):
+See [Optimizer](#) for details.
+action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+See [Input](#) for details.
+tau (float): tau.
+gamma (float): gamma.
 
 
 **Methods:**
@@ -261,24 +481,50 @@ ArgsPlugin(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .get
 ```python
 .get()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ----
 
 
 ## FormPlugin
-```python 
+```python
 FormPlugin(
    key
 )
 ```
 
 
+---
+Deep Deterministic Policy Gradient
+
+# Arguments
+actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+optimizer (`keras.optimizers.Optimizer` instance):
+See [Optimizer](#) for details.
+action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+See [Input](#) for details.
+tau (float): tau.
+gamma (float): gamma.
 
 
 **Methods:**
@@ -291,24 +537,50 @@ FormPlugin(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .get
 ```python
 .get()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ----
 
 
 ## HeadersPlugin
-```python 
+```python
 HeadersPlugin(
    key
 )
 ```
 
 
+---
+Deep Deterministic Policy Gradient
+
+# Arguments
+actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+optimizer (`keras.optimizers.Optimizer` instance):
+See [Optimizer](#) for details.
+action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+See [Input](#) for details.
+tau (float): tau.
+gamma (float): gamma.
 
 
 **Methods:**
@@ -321,24 +593,50 @@ HeadersPlugin(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .get
 ```python
 .get()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ----
 
 
 ## CookiesPlugin
-```python 
+```python
 CookiesPlugin(
    key
 )
 ```
 
 
+---
+Deep Deterministic Policy Gradient
+
+# Arguments
+actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+optimizer (`keras.optimizers.Optimizer` instance):
+See [Optimizer](#) for details.
+action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+See [Input](#) for details.
+tau (float): tau.
+gamma (float): gamma.
 
 
 **Methods:**
@@ -351,9 +649,23 @@ CookiesPlugin(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .get
 ```python
 .get()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.

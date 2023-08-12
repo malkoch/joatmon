@@ -2,7 +2,7 @@
 
 
 ## CorePolicy
-```python 
+```python
 
 ```
 
@@ -53,7 +53,7 @@ use (bool): Boolean value for using the nn.
 
 
 ## GreedyQPolicy
-```python 
+```python
 
 ```
 
@@ -68,24 +68,45 @@ use (bool): Boolean value for using the nn.
 .reset()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .decay
 ```python
 .decay()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .use_network
 ```python
 .use_network()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ----
 
 
 ## EpsilonGreedyPolicy
-```python 
+```python
 EpsilonGreedyPolicy(
    max_value = 1.0, min_value = 0.0, decay_steps = 1
 )
@@ -109,15 +130,36 @@ decay_steps (int): .
 .reset()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .decay
 ```python
 .decay()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .use_network
 ```python
 .use_network()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.

@@ -7,27 +7,52 @@ from joatmon.utility import convert_size
 
 
 class Task(BaseTask):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, api, **kwargs):
         super(Task, self).__init__(api, **kwargs)
 
     @staticmethod
     def help():
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return {
-            "name": "system",
-            "description": "a function for user to learn current status of the system",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "action": {
-                        "type": "string",
-                        "enum": ["memory", "cpu", "disk", "battery"]
-                    }
-                },
-                "required": ["action"]
-            }
+            'name': 'system',
+            'description': 'a function for user to learn current status of the system',
+            'parameters': {
+                'type': 'object',
+                'properties': {'action': {'type': 'string', 'enum': ['memory', 'cpu', 'disk', 'battery']}},
+                'required': ['action'],
+            },
         }
 
     def run(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         action = self.kwargs.get('action', '') or self.api.input('what do you want the action to be')
 
         if action == 'memory':
@@ -51,9 +76,7 @@ class Task(BaseTask):
         if action == 'disk':
             for d in psutil.disk_partitions():
                 self.api.output(
-                    f'Disk Device: {d.device}, '
-                    f'Disk Mount: {d.mountpoint}, '
-                    f'Disk File System Type: {d.fstype}'
+                    f'Disk Device: {d.device}, ' f'Disk Mount: {d.mountpoint}, ' f'Disk File System Type: {d.fstype}'
                 )
 
                 self.api.output(

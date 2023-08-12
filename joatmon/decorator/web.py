@@ -2,25 +2,47 @@ import functools
 import inspect
 
 from joatmon import context
-from joatmon.utility import (
-    to_case,
-    to_enumerable
-)
+from joatmon.utility import to_case, to_enumerable
 
 
 def get(func):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     func.__method__ = 'get'
 
     return func
 
 
 def post(func):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     func.__method__ = 'post'
 
     return func
 
 
 def incoming(case, json, arg, form):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+
     def _decorator(func):
         @functools.wraps(func)
         async def _wrapper(*args, **kwargs):  # if func.method is get need to do with args, else with json
@@ -54,6 +76,15 @@ def incoming(case, json, arg, form):
 
 
 def wrap(func):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+
     @functools.wraps(func)
     async def _wrapper(*args, **kwargs):
         try:
@@ -67,6 +98,15 @@ def wrap(func):
 
 
 def outgoing(case):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+
     def _decorator(func):
         @functools.wraps(func)
         async def _wrapper(*args, **kwargs):
@@ -84,6 +124,15 @@ def outgoing(case):
 
 
 def ip_limit(interval, cache, ip):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+
     def _decorator(func):
         @functools.wraps(func)
         async def _wrapper(*args, **kwargs):
@@ -106,6 +155,15 @@ def ip_limit(interval, cache, ip):
 
 
 def limit(interval, cache):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+
     def _decorator(func):
         @functools.wraps(func)
         async def _wrapper(*args, **kwargs):

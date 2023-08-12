@@ -1,5 +1,5 @@
 import pygame
-from pygame.locals import *
+from pygame.locals import MOUSEBUTTONDOWN
 
 from joatmon.event import Event
 
@@ -11,6 +11,20 @@ RED = (255, 0, 0)
 
 
 class ComboBox:
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self):
         self._x = None
         self._y = None
@@ -30,10 +44,7 @@ class ComboBox:
         self._rect = None
         self._icon = None
 
-        self._events = {
-            'hover': Event(),
-            'change': Event()
-        }
+        self._events = {'hover': Event(), 'change': Event()}
 
         self._options = []
 
@@ -44,12 +55,28 @@ class ComboBox:
         self.selected_option = None
 
     def position(self, x, y):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self._x = x
         self._y = y
 
         return self
 
     def size(self, width, height):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self._width = width
         self._height = height
 
@@ -58,6 +85,14 @@ class ComboBox:
         return self
 
     def icon(self, icon):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         _icon = pygame.image.load(icon)
 
         self._width = self._height
@@ -69,12 +104,28 @@ class ComboBox:
         return self
 
     def text(self, text, font):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self._text = text
         self._font = font
 
         return self
 
     def color(self, t_color, b_color, h_color, c_color):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self._text_color = t_color
         self._background_color = b_color
         self._hover_color = h_color
@@ -83,10 +134,26 @@ class ComboBox:
         return self
 
     def border(self, border):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self._border = border
         return self
 
     def on(self, event, func):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         _event = self._events.get(event, None)
         if _event:
             _event += func
@@ -94,13 +161,37 @@ class ComboBox:
         return self
 
     def add_option(self, option):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self._options.append(option)
         return self
 
     def remove_option(self, option):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return self
 
     def handle_event(self, event):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if event.type == pygame.MOUSEMOTION:
             self.is_hovered = self._rect.collidepoint(event.pos)
             if self.is_hovered:
@@ -131,16 +222,31 @@ class ComboBox:
         self.update()
 
     def update(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.option_rects = []
 
         for i, option in enumerate(self._options):
             option_rect = pygame.Rect(
-                self._rect.x, self._rect.y + self._rect.height * (i + 1),
-                self._rect.width, self._rect.height
+                self._rect.x, self._rect.y + self._rect.height * (i + 1), self._rect.width, self._rect.height
             )
             self.option_rects.append(option_rect)
 
     def draw(self, screen):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         border_color = self._border.get('color', (0, 0, 0))
         thickness = self._border.get('thickness', 1)
         radius = self._border.get('radius', 1)
@@ -159,7 +265,12 @@ class ComboBox:
                 shadow_rect.y += shadow
                 pygame.draw.rect(screen, pygame.Color('gray'), shadow_rect, border_radius=radius)  # shadow color
 
-                pygame.draw.rect(screen, pygame.Color('gray') if self.is_hovered else pygame.Color('white'), border_rect, border_radius=radius)
+                pygame.draw.rect(
+                    screen,
+                    pygame.Color('gray') if self.is_hovered else pygame.Color('white'),
+                    border_rect,
+                    border_radius=radius,
+                )
             pygame.draw.rect(screen, border_color, border_rect, thickness, border_radius=radius)
 
         font = pygame.font.SysFont(None, 24)

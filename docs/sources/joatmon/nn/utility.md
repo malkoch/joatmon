@@ -2,7 +2,7 @@
 
 
 ## _RequiredParameter
-```python 
+```python
 _RequiredParameter()
 ```
 
@@ -20,6 +20,13 @@ Singleton class representing a required parameter for an Optimizer.
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ----
 
@@ -52,6 +59,13 @@ registered hooks while the latter silently ignores them.
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ----
 
@@ -63,6 +77,13 @@ registered hooks while the latter silently ignores them.
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ----
 
@@ -74,6 +95,13 @@ registered hooks while the latter silently ignores them.
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ----
 
@@ -85,6 +113,13 @@ registered hooks while the latter silently ignores them.
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ----
 
@@ -96,3 +131,10 @@ registered hooks while the latter silently ignores them.
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.

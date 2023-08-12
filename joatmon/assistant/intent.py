@@ -12,6 +12,20 @@ nltk.download('wordnet', quiet=True)
 
 
 class GenericAssistant:
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, intents):
         self.hist = None
         self.model = None
@@ -20,15 +34,31 @@ class GenericAssistant:
 
         self.intents = intents
 
-        if intents.endswith(".json"):
+        if intents.endswith('.json'):
             self.load_json_intents(intents)
 
         self.lemmatizer = WordNetLemmatizer()
 
     def load_json_intents(self, intents):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.intents = json.loads(open(intents).read())
 
     def train_model(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.words = []
         self.classes = []
         documents = []
@@ -80,21 +110,53 @@ class GenericAssistant:
         self.hist = self.model.fit(np.array(train_x), np.array(train_y), epochs=200, batch_size=5, verbose=0)
 
     def save_model(self, model_name=None):
-        self.model.save(f"iva/weights/{model_name}/weights.h5", self.hist)
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
+        self.model.save(f'iva/weights/{model_name}/weights.h5', self.hist)
         pickle.dump(self.words, open(f'iva/weights/{model_name}/words.pkl', 'wb'))
         pickle.dump(self.classes, open(f'iva/weights/{model_name}/classes.pkl', 'wb'))
 
     def load_model(self, model_name=None):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.words = pickle.load(open(f'iva/weights/{model_name}/words.pkl', 'rb'))
         self.classes = pickle.load(open(f'iva/weights/{model_name}/classes.pkl', 'rb'))
         self.model = tf.keras.models.load_model(f'iva/weights/{model_name}.weights.h5')
 
     def _clean_up_sentence(self, sentence):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         sentence_words = nltk.word_tokenize(sentence)
         sentence_words = [self.lemmatizer.lemmatize(word.lower()) for word in sentence_words]
         return sentence_words
 
     def _bag_of_words(self, sentence, words):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         sentence_words = self._clean_up_sentence(sentence)
         bag = [0] * len(words)
         for s in sentence_words:
@@ -104,6 +166,14 @@ class GenericAssistant:
         return np.array(bag)
 
     def _predict_class(self, sentence):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         p = self._bag_of_words(sentence, self.words)
         res = self.model.predict(np.array([p]), verbose=0)[0]
         error_threshold = 0.1
@@ -116,6 +186,14 @@ class GenericAssistant:
         return return_list
 
     def request(self, message):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ints = self._predict_class(message)
 
         return ints[0]['intent'], ints[0]['probability']

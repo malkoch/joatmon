@@ -6,6 +6,20 @@ from joatmon.plugin.core import Plugin
 
 
 class LogLevel(Enum):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     NotSet = 1 << 0
     Debug = 1 << 1
     Info = 1 << 2
@@ -15,6 +29,20 @@ class LogLevel(Enum):
 
 
 class LoggerPlugin(Plugin):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, level, language, ip):
         if isinstance(level, LogLevel):
             level = level.name
@@ -25,6 +53,14 @@ class LoggerPlugin(Plugin):
 
     @staticmethod
     def _get_level(level_str):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         _level_key = list(filter(lambda x: level_str.lower() == x.lower(), LogLevel.__dict__.keys()))
         if len(_level_key) == 1:
             _level_key = _level_key[0]
@@ -34,9 +70,25 @@ class LoggerPlugin(Plugin):
         return LogLevel[_level_key]
 
     async def _write(self, log: dict):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         raise NotImplementedError
 
     async def log(self, log: dict, level: Union[LogLevel, str] = LogLevel.Debug):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         try:
             if isinstance(level, str):
                 level = LoggerPlugin._get_level(level)
@@ -50,16 +102,56 @@ class LoggerPlugin(Plugin):
             print(str(ex))
 
     async def debug(self, log):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         await self.log(log=log, level=LogLevel.Debug)
 
     async def info(self, log):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         await self.log(log=log, level=LogLevel.Info)
 
     async def warning(self, log):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         await self.log(log=log, level=LogLevel.Warning)
 
     async def error(self, log):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         await self.log(log=log, level=LogLevel.Error)
 
     async def critical(self, log):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         await self.log(log=log, level=LogLevel.Critical)

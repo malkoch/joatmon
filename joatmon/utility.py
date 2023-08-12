@@ -5,78 +5,174 @@ import os
 import re
 import typing
 import uuid
-from datetime import (
-    date,
-    datetime,
-    time,
-    timedelta
-)
-from time import (
-    mktime,
-    struct_time
-)
+from datetime import date, datetime, time, timedelta
+from time import mktime, struct_time
 from uuid import UUID
 
 pascal_case_pattern = re.compile(r'(?<!^)(?=[A-Z])')
 
-email_pattern = re.compile(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
+email_pattern = re.compile(r'(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)')
 ip_address_pattern = re.compile(
-    r"(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\."
-    r"(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\."
-    r"(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\."
-    r"(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
+    r'(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.'
+    r'(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.'
+    r'(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.'
+    r'(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$'
 )
 
 
 def empty_object_id():
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     return uuid.UUID('00000000-0000-0000-0000-000000000000')
 
 
 def new_object_id():
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     return uuid.uuid4()
 
 
 def current_time():
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     return datetime.now()
 
 
 def new_nickname():
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     return f'random_nickname_{uuid.uuid4()}'
 
 
 def new_password():
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     return f'random_password_{uuid.uuid4()}'
 
 
 def mail_validator(email):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     return email_pattern.match(email) is not None
 
 
 def ip_validator(ip):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     return ip_address_pattern.match(ip) is not None
 
 
 def to_snake_string(string: str):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     return pascal_case_pattern.sub('_', string).lower()
 
 
 def to_pascal_string(string: str):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     return ''.join(word.title() for word in string.split('_'))
 
 
 def to_upper_string(string: str):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     return string.upper()
 
 
 def to_lower_string(string: str):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     return string.lower()
 
 
 def to_title(string: str):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     return string.title()
 
 
 def to_enumerable(value, string=False):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if value is None:
         return None
 
@@ -101,6 +197,14 @@ def to_enumerable(value, string=False):
 
 
 def to_case(case, value, key=None, convert_value=False):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     from joatmon.serializable import Serializable
 
     enumerable = to_enumerable(value)
@@ -135,6 +239,14 @@ def to_case(case, value, key=None, convert_value=False):
 
 
 def get_function_args(func, *args):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if get_class_that_defined_method(func) is None:
         return args
     else:
@@ -144,17 +256,42 @@ def get_function_args(func, *args):
 
 
 def get_function_kwargs(func, **kwargs):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     return kwargs
 
 
 def to_hash(func, *args, **kwargs):
-    args_str = ", ".join([f"{arg}" for arg in get_function_args(func, *args)])
-    kwargs_str = ", ".join([f"{k}={v}" for k, v in get_function_kwargs(func, **kwargs).items()])
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+    args_str = ', '.join([f'{arg}' for arg in get_function_args(func, *args)])
+    kwargs_str = ', '.join([f'{k}={v}' for k, v in get_function_kwargs(func, **kwargs).items()])
     arg_kwarg_str = ', '.join(filter(lambda x: x != '', [args_str, kwargs_str]))
     return f'{func.__module__}.{func.__qualname__}({arg_kwarg_str})'
 
 
 def get_converter(kind: type):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+
     def _datetime_converter(value: object) -> typing.Optional[datetime]:
         if value is None:
             return value
@@ -337,13 +474,21 @@ def get_converter(kind: type):
         list: _list_converter,
         tuple: _tuple_converter,
         set: _set_converter,
-        object: _object_converter
+        object: _object_converter,
     }
 
     return converters.get(kind, _object_converter)
 
 
 def to_list(items):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     ret = []
     for item in iter(items):
         ret.append(item)
@@ -351,6 +496,14 @@ def to_list(items):
 
 
 async def to_list_async(items):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     ret = []
     async for item in aiter(items):
         ret.append(item)
@@ -358,6 +511,14 @@ async def to_list_async(items):
 
 
 def first(items):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     try:
         iterable = iter(items)
         first_item = next(iterable)
@@ -367,6 +528,14 @@ def first(items):
 
 
 async def first_async(items):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     try:
         iterable = aiter(items)
         first_item = await anext(iterable)
@@ -376,6 +545,14 @@ async def first_async(items):
 
 
 def single(items):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     try:
         iterable = iter(items)
         first_item = next(iterable)
@@ -390,6 +567,14 @@ def single(items):
 
 
 async def single_async(items):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     try:
         iterable = aiter(items)
         first_item = await anext(iterable)
@@ -404,6 +589,15 @@ async def single_async(items):
 
 
 def pretty_printer(headers, m=None):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+
     def get_max_size(idx):
         max_size = m or os.get_terminal_size().columns
         weight = headers[idx][1]
@@ -423,13 +617,13 @@ def pretty_printer(headers, m=None):
 
     def prettify_header(idx, value):
         if len(value) > get_max_size(idx):
-            return value[:get_max_size(idx)]
+            return value[: get_max_size(idx)]
 
         return ' ' * left_padding(idx, value) + value + ' ' * right_padding(idx, value)
 
     def prettify_value(idx, value):
         if len(value) > get_max_size(idx):
-            return value[:get_max_size(idx)]
+            return value[: get_max_size(idx)]
 
         return ' ' * left_padding(idx, value) + value + ' ' * right_padding(idx, value)
 
@@ -440,20 +634,41 @@ def pretty_printer(headers, m=None):
 
 
 def convert_size(size_bytes):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     import math
+
     if size_bytes == 0:
-        return "0B"
-    size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
+        return '0B'
+    size_name = ('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB')
     i = int(math.floor(math.log(size_bytes, 1024)))
     p = math.pow(1024, i)
     s = round(size_bytes / p, 2)
-    return "%s %s" % (s, size_name[i])
+    return '%s %s' % (s, size_name[i])
 
 
 def get_class_that_defined_method(meth):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if isinstance(meth, functools.partial):
         return get_class_that_defined_method(meth.func)
-    if inspect.ismethod(meth) or (inspect.isbuiltin(meth) and getattr(meth, '__self__', None) is not None and getattr(meth.__self__, '__class__', None)):
+    if inspect.ismethod(meth) or (
+        inspect.isbuiltin(meth)
+        and getattr(meth, '__self__', None) is not None
+        and getattr(meth.__self__, '__class__', None)
+    ):
         for cls in inspect.getmro(meth.__self__.__class__):
             if meth.__name__ in cls.__dict__:
                 return cls
@@ -466,15 +681,53 @@ def get_class_that_defined_method(meth):
 
 
 def get_module_functions(module):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     return inspect.getmembers(module, inspect.isfunction)
 
 
 def get_module_classes(module):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     return inspect.getmembers(module, inspect.isclass)
 
 
 class JSONEncoder(json.JSONEncoder):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def default(self, obj):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if isinstance(obj, (datetime, date, time)):
             return obj.isoformat()
         if isinstance(obj, timedelta):
@@ -487,11 +740,33 @@ class JSONEncoder(json.JSONEncoder):
 
 
 class JSONDecoder(json.JSONDecoder):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, *args, **kwargs):
         super(JSONDecoder, self).__init__(object_hook=self.object_hook, *args, **kwargs)
 
     @staticmethod
     def object_hook(d):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return d
         # ret = {}
         # for key, value in d.items():

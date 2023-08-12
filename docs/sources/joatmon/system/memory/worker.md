@@ -2,13 +2,25 @@
 
 
 ## Worker
-```python 
+```python
 Worker(
    pid = None, name = None, debug = True
 )
 ```
 
 
+---
+Deep Deterministic Policy Gradient
+
+# Arguments
+actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+optimizer (`keras.optimizers.Optimizer` instance):
+See [Optimizer](#) for details.
+action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+See [Input](#) for details.
+tau (float): tau.
+gamma (float): gamma.
 
 
 **Methods:**
@@ -21,6 +33,13 @@ Worker(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .memory_replace_unicode
 ```python
@@ -29,6 +48,13 @@ Worker(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .memory_replace
 ```python
@@ -37,6 +63,13 @@ Worker(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .memory_search_unicode
 ```python
@@ -45,6 +78,13 @@ Worker(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .group_search
 ```python
@@ -53,6 +93,13 @@ Worker(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .search_address
 ```python
@@ -61,6 +108,13 @@ Worker(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .parse_re_function
 ```python
@@ -69,6 +123,13 @@ Worker(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .parse_float_function
 ```python
@@ -77,6 +138,13 @@ Worker(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .parse_named_groups_function
 ```python
@@ -85,6 +153,13 @@ Worker(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .parse_groups_function
 ```python
@@ -93,6 +168,13 @@ Worker(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .parse_any_function
 ```python
@@ -101,6 +183,13 @@ Worker(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .memory_search
 ```python
@@ -110,3 +199,10 @@ Worker(
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.

@@ -1,25 +1,29 @@
 import math
-from typing import (
-    List,
-    Tuple
-)
+from typing import List, Tuple
 
 import numpy as np
 
-from joatmon.nn import (
-    functional as f,
-    init
-)
-from joatmon.nn.core import (
-    Module,
-    Parameter,
-    Tensor
-)
+from joatmon.nn import functional as f, init
+from joatmon.nn.core import Module, Parameter, Tensor
 
 __all__ = ['LSTM']
 
 
 class LSTMCell(Module):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     __constants__ = ['input_size', 'hidden_size']
 
     input_size: int
@@ -46,21 +50,55 @@ class LSTMCell(Module):
         self.reset_parameters()
 
     def reset_parameters(self) -> None:
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         stdv = 1.0 / math.sqrt(self.hidden_size)
         for weight in self.parameters():
             init.uniform(weight, -stdv, stdv)
 
     def check_input(self, inp: Tensor) -> None:
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         expected_input_dim = 3
         if inp.dim() != expected_input_dim:
             raise RuntimeError('input must have {} dimensions, got {}'.format(expected_input_dim, inp.dim()))
         if self.input_size != inp.size(-1):
-            raise RuntimeError('input.size(-1) must be equal to input_size. Expected {}, got {}'.format(self.input_size, inp.size(-1)))
+            raise RuntimeError(
+                'input.size(-1) must be equal to input_size. Expected {}, got {}'.format(self.input_size, inp.size(-1))
+            )
 
     def get_expected_hidden_size(self, inp: Tensor) -> Tuple[int, int]:
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return inp.size(0), self.hidden_size
 
     def extra_repr(self) -> str:
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         s = '{input_size}, {hidden_size}'
         if self.num_layers != 1:
             s += ', num_layers={num_layers}'
@@ -78,20 +116,66 @@ class LSTMCell(Module):
 
     @property
     def all_weights(self) -> List[List[Parameter]]:
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return [getattr(self, weights) for weights in self._all_weights]
 
     def get_expected_cell_size(self, inp: Tensor) -> Tuple[int, int]:
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return inp.size(0), self.hidden_size
 
     def check_forward_args(self, inp: Tensor):  # type: ignore
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.check_input(inp)
 
     def forward(self, inp):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.check_forward_args(inp)
         return f.lstm(inp, self.all_weights)
 
 
 class LSTM(Module):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     __constants__ = ['input_size', 'hidden_size', 'num_layers']
 
     input_size: int
@@ -125,21 +209,55 @@ class LSTM(Module):
         self.reset_parameters()
 
     def reset_parameters(self) -> None:
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         stdv = 1.0 / math.sqrt(self.hidden_size)
         for weight in self.parameters():
             init.uniform(weight, -stdv, stdv)
 
     def check_input(self, inp: Tensor) -> None:
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         expected_input_dim = 3
         if inp.dim() != expected_input_dim:
             raise RuntimeError('input must have {} dimensions, got {}'.format(expected_input_dim, inp.dim()))
         if self.input_size != inp.size(-1):
-            raise RuntimeError('input.size(-1) must be equal to input_size. Expected {}, got {}'.format(self.input_size, inp.size(-1)))
+            raise RuntimeError(
+                'input.size(-1) must be equal to input_size. Expected {}, got {}'.format(self.input_size, inp.size(-1))
+            )
 
     def get_expected_hidden_size(self, inp: Tensor) -> Tuple[int, int, int]:
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return self.num_layers, inp.size(0), self.hidden_size
 
     def extra_repr(self) -> str:
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         s = '{input_size}, {hidden_size}'
         if self.num_layers != 1:
             s += ', num_layers={num_layers}'
@@ -161,14 +279,46 @@ class LSTM(Module):
 
     @property
     def all_weights(self) -> List[List[Parameter]]:
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return [[getattr(self, weight) for weight in weights] for weights in self._all_weights]
 
     def get_expected_cell_size(self, inp: Tensor) -> Tuple[int, int, int]:
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return self.num_layers, inp.size(0), self.hidden_size
 
     def check_forward_args(self, inp: Tensor):  # type: ignore
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.check_input(inp)
 
     def forward(self, inp):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.check_forward_args(inp)
         return f.lstm(inp, self.all_weights)

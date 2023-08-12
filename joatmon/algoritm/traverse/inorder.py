@@ -2,6 +2,14 @@ from collections import deque
 
 
 def inorder(root):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     stack = deque()
     curr = root
 
@@ -16,6 +24,14 @@ def inorder(root):
 
 
 def inorder_r(root):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if root is None:
         return
 

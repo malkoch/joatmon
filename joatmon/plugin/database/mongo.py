@@ -7,16 +7,27 @@ from uuid import UUID
 import pymongo
 from bson.binary import UuidRepresentation
 from bson.codec_options import DEFAULT_CODEC_OPTIONS
-from pymongo import (
-    read_concern,
-    write_concern
-)
+from pymongo import read_concern, write_concern
 
 from joatmon.orm.constraint import UniqueConstraint
 from joatmon.plugin.database.core import DatabasePlugin
 
 
 class MongoDatabase(DatabasePlugin):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     DATABASES = set()
     CREATED_COLLECTIONS = set()
     UPDATED_COLLECTIONS = set()
@@ -29,9 +40,26 @@ class MongoDatabase(DatabasePlugin):
         self.session = None
 
     async def _check_collection(self, collection):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return collection.__collection__ in list(self.database.list_collection_names())
 
     async def _create_collection(self, collection):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
+
         def get_type(dtype: typing.Union[type, typing.List, typing.Tuple]):
             type_mapper = {
                 datetime: ['date'],
@@ -43,7 +71,7 @@ class MongoDatabase(DatabasePlugin):
                 dict: ['object'],
                 list: ['array'],
                 tuple: ['array'],
-                object: ['object']
+                object: ['object'],
             }
 
             if isinstance(dtype, (tuple, list)):
@@ -51,9 +79,7 @@ class MongoDatabase(DatabasePlugin):
             else:
                 return type_mapper.get(dtype, ['object'])
 
-        self.database.create_collection(
-            collection.__collection__
-        )
+        self.database.create_collection(collection.__collection__)
 
         vexpr = {
             '$jsonSchema': {
@@ -61,7 +87,7 @@ class MongoDatabase(DatabasePlugin):
                 'required': list(
                     map(lambda x: x[0], filter(lambda y: not y[1].nullable, collection.fields(collection).items()))
                 ),
-                'properties': {}
+                'properties': {},
             }
         }
         for field_name, field in collection.fields(collection).items():
@@ -70,14 +96,14 @@ class MongoDatabase(DatabasePlugin):
                 'bsonType': list(
                     set(get_type(field.dtype) if not field.nullable else get_type(field.dtype) + ['null'])
                 ),
-                'description': ''
+                'description': '',
             }
 
         cmd = OrderedDict(
             [  # indexes can be added here as well
                 ('collMod', collection.__collection__),
                 ('validator', vexpr),
-                ('validationLevel', 'moderate')
+                ('validationLevel', 'moderate'),
             ]
         )
 
@@ -94,15 +120,33 @@ class MongoDatabase(DatabasePlugin):
                 continue
             index_names.add(index_name)
             try:
-                self.database[collection.__collection__].create_index(c, unique=isinstance(index, UniqueConstraint), name=index_name)
+                self.database[collection.__collection__].create_index(
+                    c, unique=isinstance(index, UniqueConstraint), name=index_name
+                )
             except Exception as ex:
                 print(str(ex))
 
     async def _ensure_collection(self, collection):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if not await self._check_collection(collection):
             await self._create_collection(collection)
 
     async def _get_collection(self, collection):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         codec_options = DEFAULT_CODEC_OPTIONS.with_options(uuid_representation=UuidRepresentation.STANDARD)
         if self.session is None:
             return self.database.get_collection(collection, codec_options=codec_options)
@@ -110,6 +154,14 @@ class MongoDatabase(DatabasePlugin):
             return self.session.client[self.database_name].get_collection(collection, codec_options=codec_options)
 
     async def insert(self, document, *docs):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         for doc in docs:
             d = dict(**doc)
 
@@ -123,6 +175,14 @@ class MongoDatabase(DatabasePlugin):
             collection.insert_one(d, session=self.session)
 
     async def read(self, document, query):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if document.__metaclass__.structured and document.__metaclass__.force:
             await self._ensure_collection(document.__metaclass__)
         elif document.__metaclass__.structured:
@@ -135,6 +195,14 @@ class MongoDatabase(DatabasePlugin):
             yield document(**doc)
 
     async def update(self, document, query, update):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if document.__metaclass__.structured and document.__metaclass__.force:
             await self._ensure_collection(document.__metaclass__)
         elif document.__metaclass__.structured:
@@ -144,6 +212,14 @@ class MongoDatabase(DatabasePlugin):
         collection.update_many(dict(**query), {'$set': dict(**update)}, session=self.session)
 
     async def delete(self, document, query):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if document.__metaclass__.structured and document.__metaclass__.force:
             await self._ensure_collection(document.__metaclass__)
         elif document.__metaclass__.structured:
@@ -153,14 +229,46 @@ class MongoDatabase(DatabasePlugin):
         collection.delete_many(dict(**query), session=self.session)
 
     async def start(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.session = self.client.start_session()
         self.session.start_transaction(read_concern.ReadConcern('majority'), write_concern.WriteConcern('majority'))
 
     async def commit(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.session.commit_transaction()
 
     async def abort(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.session.abort_transaction()
 
     async def end(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.session.end_session()

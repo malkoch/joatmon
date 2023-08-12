@@ -8,26 +8,13 @@ import time
 import openai
 
 from joatmon import context
-from joatmon.assistant import (
-    service,
-    task
-)
+from joatmon.assistant import service, task
 from joatmon.assistant.intent import GenericAssistant
-from joatmon.assistant.service import (
-    ServiceInfo,
-    ServiceState
-)
+from joatmon.assistant.service import ServiceInfo, ServiceState
 from joatmon.assistant.stt import STTAgent
-from joatmon.assistant.task import (
-    BaseTask,
-    TaskInfo,
-    TaskState
-)
+from joatmon.assistant.task import BaseTask, TaskInfo, TaskState
 from joatmon.assistant.tts import TTSAgent
-from joatmon.system.hid.console import (
-    ConsoleReader,
-    ConsoleWriter
-)
+from joatmon.system.hid.console import ConsoleReader, ConsoleWriter
 from joatmon.system.hid.microphone import Microphone
 from joatmon.system.hid.speaker import Speaker
 from joatmon.system.lock import RWLock
@@ -45,6 +32,20 @@ openai.api_key = json.loads(open('iva/iva.json', 'r').read())['config']['openai'
 
 
 class API:
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self):
         settings = json.loads(open('iva/iva.json', 'r').read())
 
@@ -87,7 +88,9 @@ class API:
 
         self.output('starting automatic services')
         services = settings.get('services', [])
-        for _service in sorted(filter(lambda x: x['status'] and x['mode'] == 'automatic', services), key=lambda x: x['priority']):
+        for _service in sorted(
+            filter(lambda x: x['status'] and x['mode'] == 'automatic', services), key=lambda x: x['priority']
+        ):
             self.start_service(_service['name'])  # need to do them in background
 
         self.output('creating cleanup thread')
@@ -109,6 +112,14 @@ class API:
         # need event viewer
 
     def run_interval(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         while not self.event.is_set():
             settings = json.loads(open('iva/iva.json', 'r').read())
             tasks = settings.get('tasks', [])
@@ -120,7 +131,9 @@ class API:
             new_tasks = filter(lambda x: x.get('last_run_time', None) is None, tasks)
             new_tasks = list(new_tasks)
             old_tasks = filter(lambda x: x.get('next_run_time', None) is not None, tasks)
-            old_tasks = filter(lambda x: datetime.datetime.now() > datetime.datetime.fromisoformat(x['next_run_time']), old_tasks)
+            old_tasks = filter(
+                lambda x: datetime.datetime.now() > datetime.datetime.fromisoformat(x['next_run_time']), old_tasks
+            )
             old_tasks = list(old_tasks)
 
             for _task in sorted(new_tasks, key=lambda x: x['priority']):
@@ -134,6 +147,14 @@ class API:
             time.sleep(1)
 
     def run_services(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         settings = json.loads(open('iva/iva.json', 'r').read())
 
         services = settings.get('services', [])
@@ -142,11 +163,22 @@ class API:
 
         while not self.event.is_set():
             for _service in sorted(filter(lambda x: x['status'], services), key=lambda x: x['priority']):
-                if _service['name'] not in self.running_services or self.running_services[_service['name']].state == ServiceState.finished:
+                if (
+                    _service['name'] not in self.running_services
+                    or self.running_services[_service['name']].state == ServiceState.finished
+                ):
                     self.start_service(_service['name'])  # need to do them in background
             time.sleep(1)
 
     def clean(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         while not self.event.is_set():
             with self.lock.r_locked():
                 task_keys = [key for key in self.running_tasks.keys()]
@@ -173,14 +205,30 @@ class API:
             time.sleep(1)
 
     def listen_intent(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         response = self.input('what is your intent')
         intent, prob = self.intent(response)
-        if prob > .9:
+        if prob > 0.9:
             return intent
         else:
             return response
 
     def listen_command(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         response = self.input('what is your command')
 
         tasks = []
@@ -189,7 +237,9 @@ class API:
         for scripts_folder in settings.get('scripts', []):
             if os.path.isabs(scripts_folder):
                 for script_file in os.listdir(scripts_folder):
-                    spec = importlib.util.spec_from_file_location(scripts_folder, os.path.join(scripts_folder, script_file))
+                    spec = importlib.util.spec_from_file_location(
+                        scripts_folder, os.path.join(scripts_folder, script_file)
+                    )
                     action_module = importlib.util.module_from_spec(spec)
                     spec.loader.exec_module(action_module)
 
@@ -208,7 +258,9 @@ class API:
                         if '__' in script_file:
                             continue
 
-                        spec = importlib.util.spec_from_file_location(scripts_folder, os.path.join(scripts_folder, script_file))
+                        spec = importlib.util.spec_from_file_location(
+                            scripts_folder, os.path.join(scripts_folder, script_file)
+                        )
                         action_module = importlib.util.module_from_spec(spec)
                         spec.loader.exec_module(action_module)
 
@@ -225,9 +277,7 @@ class API:
         functions = list(filter(lambda x: x, functions))
 
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo-0613",
-            messages=[{"role": "user", "content": response}],
-            functions=functions
+            model='gpt-3.5-turbo-0613', messages=[{'role': 'user', 'content': response}], functions=functions
         )
 
         result = response['choices'][0]
@@ -237,6 +287,14 @@ class API:
             return message['function_call']['name'], json.loads(message['function_call']['arguments'])
 
     def input(self, prompt=None):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         # put the input to the queue
         # if the task is called from outside, putting inputs to the queue by hand will make it work
 
@@ -257,6 +315,14 @@ class API:
         return response
 
     def output(self, text):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if self.tts:
             text = self.tts_agent.convert(text)
             self.speaker.say(text)
@@ -264,9 +330,25 @@ class API:
             self.writer.write(text)
 
     def intent(self, text):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return self.assistant.request(text)
 
     def do_action(self, line):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         try:
             if line is None or line == '':
                 return False
@@ -304,6 +386,14 @@ class API:
             # return self.exit()
 
     def run_task(self, task_name, kwargs=None, background=False):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         _task = task.get(self, task_name, kwargs, background)
         if _task is None:
             return False
@@ -319,6 +409,14 @@ class API:
         return False
 
     def start_service(self, service_name):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         _task = service.get(self, service_name)
         if _task is None:
             return False
@@ -333,23 +431,49 @@ class API:
         return False
 
     def stop_service(self, service_name):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.running_services[service_name].state = ServiceState.stopped
         self.running_services[service_name].service.stop()
         return False
 
     def restart_service(self, service_name):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.stop_service(service_name)
         self.start_service(service_name)
         return False
 
     def exit(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.output('shutting down the system')
 
         settings = json.loads(open('iva/iva.json', 'r').read())
 
         self.output('running shutdown tasks')
         tasks = settings.get('tasks', [])
-        for _task in sorted(filter(lambda x: x['status'] and x['on'] == 'shutdown', tasks), key=lambda x: x['priority']):
+        for _task in sorted(
+            filter(lambda x: x['status'] and x['on'] == 'shutdown', tasks), key=lambda x: x['priority']
+        ):
             self.run_task(_task['name'])
 
         self.output('stopping background tasks, jobs and services')
@@ -371,11 +495,27 @@ class API:
         return True
 
     def mainloop(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         while not self.event.is_set():
             command = self.listen_intent()
             self.do_action(command)
 
 
 def main():
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     api = API()
     api.mainloop()

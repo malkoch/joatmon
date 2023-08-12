@@ -1,17 +1,36 @@
 from joatmon import context
 from joatmon.plugin.localizer.core import Localizer
-from joatmon.utility import (
-    new_object_id,
-    to_list_async
-)
+from joatmon.utility import new_object_id, to_list_async
 
 
 class DatabaseLocalizer(Localizer):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, database, cls):
         self.database = database
         self.cls = cls
 
     async def localize(self, language, keys):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         database = context.get_value(self.database)
 
         db_resources = await to_list_async(database.read(self.cls, {'key': {'$in': keys}}))

@@ -4,6 +4,20 @@ from joatmon.system.gui.widgets.widget import Element
 
 
 class Button(Element):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, id_):
         super(Button, self).__init__(id_)
 
@@ -21,6 +35,14 @@ class Button(Element):
         self.is_clicked = False
 
     def icon(self, icon):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         _icon = pygame.image.load(icon)
 
         self._width = self._height
@@ -32,11 +54,27 @@ class Button(Element):
         return self
 
     def text(self, text):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self._text = text
 
         return self
 
     def style(self, style):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         super(Button, self).style(style)
 
         self._text_color = style.get('text_color', self._text_color)
@@ -46,7 +84,17 @@ class Button(Element):
         return self
 
     def draw(self, screen):
-        color = self._click_color if self.is_clicked else self._hover_color if self.is_hovered else self._background_color
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
+        color = (
+            self._click_color if self.is_clicked else self._hover_color if self.is_hovered else self._background_color
+        )
 
         border_color = self._border.get('color', (0, 0, 0))
         thickness = self._border.get('thickness', 1)
@@ -80,6 +128,14 @@ class Button(Element):
             screen.blit(text_surface, text_rect)
 
     def handle_event(self, event):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if event.type == pygame.MOUSEMOTION:
             self.is_hovered = self._rect.collidepoint(event.pos)
             if self.is_hovered:

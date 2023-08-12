@@ -2,6 +2,14 @@ from collections import deque
 
 
 def postorder(root):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if root is None:
         return
 
@@ -22,6 +30,14 @@ def postorder(root):
 
 
 def postorder_r(root):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if root is None:
         return
 

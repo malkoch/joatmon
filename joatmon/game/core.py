@@ -2,17 +2,55 @@ import gym
 
 
 class CoreSpace(gym.Space):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, shape=None, dtype=None):
         super(CoreSpace, self).__init__(shape, dtype)
 
     @property
     def is_np_flattenable(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         raise NotImplementedError
 
     def sample(self, mask=None):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         raise NotImplementedError
 
     def contains(self, x) -> bool:
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         raise NotImplementedError
 
 
@@ -32,7 +70,7 @@ class CoreEnv(gym.Env):
     Refer to the [Gym documentation](https://gym.openai.com/docs/#environment).
     """
 
-    reward_range = (-float("inf"), float("inf"))
+    reward_range = (-float('inf'), float('inf'))
     action_space: CoreSpace
     observation_space: CoreSpace
 
@@ -92,4 +130,12 @@ class CoreEnv(gym.Env):
         raise NotImplementedError
 
     def goal(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         raise NotImplementedError

@@ -2,6 +2,14 @@ from collections import deque
 
 
 def bfs(graph, v, discovered):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     q = deque()
     discovered[v] = True
     q.append(v)
@@ -17,6 +25,14 @@ def bfs(graph, v, discovered):
 
 
 def bfs_r(graph, q, discovered):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if not q:
         return
 

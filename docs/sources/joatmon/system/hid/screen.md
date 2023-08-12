@@ -2,7 +2,7 @@
 
 
 ## POINT
-```python 
+```python
 POINT()
 ```
 
@@ -16,6 +16,13 @@ POINT()
 .resolution()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ----
 
@@ -25,6 +32,13 @@ POINT()
 .cursor()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ----
 
@@ -36,3 +50,10 @@ POINT()
 )
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
