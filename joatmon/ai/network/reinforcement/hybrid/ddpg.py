@@ -5,6 +5,20 @@ __all__ = ['DDPGActor', 'DDPGCritic']
 
 
 class DDPGActor(nn.Module):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, in_features, out_features):
         super(DDPGActor, self).__init__()
 
@@ -17,7 +31,7 @@ class DDPGActor(nn.Module):
             nn.ReLU(inplace=True),
             nn.Conv2d(in_channels=64, out_channels=64, kernel_size=(3, 3), stride=(1, 1)),
             nn.BatchNorm2d(num_features=64),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
 
         self.predictor = nn.Sequential(
@@ -28,15 +42,37 @@ class DDPGActor(nn.Module):
             nn.BatchNorm1d(num_features=200),
             nn.ReLU(inplace=True),
             nn.Linear(in_features=200, out_features=out_features),
-            nn.Tanh()
+            nn.Tanh(),
         )
 
     def forward(self, x):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         x = self.extractor(x)
         return self.predictor(x.view(x.size(0), -1))
 
 
 class DDPGCritic(nn.Module):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, in_features, out_features):
         super(DDPGCritic, self).__init__()
 
@@ -49,7 +85,7 @@ class DDPGCritic(nn.Module):
             nn.ReLU(inplace=True),
             nn.Conv2d(in_channels=64, out_channels=64, kernel_size=(3, 3), stride=(1, 1)),
             nn.BatchNorm2d(num_features=64),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
 
         self.relu = nn.ReLU(inplace=True)
@@ -62,6 +98,14 @@ class DDPGCritic(nn.Module):
         self.bn2 = nn.BatchNorm1d(200)
 
     def forward(self, x, y):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         x = self.extractor(x)
 
         x = self.relu(self.bn1(self.linear1(x.view(x.size(0), -1))))

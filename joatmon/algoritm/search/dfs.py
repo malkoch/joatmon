@@ -2,6 +2,14 @@ from collections import deque
 
 
 def dfs(graph, v, discovered):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     stack = deque()
     stack.append(v)
 
@@ -22,6 +30,14 @@ def dfs(graph, v, discovered):
 
 
 def dfs_r(graph, v, discovered):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     discovered[v] = True  # mark the current node as discovered
     yield v
 

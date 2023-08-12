@@ -4,6 +4,20 @@ from joatmon.event import Event
 
 
 class InputField:
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self):
         self._x = None
         self._y = None
@@ -23,10 +37,7 @@ class InputField:
         self._rect = None
         self._icon = None
 
-        self._events = {
-            'hover': Event(),
-            'change': Event()
-        }
+        self._events = {'hover': Event(), 'change': Event()}
 
         self.is_hovered = False
         self.is_clicked = False
@@ -36,12 +47,28 @@ class InputField:
         self._text = ''
 
     def position(self, x, y):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self._x = x
         self._y = y
 
         return self
 
     def size(self, width, height):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self._width = width
         self._height = height
 
@@ -50,6 +77,14 @@ class InputField:
         return self
 
     def icon(self, icon):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         _icon = pygame.image.load(icon)
 
         self._width = self._height
@@ -61,12 +96,28 @@ class InputField:
         return self
 
     def text(self, text, font):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self._text = text
         self._font = font
 
         return self
 
     def color(self, t_color, b_color, h_color, c_color):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self._text_color = t_color
         self._background_color = b_color
         self._hover_color = h_color
@@ -75,10 +126,26 @@ class InputField:
         return self
 
     def border(self, border):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self._border = border
         return self
 
     def on(self, event, func):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         _event = self._events.get(event, None)
         if _event:
             _event += func
@@ -86,9 +153,25 @@ class InputField:
         return self
 
     def placeholder(self, placeholder):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self._placeholder = placeholder
 
     def handle_event(self, event):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if event.type == pygame.MOUSEMOTION:
             self.is_hovered = self._rect.collidepoint(event.pos)
             if self.is_hovered:
@@ -118,6 +201,14 @@ class InputField:
                         _event.fire()
 
     def draw(self, screen):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         border_color = self._border.get('color', (0, 0, 0))
         thickness = self._border.get('thickness', 1)
         radius = self._border.get('radius', 1)
@@ -136,7 +227,12 @@ class InputField:
                 shadow_rect.y += shadow
                 pygame.draw.rect(screen, pygame.Color('gray'), shadow_rect, border_radius=radius)  # shadow color
 
-                pygame.draw.rect(screen, pygame.Color('gray') if self.is_hovered else pygame.Color('white'), border_rect, border_radius=radius)
+                pygame.draw.rect(
+                    screen,
+                    pygame.Color('gray') if self.is_hovered else pygame.Color('white'),
+                    border_rect,
+                    border_radius=radius,
+                )
             pygame.draw.rect(screen, border_color, border_rect, thickness, border_radius=radius)
 
         font = pygame.font.SysFont(None, 24)
@@ -144,5 +240,7 @@ class InputField:
         # pygame.draw.rect(screen, self._background_color, self._rect, 0)
         # pygame.draw.rect(screen, self._border.get('color', (0, 0, 0)), self._rect, 2)
 
-        text_surface = font.render(self._text if self._text is not None and self._text != '' else self._placeholder, True, self._text_color)
+        text_surface = font.render(
+            self._text if self._text is not None and self._text != '' else self._placeholder, True, self._text_color
+        )
         screen.blit(text_surface, (self._rect.x + 5, self._rect.y + 5))

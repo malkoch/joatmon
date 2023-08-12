@@ -2,6 +2,14 @@ from collections import deque
 
 
 def preorder(root):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if root is None:
         return
 
@@ -19,6 +27,14 @@ def preorder(root):
 
 
 def preorder_r(root):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if root is None:
         return
 

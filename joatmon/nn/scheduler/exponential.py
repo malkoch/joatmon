@@ -1,8 +1,6 @@
 import warnings
 
-from joatmon.nn.core import (
-    LRScheduler
-)
+from joatmon.nn.core import LRScheduler
 
 __all__ = ['ExponentialLR']
 
@@ -24,12 +22,30 @@ class ExponentialLR(LRScheduler):
         super(ExponentialLR, self).__init__(optimizer, last_epoch, verbose)
 
     def get_lr(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if not self._get_lr_called_within_step:
-            warnings.warn("To get the last learning rate computed by the scheduler, please use `get_last_lr()`.", UserWarning)
+            warnings.warn(
+                'To get the last learning rate computed by the scheduler, please use `get_last_lr()`.', UserWarning
+            )
 
         if self.last_epoch == 0:
             return self.base_lrs
         return [group['lr'] * self.gamma for group in self.optimizer.param_groups]
 
     def _get_closed_form_lr(self):
-        return [base_lr * self.gamma ** self.last_epoch for base_lr in self.base_lrs]
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
+        return [base_lr * self.gamma**self.last_epoch for base_lr in self.base_lrs]

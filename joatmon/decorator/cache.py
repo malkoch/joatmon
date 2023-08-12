@@ -3,14 +3,19 @@ import inspect
 import json
 
 from joatmon import context
-from joatmon.utility import (
-    JSONEncoder,
-    to_enumerable,
-    to_hash
-)
+from joatmon.utility import JSONEncoder, to_enumerable, to_hash
 
 
 def cached(cache, duration):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+
     def _decorator(func):
         @functools.wraps(func)
         async def _wrapper(*args, **kwargs):
@@ -32,6 +37,15 @@ def cached(cache, duration):
 
 
 def remove(cache, regex):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+
     def _decorator(func):
         @functools.wraps(func)
         async def _wrapper(*args, **kwargs):

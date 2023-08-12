@@ -2,84 +2,244 @@ from enum import Enum
 
 
 class Arithmetic(Enum):
-    add = "+"
-    sub = "-"
-    mul = "*"
-    div = "/"
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
+    add = '+'
+    sub = '-'
+    mul = '*'
+    div = '/'
 
 
 class Comparator(Enum):
-    pass
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
 
 
 class Equality(Comparator):
-    eq = "="
-    ne = "<>"
-    gt = ">"
-    gte = ">="
-    lt = "<"
-    lte = "<="
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
+    eq = '='
+    ne = '<>'
+    gt = '>'
+    gte = '>='
+    lt = '<'
+    lte = '<='
 
 
 class Matching(Comparator):
-    not_like = " NOT LIKE "
-    like = " LIKE "
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
+    not_like = ' NOT LIKE '
+    like = ' LIKE '
 
 
 class Boolean(Comparator):
-    and_ = "AND"
-    or_ = "OR"
-    xor_ = "XOR"
-    true = "TRUE"
-    false = "FALSE"
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
+    and_ = 'AND'
+    or_ = 'OR'
+    xor_ = 'XOR'
+    true = 'TRUE'
+    false = 'FALSE'
 
 
 class Order(Enum):
-    asc = "ASC"
-    desc = "DESC"
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
+    asc = 'ASC'
+    desc = 'DESC'
 
 
 class JoinType(Enum):
-    inner = ""
-    left = "LEFT"
-    right = "RIGHT"
-    outer = "FULL OUTER"
-    left_outer = "LEFT OUTER"
-    right_outer = "RIGHT OUTER"
-    full_outer = "FULL OUTER"
-    cross = "CROSS"
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
+    inner = ''
+    left = 'LEFT'
+    right = 'RIGHT'
+    outer = 'FULL OUTER'
+    left_outer = 'LEFT OUTER'
+    right_outer = 'RIGHT OUTER'
+    full_outer = 'FULL OUTER'
+    cross = 'CROSS'
 
 
 class DatePart(Enum):
-    year = "YEAR"
-    quarter = "QUARTER"
-    month = "MONTH"
-    week = "WEEK"
-    day = "DAY"
-    hour = "HOUR"
-    minute = "MINUTE"
-    second = "SECOND"
-    microsecond = "MICROSECOND"
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
+    year = 'YEAR'
+    quarter = 'QUARTER'
+    month = 'MONTH'
+    week = 'WEEK'
+    day = 'DAY'
+    hour = 'HOUR'
+    minute = 'MINUTE'
+    second = 'SECOND'
+    microsecond = 'MICROSECOND'
 
 
 class Dialects(Enum):
-    MSSQL = "mssql"
-    MYSQL = "mysql"
-    POSTGRESQL = "postgressql"
-    SQLLITE = "sqllite"
-    MONGO = "mongo"
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
+    MSSQL = 'mssql'
+    MYSQL = 'mysql'
+    POSTGRESQL = 'postgressql'
+    SQLLITE = 'sqllite'
+    MONGO = 'mongo'
 
 
 class Node:
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, alias):
         self.alias = alias
 
     def as_(self, alias):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.alias = alias
         return self
 
 
 class Term(Node):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, alias):
         super(Term, self).__init__(alias)
 
@@ -114,14 +274,44 @@ class Term(Node):
         return ArithmeticExpression(Arithmetic.div, self, other)
 
     def build(self, dialect, depth=0):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         raise NotImplementedError
 
 
 class ValueWrapper:
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, value):
         self.value = value
 
     def build(self, dialect, depth=0):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if self.value is None:
             return 'null'
         elif self.value is True:
@@ -129,11 +319,25 @@ class ValueWrapper:
         elif self.value is False:
             return 'false'
         elif isinstance(self.value, str):
-            return f'\'{self.value}\''
+            return f"'{self.value}'"
         return str(self.value)
 
 
 class Criterion(Term):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __and__(self, other):
         return ComplexCriteria(Boolean.and_, self, other)
 
@@ -145,14 +349,44 @@ class Criterion(Term):
 
     @staticmethod
     def any():
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     @staticmethod
     def all():
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
 
 class BasicCriteria(Criterion):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, comparator: Comparator, left: Term, right: Term, alias=None):
         super(BasicCriteria, self).__init__(alias)
 
@@ -165,6 +399,14 @@ class BasicCriteria(Criterion):
         self.right = right
 
     def build(self, dialect, depth=0):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if dialect == Dialects.MSSQL:
             ret = ''
             if self.comparator == Equality.eq:
@@ -210,6 +452,20 @@ class BasicCriteria(Criterion):
 
 
 class ComplexCriteria(Criterion):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, comparator: Comparator, left: Term, right: Term, alias=None):
         super(ComplexCriteria, self).__init__(alias)
 
@@ -218,6 +474,14 @@ class ComplexCriteria(Criterion):
         self.right = right
 
     def build(self, dialect, depth=0):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if dialect == Dialects.MSSQL:
             ret = ''
             if self.comparator == Boolean.and_:
@@ -241,6 +505,20 @@ class ComplexCriteria(Criterion):
 
 
 class ArithmeticExpression(Term):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, operator: Arithmetic, left, right, alias=None):
         super(ArithmeticExpression, self).__init__(alias)
 
@@ -251,6 +529,14 @@ class ArithmeticExpression(Term):
         self.right = right
 
     def build(self, dialect, depth=0):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if dialect == Dialects.MSSQL:
             ret = '('
             if self.operator == Arithmetic.add:
@@ -284,6 +570,20 @@ class ArithmeticExpression(Term):
 
 
 class Column(Term):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, name, table):
         super(Column, self).__init__(None)
 
@@ -292,11 +592,33 @@ class Column(Term):
         self.alias = None
 
     def build(self, dialect, depth=0):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if dialect == Dialects.POSTGRESQL:
             return f'{self._table.build(dialect)}."{self._name}"'
 
 
 class Table:
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, name, schema=None):
         self._name = name
         self._schema = schema
@@ -306,13 +628,37 @@ class Table:
         return Column(item, self)
 
     def star(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return Column('*', self)
 
     def as_(self, alias):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.alias = alias
         return self
 
     def build(self, dialect, depth=0):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if dialect == Dialects.POSTGRESQL:
             if self._schema is None:
                 return f'"{self._name}"'
@@ -321,6 +667,20 @@ class Table:
 
 
 class Schema:
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, name, database):
         self._name = name
         self._database = database
@@ -330,15 +690,45 @@ class Schema:
         return Table(item, self)
 
     def as_(self, alias):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.alias = alias
         return self
 
     def build(self, dialect, depth=0):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if dialect == Dialects.POSTGRESQL:
             return f'{self._database.build(dialect)}."{self._name}"'
 
 
 class Database:
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, name):
         self._name = name
         self.alias = None
@@ -347,24 +737,70 @@ class Database:
         return Schema(item, self)
 
     def as_(self, alias):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.alias = alias
         return self
 
     def build(self, dialect, depth=0):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if dialect == Dialects.POSTGRESQL:
             return f'"{self._name}"'
 
 
 class Count:
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, column):
         self.column = column
         self.alias = None
 
     def as_(self, alias):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.alias = alias
         return self
 
     def build(self, dialect, depth=0):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if dialect == Dialects.MSSQL:
             if isinstance(self.column, Column):
                 return f'count({self.column._table._name}.{self.column._name})'
@@ -380,6 +816,20 @@ class Count:
 
 
 class Array:
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, *column):
         self.column = column
         self.alias = None
@@ -387,14 +837,38 @@ class Array:
         self.dtype = None
 
     def as_(self, alias):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.alias = alias
         return self
 
     def as_text(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.dtype = 'text'
         return self
 
     def build(self, dialect, depth=0):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if dialect == Dialects.MSSQL:
             raise ValueError
         if dialect == Dialects.POSTGRESQL:
@@ -414,6 +888,20 @@ class Array:
 
 
 class JSON:
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, **kwargs):
         self.column = kwargs
         self.alias = None
@@ -422,22 +910,62 @@ class JSON:
         self.is_array = True
 
     def as_(self, alias):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.alias = alias
         return self
 
     def as_text(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.dtype = 'text'
         return self
 
     def array(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.is_array = True
         return self
 
     def object(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.is_array = False
         return self
 
     def build(self, dialect, depth=0):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         # print('-' * 30)
         # print(self.column)
         # print('-' * 30)
@@ -446,18 +974,40 @@ class JSON:
         if dialect == Dialects.POSTGRESQL:
             x = ','.join(["'" + k + "'" + ', ' + v.build(dialect) for k, v in self.column.items()])
             if self.is_array:
-                return f"json_agg(json_build_object({x}))"
+                return f'json_agg(json_build_object({x}))'
             else:
-                return f"json_build_object({x})"
+                return f'json_build_object({x})'
         if dialect == Dialects.MONGO:
             ...
 
 
 class Sum:
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, column):
         self.column = column
 
     def build(self, dialect, depth=0):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if dialect == Dialects.MSSQL:
             return f'sum({self.column._table._name}.{self.column._name})'
         if dialect == Dialects.POSTGRESQL:
@@ -467,6 +1017,20 @@ class Sum:
 
 
 class Query:
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self):
         self.projection = []
         self.condition = None
@@ -482,33 +1046,97 @@ class Query:
         self.alias = None
 
     def as_table(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return Table(self.alias)
 
     def as_(self, alias):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.alias = alias
         return self
 
     def with_(self, *query):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.withs = query
         return self
 
     def select(self, *terms):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.projection += list(terms)
         return self
 
     def from_(self, *tables):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.tables += list(tables)
         return self
 
     def join(self, table, term):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.joins.append(('inner', table, term))
         return self
 
     def left_join(self, table, term):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.joins.append(('left', table, term))
         return self
 
     def where(self, term):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if self.condition is None:
             self.condition = term
         else:
@@ -516,18 +1144,50 @@ class Query:
         return self
 
     def group(self, *terms):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.grouping += list(terms)
         return self
 
     def order(self, *terms):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.sort += list(terms)
         return self
 
     def top(self, limit):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.limit = limit
         return self
 
     def build(self, dialect, depth=0):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if dialect == Dialects.POSTGRESQL:
             sql = ''
             if len(self.withs) > 0:
@@ -538,7 +1198,9 @@ class Query:
 
             if depth >= 0:
                 sql += '('
-            sql += 'select ' + ', '.join([x.build(dialect, depth + 1) + " as " + x.alias for x in self.projection]) + '\n'
+            sql += (
+                'select ' + ', '.join([x.build(dialect, depth + 1) + ' as ' + x.alias for x in self.projection]) + '\n'
+            )
 
             if len(self.tables) == 0:
                 raise ValueError('from clause cannot be empty')
@@ -548,7 +1210,10 @@ class Query:
                 for join in self.joins:
                     jtype, jtable, condition = join
 
-                    sql += f'{jtype} join {jtable.build(dialect) if not isinstance(jtable, Query) else jtable.as_table().build(dialect)} on {condition.build(dialect)}' + '\n'
+                    sql += (
+                        f'{jtype} join {jtable.build(dialect) if not isinstance(jtable, Query) else jtable.as_table().build(dialect)} on {condition.build(dialect)}'
+                        + '\n'
+                    )
 
             if self.condition is not None:
                 sql += 'where ' + self.condition.build(dialect) + '\n'
@@ -568,8 +1233,8 @@ class Query:
             return sql
         if dialect == Dialects.MONGO:
             # first table will be base table
-            select = [x.build(dialect) for x in self.projection]
-            where = [x.build(dialect) for x in self.condition]
+            [x.build(dialect) for x in self.projection]
+            [x.build(dialect) for x in self.condition]
 
             ret = []
             for table in self.condition:

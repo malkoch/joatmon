@@ -13,17 +13,33 @@ screen_size = 400
 
 
 def flip(pos):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     return pos[0], -pos[1] + screen_size
 
 
 def project_points(points, q, view, vertical=(0, 1, 0)):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     points = np.asarray(points)
     view = np.asarray(view)
 
     xdir = np.cross(vertical, view).astype(float)
 
     if np.all(xdir == 0):
-        raise ValueError("vertical is parallel to v")
+        raise ValueError('vertical is parallel to v')
 
     xdir /= np.sqrt(np.dot(xdir, xdir))
 
@@ -41,18 +57,36 @@ def project_points(points, q, view, vertical=(0, 1, 0)):
     dproj = -dpoint * v2 / dpoint_view
 
     trans = list(range(1, dproj.ndim)) + [0]
-    return np.array(
-        [
-            np.dot(dproj, xdir), np.dot(dproj, ydir), -np.dot(dpoint, zdir)
-        ]
-    ).transpose(trans)
+    return np.array([np.dot(dproj, xdir), np.dot(dproj, ydir), -np.dot(dpoint, zdir)]).transpose(trans)
 
 
 def resize(pos):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     return pos * (screen_size // 4) + (screen_size // 2)
 
 
 class Quaternion:
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, x):
         self.x = np.asarray(x, dtype=float)
 
@@ -69,15 +103,25 @@ class Quaternion:
                 (prod[0, 0] - prod[1, 1] - prod[2, 2] - prod[3, 3]),
                 (prod[0, 1] + prod[1, 0] + prod[2, 3] - prod[3, 2]),
                 (prod[0, 2] - prod[1, 3] + prod[2, 0] + prod[3, 1]),
-                (prod[0, 3] + prod[1, 2] - prod[2, 1] + prod[3, 0])
-            ], dtype=np.float, order='F'
+                (prod[0, 3] + prod[1, 2] - prod[2, 1] + prod[3, 0]),
+            ],
+            dtype=np.float,
+            order='F',
         ).T
         return self.__class__(ret.reshape(return_shape))
 
     def __repr__(self):
-        return "Quaternion:\n" + self.x.__repr__()
+        return 'Quaternion:\n' + self.x.__repr__()
 
     def as_rotation_matrix(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         v, theta = self.as_v_theta()
 
         shape = theta.shape
@@ -90,19 +134,28 @@ class Quaternion:
             [
                 [v[0] * v[0] * (1 - c) + c, v[0] * v[1] * (1 - c) - v[2] * s, v[0] * v[2] * (1 - c) + v[1] * s],
                 [v[1] * v[0] * (1 - c) + v[2] * s, v[1] * v[1] * (1 - c) + c, v[1] * v[2] * (1 - c) - v[0] * s],
-                [v[2] * v[0] * (1 - c) - v[1] * s, v[2] * v[1] * (1 - c) + v[0] * s, v[2] * v[2] * (1 - c) + c]
-            ], order='F'
+                [v[2] * v[0] * (1 - c) - v[1] * s, v[2] * v[1] * (1 - c) + v[0] * s, v[2] * v[2] * (1 - c) + c],
+            ],
+            order='F',
         ).T
         return mat.reshape(shape + (3, 3))
 
     def as_v_theta(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         x = self.x.reshape((-1, 4)).T
 
-        norm = np.sqrt((x ** 2).sum(0))
+        norm = np.sqrt((x**2).sum(0))
         theta = 2 * np.arccos(x[0] / norm)
 
         v = np.array(x[1:], order='F')
-        v /= np.sqrt(np.sum(v ** 2, 0))
+        v /= np.sqrt(np.sum(v**2, 0))
 
         v = v.T.reshape(self.x.shape[:-1] + (3,))
         theta = theta.reshape(self.x.shape[:-1])
@@ -111,6 +164,14 @@ class Quaternion:
 
     @classmethod
     def from_v_theta(cls, v, theta):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         theta = np.asarray(theta)
         v = np.asarray(v)
         s = np.sin(0.5 * theta)
@@ -127,15 +188,45 @@ class Quaternion:
         return cls(x)
 
     def rotate(self, points):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         m = self.as_rotation_matrix()
         return np.dot(points, m.T)
 
 
 class Sticker:
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, color):
         self.color = color
 
     def draw(self, screen, points, view, rotation, vertical):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         points = project_points(points, rotation, view, vertical)[:, :2]
         points = list(map(resize, points))
         points = list(map(flip, points))
@@ -144,6 +235,20 @@ class Sticker:
 
 
 class Face:
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, n, color, top_left, increment):
         self.n = n
         self.top_left = top_left
@@ -152,63 +257,149 @@ class Face:
         self.stickers = [[Sticker(color) for _ in range(n)] for _ in range(n)]
 
     def draw(self, screen, view, rotation, vertical):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         for i, row in enumerate(self.stickers):
             for j, sticker in enumerate(row):
                 sticker.draw(
-                    screen, (self.top_left + self.increment[0] * (i + 0) + self.increment[1] * (j + 0),
-                             self.top_left + self.increment[0] * (i + 0) + self.increment[1] * (j + 1),
-                             self.top_left + self.increment[0] * (i + 1) + self.increment[1] * (j + 1),
-                             self.top_left + self.increment[0] * (i + 1) + self.increment[1] * (j + 0),
-                             self.top_left + self.increment[0] * (i + 0) + self.increment[1] * (j + 0)), view, rotation, vertical
+                    screen,
+                    (
+                        self.top_left + self.increment[0] * (i + 0) + self.increment[1] * (j + 0),
+                        self.top_left + self.increment[0] * (i + 0) + self.increment[1] * (j + 1),
+                        self.top_left + self.increment[0] * (i + 1) + self.increment[1] * (j + 1),
+                        self.top_left + self.increment[0] * (i + 1) + self.increment[1] * (j + 0),
+                        self.top_left + self.increment[0] * (i + 0) + self.increment[1] * (j + 0),
+                    ),
+                    view,
+                    rotation,
+                    vertical,
                 )
 
     def rotate(self, times):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         for _ in range(times):
             self.rot90()
 
     def rotate_layer(self, layer):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         for ind in range(layer, self.n - layer - 1):
             tmp = self.stickers[layer][ind].color
             self.stickers[layer][ind].color = self.stickers[self.n - layer - ind - 1][layer].color
-            self.stickers[self.n - layer - ind - 1][layer].color = self.stickers[self.n - layer - 1][self.n - layer - ind - 1].color
-            self.stickers[self.n - layer - 1][self.n - layer - ind - 1].color = self.stickers[layer + ind][self.n - layer - 1].color
+            self.stickers[self.n - layer - ind - 1][layer].color = self.stickers[self.n - layer - 1][
+                self.n - layer - ind - 1
+            ].color
+            self.stickers[self.n - layer - 1][self.n - layer - ind - 1].color = self.stickers[layer + ind][
+                self.n - layer - 1
+            ].color
             self.stickers[layer + ind][self.n - layer - 1].color = tmp
 
     def rot90(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         for layer in range(self.n // 2):
             self.rotate_layer(layer)
 
 
 class Cube:
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     # blue left, red front, yellow top
     # green right, orange back, white bottom
     def __init__(self, n=3):
         self.n = n
         self.faces = {
             'L': Face(
-                n, 0, np.asarray([-1, +1, -1]).astype('float32'),
-                (np.asarray([0, -1, 0]).astype('float32') * (2.0 / n), np.asarray([0, 0, +1]).astype('float32') * (2.0 / n))
+                n,
+                0,
+                np.asarray([-1, +1, -1]).astype('float32'),
+                (
+                    np.asarray([0, -1, 0]).astype('float32') * (2.0 / n),
+                    np.asarray([0, 0, +1]).astype('float32') * (2.0 / n),
+                ),
             ),
             'F': Face(
-                n, 1, np.asarray([-1, +1, +1]).astype('float32'),
-                (np.asarray([0, -1, 0]).astype('float32') * (2.0 / n), np.asarray([+1, 0, 0]).astype('float32') * (2.0 / n))
+                n,
+                1,
+                np.asarray([-1, +1, +1]).astype('float32'),
+                (
+                    np.asarray([0, -1, 0]).astype('float32') * (2.0 / n),
+                    np.asarray([+1, 0, 0]).astype('float32') * (2.0 / n),
+                ),
             ),
             'U': Face(
-                n, 2, np.asarray([-1, +1, -1]).astype('float32'),
-                (np.asarray([0, 0, +1]).astype('float32') * (2.0 / n), np.asarray([+1, 0, 0]).astype('float32') * (2.0 / n))
+                n,
+                2,
+                np.asarray([-1, +1, -1]).astype('float32'),
+                (
+                    np.asarray([0, 0, +1]).astype('float32') * (2.0 / n),
+                    np.asarray([+1, 0, 0]).astype('float32') * (2.0 / n),
+                ),
             ),
             'R': Face(
-                n, 3, np.asarray([+1, +1, +1]).astype('float32'),
-                (np.asarray([0, -1, 0]).astype('float32') * (2.0 / n), np.asarray([0, 0, -1]).astype('float32') * (2.0 / n))
+                n,
+                3,
+                np.asarray([+1, +1, +1]).astype('float32'),
+                (
+                    np.asarray([0, -1, 0]).astype('float32') * (2.0 / n),
+                    np.asarray([0, 0, -1]).astype('float32') * (2.0 / n),
+                ),
             ),
             'B': Face(
-                n, 4, np.asarray([+1, +1, -1]).astype('float32'),
-                (np.asarray([0, -1, 0]).astype('float32') * (2.0 / n), np.asarray([-1, 0, 0]).astype('float32') * (2.0 / n))
+                n,
+                4,
+                np.asarray([+1, +1, -1]).astype('float32'),
+                (
+                    np.asarray([0, -1, 0]).astype('float32') * (2.0 / n),
+                    np.asarray([-1, 0, 0]).astype('float32') * (2.0 / n),
+                ),
             ),
             'D': Face(
-                n, 5, np.asarray([-1, -1, +1]).astype('float32'),
-                (np.asarray([0, 0, -1]).astype('float32') * (2.0 / n), np.asarray([+1, 0, 0]).astype('float32') * (2.0 / n))
-            )
+                n,
+                5,
+                np.asarray([-1, -1, +1]).astype('float32'),
+                (
+                    np.asarray([0, 0, -1]).astype('float32') * (2.0 / n),
+                    np.asarray([+1, 0, 0]).astype('float32') * (2.0 / n),
+                ),
+            ),
         }
         self.order = ['D', 'B', 'L', 'R', 'F', 'U']
 
@@ -222,9 +413,19 @@ class Cube:
         self.vertical = [0, 1, 0]
 
     def draw(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.back.fill(pygame.color.THECOLORS['black'])
         for face_name in self.order[:3]:
-            self.faces[face_name].draw(self.back, list(map(lambda x: -x, self.view)), self.rotation, list(map(lambda x: -x, self.vertical)))
+            self.faces[face_name].draw(
+                self.back, list(map(lambda x: -x, self.view)), self.rotation, list(map(lambda x: -x, self.vertical))
+            )
         cv2.imshow('back', cv2.cvtColor(np.swapaxes(pygame.surfarray.array3d(self.back), 0, 1), cv2.COLOR_RGB2BGR))
 
         self.front.fill(pygame.color.THECOLORS['black'])
@@ -235,6 +436,14 @@ class Cube:
         cv2.waitKey(0)
 
     def swap_faces(self, faces):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         for row in range(self.n):
             for col in range(self.n):
                 tmp = self.faces[faces[0]].stickers[row][col].color
@@ -244,9 +453,24 @@ class Cube:
                 self.faces[faces[3]].stickers[row][col].color = tmp
 
     def swap_layers(self, faces, layer):
-        pass
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
 
     def u(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.faces['U'].rotate(1)
         for ind in range(self.n):
             tmp = self.faces['F'].stickers[0][ind].color
@@ -256,16 +480,40 @@ class Cube:
             self.faces['L'].stickers[0][ind].color = tmp
 
     def x(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.swap_faces(['F', 'D', 'B', 'U'])
         self.faces['L'].rotate(1)
         self.faces['R'].rotate(3)
 
     def y(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.swap_faces(['F', 'R', 'B', 'L'])
         self.faces['U'].rotate(1)
         self.faces['D'].rotate(3)
 
     def z(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.swap_faces(['R', 'U', 'L', 'D'])
         self.faces['F'].rotate(1)
         self.faces['B'].rotate(3)
@@ -276,19 +524,54 @@ class CubeEnv(CoreEnv):
         super(CubeEnv, self).__init__()
 
     def close(self):
-        pass
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
 
     def render(self, mode: str = 'human'):
-        pass
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
 
     def reset(self):
-        pass
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
 
     def seed(self, seed=None):
-        pass
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
 
     def step(self, action):
-        pass
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
 
 
 if __name__ == '__main__':

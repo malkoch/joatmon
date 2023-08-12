@@ -10,14 +10,24 @@ import threading
 from transitions import Machine
 
 from joatmon.event import Event
-from joatmon.utility import (
-    first,
-    get_module_classes,
-    JSONEncoder
-)
+from joatmon.utility import first, get_module_classes, JSONEncoder
 
 
 class BaseTask:
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, api, background=False, **kwargs):  # another parameter called cache output
         self.api = api
         self.kwargs = kwargs
@@ -26,36 +36,80 @@ class BaseTask:
             self.thread = threading.Thread(target=self.run)
         self.stop_event = threading.Event()
 
-        self.events = {
-            'begin': Event(),
-            'end': Event(),
-            'error': Event()
-        }
+        self.events = {'begin': Event(), 'end': Event(), 'error': Event()}
 
         states = ['none', 'started', 'stopped', 'running', 'exception', 'starting', 'stopping']
         self.machine = Machine(model=self, states=states, initial='none')
 
     @property
     def background(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return self._background
 
     @background.setter
     def background(self, value):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self._background = value
         if self.background:
             self.thread = threading.Thread(target=self.run)
 
     @staticmethod
     def help():
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return {}
 
     def run(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         raise NotImplementedError
 
     def running(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return not self.stop_event.is_set()
 
     def start(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.events['begin'].fire()
 
         if self.background:
@@ -64,12 +118,34 @@ class BaseTask:
             self.run()
 
     def stop(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.stop_event.set()
 
         self.events['end'].fire()
 
 
 class TaskState(enum.Enum):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     running = enum.auto()
     finished = enum.auto()
 
@@ -77,12 +153,34 @@ class TaskState(enum.Enum):
 # create from json and to json methods
 @dataclasses.dataclass
 class TaskInfo:
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     name: str
     state: TaskState
     task: BaseTask
 
 
 def on_begin(name, *args, **kwargs):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     settings = json.loads(open('iva/iva.json', 'r').read())
     tasks = settings.get('tasks', [])
 
@@ -104,14 +202,38 @@ def on_begin(name, *args, **kwargs):
 
 
 def on_error(name, *args, **kwargs):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     ...
 
 
 def on_end(name, *args, **kwargs):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     ...
 
 
 def create(api):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     name = api.input('name')
     priority = api.input('priority')
     on = api.input('on')
@@ -125,14 +247,7 @@ def create(api):
     # need last run result
     # need interval
     # if on == 'interval' need to as for interval as well
-    create_args = {
-        'name': name,
-        'priority': priority,
-        'on': on,
-        'script': script,
-        'status': True,
-        'kwargs': kwargs
-    }
+    create_args = {'name': name, 'priority': priority, 'on': on, 'script': script, 'status': True, 'kwargs': kwargs}
 
     settings = json.loads(open('iva/iva.json', 'r').read())
     tasks = settings.get('tasks', [])
@@ -144,6 +259,14 @@ def create(api):
 
 
 def get_class(name):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     task = None
 
     settings = json.loads(open('iva/iva.json', 'r').read())
@@ -176,6 +299,14 @@ def get_class(name):
 
 
 def get(api, name, kwargs, background):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     settings = json.loads(open('iva/iva.json', 'r').read())
     task_info = first(filter(lambda x: x['status'] and x['name'] == name, settings.get('tasks', [])))
 

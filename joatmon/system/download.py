@@ -7,6 +7,20 @@ import pycurl
 
 
 class Download:
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, url):
         self.url = url
         self.filename = url.split('/')[-1]
@@ -27,12 +41,28 @@ class Download:
         self.bom_check = {}
 
     def get_range(self, chunk, max_chunks):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if chunk == max_chunks - 1:
             return f'{int((self.size // max_chunks) * chunk)}-{int(self.size - 1)}'
 
         return f'{int((self.size // max_chunks) * chunk)}-{int((self.size // max_chunks) * (chunk + 1) - 1)}'
 
     def write_body(self, buf, chunk, f):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if not self.bom_check.get(chunk, False):
             if buf[:3] == codecs.BOM_UTF8:
                 buf = buf[3:]
@@ -41,13 +71,37 @@ class Download:
         f.write(buf)
 
     def write_header(self, buf, chunk):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         print(f'{chunk}: {buf}')
 
     def progress(self, *args, chunk):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
         # print(chunk, args)
 
     def download(self, chunks):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         files = []
 
         for chunk in range(chunks):
@@ -74,19 +128,19 @@ class Download:
 
             c.setopt(
                 pycurl.USERAGENT,
-                b"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36",
+                b'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36',
             )
             if pycurl.version_info()[7]:
-                c.setopt(pycurl.ENCODING, b"gzip, deflate")
+                c.setopt(pycurl.ENCODING, b'gzip, deflate')
             c.setopt(
                 pycurl.HTTPHEADER,
                 [
-                    b"Accept: */*",
-                    b"Accept-Language: en-US,en",
-                    b"Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7",
-                    b"Connection: keep-alive",
-                    b"Keep-Alive: 300",
-                    b"Expect:",
+                    b'Accept: */*',
+                    b'Accept-Language: en-US,en',
+                    b'Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7',
+                    b'Connection: keep-alive',
+                    b'Keep-Alive: 300',
+                    b'Expect:',
                 ],
             )
             self.chunks.append(c)
@@ -126,6 +180,14 @@ class Download:
 
 
 def download(url, chunks):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     d = Download(url)
     d.download(chunks)
     return d

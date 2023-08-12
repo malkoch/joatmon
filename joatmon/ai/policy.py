@@ -44,12 +44,34 @@ class GreedyQPolicy(CorePolicy):
         super().__init__()
 
     def reset(self):
-        pass
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
 
     def decay(self):
-        pass
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
 
     def use_network(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return True
 
 
@@ -71,11 +93,34 @@ class EpsilonGreedyPolicy(CorePolicy):
         self.epsilon_decay = (max_value - min_value) / decay_steps
 
     def reset(self):
-        pass
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
 
     def decay(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.epsilon -= self.epsilon_decay
         self.epsilon = max(self.epsilon, self.min_value)
 
     def use_network(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return np.random.uniform() >= self.epsilon

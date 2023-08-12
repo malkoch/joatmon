@@ -13,35 +13,56 @@ from joatmon.plugin.message.kafka import KafkaPlugin
 
 
 class Task(BaseTask):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, api, **kwargs):
         super(Task, self).__init__(api, **kwargs)
 
     @staticmethod
     def help():
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return {
-            "name": "mail",
-            "description": "a function for user to send a mail to someone",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "subject": {
-                        "type": "string",
-                        "description": "subject of the mail"
-                    },
-                    "message": {
-                        "type": "string",
-                        "description": "content of the mail"
-                    },
-                    "receiver": {
-                        "type": "string",
-                        "description": "receiver of the mail"
-                    }
+            'name': 'mail',
+            'description': 'a function for user to send a mail to someone',
+            'parameters': {
+                'type': 'object',
+                'properties': {
+                    'subject': {'type': 'string', 'description': 'subject of the mail'},
+                    'message': {'type': 'string', 'description': 'content of the mail'},
+                    'receiver': {'type': 'string', 'description': 'receiver of the mail'},
                 },
-                "required": ["subject", "message", "receiver"]
-            }
+                'required': ['subject', 'message', 'receiver'],
+            },
         }
 
     def run(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         subject = self.kwargs.get('subject', '') or self.api.input('what do you want the subject to be')
         message = self.kwargs.get('message', '') or self.api.input('what do you want the content to be')
         receiver = self.kwargs.get('receiver', '') or self.api.input('what do you want the receiver to be')
@@ -77,6 +98,20 @@ class Task(BaseTask):
 
 
 class Service(BaseService):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, api, **kwargs):
         super(Service, self).__init__(api, **kwargs)
 
@@ -86,9 +121,25 @@ class Service(BaseService):
 
     @staticmethod
     def help():
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return {}
 
     def send_mail(self, mail):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         config = json.loads(open('iva/iva.json', 'r').read())['config']['mail']
 
         text_subtype = mail['content_type']
@@ -111,6 +162,14 @@ class Service(BaseService):
         conn.quit()
 
     def run(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         while True:
             if self.event.is_set():
                 break

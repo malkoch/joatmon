@@ -13,6 +13,14 @@ if sys.platform != 'win32':
 
 
 def watermark(image=None, mark=None, region=None, alpha=0.2) -> numpy.ndarray:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if mark is None:
         raise Exception
 
@@ -36,6 +44,14 @@ def watermark(image=None, mark=None, region=None, alpha=0.2) -> numpy.ndarray:
 
 
 def crop(image=None, region=None) -> numpy.ndarray:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if image is None:
         image = grab()
 
@@ -44,19 +60,43 @@ def crop(image=None, region=None) -> numpy.ndarray:
     else:
         left, top, (right, bottom) = 0, 0, *image.size
 
-    return image[top: bottom, left: right]
+    return image[top:bottom, left:right]
 
 
 def show(image, title) -> None:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     cv2.imshow(title, image)
     cv2.waitKey(1)
 
 
 def save(image, path) -> None:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     cv2.imwrite(path, image)
 
 
 def mask(image=None, r1=(0, 255), g1=(0, 255), b1=(0, 255), r2=None, g2=None, b2=None):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if image is None:
         image = grab()
 
@@ -81,12 +121,22 @@ def mask(image=None, r1=(0, 255), g1=(0, 255), b1=(0, 255), r2=None, g2=None, b2
 
 
 def match_template(image=None, template=None, threshold=0.8) -> list:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if template is None:
         raise Exception
 
     if image is None:
         image = grab()
 
-    res = cv2.matchTemplate(cv2.cvtColor(image, cv2.COLOR_BGR2GRAY), cv2.cvtColor(template, cv2.COLOR_BGR2GRAY), cv2.TM_CCOEFF_NORMED)
+    res = cv2.matchTemplate(
+        cv2.cvtColor(image, cv2.COLOR_BGR2GRAY), cv2.cvtColor(template, cv2.COLOR_BGR2GRAY), cv2.TM_CCOEFF_NORMED
+    )
     loc = numpy.where(res >= threshold)
     return list(zip(*loc[::-1]))

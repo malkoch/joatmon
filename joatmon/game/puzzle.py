@@ -9,6 +9,20 @@ from joatmon.game.core import CoreEnv
 
 
 class Puzzle2048(CoreEnv):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, size):
         super().__init__()
 
@@ -31,7 +45,7 @@ class Puzzle2048(CoreEnv):
             ret += '|'
             for val in row:
                 if val != 0:
-                    v = 2 ** val
+                    v = 2**val
                     ret += '{:7d}'.format(v)
                 else:
                     ret += ' ' * 7
@@ -42,6 +56,14 @@ class Puzzle2048(CoreEnv):
         return ret
 
     def _check(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         for row in range(self.size):
             for col in range(self.size):
                 val = self.matrix[row][col]
@@ -68,12 +90,25 @@ class Puzzle2048(CoreEnv):
                     elif col == self.size - 1:
                         vals = [self.matrix[row - 1][col], self.matrix[row + 1][col], self.matrix[row][col - 1]]
                     else:
-                        vals = [self.matrix[row - 1][col], self.matrix[row + 1][col], self.matrix[row][col - 1], self.matrix[row][col + 1]]
+                        vals = [
+                            self.matrix[row - 1][col],
+                            self.matrix[row + 1][col],
+                            self.matrix[row][col - 1],
+                            self.matrix[row][col + 1],
+                        ]
                 if val in vals:
                     return True
         return False
 
     def _fill(self, action):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ret = False
         if action == 0:
             for row in range(self.size):
@@ -108,6 +143,14 @@ class Puzzle2048(CoreEnv):
         return ret
 
     def _merge(self, action):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         reward = 9e-1
         if action == 0:
             for row in range(self.size):
@@ -117,7 +160,7 @@ class Puzzle2048(CoreEnv):
                     if val1 == val2 and val1 != 0 and val2 != 0:
                         self.matrix[row][col] += 1
                         self.matrix[row][col - 1] = 0
-                        reward += 2 ** val1
+                        reward += 2**val1
         elif action == 1:
             for col in range(self.size):
                 for row in range(self.size - 1, 0, -1):
@@ -126,7 +169,7 @@ class Puzzle2048(CoreEnv):
                     if val1 == val2 and val1 != 0 and val2 != 0:
                         self.matrix[row][col] += 1
                         self.matrix[row - 1][col] = 0
-                        reward += 2 ** val1
+                        reward += 2**val1
         elif action == 2:
             for row in range(self.size):
                 for col in range(self.size - 1):
@@ -135,7 +178,7 @@ class Puzzle2048(CoreEnv):
                     if val1 == val2 and val1 != 0 and val2 != 0:
                         self.matrix[row][col] += 1
                         self.matrix[row][col + 1] = 0
-                        reward += 2 ** val1
+                        reward += 2**val1
         elif action == 3:
             for col in range(self.size):
                 for row in range(self.size - 1):
@@ -144,12 +187,20 @@ class Puzzle2048(CoreEnv):
                     if val1 == val2 and val1 != 0 and val2 != 0:
                         self.matrix[row][col] += 1
                         self.matrix[row + 1][col] = 0
-                        reward += 2 ** val1
+                        reward += 2**val1
         else:
             pass
         return reward
 
     def _randomize(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         indexes = []
         for row in range(self.size):
             for col in range(self.size):
@@ -160,9 +211,24 @@ class Puzzle2048(CoreEnv):
             self.matrix[row][col] = np.random.choice([1, 2], p=[0.9, 0.1])
 
     def close(self):
-        pass
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
 
     def render(self, mode='human'):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         # print(self)
         rect_size = 75
         state_size = rect_size * self.size
@@ -170,17 +236,37 @@ class Puzzle2048(CoreEnv):
 
         for row in range(self.size):
             for col in range(self.size):
-                cv2.rectangle(state, (col * rect_size, row * rect_size), ((col + 1) * rect_size, (row + 1) * rect_size), (255, 255, 255), 1)
+                cv2.rectangle(
+                    state,
+                    (col * rect_size, row * rect_size),
+                    ((col + 1) * rect_size, (row + 1) * rect_size),
+                    (255, 255, 255),
+                    1,
+                )
                 if self.matrix[row][col] != 0:
                     w, h = cv2.getTextSize(str(2 ** self.matrix[row][col]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
                     cv2.putText(
-                        state, str(2 ** self.matrix[row][col]), (int((col + 1) * rect_size - w[0]), int((row + 0.5) * rect_size + h)),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA
+                        state,
+                        str(2 ** self.matrix[row][col]),
+                        (int((col + 1) * rect_size - w[0]), int((row + 0.5) * rect_size + h)),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.5,
+                        (255, 255, 255),
+                        1,
+                        cv2.LINE_AA,
                     )
         cv2.imshow('state', state)
         cv2.waitKey(1)
 
     def reset(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.matrix = [[0 for _ in range(self.size)] for _ in range(self.size)]
         self._randomize()
         self._randomize()
@@ -188,9 +274,24 @@ class Puzzle2048(CoreEnv):
         return self.matrix
 
     def seed(self, seed=None):
-        pass
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
 
     def step(self, action):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         # 0 -> right
         # 1 -> down
         # 2 -> left

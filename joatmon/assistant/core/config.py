@@ -5,45 +5,62 @@ from joatmon.utility import JSONEncoder
 
 
 class Task(BaseTask):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, api, **kwargs):
         super(Task, self).__init__(api, **kwargs)
 
     @staticmethod
     def help():
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return {
-            "name": "config",
-            "description": "a function for user to configure the iva",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "action": {
-                        "type": "string",
-                        "enum": ["create", "update", "delete"]
-                    },
-                    "name": {
-                        "type": "string",
-                        "description": "name of the configuration"
-                    },
-                    "value": {
-                        "type": "string",
-                        "description": "value of the configuration"
-                    }
+            'name': 'config',
+            'description': 'a function for user to configure the iva',
+            'parameters': {
+                'type': 'object',
+                'properties': {
+                    'action': {'type': 'string', 'enum': ['create', 'update', 'delete']},
+                    'name': {'type': 'string', 'description': 'name of the configuration'},
+                    'value': {'type': 'string', 'description': 'value of the configuration'},
                 },
-                "required": ["action", "name"]
-            }
+                'required': ['action', 'name'],
+            },
         }
 
     def run(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         action = self.kwargs.get('action', '') or self.api.input('what do you want to configure')
         assert action in ('create', 'update', 'delete')
         name = self.kwargs.get('name', '') or self.api.input('what is the name')
         value = self.kwargs.get('value', '') or self.api.input('what is the value')
 
-        cfg = {
-            'action': action,
-            'name': name,
-            'value': value
-        }
+        cfg = {'action': action, 'name': name, 'value': value}
 
         def set_config(_parent, _name, _value):
             if _name == '':

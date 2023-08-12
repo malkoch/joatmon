@@ -6,14 +6,19 @@ import time
 import traceback
 
 from joatmon import context
-from joatmon.utility import (
-    get_function_args,
-    get_function_kwargs,
-    to_enumerable
-)
+from joatmon.utility import get_function_args, get_function_kwargs, to_enumerable
 
 
 def log(logger, on_begin=None, on_success=None, on_error=None):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+
     # need to stop writing self values
     async def _on_begin(f, *args, **kwargs):
         logger_value = context.get_value(logger)
@@ -23,7 +28,7 @@ def log(logger, on_begin=None, on_success=None, on_error=None):
                 'function': f.__qualname__,
                 'module': f.__module__,
                 'args': to_enumerable(get_function_args(f, *args), string=True),
-                'kwargs': to_enumerable(get_function_kwargs(f, **kwargs), string=True)
+                'kwargs': to_enumerable(get_function_kwargs(f, **kwargs), string=True),
             }
         )
 
@@ -37,7 +42,7 @@ def log(logger, on_begin=None, on_success=None, on_error=None):
                 'function': f.__qualname__,
                 'module': f.__module__,
                 'args': to_enumerable(get_function_args(f, *args), string=True),
-                'kwargs': to_enumerable(get_function_kwargs(f, **kwargs), string=True)
+                'kwargs': to_enumerable(get_function_kwargs(f, **kwargs), string=True),
             }
         )
 
@@ -52,12 +57,12 @@ def log(logger, on_begin=None, on_success=None, on_error=None):
                     'line': exc_trace.tb_lineno,
                     'file': os.path.split(exc_trace.tb_frame.f_code.co_filename)[1],
                     'message': str(exception),
-                    'trace': traceback.format_exc()
+                    'trace': traceback.format_exc(),
                 },
                 'function': f.__qualname__,
                 'module': f.__module__,
                 'args': to_enumerable(get_function_args(f, *args), string=True),
-                'kwargs': to_enumerable(get_function_kwargs(f, **kwargs), string=True)
+                'kwargs': to_enumerable(get_function_kwargs(f, **kwargs), string=True),
             }
         )
 

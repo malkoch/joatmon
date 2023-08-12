@@ -5,6 +5,20 @@ import speech_recognition as sr
 
 
 class Microphone:
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self):
         super(Microphone, self).__init__()
 
@@ -24,6 +38,14 @@ class Microphone:
         # self.listening_thread.start()
 
     def record_audio(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         with sr.Microphone(sample_rate=16000) as source:
             # self.r.adjust_for_ambient_noise(source)
             while not self.stop_event.is_set():
@@ -34,9 +56,25 @@ class Microphone:
                     ...
 
     def listen(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return input()
 
         # return self.audio_queue.get()
 
     def stop(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.stop_event.set()

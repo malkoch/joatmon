@@ -7,16 +7,8 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 from joatmon.ai.models.core import CoreModel
-from joatmon.ai.network.reinforcement.hybrid.td3 import (
-    TD3Actor,
-    TD3Critic
-)
-from joatmon.ai.utility import (
-    load,
-    save,
-    to_numpy,
-    to_tensor
-)
+from joatmon.ai.network.reinforcement.hybrid.td3 import TD3Actor, TD3Critic
+from joatmon.ai.utility import load, save, to_numpy, to_tensor
 
 __all__ = ['TD3Model']
 
@@ -57,10 +49,20 @@ class TD3Model(CoreModel):
 
         self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=self.lr)
 
-        self.critic_optimizer = optim.Adam(list(self.critic_local_1.parameters()) + list(self.critic_local_2.parameters()), lr=self.lr)
+        self.critic_optimizer = optim.Adam(
+            list(self.critic_local_1.parameters()) + list(self.critic_local_2.parameters()), lr=self.lr
+        )
         self.critic_loss = nn.SmoothL1Loss()
 
     def load(self, path=''):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         load(self.actor_local, os.path.join(path, 'actor_local'))
         load(self.actor_target, os.path.join(path, 'actor_target'))
         load(self.critic_local_1, os.path.join(path, 'critic_local_1'))
@@ -69,6 +71,14 @@ class TD3Model(CoreModel):
         load(self.critic_target_2, os.path.join(path, 'critic_target_2'))
 
     def save(self, path=''):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         save(self.actor_local, os.path.join(path, 'actor_local'))
         save(self.actor_target, os.path.join(path, 'actor_target'))
         save(self.critic_local_1, os.path.join(path, 'critic_local_1'))
@@ -77,44 +87,72 @@ class TD3Model(CoreModel):
         save(self.critic_target_2, os.path.join(path, 'critic_target_2'))
 
     def initialize(self, w_init=None, b_init=None):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         for module in self.actor_local.modules():
-            if isinstance(module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)):  # batch norm will be different
+            if isinstance(
+                module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
+            ):  # batch norm will be different
                 if w_init is not None:
                     torch.nn.init.kaiming_normal(module.weight)
                 if b_init is not None:  # bias init will be different
                     torch.nn.init.kaiming_normal(module.bias)
         for module in self.actor_target.modules():
-            if isinstance(module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)):  # batch norm will be different
+            if isinstance(
+                module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
+            ):  # batch norm will be different
                 if w_init is not None:
                     torch.nn.init.kaiming_normal(module.weight)
                 if b_init is not None:  # bias init will be different
                     torch.nn.init.kaiming_normal(module.bias)
         for module in self.critic_local_1.modules():
-            if isinstance(module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)):  # batch norm will be different
+            if isinstance(
+                module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
+            ):  # batch norm will be different
                 if w_init is not None:
                     torch.nn.init.kaiming_normal(module.weight)
                 if b_init is not None:  # bias init will be different
                     torch.nn.init.kaiming_normal(module.bias)
         for module in self.critic_target_1.modules():
-            if isinstance(module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)):  # batch norm will be different
+            if isinstance(
+                module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
+            ):  # batch norm will be different
                 if w_init is not None:
                     torch.nn.init.kaiming_normal(module.weight)
                 if b_init is not None:  # bias init will be different
                     torch.nn.init.kaiming_normal(module.bias)
         for module in self.critic_local_2.modules():
-            if isinstance(module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)):  # batch norm will be different
+            if isinstance(
+                module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
+            ):  # batch norm will be different
                 if w_init is not None:
                     torch.nn.init.kaiming_normal(module.weight)
                 if b_init is not None:  # bias init will be different
                     torch.nn.init.kaiming_normal(module.bias)
         for module in self.critic_target_2.modules():
-            if isinstance(module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)):  # batch norm will be different
+            if isinstance(
+                module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
+            ):  # batch norm will be different
                 if w_init is not None:
                     torch.nn.init.kaiming_normal(module.weight)
                 if b_init is not None:  # bias init will be different
                     torch.nn.init.kaiming_normal(module.bias)
 
     def softupdate(self, network: str):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if network == 'actor':
             for target_param, param in zip(self.actor_target.parameters(), self.actor_local.parameters()):
                 target_param.detach_()
@@ -131,6 +169,14 @@ class TD3Model(CoreModel):
             raise ValueError
 
     def hardupdate(self, network: str):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if network == 'actor':
             for target_param, param in zip(self.actor_target.parameters(), self.actor_local.parameters()):
                 target_param.detach_()
@@ -147,10 +193,26 @@ class TD3Model(CoreModel):
             raise ValueError
 
     def predict(self, state=None):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.actor_local.eval()
         return to_numpy(self.actor_local(to_tensor(state))).flatten()
 
     def train(self, batch=None, update_target=True):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.actor_local.train()
 
         states, actions, rewards, next_states, terminals = batch
@@ -197,4 +259,11 @@ class TD3Model(CoreModel):
         return [actor_loss.item()] + [critic_loss.item()]
 
     def evaluate(self):
-        pass
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """

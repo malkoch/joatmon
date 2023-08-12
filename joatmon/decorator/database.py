@@ -7,6 +7,15 @@ from joatmon import context
 
 
 def transaction(names):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+
     def _decorator(func):
         @functools.wraps(func)
         async def _wrapper(*args, **kwargs):

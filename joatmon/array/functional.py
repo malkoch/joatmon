@@ -1,20 +1,78 @@
 import math
-from typing import (
-    List,
-    Optional,
-    Tuple,
-    Union
-)
+from typing import List, Optional, Tuple, Union
 
 from joatmon.array.array import Array
 
 __all__ = [
-    'absolute', 'add', 'amax', 'maximum', 'amin', 'minimum', 'arange', 'argmax', 'argmin', 'around', 'array', 'asarray', 'astype', 'ceil',
-    'clip', 'concatenate', 'copy', 'dim', 'dot', 'empty', 'eq', 'exp', 'expand_dims', 'eye', 'fill', 'flatten',
-    'floor', 'floordiv', 'full', 'ge', 'getitem', 'gt', 'indices', 'le', 'linspace', 'lt', 'mean',
-    'median', 'mul', 'ne', 'negative', 'ones', 'ones_like', 'pad', 'power', 'prod', 'put_along_axis', 'repeat',
-    'reshape', 'setitem', 'size', 'split', 'sqrt', 'square', 'squeeze', 'stack', 'std', 'sub', 'sum',
-    'take_along_axis', 'tanh', 'tolist', 'transpose', 'truediv', 'unique', 'var', 'where', 'zeros', 'zeros_like'
+    'absolute',
+    'add',
+    'amax',
+    'maximum',
+    'amin',
+    'minimum',
+    'arange',
+    'argmax',
+    'argmin',
+    'around',
+    'array',
+    'asarray',
+    'astype',
+    'ceil',
+    'clip',
+    'concatenate',
+    'copy',
+    'dim',
+    'dot',
+    'empty',
+    'eq',
+    'exp',
+    'expand_dims',
+    'eye',
+    'fill',
+    'flatten',
+    'floor',
+    'floordiv',
+    'full',
+    'ge',
+    'getitem',
+    'gt',
+    'indices',
+    'le',
+    'linspace',
+    'lt',
+    'mean',
+    'median',
+    'mul',
+    'ne',
+    'negative',
+    'ones',
+    'ones_like',
+    'pad',
+    'power',
+    'prod',
+    'put_along_axis',
+    'repeat',
+    'reshape',
+    'setitem',
+    'size',
+    'split',
+    'sqrt',
+    'square',
+    'squeeze',
+    'stack',
+    'std',
+    'sub',
+    'sum',
+    'take_along_axis',
+    'tanh',
+    'tolist',
+    'transpose',
+    'truediv',
+    'unique',
+    'var',
+    'where',
+    'zeros',
+    'zeros_like',
 ]
 
 BooleanT = Union[bool]
@@ -31,6 +89,20 @@ AxisT = Optional[Union[int, Tuple[int], List[int]]]
 
 
 class Broadcast:
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT]):
         # both parameters are float, int, bool
         if dim(inp1) == 0 and dim(inp2) == 0:
@@ -75,6 +147,14 @@ class Broadcast:
         return next(self.zip)
 
     def reset(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if dim(self.inp1) != 0 and dim(self.inp2) != 0:
             self.zip = zip(self.inp1, self.inp2)
         else:
@@ -82,23 +162,63 @@ class Broadcast:
 
 
 def array(arr: ArrayT) -> ArrayT:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     return Array(arr)
 
 
 def asarray(arr: ArrayT) -> ArrayT:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     return Array(arr)
 
 
 def arange(start: float, stop: float, step: float) -> Array:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     return linspace(start, stop, int((stop - start) // step))
 
 
 def linspace(start: float, stop: float, steps: int) -> Array:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     inc = (stop - start) / steps
     return Array([start + inc * idx for idx in range(steps)])
 
 
 def eye(rows: int, columns: int) -> Array:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     # need to check which one is smaller
     ret = zeros((rows, columns))
     for row_col in range(min(rows, columns)):
@@ -107,6 +227,14 @@ def eye(rows: int, columns: int) -> Array:
 
 
 def empty(shape) -> Array:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if len(shape) == 0:
         raise ValueError('array shape has to be at least 1-dimensional')
 
@@ -117,6 +245,14 @@ def empty(shape) -> Array:
 
 
 def full(shape) -> Array:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if len(shape) == 0:
         raise ValueError('array shape has to be at least 1-dimensional')
 
@@ -127,6 +263,14 @@ def full(shape) -> Array:
 
 
 def zeros(shape) -> Array:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if len(shape) == 0:
         raise ValueError('array shape has to be at least 1-dimensional')
 
@@ -140,6 +284,14 @@ def zeros(shape) -> Array:
 
 
 def ones(shape) -> Array:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if len(shape) == 0:
         raise ValueError('array shape has to be at least 1-dimensional')
 
@@ -150,22 +302,62 @@ def ones(shape) -> Array:
 
 
 def ones_like(inp: ArrayT) -> Array:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     return ones(size(inp))
 
 
 def zeros_like(inp: ArrayT) -> Array:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     return zeros(size(inp))
 
 
 def concatenate(inputs, axis: AxisT = None) -> ArrayT:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     ...
 
 
 def stack(inputs, axis: AxisT = None) -> ArrayT:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     ...
 
 
 def astype(inp: Union[DataT, ArrayT], dtype: TypeT) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if isinstance(inp, (bool, int, float)):
         if dtype in ('bool', 'boolean'):
             return bool(inp)
@@ -183,6 +375,14 @@ def astype(inp: Union[DataT, ArrayT], dtype: TypeT) -> Union[DataT, ArrayT]:
 
 
 def copy(inp: Union[DataT, ArrayT]) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if isinstance(inp, (bool, int, float)):
         return type(inp)(inp)
     elif isinstance(inp, (tuple, list, Array)):
@@ -192,6 +392,14 @@ def copy(inp: Union[DataT, ArrayT]) -> Union[DataT, ArrayT]:
 
 
 def repeat(inp: Union[DataT, ArrayT], count: DataT, axis=0) -> ArrayT:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     # need to use axis
     # need to be able to return tuple or list
 
@@ -205,6 +413,14 @@ def repeat(inp: Union[DataT, ArrayT], count: DataT, axis=0) -> ArrayT:
 
 
 def split(inp: ArrayT, chunks, axis=0) -> ArrayT:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     # need to use axis
     # need to return tuple
 
@@ -215,11 +431,19 @@ def split(inp: ArrayT, chunks, axis=0) -> ArrayT:
 
     ret = []
     for chunk in range(chunks):
-        ret.append(inp[chunk * chunk_length: (chunk + 1) * chunk_length])
+        ret.append(inp[chunk * chunk_length : (chunk + 1) * chunk_length])
     return type(inp)(ret)
 
 
 def tolist(inp: ArrayT) -> list:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     ret = []
     for data in inp:
         if isinstance(data, (bool, int, float)):
@@ -232,6 +456,14 @@ def tolist(inp: ArrayT) -> list:
 
 
 def getitem(inp: ArrayT, idx: IndexT):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if isinstance(inp, (tuple, list)):
         if isinstance(idx, int):
             return copy(inp[idx])
@@ -264,10 +496,26 @@ def getitem(inp: ArrayT, idx: IndexT):
 
 
 def take_along_axis(inp: Union[DataT, ArrayT], indexes, axis) -> ArrayT:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     ...
 
 
 def setitem(inp: ArrayT, idx: IndexT, value: Union[DataT, ArrayT]):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     # need to repeat inp[idx].shape times
     if isinstance(value, (bool, int, float)):
         inp_shape = size(inp)
@@ -312,24 +560,64 @@ def setitem(inp: ArrayT, idx: IndexT, value: Union[DataT, ArrayT]):
 
 
 def put_along_axis(inp: Union[DataT, ArrayT], indexes, values, axis) -> ArrayT:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     ...
 
 
 def where(condition) -> ArrayT:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     ...
 
 
 def indices(dimensions) -> ArrayT:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     ...
 
 
 def dim(inp: Union[DataT, ArrayT]) -> int:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if isinstance(inp, (bool, int, float)):
         return 0
     return dim(inp[0]) + 1
 
 
 def size(inp: Union[DataT, ArrayT], axis: AxisT = None):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if isinstance(inp, (bool, int, float)):
         return ()
 
@@ -339,6 +627,14 @@ def size(inp: Union[DataT, ArrayT], axis: AxisT = None):
 
 
 def flatten(inp: ArrayT) -> ArrayT:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     data_type = type(inp)
 
     ret = []
@@ -353,6 +649,14 @@ def flatten(inp: ArrayT) -> ArrayT:
 
 
 def reshape(inp: ArrayT, shape) -> ArrayT:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     flat = flatten(inp)
 
     subdims = shape[1:]
@@ -361,10 +665,18 @@ def reshape(inp: ArrayT, shape) -> ArrayT:
         raise ValueError('size does not match or invalid')
     if not subdims:
         return flat
-    return Array([reshape(flat[i: i + subsize], subdims) for i in range(0, len(flat), subsize)])
+    return Array([reshape(flat[i : i + subsize], subdims) for i in range(0, len(flat), subsize)])
 
 
 def squeeze(inp: ArrayT, axis: AxisT = None) -> ArrayT:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if axis is None:
         if any([x == 1 for x in size(inp)]):
             new_shape = tuple(filter(lambda x: x != 1, size(inp)))
@@ -381,6 +693,14 @@ def squeeze(inp: ArrayT, axis: AxisT = None) -> ArrayT:
 
 
 def expand_dims(inp: ArrayT, axis) -> ArrayT:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     shape = list(size(inp))
     shape.insert(axis, 1)
 
@@ -388,20 +708,37 @@ def expand_dims(inp: ArrayT, axis) -> ArrayT:
 
 
 def pad(inp: Union[DataT, ArrayT], padding, mode) -> ArrayT:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     ...
 
 
 def transpose(inp: Union[DataT, ArrayT], axes=None) -> ArrayT:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+
     def multi_to_one(idx, s):
         r = 0
         for i, _idx in enumerate(idx):
-            r += (prod(s[i + 1:]) * _idx)
+            r += prod(s[i + 1 :]) * _idx
         return r
 
     def one_to_multi(idx, s):
         r = []
         for i in range(len(s)):
-            div, mod = divmod(idx, prod(s[i + 1:]))
+            div, mod = divmod(idx, prod(s[i + 1 :]))
             r.append(div)
             idx = mod
         return r
@@ -435,6 +772,14 @@ def transpose(inp: Union[DataT, ArrayT], axes=None) -> ArrayT:
 
 
 def fill(inp: ArrayT, value: DataT) -> ArrayT:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     shape = size(inp)
     flat_array = flatten(inp)
     for idx in range(len(flat_array)):
@@ -443,6 +788,14 @@ def fill(inp: ArrayT, value: DataT) -> ArrayT:
 
 
 def absolute(inp: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     flat_array = flatten(inp)
     for idx in range(len(flat_array)):
         setitem(flat_array, idx, abs(getitem(flat_array, idx)))
@@ -450,6 +803,14 @@ def absolute(inp: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None) -> Unio
 
 
 def negative(inp: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     flat_array = flatten(inp)
     for idx in range(len(flat_array)):
         setitem(flat_array, idx, -getitem(flat_array, idx))
@@ -457,6 +818,14 @@ def negative(inp: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None) -> Unio
 
 
 def around(inp: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     flat_array = flatten(inp)
     for idx in range(len(flat_array)):
         setitem(flat_array, idx, round(getitem(flat_array, idx)))
@@ -464,6 +833,14 @@ def around(inp: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None) -> Union[
 
 
 def floor(inp: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     flat_array = flatten(inp)
     for idx in range(len(flat_array)):
         setitem(flat_array, idx, math.floor(getitem(flat_array, idx)))
@@ -471,6 +848,14 @@ def floor(inp: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None) -> Union[D
 
 
 def ceil(inp: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     flat_array = flatten(inp)
     for idx in range(len(flat_array)):
         setitem(flat_array, idx, math.ceil(getitem(flat_array, idx)))
@@ -478,6 +863,14 @@ def ceil(inp: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None) -> Union[Da
 
 
 def sqrt(inp: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     flat_array = flatten(inp)
     for idx in range(len(flat_array)):
         setitem(flat_array, idx, math.sqrt(getitem(flat_array, idx)))
@@ -485,13 +878,31 @@ def sqrt(inp: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None) -> Union[Da
 
 
 def square(inp: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     flat_array = flatten(inp)
     for idx in range(len(flat_array)):
         setitem(flat_array, idx, getitem(flat_array, idx) ** 2)
     return reshape(flat_array, size(inp))
 
 
-def clip(inp: Union[DataT, ArrayT], min_value: DataT, max_value: DataT, *, out: Optional[ArrayT] = None) -> Union[DataT, ArrayT]:
+def clip(
+    inp: Union[DataT, ArrayT], min_value: DataT, max_value: DataT, *, out: Optional[ArrayT] = None
+) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     flat_array = flatten(inp)
     for idx in range(len(flat_array)):
         value = getitem(flat_array, idx)
@@ -504,6 +915,14 @@ def clip(inp: Union[DataT, ArrayT], min_value: DataT, max_value: DataT, *, out: 
 
 
 def exp(inp: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     flat_array = flatten(inp)
     for idx in range(len(flat_array)):
         setitem(flat_array, idx, math.e ** getitem(flat_array, idx))
@@ -511,6 +930,14 @@ def exp(inp: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None) -> Union[Dat
 
 
 def tanh(inp: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     flat_array = flatten(inp)
     for idx in range(len(flat_array)):
         setitem(flat_array, idx, math.tanh(getitem(flat_array, idx)))
@@ -518,6 +945,14 @@ def tanh(inp: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None) -> Union[Da
 
 
 def sum(inp: ArrayT, axis: AxisT = None, keepdims=False) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if axis is None:
         if dim(inp) == 0:
             return astype(copy(inp), 'float')
@@ -529,7 +964,7 @@ def sum(inp: ArrayT, axis: AxisT = None, keepdims=False) -> Union[DataT, ArrayT]
 
     # kahan sum
     shape = size(inp)
-    s = zeros(shape[:axis] + shape[axis + 1:])
+    s = zeros(shape[:axis] + shape[axis + 1 :])
     c = zeros(size(s))
     for i in range(shape[axis]):
         # y = getitem(inp, (slice(None),) * axis + (i,)) - c  # inp[(slice(None),) * axis + (i,)] - c
@@ -541,6 +976,14 @@ def sum(inp: ArrayT, axis: AxisT = None, keepdims=False) -> Union[DataT, ArrayT]
 
 
 def mean(inp: ArrayT, axis: AxisT = None) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     shape = size(inp)
     s = sum(inp, axis)
     n = shape[axis] if axis is not None else prod(shape)
@@ -548,25 +991,57 @@ def mean(inp: ArrayT, axis: AxisT = None) -> Union[DataT, ArrayT]:
 
 
 def median(inp: ArrayT, axis: AxisT = None) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     ...
 
 
 def var(inp: ArrayT, axis: AxisT = None) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if axis is not None:
         m_shape = list(size(inp))
         m_shape[axis] = 1
         m = reshape(mean(inp, axis), m_shape)
         a = absolute(inp - m)
-        return mean(a ** 2, axis=axis)
+        return mean(a**2, axis=axis)
 
     return mean(absolute(inp - mean(inp)) ** 2)
 
 
 def std(inp: ArrayT, axis: AxisT = None) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     return sqrt(var(inp, axis=axis))
 
 
 def prod(inp: ArrayT, axis: AxisT = None) -> int:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     # could be multi dimensional
     p = 1
     if isinstance(inp, (tuple, list)):
@@ -578,34 +1053,100 @@ def prod(inp: ArrayT, axis: AxisT = None) -> int:
 
 
 def unique(inp: ArrayT, return_counts=False) -> ArrayT:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     ...
 
 
 def argmax(inp: ArrayT, axis: AxisT = None) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     ...
 
 
 def argmin(inp: ArrayT, axis: AxisT = None) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     ...
 
 
 def amax(inp: ArrayT, axis: AxisT = None) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     ...
 
 
 def maximum(inp: ArrayT, axis: AxisT = None) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     ...
 
 
 def amin(inp: ArrayT, axis: AxisT = None) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     ...
 
 
 def minimum(inp: ArrayT, axis: AxisT = None) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     ...
 
 
-def add(inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None) -> Union[DataT, ArrayT]:
+def add(
+    inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None
+) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if dim(inp1) == 0 and dim(inp2) == 0:
         return inp1 + inp2
 
@@ -617,7 +1158,17 @@ def add(inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional
     return ret
 
 
-def sub(inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None) -> Union[DataT, ArrayT]:
+def sub(
+    inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None
+) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if dim(inp1) == 0 and dim(inp2) == 0:
         return inp1 - inp2
 
@@ -629,7 +1180,17 @@ def sub(inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional
     return ret
 
 
-def mul(inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None) -> Union[DataT, ArrayT]:
+def mul(
+    inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None
+) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if dim(inp1) == 0 and dim(inp2) == 0:
         return inp1 * inp2
 
@@ -641,7 +1202,17 @@ def mul(inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional
     return ret
 
 
-def truediv(inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None) -> Union[DataT, ArrayT]:
+def truediv(
+    inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None
+) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if dim(inp1) == 0 and dim(inp2) == 0:
         return inp1 / inp2
 
@@ -653,7 +1224,17 @@ def truediv(inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Opti
     return ret
 
 
-def floordiv(inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None) -> Union[DataT, ArrayT]:
+def floordiv(
+    inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None
+) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if dim(inp1) == 0 and dim(inp2) == 0:
         return inp1 // inp2
 
@@ -666,8 +1247,16 @@ def floordiv(inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Opt
 
 
 def power(inp: Union[DataT, ArrayT], p: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if dim(inp) == 0:
-        return inp ** p
+        return inp**p
 
     ret = out or zeros(size(inp))
     for idx, _inp in enumerate(inp):
@@ -676,6 +1265,14 @@ def power(inp: Union[DataT, ArrayT], p: Union[DataT, ArrayT], *, out: Optional[A
 
 
 def lt(inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if dim(inp1) == 0 and dim(inp2) == 0:
         return inp1 < inp2
 
@@ -688,6 +1285,14 @@ def lt(inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional[
 
 
 def le(inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if dim(inp1) == 0 and dim(inp2) == 0:
         return inp1 <= inp2
 
@@ -700,6 +1305,14 @@ def le(inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional[
 
 
 def gt(inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if dim(inp1) == 0 and dim(inp2) == 0:
         return inp1 > inp2
 
@@ -712,6 +1325,14 @@ def gt(inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional[
 
 
 def ge(inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if dim(inp1) == 0 and dim(inp2) == 0:
         return inp1 >= inp2
 
@@ -724,6 +1345,14 @@ def ge(inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional[
 
 
 def eq(inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if dim(inp1) == 0 and dim(inp2) == 0:
         return inp1 == inp2
 
@@ -736,6 +1365,14 @@ def eq(inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional[
 
 
 def ne(inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None) -> Union[DataT, ArrayT]:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if dim(inp1) == 0 and dim(inp2) == 0:
         return inp1 != inp2
 
@@ -748,4 +1385,12 @@ def ne(inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional[
 
 
 def dot(inp1: ArrayT, inp2: ArrayT, *, out: Optional[ArrayT] = None) -> ArrayT:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     ...

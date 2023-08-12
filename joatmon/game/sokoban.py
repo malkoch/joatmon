@@ -14,14 +14,7 @@ __all__ = ['SokobanEnv']
 
 from joatmon.game.core import CoreEnv
 
-TYPE_LOOKUP = {
-    0: 'wall',
-    1: 'empty space',
-    2: 'box target',
-    3: 'box on target',
-    4: 'box not on target',
-    5: 'player'
-}
+TYPE_LOOKUP = {0: 'wall', 1: 'empty space', 2: 'box target', 3: 'box on target', 4: 'box not on target', 5: 'player'}
 
 ACTION_LOOKUP = {
     0: 'push up',
@@ -34,15 +27,19 @@ ACTION_LOOKUP = {
     7: 'move right',
 }
 
-CHANGE_COORDINATES = {
-    0: (-1, 0),
-    1: (1, 0),
-    2: (0, -1),
-    3: (0, 1)
-}
+CHANGE_COORDINATES = {0: (-1, 0), 1: (1, 0), 2: (0, -1), 3: (0, 1)}
 
 
 def generate_room(dim=(7, 7), wall_prob=0.3, p_change_directions=0.35, num_steps=5, num_boxes=1, tries=4):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+
     def room_topology_generation(_dim=(10, 10), _wall_prob=0.1, _p_change_directions=0.35, _num_steps=15):
         dim_x, dim_y = _dim
 
@@ -51,7 +48,7 @@ def generate_room(dim=(7, 7), wall_prob=0.3, p_change_directions=0.35, num_steps
             [[0, 1, 0], [0, 1, 0], [0, 1, 0]],
             [[0, 0, 0], [1, 1, 0], [0, 1, 0]],
             [[0, 0, 0], [1, 1, 0], [1, 1, 0]],
-            [[0, 0, 0], [0, 1, 1], [0, 1, 0]]
+            [[0, 0, 0], [0, 1, 1], [0, 1, 0]],
         ]
 
         directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
@@ -75,7 +72,7 @@ def generate_room(dim=(7, 7), wall_prob=0.3, p_change_directions=0.35, num_steps
 
             mask = random.sample(masks, 1)[0]
             mask_start = position - 1
-            level[mask_start[0]:mask_start[0] + 3, mask_start[1]:mask_start[1] + 3] += mask
+            level[mask_start[0] : mask_start[0] + 3, mask_start[1] : mask_start[1] + 3] += mask
 
         level[level > 0] = 1
         level[:, [0, dim_y - 1]] = 0
@@ -84,12 +81,24 @@ def generate_room(dim=(7, 7), wall_prob=0.3, p_change_directions=0.35, num_steps
         return level
 
     def place_boxes_and_player(_room, _num_boxes):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         possible_positions = np.where(_room == 1)
         num_possible_positions = possible_positions[0].shape[0]
         num_players = 1
 
         if num_possible_positions <= _num_boxes + num_players:
-            raise RuntimeError('Not enough free spots (#{}) to place {} player and {} boxes.'.format(num_possible_positions, num_players, _num_boxes))
+            raise RuntimeError(
+                'Not enough free spots (#{}) to place {} player and {} boxes.'.format(
+                    num_possible_positions, num_players, _num_boxes
+                )
+            )
 
         ind = np.random.randint(num_possible_positions)
         player_position = possible_positions[0][ind], possible_positions[1][ind]
@@ -112,6 +121,14 @@ def generate_room(dim=(7, 7), wall_prob=0.3, p_change_directions=0.35, num_steps
     global_best_box_mapping = None
 
     def reverse_playing(_room_state, _room_structure):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         global global_explored_states, global_num_boxes, global_best_room_score, global_best_room, global_best_box_mapping
 
         box_mapping = {}
@@ -129,6 +146,14 @@ def generate_room(dim=(7, 7), wall_prob=0.3, p_change_directions=0.35, num_steps
         return global_best_room, global_best_room_score, global_best_box_mapping
 
     def depth_first_search(_room_state, _room_structure, _box_mapping, box_swaps=0, last_pull=(-1, -1), ttl=300):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         global global_explored_states, global_num_boxes, global_best_room_score, global_best_room, global_best_box_mapping
 
         ttl -= 1
@@ -153,7 +178,9 @@ def generate_room(dim=(7, 7), wall_prob=0.3, p_change_directions=0.35, num_steps
                 room_state_next = _room_state.copy()
                 box_mapping_next = _box_mapping.copy()
 
-                room_state_next, box_mapping_next, last_pull_next = reverse_move(room_state_next, _room_structure, box_mapping_next, last_pull, action)
+                room_state_next, box_mapping_next, last_pull_next = reverse_move(
+                    room_state_next, _room_structure, box_mapping_next, last_pull, action
+                )
 
                 box_swaps_next = box_swaps
                 if last_pull_next != last_pull:
@@ -162,6 +189,14 @@ def generate_room(dim=(7, 7), wall_prob=0.3, p_change_directions=0.35, num_steps
                 depth_first_search(room_state_next, _room_structure, box_mapping_next, box_swaps_next, last_pull, ttl)
 
     def reverse_move(_room_state, _room_structure, _box_mapping, last_pull, action):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         player_position = np.where(_room_state == 5)
         player_position = np.array([player_position[0][0], player_position[1][0]])
 
@@ -169,7 +204,9 @@ def generate_room(dim=(7, 7), wall_prob=0.3, p_change_directions=0.35, num_steps
         next_position = player_position + change
 
         if _room_state[next_position[0], next_position[1]] in [1, 2]:
-            _room_state[player_position[0], player_position[1]] = _room_structure[player_position[0], player_position[1]]
+            _room_state[player_position[0], player_position[1]] = _room_structure[
+                player_position[0], player_position[1]
+            ]
             _room_state[next_position[0], next_position[1]] = 5
 
             if action < 4:
@@ -178,7 +215,9 @@ def generate_room(dim=(7, 7), wall_prob=0.3, p_change_directions=0.35, num_steps
 
                 if _room_state[possible_box_location[0], possible_box_location[1]] in [3, 4]:
                     _room_state[player_position[0], player_position[1]] = 3
-                    _room_state[possible_box_location[0], possible_box_location[1]] = _room_structure[possible_box_location[0], possible_box_location[1]]
+                    _room_state[possible_box_location[0], possible_box_location[1]] = _room_structure[
+                        possible_box_location[0], possible_box_location[1]
+                    ]
 
                     for k in _box_mapping.keys():
                         if _box_mapping[k] == (possible_box_location[0], possible_box_location[1]):
@@ -188,6 +227,14 @@ def generate_room(dim=(7, 7), wall_prob=0.3, p_change_directions=0.35, num_steps
         return _room_state, _box_mapping, last_pull
 
     def box_displacement_score(_box_mapping):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         score = 0
 
         for box_target in _box_mapping.keys():
@@ -226,12 +273,28 @@ def generate_room(dim=(7, 7), wall_prob=0.3, p_change_directions=0.35, num_steps
 
 
 def create_circle_body(mass, body_type, radius):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     moment = pymunk.moment_for_circle(mass, 0.0, radius)
     body = pymunk.Body(mass, moment, body_type)
     return body
 
 
 def create_circle_shape(body, radius, friction, elasticity, collision_type, sensor):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     shape = pymunk.Circle(body, radius)
     shape.friction = friction
     shape.elasticity = elasticity
@@ -241,6 +304,14 @@ def create_circle_shape(body, radius, friction, elasticity, collision_type, sens
 
 
 def create_rectangle_body(mass, body_type, half_size):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     points = [(-half_size, -half_size), (-half_size, half_size), (half_size, half_size), (half_size, -half_size)]
     moment = pymunk.moment_for_poly(mass, points)
     body = pymunk.Body(mass, moment, body_type)
@@ -248,6 +319,14 @@ def create_rectangle_body(mass, body_type, half_size):
 
 
 def create_rectangle_shape(body, points, friction, elasticity, collision_type, sensor):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     shape = pymunk.Poly(body, points)
     shape.friction = friction
     shape.elasticity = elasticity
@@ -257,30 +336,71 @@ def create_rectangle_shape(body, points, friction, elasticity, collision_type, s
 
 
 def draw_circle(screen, color, position, radius):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     position = flip_y(position, screen.get_size()[1])
     pygame.draw.circle(screen, color, position.int_tuple, int(radius))
 
 
 def draw_rectangle(screen, color, position, half_size):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     position = flip_y(position, screen.get_size()[1])
     points = [
         (-half_size + position.x, -half_size + position.y),
         (-half_size + position.x, half_size + position.y),
         (half_size + position.x, half_size + position.y),
-        (half_size + position.x, -half_size + position.y)
+        (half_size + position.x, -half_size + position.y),
     ]
     pygame.draw.polygon(screen, color, points)
 
 
 def draw_sprite(screen, image, position, half_size):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     screen.blit(image, flip_y(position, screen.get_size()[1]) - Vec2d(half_size, half_size))
 
 
 def flip_y(vector, y):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     return Vec2d(int(vector.x), int(-vector.y + y))
 
 
 def layout_getter(layout_specs):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+
     def _get_layout():
         return generate_room(
             dim=(int(layout_specs['height']), int(layout_specs['width'])),
@@ -288,13 +408,21 @@ def layout_getter(layout_specs):
             p_change_directions=float(layout_specs['p_change_directions']),
             num_steps=int(layout_specs['num_steps']),
             num_boxes=int(layout_specs['num_boxes']),
-            tries=int(layout_specs['tries'])
+            tries=int(layout_specs['tries']),
         )[1]
 
     return _get_layout
 
 
 def load_sprite(path, color, size=None):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     # if not existing use color, get color as parameter
     try:
         sprite = pygame.image.load(path)
@@ -317,6 +445,14 @@ def load_sprite(path, color, size=None):
 
 
 def load_xml(element):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     # can be common utility
     try:
         if isinstance(element, str):
@@ -336,14 +472,38 @@ def load_xml(element):
 
 
 def euclidean_distance(position1, position2):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     return ((position1.x - position2.x) ** 2 + (position1.y - position2.y) ** 2) ** 0.5
 
 
 def manhattan_distance(position1, position2):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     return abs(position1.x - position2.x) + abs(position1.y - position2.y)
 
 
 def convert_to(value, type_):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     try:
         if isinstance(value, str):
             return type_(value)
@@ -354,6 +514,20 @@ def convert_to(value, type_):
 
 
 class SokobanEnv(CoreEnv):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, xml, xmls, sprites):
         super().__init__()
 
@@ -362,113 +536,50 @@ class SokobanEnv(CoreEnv):
             raise Exception
 
         layout_specs = env_specs.get(
-            'layout', {
+            'layout',
+            {
                 'height': 7,
                 'width': 7,
                 'wall_prob': 0.3,
                 'p_change_directions': 0.35,
                 'num_steps': 5,
                 'num_boxes': 1,
-                'tries': 4
-            }
+                'tries': 4,
+            },
         )
         object_specs = env_specs.get(
-            'object', {
+            'object',
+            {
                 'size': 32,
-                'ground': {
-                    'collision': 0,
-                    'color': 'black',
-                    'sprite': 'ground.png'
-                },
-                'goal': {
-                    'collision': 1,
-                    'color': 'green3',
-                    'sprite': 'goal.png'
-                },
-                'block': {
-                    'collision': 2,
-                    'color': 'blue3',
-                    'sprite': 'block.png'
-                },
-                'player': {
-                    'collision': 4,
-                    'color': 'orange3',
-                    'sprite': 'player.png'
-                },
-                'obstacle': {
-                    'collision': 8,
-                    'color': 'red3',
-                    'sprite': 'obstacle.png'
-                }
-            }
+                'ground': {'collision': 0, 'color': 'black', 'sprite': 'ground.png'},
+                'goal': {'collision': 1, 'color': 'green3', 'sprite': 'goal.png'},
+                'block': {'collision': 2, 'color': 'blue3', 'sprite': 'block.png'},
+                'player': {'collision': 4, 'color': 'orange3', 'sprite': 'player.png'},
+                'obstacle': {'collision': 8, 'color': 'red3', 'sprite': 'obstacle.png'},
+            },
         )
-        ground_specs = object_specs.get(
-            'ground', {
-                'collision': 0,
-                'color': 'black',
-                'sprite': 'ground.png'
-            }
-        )
-        goal_specs = object_specs.get(
-            'goal', {
-                'collision': 1,
-                'color': 'green3',
-                'sprite': 'goal.png'
-            }
-        )
-        block_specs = object_specs.get(
-            'block', {
-                'collision': 2,
-                'color': 'blue3',
-                'sprite': 'block.png'
-            }
-        )
-        player_specs = object_specs.get(
-            'player', {
-                'collision': 4,
-                'color': 'orange3',
-                'sprite': 'player.png'
-            }
-        )
-        obstacle_specs = object_specs.get(
-            'obstacle', {
-                'collision': 8,
-                'color': 'red3',
-                'sprite': 'obstacle.png'
-            }
-        )
+        ground_specs = object_specs.get('ground', {'collision': 0, 'color': 'black', 'sprite': 'ground.png'})
+        goal_specs = object_specs.get('goal', {'collision': 1, 'color': 'green3', 'sprite': 'goal.png'})
+        block_specs = object_specs.get('block', {'collision': 2, 'color': 'blue3', 'sprite': 'block.png'})
+        player_specs = object_specs.get('player', {'collision': 4, 'color': 'orange3', 'sprite': 'player.png'})
+        obstacle_specs = object_specs.get('obstacle', {'collision': 8, 'color': 'red3', 'sprite': 'obstacle.png'})
         space_specs = env_specs.get(
-            'space', {
-                'gravity': {
-                    'x': 0.0,
-                    'y': 0.0
-                },
-                'damping': 0.0,
-                'dt': 0.02,
-                'steps': 2,
-                'force_multiplier': 250.0
-            }
+            'space',
+            {'gravity': {'x': 0.0, 'y': 0.0}, 'damping': 0.0, 'dt': 0.02, 'steps': 2, 'force_multiplier': 250.0},
         )
-        gravity_specs = space_specs.get(
-            'gravity', {
-                'x': 0.0,
-                'y': 0.0
-            }
-        )
+        gravity_specs = space_specs.get('gravity', {'x': 0.0, 'y': 0.0})
         reward_specs = env_specs.get(
-            'reward', {
-                'movement': -0.25,
-                'on_target': 5.0,
-                'off_target': -5.0,
-                'success': 10.0
-            }
+            'reward', {'movement': -0.25, 'on_target': 5.0, 'off_target': -5.0, 'success': 10.0}
         )
 
         self.new_layout = layout_getter(layout_specs)
         self.layout = None
 
         self.obj_size = convert_to(object_specs.get('size', 32), int)
-        self.world_metrics = (convert_to(layout_specs.get('width', 7), int) * self.obj_size, convert_to(layout_specs.get('height', 7), int) * self.obj_size)
+        self.world_metrics = (
+            convert_to(layout_specs.get('width', 7), int) * self.obj_size,
+            convert_to(layout_specs.get('height', 7), int) * self.obj_size,
+        )
 
         self.ground_color = THECOLORS[str(ground_specs.get('color'))]
 
@@ -507,6 +618,14 @@ class SokobanEnv(CoreEnv):
         self._init_window()
 
     def _begin(self, arbiter, _, __):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if arbiter.shapes[0].collision_type == self.goal_collision:
             goal = arbiter.shapes[0]
             block = arbiter.shapes[1]
@@ -519,6 +638,14 @@ class SokobanEnv(CoreEnv):
         return True
 
     def _clear(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.obstacles = []
         self.players = []
         self.blocks = []
@@ -531,29 +658,79 @@ class SokobanEnv(CoreEnv):
         self.space.remove(*self.space.shapes, *self.space.bodies)
 
     def _check_complete(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.level_complete = self.successes == len(self.goals)
 
     def _create_objects(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         for y, row in enumerate(self.layout.tolist()):
             for x, object_type in enumerate(row):
-                object_position = flip_y(vector=Vec2d(self.obj_size * (x + 0.5), self.obj_size * (y + 0.5)), y=self.screen.get_size()[1])
+                object_position = flip_y(
+                    vector=Vec2d(self.obj_size * (x + 0.5), self.obj_size * (y + 0.5)), y=self.screen.get_size()[1]
+                )
 
                 if object_type == 0:
-                    body, points = create_rectangle_body(mass=1000000, body_type=Body.STATIC, half_size=self.obj_size * 0.5)
+                    body, points = create_rectangle_body(
+                        mass=1000000, body_type=Body.STATIC, half_size=self.obj_size * 0.5
+                    )
                     body.position = Vec2d(object_position.x, object_position.y)
-                    shape = create_rectangle_shape(body=body, points=points, friction=0, elasticity=0, collision_type=self.obstacle_collision, sensor=False)
+                    shape = create_rectangle_shape(
+                        body=body,
+                        points=points,
+                        friction=0,
+                        elasticity=0,
+                        collision_type=self.obstacle_collision,
+                        sensor=False,
+                    )
                 elif object_type == 2:
-                    body, points = create_rectangle_body(mass=1000000, body_type=Body.STATIC, half_size=self.obj_size * 0.5)
+                    body, points = create_rectangle_body(
+                        mass=1000000, body_type=Body.STATIC, half_size=self.obj_size * 0.5
+                    )
                     body.position = Vec2d(object_position.x, object_position.y)
-                    shape = create_rectangle_shape(body=body, points=points, friction=0, elasticity=0, collision_type=self.goal_collision, sensor=True)
+                    shape = create_rectangle_shape(
+                        body=body,
+                        points=points,
+                        friction=0,
+                        elasticity=0,
+                        collision_type=self.goal_collision,
+                        sensor=True,
+                    )
                 elif object_type == 4:
                     body, points = create_rectangle_body(mass=1, body_type=Body.DYNAMIC, half_size=self.obj_size * 0.5)
                     body.position = Vec2d(object_position.x, object_position.y)
-                    shape = create_rectangle_shape(body=body, points=points, friction=0, elasticity=0, collision_type=self.block_collision, sensor=False)
+                    shape = create_rectangle_shape(
+                        body=body,
+                        points=points,
+                        friction=0,
+                        elasticity=0,
+                        collision_type=self.block_collision,
+                        sensor=False,
+                    )
                 elif object_type == 5:
                     body = create_circle_body(mass=1, body_type=Body.DYNAMIC, radius=self.obj_size * 0.5)
                     body.position = Vec2d(object_position.x, object_position.y)
-                    shape = create_circle_shape(body=body, radius=self.obj_size * 0.5, friction=0, elasticity=0, collision_type=self.player_collision, sensor=False)
+                    shape = create_circle_shape(
+                        body=body,
+                        radius=self.obj_size * 0.5,
+                        friction=0,
+                        elasticity=0,
+                        collision_type=self.player_collision,
+                        sensor=False,
+                    )
                 else:
                     continue
 
@@ -561,34 +738,80 @@ class SokobanEnv(CoreEnv):
                 self.space.add(shape)
 
     def _draw(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         # clear the screen
         self.screen.fill(self.ground_color)
         self._draw_shapes()
 
     def _draw_shapes(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         for obstacle in self.obstacles:
             if self.obstacle_sprite is not None:
-                draw_sprite(self.screen, image=self.obstacle_sprite, position=obstacle.body.position, half_size=self.obj_size * 0.5)
+                draw_sprite(
+                    self.screen,
+                    image=self.obstacle_sprite,
+                    position=obstacle.body.position,
+                    half_size=self.obj_size * 0.5,
+                )
             else:
-                draw_rectangle(self.screen, color=self.obstacle_color, position=obstacle.body.position, half_size=self.obj_size * 0.5)
+                draw_rectangle(
+                    self.screen,
+                    color=self.obstacle_color,
+                    position=obstacle.body.position,
+                    half_size=self.obj_size * 0.5,
+                )
         for goal in self.goals:
             if self.goal_sprite is not None:
-                draw_sprite(self.screen, image=self.goal_sprite, position=goal.body.position, half_size=self.obj_size * 0.5)
+                draw_sprite(
+                    self.screen, image=self.goal_sprite, position=goal.body.position, half_size=self.obj_size * 0.5
+                )
             else:
-                draw_rectangle(self.screen, color=self.goal_color, position=goal.body.position, half_size=self.obj_size * 0.5)
+                draw_rectangle(
+                    self.screen, color=self.goal_color, position=goal.body.position, half_size=self.obj_size * 0.5
+                )
         for block in self.blocks:
             if self.block_sprite is not None:
-                draw_sprite(self.screen, image=self.block_sprite, position=block.body.position, half_size=self.obj_size * 0.5)
+                draw_sprite(
+                    self.screen, image=self.block_sprite, position=block.body.position, half_size=self.obj_size * 0.5
+                )
             else:
-                draw_rectangle(self.screen, color=self.block_color, position=block.body.position, half_size=self.obj_size * 0.5)
+                draw_rectangle(
+                    self.screen, color=self.block_color, position=block.body.position, half_size=self.obj_size * 0.5
+                )
         for player in self.players:
             if self.player_sprite is not None:
-                draw_sprite(self.screen, image=self.player_sprite, position=player.body.position, half_size=self.obj_size * 0.5)
+                draw_sprite(
+                    self.screen, image=self.player_sprite, position=player.body.position, half_size=self.obj_size * 0.5
+                )
             else:
-                draw_circle(self.screen, color=self.player_color, position=player.body.position, radius=self.obj_size * 0.5)
+                draw_circle(
+                    self.screen, color=self.player_color, position=player.body.position, radius=self.obj_size * 0.5
+                )
 
     @staticmethod
     def _get_distance(shape, shapes, method='e'):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         min_distance = 1000000
         for other_shape in shapes:
             if method == 'e':
@@ -602,25 +825,49 @@ class SokobanEnv(CoreEnv):
         return min_distance
 
     def _get_info(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return self.overlaps
 
     def _get_observation(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self._draw()
         image = pygame.surfarray.array3d(self.screen)
         image = np.swapaxes(image, 0, 1)
         return image
 
     def _get_reward(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         # remove movement penalty to agent
         total_reward = 0
         # total_reward = self.movement_penalty
 
         score = self._get_score()
-        total_reward += (self.score - score)
+        total_reward += self.score - score
         self.score = score
 
         # move 0.9 to xml file as well
-        successes = len([v for (_, _), v in self.overlaps.items() if v >= .9])
+        successes = len([v for (_, _), v in self.overlaps.items() if v >= 0.9])
         if successes > self.successes:
             total_reward += self.box_on_target
         elif successes < self.successes:
@@ -635,16 +882,40 @@ class SokobanEnv(CoreEnv):
         return total_reward
 
     def _get_score(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         total = 0
         for block in self.blocks:
             block_min = self._get_distance(block, self.goals)
-            total += (block_min * 1)
+            total += block_min * 1
         return total
 
     def _get_terminal(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return self.level_complete
 
     def _init_space(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.space = pymunk.Space()
         self.space.gravity = self.gravity
         self.space.damping = self.damping
@@ -656,11 +927,27 @@ class SokobanEnv(CoreEnv):
         block_goal.separate = self._separate
 
     def _init_window(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         pygame.init()
         self.screen = pygame.Surface(self.world_metrics)
         self.screen.fill(self.ground_color)
 
     def _play_step(self, force=None):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if force is None:
             force = Vec2d(0.0, 0.0)
         self.player.force = force
@@ -676,6 +963,14 @@ class SokobanEnv(CoreEnv):
             self.space.step(self.dt)
 
     def _post_solve(self, arbiter, _, __):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if arbiter.shapes[0].collision_type == self.goal_collision:
             goal = arbiter.shapes[0]
             block = arbiter.shapes[1]
@@ -695,10 +990,26 @@ class SokobanEnv(CoreEnv):
 
     @staticmethod
     def _post_step_callback(space, key):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         key.body.angle = 0
         space.reindex_shapes_for_body(key.body)
 
     def _pre_solve(self, arbiter, _, __):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if arbiter.shapes[0].collision_type == self.goal_collision:
             goal = arbiter.shapes[0]
             block = arbiter.shapes[1]
@@ -718,6 +1029,14 @@ class SokobanEnv(CoreEnv):
         return True
 
     def _recreate(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self._create_objects()
 
         self.obstacles = list(filter(lambda shape: shape.collision_type == self.obstacle_collision, self.space.shapes))
@@ -731,6 +1050,14 @@ class SokobanEnv(CoreEnv):
         self.successes = 0
 
     def _separate(self, arbiter, _, __):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if arbiter.shapes[0].collision_type == self.goal_collision:
             goal = arbiter.shapes[0]
             block = arbiter.shapes[1]
@@ -742,17 +1069,41 @@ class SokobanEnv(CoreEnv):
             del self.overlaps[(goal.body, block.body)]
 
     def close(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self._clear()
         cv2.destroyAllWindows()
         pygame.quit()
 
     def render(self, mode='human'):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         image = pygame.surfarray.array3d(self.screen)
         image = np.swapaxes(image, 0, 1)
         cv2.imshow('state', cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
         cv2.waitKey(1)
 
     def reset(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self._clear()
         self.layout = self.new_layout()
         self._recreate()
@@ -760,9 +1111,24 @@ class SokobanEnv(CoreEnv):
         return self._get_observation()
 
     def seed(self, seed=None):
-        pass
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
 
     def step(self, action):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         try:
             x, y = action
             vector = Vec2d(x, y)
@@ -774,40 +1140,34 @@ class SokobanEnv(CoreEnv):
         return self._get_observation(), self._get_reward(), self._get_terminal(), self._get_info()
 
     def goal(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         screen = pygame.Surface(self.world_metrics)
         screen.fill(self.ground_color)
 
         for obstacle in self.obstacles:
             if self.obstacle_sprite is not None:
                 draw_sprite(
-                    screen,
-                    image=self.obstacle_sprite,
-                    position=obstacle.body.position,
-                    half_size=self.obj_size * 0.5
+                    screen, image=self.obstacle_sprite, position=obstacle.body.position, half_size=self.obj_size * 0.5
                 )
             else:
                 draw_rectangle(
-                    screen,
-                    color=self.obstacle_color,
-                    position=obstacle.body.position,
-                    half_size=self.obj_size * 0.5
+                    screen, color=self.obstacle_color, position=obstacle.body.position, half_size=self.obj_size * 0.5
                 )
 
         player = self.players[0]
         for goal in self.goals:
             if self.goal_sprite is not None:
-                draw_sprite(
-                    screen,
-                    image=self.goal_sprite,
-                    position=goal.body.position,
-                    half_size=self.obj_size * 0.5
-                )
+                draw_sprite(screen, image=self.goal_sprite, position=goal.body.position, half_size=self.obj_size * 0.5)
             else:
                 draw_rectangle(
-                    screen,
-                    color=self.goal_color,
-                    position=goal.body.position,
-                    half_size=self.obj_size * 0.5
+                    screen, color=self.goal_color, position=goal.body.position, half_size=self.obj_size * 0.5
                 )
 
             if self.block_sprite is not None:
@@ -815,27 +1175,31 @@ class SokobanEnv(CoreEnv):
                     screen,
                     image=self.block_sprite,
                     position=player.body.position - (player.body.position - goal.body.position) * 0.95,
-                    half_size=self.obj_size * 0.5
+                    half_size=self.obj_size * 0.5,
                 )
             else:
                 draw_rectangle(
                     screen,
                     color=self.block_color,
                     position=player.body.position - (player.body.position - goal.body.position) * 0.95,
-                    half_size=self.obj_size * 0.5
+                    half_size=self.obj_size * 0.5,
                 )
 
         player = self.players[0]
         block = self.blocks[0]
         if self.player_sprite is not None:
             draw_sprite(
-                screen, image=self.player_sprite, position=player.body.position - (player.body.position - block.body.position) * 0.9,
-                half_size=self.obj_size * 0.5
+                screen,
+                image=self.player_sprite,
+                position=player.body.position - (player.body.position - block.body.position) * 0.9,
+                half_size=self.obj_size * 0.5,
             )
         else:
             draw_circle(
-                screen, color=self.player_color, position=player.body.position - (player.body.position - block.body.position) * 0.9,
-                radius=self.obj_size * 0.5
+                screen,
+                color=self.player_color,
+                position=player.body.position - (player.body.position - block.body.position) * 0.9,
+                radius=self.obj_size * 0.5,
             )
 
         image = pygame.surfarray.array3d(screen)

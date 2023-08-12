@@ -70,14 +70,38 @@ class GaussianRandom(CoreNoise):
         self.reset()
 
     def reset(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.n_steps = 0
         self.current_sigma = max(self.sigma_min, self.m * float(self.n_steps) + self.c)
 
     def decay(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.n_steps += 1
         self.current_sigma = max(self.sigma_min, self.m * float(self.n_steps) + self.c)
 
     def sample(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         x = np.random.normal(loc=self.mu, scale=self.current_sigma, size=self.size)
         return x
 
@@ -115,15 +139,43 @@ class OrnsteinUhlenbeck(CoreNoise):
         self.reset()
 
     def reset(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.n_steps = 0
         self.x_prev = np.ones(self.size) * self.mu
         self.current_sigma = max(self.sigma_min, self.m * float(self.n_steps) + self.c)
 
     def decay(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.n_steps += 1
         self.current_sigma = max(self.sigma_min, self.m * float(self.n_steps) + self.c)
 
     def sample(self):
-        x = self.x_prev + self.theta * (self.mu - self.x_prev) * self.dt + self.current_sigma * np.sqrt(self.dt) * np.random.normal(size=self.size)
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
+        x = (
+            self.x_prev
+            + self.theta * (self.mu - self.x_prev) * self.dt
+            + self.current_sigma * np.sqrt(self.dt) * np.random.normal(size=self.size)
+        )
         self.x_prev = x
         return x

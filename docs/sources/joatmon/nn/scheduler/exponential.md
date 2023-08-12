@@ -2,7 +2,7 @@
 
 
 ## ExponentialLR
-```python 
+```python
 ExponentialLR(
    optimizer, gamma, last_epoch = -1, verbose = False
 )
@@ -32,3 +32,10 @@ When last_epoch=-1, sets initial lr as lr.
 .get_lr()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.

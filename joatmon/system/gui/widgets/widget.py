@@ -4,6 +4,20 @@ from joatmon.event import Event
 
 
 class Element:
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, id_):
         self._id = id_
 
@@ -28,17 +42,41 @@ class Element:
         self._events = {'click': Event()}
 
     def layout(self, layout):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self._layout = layout
 
         return self
 
     def add(self, element):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self._elements.append(element)
         self.update()
 
         return self
 
     def style(self, style):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self._width = style.get('width', self._width)
         self._height = style.get('height', self._height)
 
@@ -55,6 +93,14 @@ class Element:
         return self
 
     def on(self, event, func):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         _event = self._events.get(event, None)
         if _event:
             _event += func
@@ -62,6 +108,14 @@ class Element:
         return self
 
     def update(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self._rect = pygame.Rect(self._x, self._y, self._width, self._height)
 
         if self._layout == 'vertical':
@@ -94,6 +148,14 @@ class Element:
             element.update()
 
     def draw(self, screen):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         border_color = self._border.get('color', (0, 0, 0))
         thickness = self._border.get('thickness', 1)
         radius = self._border.get('radius', 1)
@@ -121,6 +183,14 @@ class Element:
             element.draw(screen)
 
     def handle(self, event):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         for element in self._elements:
             element.handle(event)
 

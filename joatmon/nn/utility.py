@@ -2,16 +2,24 @@ import warnings
 from typing import Any
 
 EPOCH_DEPRECATION_WARNING = (
-    "The epoch parameter in `scheduler.step()` was not necessary and is being "
-    "deprecated where possible. Please use `scheduler.step()` to step the "
-    "scheduler. During the deprecation, if epoch is different from None, the "
-    "closed form is used instead of the new chainable form, where available. "
+    'The epoch parameter in `scheduler.step()` was not necessary and is being '
+    'deprecated where possible. Please use `scheduler.step()` to step the '
+    'scheduler. During the deprecation, if epoch is different from None, the '
+    'closed form is used instead of the new chainable form, where available. '
 )
 
-SAVE_STATE_WARNING = "Please also save or load the state of the optimizer when saving or loading the scheduler."
+SAVE_STATE_WARNING = 'Please also save or load the state of the optimizer when saving or loading the scheduler.'
 
 
 def _calculate_output_dims(input_shape, kernel_shape, padding, stride):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     batch_size, _, input_height, input_width = input_shape
     out_filter_number, _, filter_height, filter_width = kernel_shape
 
@@ -35,11 +43,24 @@ def _forward_unimplemented(self, *inp: Any) -> None:
 
 
 def typename(o):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if type(o) == 'Tensor':
         return o.dtype
 
     module = ''
-    if hasattr(o, '__module__') and o.__module__ != 'builtins' and o.__module__ != '__builtin__' and o.__module__ is not None:
+    if (
+        hasattr(o, '__module__')
+        and o.__module__ != 'builtins'
+        and o.__module__ != '__builtin__'
+        and o.__module__ is not None
+    ):
         module = o.__module__ + '.'
 
     if hasattr(o, '__qualname__'):
@@ -53,6 +74,14 @@ def typename(o):
 
 
 def indent(string, spaces):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     s = string.split('\n')
     if len(s) == 1:
         return string
@@ -64,6 +93,14 @@ def indent(string, spaces):
 
 
 def get_enum(reduction):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if reduction == 'none':
         ret = 0
     elif reduction == 'mean':
@@ -75,11 +112,19 @@ def get_enum(reduction):
         ret = 2
     else:
         ret = -1  # TODO: remove once JIT exceptions support control flow
-        raise ValueError("{} is not a valid value for reduction".format(reduction))
+        raise ValueError('{} is not a valid value for reduction'.format(reduction))
     return ret
 
 
 def legacy_get_string(size_average, reduce, emit_warning=True):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     warning = "size_average and reduce args will be deprecated, please use reduction='{}' instead."
 
     if size_average is None:
@@ -99,6 +144,14 @@ def legacy_get_string(size_average, reduce, emit_warning=True):
 
 
 def legacy_get_enum(size_average, reduce, emit_warning=True):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     return get_enum(legacy_get_string(size_average, reduce, emit_warning))
 
 
@@ -106,7 +159,7 @@ class _RequiredParameter(object):
     """Singleton class representing a required parameter for an Optimizer."""
 
     def __repr__(self):
-        return "<required parameter>"
+        return '<required parameter>'
 
 
 required = _RequiredParameter()

@@ -5,33 +5,61 @@ import psycopg2
 
 from joatmon.orm.constraint import UniqueConstraint
 from joatmon.orm.meta import normalize_kwargs
-from joatmon.orm.query import (
-    Dialects
-)
+from joatmon.orm.query import Dialects
 from joatmon.plugin.database.core import DatabasePlugin
 from joatmon.utility import get_converter
 
 
 class PostgreSQLDatabase(DatabasePlugin):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     DATABASES = set()
     CREATED_COLLECTIONS = set()
     UPDATED_COLLECTIONS = set()
 
     def __init__(self, host, port, user, password, database):
         self.connection = psycopg2.connect(
-            database=database, user=user,
-            password=password, host=host, port=port  # , async_=True
+            database=database, user=user, password=password, host=host, port=port  # , async_=True
         )
         self.connection.autocommit = True
 
     async def _check_collection(self, collection):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         # for one time only need to check indexes, constraints, default values, table schema as well
         cursor = self.connection.cursor()
 
-        cursor.execute(f'select * from information_schema.tables where table_name = \'{collection.__collection__}\'')
+        cursor.execute(f"select * from information_schema.tables where table_name = '{collection.__collection__}'")
         return len(list(cursor.fetchall())) > 0
 
     async def _create_collection(self, collection):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
+
         def get_type(dtype: type):
             type_mapper = {
                 datetime: 'timestamp without time zone',
@@ -46,7 +74,9 @@ class PostgreSQLDatabase(DatabasePlugin):
 
         fields = []
         for field_name, field in collection.fields(collection).items():
-            fields.append(f'{field_name} {get_type(field.dtype)} {"" if field.nullable else "not null"} {"primary key" if field.primary else ""}')
+            fields.append(
+                f'{field_name} {get_type(field.dtype)} {"" if field.nullable else "not null"} {"primary key" if field.primary else ""}'
+            )
         sql = f'create table {collection.__collection__} (\n' + ',\n'.join(fields) + '\n);'
 
         cursor = self.connection.cursor()
@@ -59,13 +89,23 @@ class PostgreSQLDatabase(DatabasePlugin):
                 index_fields = list(map(lambda x: x.strip(), index.field.split(',')))
             else:
                 index_fields = [index.field]
-            c = ", ".join(index_fields)
+            c = ', '.join(index_fields)
             if index_name in index_names:
                 continue
             index_names.add(index_name)
-            cursor.execute(f'create {"unique" if isinstance(index, UniqueConstraint) else ""} index {collection.__collection__}_{index_name} on {collection.__collection__} ({c})')
+            cursor.execute(
+                f'create {"unique" if isinstance(index, UniqueConstraint) else ""} index {collection.__collection__}_{index_name} on {collection.__collection__} ({c})'
+            )
 
     async def _create_view(self, collection):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         cursor = self.connection.cursor()
 
         sql = f'drop VIEW if exists {collection.__collection__}'
@@ -75,21 +115,61 @@ class PostgreSQLDatabase(DatabasePlugin):
         cursor.execute(sql)
 
     async def _ensure_collection(self, collection):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if not await self._check_collection(collection):
             await self._create_collection(collection)
 
     async def create(self, document):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     async def alter(self, document):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     async def drop(self, document):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         cursor = self.connection.cursor()
         sql = f'drop table if exists {document.__metaclass__.__collection__} cascade'
         cursor.execute(sql)
 
     async def insert(self, document, *docs):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         cursor = self.connection.cursor()
 
         for doc in docs:
@@ -110,7 +190,7 @@ class PostgreSQLDatabase(DatabasePlugin):
                     if dictionary[field_name] is None:
                         values.append('null')
                     elif field.dtype in (uuid.UUID, str, datetime):
-                        values.append(f'\'{str(dictionary[field_name])}\'')
+                        values.append(f"'{str(dictionary[field_name])}'")
                     else:
                         values.append(str(dictionary[field_name]))
 
@@ -127,6 +207,14 @@ class PostgreSQLDatabase(DatabasePlugin):
             cursor.execute(sql)
 
     async def read(self, document, query):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         cursor = self.connection.cursor()
 
         await self._ensure_collection(document.__metaclass__)
@@ -150,7 +238,7 @@ class PostgreSQLDatabase(DatabasePlugin):
                 if field_value is None:
                     values.append('null')
                 elif field.dtype in (uuid.UUID, str, datetime):
-                    values.append(f'\'{str(field_value)}\'')
+                    values.append(f"'{str(field_value)}'")
                 else:
                     values.append(str(field_value))
 
@@ -173,6 +261,14 @@ class PostgreSQLDatabase(DatabasePlugin):
             yield document(**dict(zip(keys, doc)))
 
     async def update(self, document, query, update):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         cursor = self.connection.cursor()
 
         def normalize(d, kwargs):
@@ -190,7 +286,7 @@ class PostgreSQLDatabase(DatabasePlugin):
                 if field_value is None:
                     values.append('null')
                 elif field.dtype in (uuid.UUID, str, datetime):
-                    values.append(f'\'{str(field_value)}\'')
+                    values.append(f"'{str(field_value)}'")
                 else:
                     values.append(str(field_value))
 
@@ -215,7 +311,7 @@ class PostgreSQLDatabase(DatabasePlugin):
                 if field_value is None:
                     values.append('null')
                 elif field.dtype in (uuid.UUID, str, datetime):
-                    values.append(f'\'{str(field_value)}\'')
+                    values.append(f"'{str(field_value)}'")
                 else:
                     values.append(str(field_value))
 
@@ -231,6 +327,14 @@ class PostgreSQLDatabase(DatabasePlugin):
         cursor.execute(sql)
 
     async def delete(self, document, query):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         cursor = self.connection.cursor()
 
         sql = f'delete from {document.__metaclass__.__collection__}'
@@ -250,7 +354,7 @@ class PostgreSQLDatabase(DatabasePlugin):
                 if field_value is None:
                     values.append('null')
                 elif field.dtype in (uuid.UUID, str, datetime):
-                    values.append(f'\'{str(field_value)}\'')
+                    values.append(f"'{str(field_value)}'")
                 else:
                     values.append(str(field_value))
 
@@ -266,6 +370,14 @@ class PostgreSQLDatabase(DatabasePlugin):
         cursor.execute(sql)
 
     async def view(self, document, query):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         await self._create_view(document.__metaclass__)
 
         keys = list(document.__metaclass__.fields(document.__metaclass__).keys())
@@ -287,7 +399,7 @@ class PostgreSQLDatabase(DatabasePlugin):
                 if field_value is None:
                     values.append('null')
                 elif field.dtype in (uuid.UUID, str, datetime):
-                    values.append(f'\'{str(field_value)}\'')
+                    values.append(f"'{str(field_value)}'")
                 else:
                     values.append(str(field_value))
 
@@ -308,13 +420,45 @@ class PostgreSQLDatabase(DatabasePlugin):
             yield document(**dict(zip(keys, doc)))
 
     async def start(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.connection.autocommit = False
 
     async def commit(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.connection.commit()
 
     async def abort(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.connection.rollback()
 
     async def end(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.connection.close()

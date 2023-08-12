@@ -2,6 +2,20 @@ from joatmon.system.memory.core import hex_dump
 
 
 class Address(object):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, value, process, default_type='uint'):
         self.value = int(value)
         self.process = process
@@ -9,6 +23,14 @@ class Address(object):
         self.symbolic_name = None
 
     def read(self, of_type=None, max_length=None, errors='raise'):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if max_length is None:
             try:
                 max_length = int(of_type)
@@ -25,17 +47,49 @@ class Address(object):
             return self.process.read(self.value, of_type=of_type, max_length=max_length, errors=errors)
 
     def write(self, data, of_type=None):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if not of_type:
             of_type = self.default_type
         return self.process.write(self.value, data, of_type=of_type)
 
     def symbol(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return self.process.get_symbolic_name(self.value)
 
     def get_instruction(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return self.process.get_instruction(self.value)
 
     def dump(self, of_type='bytes', size=512, before=32):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         buf = self.process.read_bytes(self.value - before, size)
         print(hex_dump(buf, self.value - before, of_type=of_type))
 

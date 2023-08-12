@@ -11,23 +11,44 @@ if sys.platform != 'win32':
 
 
 class POINT(ctypes.Structure):
-    _fields_ = [
-        ("x", ctypes.c_long),
-        ("y", ctypes.c_long)
-    ]
+    _fields_ = [('x', ctypes.c_long), ('y', ctypes.c_long)]
 
 
 def resolution():
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     return ctypes.windll.user32.GetSystemMetrics(1), ctypes.windll.user32.GetSystemMetrics(0)
 
 
 def cursor():
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     _cursor = POINT()
     ctypes.windll.user32.GetCursorPos(ctypes.byref(_cursor))
     return _cursor.y, _cursor.x
 
 
 def grab(region=None) -> numpy.ndarray:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if sys.platform == 'win32':
         import win32api
         import win32con

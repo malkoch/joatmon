@@ -25,15 +25,41 @@ from joatmon.system.memory.core import (
     Th32csClass,
     type_unpack,
     UNPROTECTED_DACL_SECURITY_INFORMATION,
-    VirtualQueryEx
+    VirtualQueryEx,
 )
 
 
 class ProcessException(Exception):
-    pass
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
 
 
 class BaseProcess(object):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, *args, **kwargs):
         self.h_process = None
         self.pid = None
@@ -45,22 +71,69 @@ class BaseProcess(object):
         self.close()
 
     def close(self):
-        pass
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
 
     def iter_region(self, *args, **kwargs):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         raise NotImplementedError
 
     def write_bytes(self, address, data):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         raise NotImplementedError
 
     def read_bytes(self, address, size=4):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         raise NotImplementedError
 
     @staticmethod
     def get_symbolic_name(a):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return '0x%08X' % int(a)
 
     def read(self, address, of_type='uint', max_length=50, errors='raise'):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if of_type == 's' or of_type == 'string':
             byte_array = self.read_bytes(int(address), size=max_length)
             new_string = ''
@@ -78,6 +151,14 @@ class BaseProcess(object):
             return struct.unpack(struct_type, self.read_bytes(int(address), size=struct_length))[0]
 
     def write(self, address, data, of_type='uint'):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if of_type != 'bytes':
             struct_type, struct_length = type_unpack(of_type)
             return self.write_bytes(int(address), struct.pack(struct_type, data))
@@ -86,6 +167,20 @@ class BaseProcess(object):
 
 
 class Process(BaseProcess):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, pid=None, name=None, debug=True):
         super(Process, self).__init__()
         if pid:
@@ -93,7 +188,7 @@ class Process(BaseProcess):
         elif name:
             self._open_from_name(name, debug=debug)
         else:
-            raise ValueError("You need to instanciate process with at least a name or a pid")
+            raise ValueError('You need to instanciate process with at least a name or a pid')
 
         if self.is_64():
             si = self.get_native_system_info()
@@ -108,7 +203,15 @@ class Process(BaseProcess):
         self.close()
 
     def is_64(self):
-        if "64" not in platform.machine():
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
+        if '64' not in platform.machine():
             return False
         is_wow_64 = ctypes.c_bool(False)
         if IsWow64Process is None:
@@ -119,6 +222,14 @@ class Process(BaseProcess):
 
     @staticmethod
     def list():
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         processes = []
         arr = ctypes.c_ulong * 256
         l_pid_process = arr()
@@ -133,33 +244,34 @@ class Process(BaseProcess):
         ctypes.windll.psapi.EnumProcesses(ctypes.byref(l_pid_process), cb, ctypes.byref(cb_needed))
         n_returned = cb_needed.value / ctypes.sizeof(ctypes.c_ulong())
 
-        pid_process = [i for i in l_pid_process][:int(n_returned)]
+        pid_process = [i for i in l_pid_process][: int(n_returned)]
         for pid in pid_process:
-            proc = {
-                "pid": int(pid)
-            }
+            proc = {'pid': int(pid)}
             h_process = ctypes.windll.kernel32.OpenProcess(process_query_information | process_vm_read, False, pid)
             if h_process:
                 ctypes.windll.psapi.EnumProcessModules(
-                    h_process,
-                    ctypes.byref(h_module),
-                    ctypes.sizeof(h_module),
-                    ctypes.byref(count)
+                    h_process, ctypes.byref(h_module), ctypes.sizeof(h_module), ctypes.byref(count)
                 )
                 ctypes.windll.psapi.GetModuleBaseNameA(h_process, h_module.value, modname, ctypes.sizeof(modname))
-                proc["name"] = modname.value.decode('utf-8')
+                proc['name'] = modname.value.decode('utf-8')
                 ctypes.windll.kernel32.CloseHandle(h_process)
             processes.append(proc)
         return processes
 
     @staticmethod
     def processes_from_name(process_name):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         processes = []
         for process in Process.list():
-            if (
-                    process_name == process.get("name", None) or
-                    (process.get("name", "").lower().endswith(".exe") and
-                     process.get("name", "")[:-4] == process_name)
+            if process_name == process.get('name', None) or (
+                process.get('name', '').lower().endswith('.exe') and process.get('name', '')[:-4] == process_name
             ):
                 processes.append(process)
 
@@ -168,14 +280,30 @@ class Process(BaseProcess):
 
     @staticmethod
     def name_from_process(dw_process_id):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         process_list = Process.list()
         for process in process_list:
             if process.get('pid', -1) == dw_process_id:
-                return process.get("name", None)
+                return process.get('name', None)
 
         return False
 
     def _open(self, dw_process_id, debug=False):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if debug:
             ppsid_owner = wintypes.DWORD()
             ppsid_group = wintypes.DWORD()
@@ -192,7 +320,7 @@ class Process(BaseProcess):
                 ctypes.byref(ppsid_group),
                 ctypes.byref(pp_dacl),
                 ctypes.byref(pp_sacl),
-                ctypes.byref(pp_security_descriptor)
+                ctypes.byref(pp_security_descriptor),
             )
             ctypes.windll.advapi32.SetSecurityInfo(
                 process,
@@ -201,7 +329,7 @@ class Process(BaseProcess):
                 None,
                 None,
                 pp_security_descriptor.dacl,
-                pp_security_descriptor.group
+                pp_security_descriptor.group,
             )
             ctypes.windll.kernel32.CloseHandle(process)
         self.h_process = ctypes.windll.kernel32.OpenProcess(2035711, 0, dw_process_id)
@@ -212,6 +340,14 @@ class Process(BaseProcess):
         return False
 
     def close(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if self.h_process is not None:
             ret = ctypes.windll.kernel32.CloseHandle(self.h_process) == 1
             if ret:
@@ -222,6 +358,14 @@ class Process(BaseProcess):
         return False
 
     def _open_from_name(self, process_name, debug=False):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         processes = self.processes_from_name(process_name)
         # need to remove the self process
         processes = list(filter(lambda process: process.get('pid', -1) != os.getpid(), processes))
@@ -229,39 +373,81 @@ class Process(BaseProcess):
             raise ProcessException("can't get pid from name %s" % process_name)
         elif len(processes) > 1:
             raise ValueError(
-                "There is multiple processes with name %s. Please select a process from its pid instead" % process_name
+                'There is multiple processes with name %s. Please select a process from its pid instead' % process_name
             )
 
         if debug:
-            self._open(processes[0]["pid"], debug=True)
+            self._open(processes[0]['pid'], debug=True)
         else:
-            self._open(processes[0]["pid"], debug=False)
+            self._open(processes[0]['pid'], debug=False)
 
     @staticmethod
     def get_system_info():
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         si = SystemInfo()
         ctypes.windll.kernel32.GetSystemInfo(ctypes.byref(si))
         return si
 
     @staticmethod
     def get_native_system_info():
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         si = SystemInfo()
         ctypes.windll.kernel32.GetNativeSystemInfo(ctypes.byref(si))
         return si
 
     def virtual_query_ex(self, lp_address):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         mbi = MemoryBasicInformation()
         if not VirtualQueryEx(self.h_process, lp_address, ctypes.byref(mbi), ctypes.sizeof(mbi)):
             raise ProcessException('Error VirtualQueryEx: 0x%08X' % lp_address)
         return mbi
 
     def virtual_protect_ex(self, base_address, size, protection):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         old_protect = ctypes.c_ulong(0)
-        if not ctypes.windll.kernel32.virtual_protect_ex(self.h_process, base_address, size, protection, ctypes.byref(old_protect)):
+        if not ctypes.windll.kernel32.virtual_protect_ex(
+            self.h_process, base_address, size, protection, ctypes.byref(old_protect)
+        ):
             raise ProcessException('Error: VirtualProtectEx(%08X, %d, %08X)' % (base_address, size, protection))
         return old_protect.value
 
     def iter_region(self, start_offset=None, end_offset=None, protect=None, optimizations=None):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         _offset_start = start_offset or self.min_address
         _offset_end = end_offset or self.max_address
 
@@ -278,13 +464,26 @@ class Process(BaseProcess):
                 _offset_start += _chunk
                 continue
             if protect:
-                if not _protect & protect or _protect & PAGE_NOCACHE or _protect & PAGE_WRITECOMBINE or _protect & PAGE_GUARD:
+                if (
+                    not _protect & protect
+                    or _protect & PAGE_NOCACHE
+                    or _protect & PAGE_WRITECOMBINE
+                    or _protect & PAGE_GUARD
+                ):
                     _offset_start += _chunk
                     continue
             yield _offset_start, _chunk
             _offset_start += _chunk
 
     def write_bytes(self, address, data):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         address = int(address)
         if not self.is_process_open:
             raise ProcessException("Can't write_bytes(%s, %s), process %s is not open" % (address, data, self.pid))
@@ -299,11 +498,7 @@ class Process(BaseProcess):
             print(str(ex1))
 
         res = ctypes.windll.kernel32.WriteProcessMemory(
-            self.h_process,
-            address,
-            buffer,
-            buffer_size,
-            ctypes.byref(size_writen)
+            self.h_process, address, buffer, buffer_size, ctypes.byref(size_writen)
         )
         try:
             self.virtual_protect_ex(_address, _length, old_protect)
@@ -313,9 +508,17 @@ class Process(BaseProcess):
         return res
 
     def read_bytes(self, address, size=4, use_nt_wow64_read_virtual_memory64=False):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if use_nt_wow64_read_virtual_memory64:
             if NtWow64ReadVirtualMemory64 is None:
-                raise WindowsError("NtWow64ReadVirtualMemory64 is not available from a 64bit process")
+                raise WindowsError('NtWow64ReadVirtualMemory64 is not available from a 64bit process')
             rpm = NtWow64ReadVirtualMemory64
         else:
             rpm = ReadProcessMemory
@@ -326,29 +529,35 @@ class Process(BaseProcess):
         data = b''
         length = size
         while length:
-            if rpm(self.h_process, address, buffer, size, ctypes.byref(bytes_read)) or (use_nt_wow64_read_virtual_memory64 and ctypes.GetLastError() == 0):
+            if rpm(self.h_process, address, buffer, size, ctypes.byref(bytes_read)) or (
+                use_nt_wow64_read_virtual_memory64 and ctypes.GetLastError() == 0
+            ):
                 if bytes_read.value:
-                    data += buffer.raw[:bytes_read.value]
+                    data += buffer.raw[: bytes_read.value]
                     length -= bytes_read.value
                     address += bytes_read.value
                 if not len(data):
                     raise ProcessException(
-                        'Error %s in ReadProcessMemory(%08x, %d, read=%d)' % (
-                            ctypes.GetLastError(),
-                            address,
-                            length,
-                            bytes_read.value
-                        )
+                        'Error %s in ReadProcessMemory(%08x, %d, read=%d)'
+                        % (ctypes.GetLastError(), address, length, bytes_read.value)
                     )
                 return data
             else:
                 if ctypes.GetLastError() == 299:
-                    data += buffer.raw[:bytes_read.value]
+                    data += buffer.raw[: bytes_read.value]
                     return data
                 raise ctypes.WinError()
         return data
 
     def list_modules(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if self.pid is not None:
             h_module_snap = CreateToolhelp32Snapshot(Th32csClass.SNAPMODULE, self.pid)
             if h_module_snap is not None:
@@ -363,13 +572,33 @@ class Process(BaseProcess):
                 ctypes.windll.kernel32.CloseHandle(h_module_snap)
 
     def get_symbolic_name(self, address):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         for m in self.list_modules():
-            if int(ctypes.addressof(m.modBaseAddr.contents)) <= int(address) < int(ctypes.addressof(m.modBaseAddr.contents) + m.modBaseSize):
+            if (
+                int(ctypes.addressof(m.modBaseAddr.contents))
+                <= int(address)
+                < int(ctypes.addressof(m.modBaseAddr.contents) + m.modBaseSize)
+            ):
                 return '%s+0x%08X' % (m.szModule, int(address) - ctypes.addressof(m.modBaseAddr.contents))
 
         return '0x%08X' % int(address)
 
     def has_module(self, module):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if module[-4:] != '.dll':
             module += '.dll'
         module_list = self.list_modules()

@@ -1,4 +1,12 @@
 def binary_search(iterable, value, item_getter):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     low = 0
     high = len(iterable) - 1
 
@@ -14,6 +22,14 @@ def binary_search(iterable, value, item_getter):
 
 
 def binary_search_helper(iterable, value, item_getter, low, high):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     if high >= low:
         mid = low + (high - low) // 2
 
@@ -26,4 +42,12 @@ def binary_search_helper(iterable, value, item_getter, low, high):
 
 
 def binary_search_r(iterable, value, item_getter):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
     return binary_search_helper(iterable, value, item_getter, 0, len(iterable) - 1)

@@ -2,7 +2,7 @@
 
 
 ## CoreNoise
-```python 
+```python
 
 ```
 
@@ -55,7 +55,7 @@ sample (abstract): Random state.
 
 
 ## GaussianRandom
-```python 
+```python
 GaussianRandom(
    mu = 0.0, size = 2, sigma = 0.1, sigma_min = 0.01, decay_steps = 200000
 )
@@ -81,24 +81,45 @@ decay_steps (int): .
 .reset()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .decay
 ```python
 .decay()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .sample
 ```python
 .sample()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ----
 
 
 ## OrnsteinUhlenbeck
-```python 
+```python
 OrnsteinUhlenbeck(
    dt = 1.0, mu = 0.0, size = 2, sigma = 0.1, theta = 0.15, sigma_min = 0.01,
    decay_steps = 200000
@@ -127,15 +148,36 @@ decay_steps (int): .
 .reset()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .decay
 ```python
 .decay()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 ### .sample
 ```python
 .sample()
 ```
 
+---
+Remember the transaction.
+
+Accepts a state, action, reward, next_state, terminal transaction.
+
+# Arguments
+transaction (abstract): state, action, reward, next_state, terminal transaction.

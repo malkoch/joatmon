@@ -2,10 +2,7 @@ import ctypes
 import sys
 
 from joatmon.system.decorators import auto_pause
-from joatmon.system.hid.screen import (
-    cursor,
-    resolution
-)
+from joatmon.system.hid.screen import cursor, resolution
 
 __all__ = ['Mouse']
 
@@ -22,6 +19,20 @@ def _send_mouse_event(x, y, event):
 
 
 class Mouse:
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     MOUSE_DOWN = 0x0000
     MOUSE_UP = 0x0001
     MOUSE_LEFT = 0x0002
@@ -35,6 +46,14 @@ class Mouse:
 
     @staticmethod
     def restrict(min_x, max_x, min_y, max_y):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         Mouse.min_x = min_x
         Mouse.max_x = max_x
         Mouse.min_y = min_y
@@ -42,6 +61,14 @@ class Mouse:
 
     @auto_pause(duration=0.05)
     def move_to(self, x=None, y=None):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         # needs a time to move
         if x is None:
             _, x = cursor()
@@ -79,6 +106,14 @@ class Mouse:
 
     @staticmethod
     def mouse_down(x=None, y=None, button=None):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if button is None:
             button = Mouse.MOUSE_LEFT
 
@@ -89,6 +124,14 @@ class Mouse:
 
     @staticmethod
     def mouse_up(x=None, y=None, button=None):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if button is None:
             button = Mouse.MOUSE_LEFT
 
@@ -99,6 +142,14 @@ class Mouse:
 
     @staticmethod
     def click(x=None, y=None, button=None):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if button is None:
             button = Mouse.MOUSE_LEFT
 

@@ -1,21 +1,10 @@
 import operator
 import warnings
 import weakref
-from collections import (
-    defaultdict,
-    OrderedDict
-)
+from collections import defaultdict, OrderedDict
 from functools import wraps
 from itertools import islice
-from typing import (
-    Any,
-    Callable,
-    Iterator,
-    Optional,
-    Set,
-    Tuple,
-    Union
-)
+from typing import Any, Callable, Iterator, Optional, Set, Tuple, Union
 
 import six
 
@@ -25,21 +14,44 @@ from joatmon.nn.utility import (
     indent,
     legacy_get_string,
     required,
-    typename
+    typename,
 )
 
-__all__ = ['Tensor', 'Module', 'Parameter', 'Optimizer', 'LRScheduler', 'Loss', 'ModuleAttributeException', 'Sequential']
+__all__ = [
+    'Tensor',
+    'Module',
+    'Parameter',
+    'Optimizer',
+    'LRScheduler',
+    'Loss',
+    'ModuleAttributeException',
+    'Sequential',
+]
 
 warnings.filterwarnings(
-    "once", "The .grad attribute of a Tensor that is not a leaf Tensor is being accessed. Its .grad "
-            "attribute won't be populated during autograd.backward(). If you indeed want the gradient "
-            "for a non-leaf Tensor, use .retain_grad() on the non-leaf Tensor. If you access the "
-            "non-leaf Tensor by mistake, make sure you access the leaf Tensor instead.", UserWarning
+    'once',
+    'The .grad attribute of a Tensor that is not a leaf Tensor is being accessed. Its .grad '
+    "attribute won't be populated during autograd.backward(). If you indeed want the gradient "
+    'for a non-leaf Tensor, use .retain_grad() on the non-leaf Tensor. If you access the '
+    'non-leaf Tensor by mistake, make sure you access the leaf Tensor instead.',
+    UserWarning,
 )
 
 
 class ModuleAttributeException(AttributeError):
-    pass
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
 
 
 class RemovableHandle(object):
@@ -54,6 +66,14 @@ class RemovableHandle(object):
         RemovableHandle.next_id += 1
 
     def remove(self) -> None:
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         hooks_dict = self.hooks_dict_ref()
         if hooks_dict is not None and self.id in hooks_dict:
             del hooks_dict[self.id]
@@ -78,6 +98,20 @@ class RemovableHandle(object):
 
 
 class Tensor:
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, data=None, requires_grad=None):
         self._data = data
         self._requires_grad = requires_grad
@@ -135,168 +169,539 @@ class Tensor:
         return self.absolute()
 
     def chunk(self, chunks, dim=0):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     def view(self, size) -> 'Tensor':
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     def index_select(self, dim, index) -> 'Tensor':
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     def zero(self) -> 'Tensor':
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     def one(self) -> 'Tensor':
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     def fill(self, value) -> 'Tensor':
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     def squeeze(self, axis=None) -> 'Tensor':
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     def expand_dim(self, axis=None) -> 'Tensor':
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     def transpose(self, axes) -> 'Tensor':
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     def absolute(self) -> 'Tensor':
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     def around(self) -> 'Tensor':
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     def floor(self) -> 'Tensor':
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     def ceil(self) -> 'Tensor':
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     def clip(self, min_val, max_val) -> 'Tensor':
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     def negative(self) -> 'Tensor':
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     def summation(self) -> 'Tensor':
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     def mean(self) -> 'Tensor':
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     def std(self) -> 'Tensor':
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     def var(self) -> 'Tensor':
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     def add(self, other) -> 'Tensor':
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     def sub(self, other) -> 'Tensor':
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     def mul(self, other) -> 'Tensor':
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     def div(self, other) -> 'Tensor':
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     def power(self, p) -> 'Tensor':
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     def clone(self) -> 'Tensor':
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     def detach(self, inplace=False) -> 'Tensor':
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     @staticmethod
     def from_array(data, requires_grad=False) -> 'Tensor':
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     def to_array(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     def half(self) -> 'Tensor':
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     def single(self) -> 'Tensor':
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     def double(self) -> 'Tensor':
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     def cpu(self) -> 'Tensor':
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     def gpu(self) -> 'Tensor':
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         ...
 
     def size(self, dim=None) -> Union[tuple, int]:
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if dim is None:
             return self._data.shape
         return self._data.shape[dim]
 
     def dim(self) -> int:
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return len(self._data.shape)
 
     @property
     def shape(self) -> tuple:
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return self._data.shape
 
     @property
     def ndim(self) -> int:
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return len(self._data.shape)
 
     @property
     def dtype(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return self._data.dtype
 
     @property
     def device(self) -> str:
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return self._device
 
     @property
     def data(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return self._data
 
     @property
     def is_leaf(self) -> bool:
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if not self._requires_grad:
             return True
         return self._grad_fn is None
 
     @property
     def grad(self) -> 'Tensor':
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if not self._can_read_grad():
             warnings.warn(
-                "The .grad attribute of a Tensor that is not a leaf Tensor is being accessed. Its .grad "
+                'The .grad attribute of a Tensor that is not a leaf Tensor is being accessed. Its .grad '
                 "attribute won't be populated during autograd.backward(). If you indeed want the gradient "
-                "for a non-leaf Tensor, use .retain_grad() on the non-leaf Tensor. If you access the "
-                "non-leaf Tensor by mistake, make sure you access the leaf Tensor instead.", UserWarning
+                'for a non-leaf Tensor, use .retain_grad() on the non-leaf Tensor. If you access the '
+                'non-leaf Tensor by mistake, make sure you access the leaf Tensor instead.',
+                UserWarning,
             )
 
         return self._grad
 
     @grad.setter
     def grad(self, grad: 'Tensor'):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self._grad = grad
 
     @property
     def requires_grad(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return self._requires_grad
 
     @requires_grad.setter
     def requires_grad(self, requires_grad):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if not requires_grad and not self.is_leaf:
-            raise RuntimeError('you cannot set requires grad to False when the tensor is not a leaf tensor, you need to detach the tensor from graph')
+            raise RuntimeError(
+                'you cannot set requires grad to False when the tensor is not a leaf tensor, you need to detach the tensor from graph'
+            )
         # if self.dtype != 'float32':
         #     raise RuntimeError('only float tensors can be required grad')
         self._requires_grad = requires_grad
 
     def retain_grad(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if not self.requires_grad:
             raise RuntimeError("can't retain_grad on Tensor that has requires_grad=False")
         if self.is_leaf:  # no-op for leaves
@@ -305,6 +710,7 @@ class Tensor:
             return
 
         import weakref
+
         weak_self = weakref.ref(self)
 
         def retain_grad_hook(grad):
@@ -325,6 +731,14 @@ class Tensor:
         self.retains_grad = True
 
     def register_hook(self, hook):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if not self.requires_grad:
             raise RuntimeError("cannot register a hook on a tensor that doesn't require gradient")
         if self._backward_hooks is None:
@@ -336,18 +750,52 @@ class Tensor:
         return handle
 
     def _can_read_grad(self):
-        return not (self.requires_grad and not hasattr(self, "retains_grad") and not self.is_leaf and self._grad is None)
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
+        return not (
+            self.requires_grad and not hasattr(self, 'retains_grad') and not self.is_leaf and self._grad is None
+        )
 
     def _can_write_grad(self):
-        return not (self.requires_grad and not hasattr(self, "retains_grad") and not self.is_leaf)
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
+        return not (self.requires_grad and not hasattr(self, 'retains_grad') and not self.is_leaf)
 
     def forward(self):
-        pass
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
 
     def backward(self, gradient=None):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         # if graph does not have any tensor that can have grad, RuntimeError: element 0 of tensors does not require grad and does not have a grad_fn
 
         import numpy as np
+
         if gradient is None:
             gradient = Tensor.from_array(np.array(1))
 
@@ -366,6 +814,20 @@ class Tensor:
 
 
 class Parameter(Tensor):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, data=None, requires_grad=True):
         if data is None:
             data = Tensor()
@@ -380,6 +842,20 @@ class Parameter(Tensor):
 
 
 class Module:
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     dump_patches: bool = False
     _version: int = 1
     training: bool
@@ -390,40 +866,60 @@ class Module:
         self._modules = OrderedDict()
 
     def register_parameter(self, name: str, param: Optional[Parameter]) -> None:
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if '_parameters' not in self.__dict__:
-            raise AttributeError("cannot assign parameter before Module.__init__() call")
+            raise AttributeError('cannot assign parameter before Module.__init__() call')
         elif not isinstance(name, six.string_types):
-            raise TypeError("parameter name should be a string. Got {}".format(typename(name)))
+            raise TypeError('parameter name should be a string. Got {}'.format(typename(name)))
         elif '.' in name:
-            raise KeyError("parameter name can't contain \".\"")
+            raise KeyError('parameter name can\'t contain "."')
         elif name == '':
-            raise KeyError("parameter name can't be empty string \"\"")
+            raise KeyError('parameter name can\'t be empty string ""')
         elif hasattr(self, name) and name not in self._parameters:
             raise KeyError("attribute '{}' already exists".format(name))
 
         if param is None:
             self._parameters[name] = None
         elif not isinstance(param, Parameter):
-            raise TypeError("cannot assign '{}' object to parameter '{}' (Parameter or None required)".format(typename(param), name))
+            raise TypeError(
+                "cannot assign '{}' object to parameter '{}' (Parameter or None required)".format(typename(param), name)
+            )
         elif not param.is_leaf:
             raise ValueError(
                 "Cannot assign non-leaf Tensor to parameter '{0}'. Model parameters must be created explicitly. "
-                "To express '{0}' as a function of another Tensor, compute the value in the forward() method.".format(name)
+                "To express '{0}' as a function of another Tensor, compute the value in the forward() method.".format(
+                    name
+                )
             )
         else:
             self._parameters[name] = param
 
     def add_module(self, name: str, module: Optional['Module']) -> None:
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if not isinstance(module, Module) and module is not None:
-            raise TypeError("{} is not a Module subclass".format(typename(module)))
+            raise TypeError('{} is not a Module subclass'.format(typename(module)))
         elif not isinstance(name, six.string_types):
-            raise TypeError("module name should be a string. Got {}".format(typename(name)))
+            raise TypeError('module name should be a string. Got {}'.format(typename(name)))
         elif hasattr(self, name) and name not in self._modules:
             raise KeyError("attribute '{}' already exists".format(name))
         elif '.' in name:
-            raise KeyError("module name can't contain \".\"")
+            raise KeyError('module name can\'t contain "."')
         elif name == '':
-            raise KeyError("module name can't be empty string \"\"")
+            raise KeyError('module name can\'t be empty string ""')
         self._modules[name] = module
 
     def __setstate__(self, state):
@@ -452,23 +948,29 @@ class Module:
         params = self.__dict__.get('_parameters')
         if isinstance(value, Parameter):
             if params is None:
-                raise AttributeError("cannot assign parameters before Module.__init__() call")
+                raise AttributeError('cannot assign parameters before Module.__init__() call')
             remove_from(self.__dict__, self._modules)
             self.register_parameter(name, value)
         elif params is not None and name in params:
             if value is not None:
-                raise TypeError("cannot assign '{}' as parameter '{}' (Parameter or None expected)".format(typename(value), name))
+                raise TypeError(
+                    "cannot assign '{}' as parameter '{}' (Parameter or None expected)".format(typename(value), name)
+                )
             self.register_parameter(name, value)
         else:
             modules = self.__dict__.get('_modules')
             if isinstance(value, Module):
                 if modules is None:
-                    raise AttributeError("cannot assign module before Module.__init__() call")
+                    raise AttributeError('cannot assign module before Module.__init__() call')
                 remove_from(self.__dict__, self._parameters)
                 modules[name] = value
             elif modules is not None and name in modules:
                 if value is not None:
-                    raise TypeError("cannot assign '{}' as child module '{}' (Module or None expected)".format(typename(value), name))
+                    raise TypeError(
+                        "cannot assign '{}' as child module '{}' (Module or None expected)".format(
+                            typename(value), name
+                        )
+                    )
                 modules[name] = value
             else:
                 object.__setattr__(self, name, value)
@@ -476,6 +978,14 @@ class Module:
     forward: Callable[..., Any] = _forward_unimplemented
 
     def _call_impl(self, *inp, **kwargs):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return self.forward(*inp, **kwargs)
 
     __call__: Callable[..., Any] = _call_impl
@@ -489,6 +999,14 @@ class Module:
             object.__delattr__(self, name)
 
     def _named_members(self, get_members_fn, prefix='', recurse=True):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         memo = set()
         modules = self.named_modules(prefix=prefix) if recurse else [(prefix, self)]
         for module_prefix, module in modules:
@@ -501,19 +1019,51 @@ class Module:
                 yield name, v
 
     def parameters(self, recurse: bool = True) -> Iterator[Parameter]:
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         for name, param in self.named_parameters(recurse=recurse):
             yield param
 
     def named_parameters(self, prefix: str = '', recurse: bool = True) -> Iterator[Tuple[str, Parameter]]:
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         gen = self._named_members(lambda module: module._parameters.items(), prefix=prefix, recurse=recurse)
         for elem in gen:
             yield elem
 
     def children(self) -> Iterator['Module']:
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         for name, module in self.named_children():
             yield module
 
     def named_children(self) -> Iterator[Tuple[str, 'Module']]:
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         memo = set()
         for name, module in self._modules.items():
             if module is not None and module not in memo:
@@ -521,10 +1071,26 @@ class Module:
                 yield name, module
 
     def modules(self) -> Iterator['Module']:
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         for name, module in self.named_modules():
             yield module
 
     def named_modules(self, memo: Optional[Set['Module']] = None, prefix: str = ''):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if memo is None:
             memo = set()
         if self not in memo:
@@ -540,18 +1106,42 @@ class Module:
     # load_state_dict, save_state_dict, state_dict
 
     def train(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.training = True
         for module in self.children():
             module.train()
         return self
 
     def eval(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.training = False
         for module in self.children():
             module.eval()
         return self
 
     def zero_grad(self, set_to_none: bool = False):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         for p in self.parameters():
             if p.grad is not None:
                 if set_to_none:
@@ -564,49 +1154,133 @@ class Module:
                     p.grad.fill(0)
 
     def state_dict(self):
-        pass
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
 
     def load_state_dict(self):
-        pass
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
 
     def save_state_dict(self):
-        pass
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
 
     def _apply(self):
-        pass
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
 
     def apply(self, func: Callable[['Module'], None]):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         for module in self.children():
             module.apply(func)
         func(self)
         return self
 
     def half(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         for param in self.parameters():
             param.half()
         return self
 
     def single(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         for param in self.parameters():
             param.single()
         return self
 
     def double(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         for param in self.parameters():
             param.double()
         return self
 
     def cpu(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         for param in self.parameters():
             param.cpu()
         return self
 
     def gpu(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         for param in self.parameters():
             param.gpu()
         return self
 
     def _get_name(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return self.__class__.__name__
 
     def extra_repr(self) -> str:
@@ -653,6 +1327,20 @@ class Module:
 
 
 class Loss(Module):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     reduction: str
 
     def __init__(self, size_average=None, reduce=None, reduction: str = 'mean') -> None:
@@ -664,6 +1352,20 @@ class Loss(Module):
 
 
 class Sequential(Module):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, *args: Any):
         super(Sequential, self).__init__()
         if len(args) == 1 and isinstance(args[0], OrderedDict):
@@ -712,24 +1414,49 @@ class Sequential(Module):
         return iter(self._modules.values())
 
     def forward(self, inp):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         for module in self:
             inp = module(inp)
         return inp
 
 
 class Optimizer(object):
+    """
+    Deep Deterministic Policy Gradient
+
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
     def __init__(self, params, defaults):
         self.defaults = defaults
 
         if isinstance(params, Parameter):
-            raise TypeError("params argument given to the optimizer should be an iterable of Tensors or dicts, but got " + typename(params))
+            raise TypeError(
+                'params argument given to the optimizer should be an iterable of Tensors or dicts, but got '
+                + typename(params)
+            )
 
         self.state = defaultdict(dict)
         self.param_groups = []
 
         param_groups = list(params)
         if len(param_groups) == 0:
-            raise ValueError("optimizer got an empty parameter list")
+            raise ValueError('optimizer got an empty parameter list')
         if not isinstance(param_groups[0], dict):
             param_groups = [{'params': param_groups}]
 
@@ -758,6 +1485,14 @@ class Optimizer(object):
         return format_string
 
     def zero_grad(self, set_to_none: bool = False):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         for group in self.param_groups:
             for p in group['params']:
                 if p.grad is not None:
@@ -771,10 +1506,26 @@ class Optimizer(object):
                         p.grad.zero()
 
     def step(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         raise NotImplementedError
 
     def add_param_group(self, param_group):
-        assert isinstance(param_group, dict), "param group must be a dict"
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
+        assert isinstance(param_group, dict), 'param group must be a dict'
 
         params = param_group['params']
         if isinstance(params, Parameter):
@@ -789,7 +1540,7 @@ class Optimizer(object):
 
         for param in param_group['params']:
             if not isinstance(param, Parameter):
-                raise TypeError("optimizer can only optimize Tensors, but one of the params is " + typename(param))
+                raise TypeError('optimizer can only optimize Tensors, but one of the params is ' + typename(param))
             if not param.is_leaf:
                 raise ValueError("can't optimize a non-leaf Tensor")
 
@@ -802,8 +1553,9 @@ class Optimizer(object):
         params = param_group['params']
         if len(params) != len(set(params)):
             warnings.warn(
-                "optimizer contains a parameter group with duplicate parameters; "
-                "in future, this will cause an error", stacklevel=3
+                'optimizer contains a parameter group with duplicate parameters; '
+                'in future, this will cause an error',
+                stacklevel=3,
             )
 
         param_set = set()
@@ -811,20 +1563,29 @@ class Optimizer(object):
             param_set.update(set(group['params']))
 
         if not param_set.isdisjoint(set(param_group['params'])):
-            raise ValueError("some parameters appear in more than one parameter group")
+            raise ValueError('some parameters appear in more than one parameter group')
 
         self.param_groups.append(param_group)
 
 
 class LRScheduler(object):
-    def __init__(self, optimizer, last_epoch=-1, verbose=False):
+    """
+    Deep Deterministic Policy Gradient
 
+    # Arguments
+        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
+        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
+        optimizer (`keras.optimizers.Optimizer` instance):
+        See [Optimizer](#) for details.
+        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+        See [Input](#) for details.
+        tau (float): tau.
+        gamma (float): gamma.
+    """
+
+    def __init__(self, optimizer, last_epoch=-1, verbose=False):
         if not isinstance(optimizer, Optimizer):
-            raise TypeError(
-                '{} is not an Optimizer'.format(
-                    type(optimizer).__name__
-                )
-            )
+            raise TypeError('{} is not an Optimizer'.format(type(optimizer).__name__))
         self.optimizer = optimizer
 
         if last_epoch == -1:
@@ -833,7 +1594,9 @@ class LRScheduler(object):
         else:
             for i, group in enumerate(optimizer.param_groups):
                 if 'initial_lr' not in group:
-                    raise KeyError("param 'initial_lr' is not specified in param_groups[{}] when resuming an optimizer".format(i))
+                    raise KeyError(
+                        "param 'initial_lr' is not specified in param_groups[{}] when resuming an optimizer".format(i)
+                    )
         self.base_lrs = list(map(lambda group: group['initial_lr'], optimizer.param_groups))
         self.last_epoch = last_epoch
 
@@ -864,19 +1627,59 @@ class LRScheduler(object):
         self.step()
 
     def state_dict(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return {key: value for key, value in self.__dict__.items() if key != 'optimizer'}
 
     def load_state_dict(self, state_dict):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         self.__dict__.update(state_dict)
 
     def get_last_lr(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         return self._last_lr
 
     def get_lr(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         # Compute learning rate using chainable form of the scheduler
         raise NotImplementedError
 
     def print_lr(self, is_verbose, group, lr, epoch=None):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         if is_verbose:
             if epoch is None:
                 print('Adjusting learning rate of group {} to {:.4e}.'.format(group, lr))
@@ -884,27 +1687,36 @@ class LRScheduler(object):
                 print('Epoch {:5d}: adjusting learning rate of group {} to {:.4e}.'.format(epoch, group, lr))
 
     def step(self, epoch=None):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         # Raise a warning if old pattern is detected
         if self._step_count == 1:
-            if not hasattr(self.optimizer.step, "_with_counter"):
+            if not hasattr(self.optimizer.step, '_with_counter'):
                 warnings.warn(
-                    "Seems like `optimizer.step()` has been overridden after learning rate scheduler "
-                    "initialization. Please, make sure to call `optimizer.step()` before "
-                    "`lr_scheduler.step()`.", UserWarning
+                    'Seems like `optimizer.step()` has been overridden after learning rate scheduler '
+                    'initialization. Please, make sure to call `optimizer.step()` before '
+                    '`lr_scheduler.step()`.',
+                    UserWarning,
                 )
 
             # Just check if there were two first lr_scheduler.step() calls before optimizer.step()
             elif self.optimizer._step_count < 1:
                 warnings.warn(
-                    "Detected call of `lr_scheduler.step()` before `optimizer.step()`. "
-                    "In PyTorch 1.1.0 and later, you should call them in the opposite order: "
-                    "`optimizer.step()` before `lr_scheduler.step()`.  Failure to do this "
-                    "will result in PyTorch skipping the first value of the learning rate schedule.", UserWarning
+                    'Detected call of `lr_scheduler.step()` before `optimizer.step()`. '
+                    'In PyTorch 1.1.0 and later, you should call them in the opposite order: '
+                    '`optimizer.step()` before `lr_scheduler.step()`.  Failure to do this '
+                    'will result in PyTorch skipping the first value of the learning rate schedule.',
+                    UserWarning,
                 )
         self._step_count += 1
 
         class _enable_get_lr_call:
-
             def __init__(self, o):
                 self.o = o
 
@@ -922,7 +1734,7 @@ class LRScheduler(object):
             else:
                 warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
                 self.last_epoch = epoch
-                if hasattr(self, "_get_closed_form_lr"):
+                if hasattr(self, '_get_closed_form_lr'):
                     values = self._get_closed_form_lr()
                 else:
                     values = self.get_lr()
