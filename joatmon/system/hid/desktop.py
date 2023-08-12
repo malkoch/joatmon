@@ -17,7 +17,7 @@ __all__ = [
 ]
 
 if sys.platform != 'win32':
-    raise Exception('The desktop module should only be used on a Windows system.')
+    raise RuntimeWarning('The desktop module should only be used on a Windows system.')
 
 TOP = 'top'
 BOTTOM = 'bottom'
