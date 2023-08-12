@@ -3,7 +3,10 @@ import uuid
 from couchbase.auth import PasswordAuthenticator
 from couchbase.cluster import Cluster
 from couchbase.logic.n1ql import QueryScanConsistency
-from couchbase.options import ClusterOptions, QueryOptions
+from couchbase.options import (
+    ClusterOptions,
+    QueryOptions
+)
 
 from joatmon.plugin.database.core import DatabasePlugin
 

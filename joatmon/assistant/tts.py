@@ -1,7 +1,10 @@
 import json
 import os
 
-from elevenlabs import generate, set_api_key
+from elevenlabs import (
+    generate,
+    set_api_key
+)
 
 
 class TTSAgent:

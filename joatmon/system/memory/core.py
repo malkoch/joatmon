@@ -72,7 +72,7 @@ def hex_dump(data, address=0, prefix='', of_type='bytes'):
                 piece = ''
             temp_val = 'NaN'
             try:
-                packed_val = data[i : i + structure_len]
+                packed_val = data[i: i + structure_len]
                 temp_val = struct.unpack(structure_type, packed_val)[0]
             except Exception as ex_hex_dump:
                 print(str(ex_hex_dump))

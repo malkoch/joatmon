@@ -1,10 +1,21 @@
 import operator
 import warnings
 import weakref
-from collections import defaultdict, OrderedDict
+from collections import (
+    defaultdict,
+    OrderedDict
+)
 from functools import wraps
 from itertools import islice
-from typing import Any, Callable, Iterator, Optional, Set, Tuple, Union
+from typing import (
+    Any,
+    Callable,
+    Iterator,
+    Optional,
+    Set,
+    Tuple,
+    Union
+)
 
 import six
 
@@ -759,7 +770,7 @@ class Tensor:
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
         return not (
-            self.requires_grad and not hasattr(self, 'retains_grad') and not self.is_leaf and self._grad is None
+                self.requires_grad and not hasattr(self, 'retains_grad') and not self.is_leaf and self._grad is None
         )
 
     def _can_write_grad(self):

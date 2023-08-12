@@ -10,7 +10,11 @@ import threading
 from transitions import Machine
 
 from joatmon.event import Event
-from joatmon.utility import first, get_module_classes, JSONEncoder
+from joatmon.utility import (
+    first,
+    get_module_classes,
+    JSONEncoder
+)
 
 
 class BaseTask:

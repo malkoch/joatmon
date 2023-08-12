@@ -1,7 +1,13 @@
 import sys
-from enum import EnumMeta, IntEnum
+from enum import (
+    EnumMeta,
+    IntEnum
+)
 
-from joatmon.utility import to_pascal_string, to_snake_string
+from joatmon.utility import (
+    to_pascal_string,
+    to_snake_string
+)
 
 
 class Meta(EnumMeta):

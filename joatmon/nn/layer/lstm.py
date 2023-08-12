@@ -1,10 +1,20 @@
 import math
-from typing import List, Tuple
+from typing import (
+    List,
+    Tuple
+)
 
 import numpy as np
 
-from joatmon.nn import functional as f, init
-from joatmon.nn.core import Module, Parameter, Tensor
+from joatmon.nn import (
+    functional as f,
+    init
+)
+from joatmon.nn.core import (
+    Module,
+    Parameter,
+    Tensor
+)
 
 __all__ = ['LSTM']
 

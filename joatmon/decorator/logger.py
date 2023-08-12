@@ -6,7 +6,11 @@ import time
 import traceback
 
 from joatmon import context
-from joatmon.utility import get_function_args, get_function_kwargs, to_enumerable
+from joatmon.utility import (
+    get_function_args,
+    get_function_kwargs,
+    to_enumerable
+)
 
 
 def log(logger, on_begin=None, on_success=None, on_error=None):

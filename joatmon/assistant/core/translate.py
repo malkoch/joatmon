@@ -70,8 +70,8 @@ class Task(BaseTask):
                 {
                     'role': 'agent',
                     'content': 'Understood! From now on, I will translate your input and provide the translated message. '
-                    'Please go ahead and let me know what you '
-                    'would like to be translated.',
+                               'Please go ahead and let me know what you '
+                               'would like to be translated.',
                 },
                 {'role': 'user', 'content': message},
             ],

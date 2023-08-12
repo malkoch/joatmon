@@ -176,10 +176,10 @@ def _check_for_four_int_or_float_tuple(arg):
     """
     try:
         if (
-            not isinstance(arg[0], (int, float))
-            or not isinstance(arg[1], (int, float))
-            or not isinstance(arg[2], (int, float))
-            or not isinstance(arg[3], (int, float))
+                not isinstance(arg[0], (int, float))
+                or not isinstance(arg[1], (int, float))
+                or not isinstance(arg[2], (int, float))
+                or not isinstance(arg[3], (int, float))
         ):
             raise RectangleException('argument must be a four-item tuple containing int or float values')
     except Exception as ex:
@@ -203,7 +203,7 @@ class Rectangle(object):
     """
 
     def __init__(
-        self, left=0, top=0, width=0, height=0, enable_float=False, read_only=False, on_change=None, on_read=None
+            self, left=0, top=0, width=0, height=0, enable_float=False, read_only=False, on_change=None, on_read=None
     ):
         _check_for_int_or_float(width)
         _check_for_int_or_float(height)
@@ -1067,10 +1067,10 @@ class Rectangle(object):
         _check_for_four_int_or_float_tuple(value)
         new_left, new_top, new_width, new_height = value
         if (
-            (new_left != self._left)
-            or (new_top != self._top)
-            or (new_width != self._width)
-            or (new_height != self._height)
+                (new_left != self._left)
+                or (new_top != self._top)
+                or (new_width != self._width)
+                or (new_height != self._height)
         ):
             original_left = self._left
             original_top = self._top
@@ -1318,10 +1318,10 @@ class Rectangle(object):
     def __contains__(self, value):
         if isinstance(value, Rectangle):
             return (
-                value.top_left in self
-                and value.top_right in self
-                and value.bottom_left in self
-                and value.bottom_right in self
+                    value.top_left in self
+                    and value.top_right in self
+                    and value.bottom_left in self
+                    and value.bottom_right in self
             )
 
         try:
@@ -1342,10 +1342,10 @@ class Rectangle(object):
             _check_for_four_int_or_float_tuple(value)
             left, top, width, height = value
             return (
-                (left, top) in self
-                and (left + width, top) in self
-                and (left, top + height) in self
-                and (left + width, top + height) in self
+                    (left, top) in self
+                    and (left + width, top) in self
+                    and (left, top + height) in self
+                    and (left + width, top + height) in self
             )
         else:
             raise RectangleException(
@@ -1365,10 +1365,10 @@ class Rectangle(object):
         """
         if isinstance(value, Rectangle):
             return (
-                value.top_left in self
-                or value.top_right in self
-                or value.bottom_left in self
-                or value.bottom_right in self
+                    value.top_left in self
+                    or value.top_right in self
+                    or value.bottom_left in self
+                    or value.bottom_right in self
             )
 
         try:
@@ -1388,10 +1388,10 @@ class Rectangle(object):
         elif len(value) == 4:
             left, top, width, height = value
             return (
-                (left, top) in self
-                or (left + width, top) in self
-                or (left, top + height) in self
-                or (left + width, top + height) in self
+                    (left, top) in self
+                    or (left + width, top) in self
+                    or (left, top + height) in self
+                    or (left + width, top + height) in self
             )
         else:
             raise RectangleException(

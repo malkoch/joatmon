@@ -1,7 +1,11 @@
 import json
 import pickle
 
-from joatmon.utility import JSONEncoder, to_case, to_enumerable
+from joatmon.utility import (
+    JSONEncoder,
+    to_case,
+    to_enumerable
+)
 
 
 class Serializable(object):

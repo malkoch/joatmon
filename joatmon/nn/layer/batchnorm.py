@@ -1,7 +1,11 @@
 import numpy as np
 
 from joatmon.nn import functional as f
-from joatmon.nn.core import Module, Parameter, Tensor
+from joatmon.nn.core import (
+    Module,
+    Parameter,
+    Tensor
+)
 
 __all__ = ['BatchNorm']
 
@@ -22,7 +26,7 @@ class BatchNorm(Module):
     """
 
     def __init__(
-        self, features, eps: float = 1e-5, momentum: float = 0.1, affine: bool = True, track_running_stats: bool = True
+            self, features, eps: float = 1e-5, momentum: float = 0.1, affine: bool = True, track_running_stats: bool = True
     ):
         super(BatchNorm, self).__init__()
 

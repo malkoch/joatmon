@@ -5,7 +5,10 @@ import traceback
 
 from joatmon.system.memory.address import Address
 from joatmon.system.memory.core import type_unpack
-from joatmon.system.memory.process import Process, ProcessException
+from joatmon.system.memory.process import (
+    Process,
+    ProcessException
+)
 
 REGEX_TYPE = type(re.compile('^plop$'))
 
@@ -125,7 +128,7 @@ class Worker(object):
         print('searching address %s' % _address)
         regex = ''
         for i in range(len(_address) - 2, -1, -2):
-            regex += binascii.unhexlify(_address[i : i + 2])
+            regex += binascii.unhexlify(_address[i: i + 2])
 
         for _, _address in self.memory_search(re.escape(regex), of_type='re'):
             yield _address
@@ -155,7 +158,7 @@ class Worker(object):
         for index in range(0, len(byte_array)):
             try:
                 structure_type, structure_len = type_unpack('float')
-                temp_val = struct.unpack(structure_type, byte_array[index : index + 4])[0]
+                temp_val = struct.unpack(structure_type, byte_array[index: index + 4])[0]
                 if int(value) == int(temp_val):
                     s_offset = offset + index
                     yield self.address(s_offset, 'float')
@@ -206,13 +209,13 @@ class Worker(object):
             index = byte_array.find(value, index + 1)
 
     def memory_search(
-        self,
-        value,
-        of_type='match',
-        protect=PAGE_READWRITE | PAGE_READONLY,
-        optimizations=None,
-        start_offset=None,
-        end_offset=None,
+            self,
+            value,
+            of_type='match',
+            protect=PAGE_READWRITE | PAGE_READONLY,
+            optimizations=None,
+            start_offset=None,
+            end_offset=None,
     ):
         """
         Remember the transaction.
@@ -244,12 +247,12 @@ class Worker(object):
                 temp.append((name, regex))
             value = temp
         elif (
-            of_type != 'match'
-            and of_type != 'group'
-            and of_type != 're'
-            and of_type != 'groups'
-            and of_type != 'ngroups'
-            and of_type != 'lambda'
+                of_type != 'match'
+                and of_type != 'group'
+                and of_type != 're'
+                and of_type != 'groups'
+                and of_type != 'ngroups'
+                and of_type != 'lambda'
         ):
             structure_type, structure_len = type_unpack(of_type)
             value = struct.pack(structure_type, value)
@@ -271,7 +274,7 @@ class Worker(object):
             raise ProcessException("Can't read_bytes, process %s is not open" % self.process.pid)
 
         for offset, chunk_size in self.process.iter_region(
-            start_offset=start_offset, end_offset=end_offset, protect=protect, optimizations=optimizations
+                start_offset=start_offset, end_offset=end_offset, protect=protect, optimizations=optimizations
         ):
             bytes_array = b''
             current_offset = offset

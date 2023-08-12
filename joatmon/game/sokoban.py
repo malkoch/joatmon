@@ -72,7 +72,7 @@ def generate_room(dim=(7, 7), wall_prob=0.3, p_change_directions=0.35, num_steps
 
             mask = random.sample(masks, 1)[0]
             mask_start = position - 1
-            level[mask_start[0] : mask_start[0] + 3, mask_start[1] : mask_start[1] + 3] += mask
+            level[mask_start[0]: mask_start[0] + 3, mask_start[1]: mask_start[1] + 3] += mask
 
         level[level > 0] = 1
         level[:, [0, dim_y - 1]] = 0

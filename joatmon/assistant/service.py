@@ -7,7 +7,10 @@ import threading
 
 from transitions import Machine
 
-from joatmon.utility import first, JSONEncoder
+from joatmon.utility import (
+    first,
+    JSONEncoder
+)
 
 
 class BaseService:

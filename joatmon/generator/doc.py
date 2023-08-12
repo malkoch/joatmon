@@ -7,7 +7,10 @@ import re
 import subprocess
 from collections import defaultdict
 from pathlib import Path
-from typing import get_type_hints, Union
+from typing import (
+    get_type_hints,
+    Union
+)
 
 
 def automate_docstring(repo_dir: Path) -> None:
@@ -53,7 +56,7 @@ def automate_docstring(repo_dir: Path) -> None:
 
 
 def automate_mkdocs_from_docstring(
-    mkdocs_dir: Union[str, Path], mkgendocs_f: str, repo_dir: Path, match_string: str
+        mkdocs_dir: Union[str, Path], mkgendocs_f: str, repo_dir: Path, match_string: str
 ) -> str:
     """Automates the -pages for mkgendocs package by adding all Python functions in a directory to the mkgendocs config.
 
@@ -342,9 +345,9 @@ def docstring_from_type_hints(repo_dir: Path, overwrite_script: bool = False, te
         function_docs.sort(key=lambda x: x[0], reverse=True)
         for idx, docstring_attr in function_docs:
             script_lines = (
-                script_lines[: docstring_attr['begin_lineno'] - 1]
-                + [f'{docstring_attr["value"]}\n']
-                + script_lines[docstring_attr['end_lineno'] :]
+                    script_lines[: docstring_attr['begin_lineno'] - 1]
+                    + [f'{docstring_attr["value"]}\n']
+                    + script_lines[docstring_attr['end_lineno']:]
             )
 
         if overwrite_script:

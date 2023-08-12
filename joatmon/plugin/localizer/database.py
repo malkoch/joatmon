@@ -1,6 +1,9 @@
 from joatmon import context
 from joatmon.plugin.localizer.core import Localizer
-from joatmon.utility import new_object_id, to_list_async
+from joatmon.utility import (
+    new_object_id,
+    to_list_async
+)
 
 
 class DatabaseLocalizer(Localizer):

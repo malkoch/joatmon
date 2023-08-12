@@ -271,7 +271,7 @@ class Process(BaseProcess):
         processes = []
         for process in Process.list():
             if process_name == process.get('name', None) or (
-                process.get('name', '').lower().endswith('.exe') and process.get('name', '')[:-4] == process_name
+                    process.get('name', '').lower().endswith('.exe') and process.get('name', '')[:-4] == process_name
             ):
                 processes.append(process)
 
@@ -434,7 +434,7 @@ class Process(BaseProcess):
         """
         old_protect = ctypes.c_ulong(0)
         if not ctypes.windll.kernel32.virtual_protect_ex(
-            self.h_process, base_address, size, protection, ctypes.byref(old_protect)
+                self.h_process, base_address, size, protection, ctypes.byref(old_protect)
         ):
             raise ProcessException('Error: VirtualProtectEx(%08X, %d, %08X)' % (base_address, size, protection))
         return old_protect.value
@@ -465,10 +465,10 @@ class Process(BaseProcess):
                 continue
             if protect:
                 if (
-                    not _protect & protect
-                    or _protect & PAGE_NOCACHE
-                    or _protect & PAGE_WRITECOMBINE
-                    or _protect & PAGE_GUARD
+                        not _protect & protect
+                        or _protect & PAGE_NOCACHE
+                        or _protect & PAGE_WRITECOMBINE
+                        or _protect & PAGE_GUARD
                 ):
                     _offset_start += _chunk
                     continue
@@ -530,7 +530,7 @@ class Process(BaseProcess):
         length = size
         while length:
             if rpm(self.h_process, address, buffer, size, ctypes.byref(bytes_read)) or (
-                use_nt_wow64_read_virtual_memory64 and ctypes.GetLastError() == 0
+                    use_nt_wow64_read_virtual_memory64 and ctypes.GetLastError() == 0
             ):
                 if bytes_read.value:
                     data += buffer.raw[: bytes_read.value]
@@ -582,9 +582,9 @@ class Process(BaseProcess):
         """
         for m in self.list_modules():
             if (
-                int(ctypes.addressof(m.modBaseAddr.contents))
-                <= int(address)
-                < int(ctypes.addressof(m.modBaseAddr.contents) + m.modBaseSize)
+                    int(ctypes.addressof(m.modBaseAddr.contents))
+                    <= int(address)
+                    < int(ctypes.addressof(m.modBaseAddr.contents) + m.modBaseSize)
             ):
                 return '%s+0x%08X' % (m.szModule, int(address) - ctypes.addressof(m.modBaseAddr.contents))
 

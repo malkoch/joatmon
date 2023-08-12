@@ -25,7 +25,7 @@ class DQNTrainer:
     """
 
     def __init__(
-        self, environment, memory, processor, model, callbacks, test_policy, train_policy, her=False, action_num=4
+            self, environment, memory, processor, model, callbacks, test_policy, train_policy, her=False, action_num=4
     ):
         super(DQNTrainer, self).__init__()
 
@@ -298,14 +298,14 @@ class DDPGTrainer:
         return action
 
     def train(
-        self,
-        batch_size=32,
-        max_action=50,
-        max_episode=120,
-        warmup=0,
-        replay_interval=4,
-        update_interval=1,
-        test_interval=1000,
+            self,
+            batch_size=32,
+            max_action=50,
+            max_episode=120,
+            warmup=0,
+            replay_interval=4,
+            update_interval=1,
+            test_interval=1000,
     ):
         """
         Remember the transaction.
@@ -523,14 +523,14 @@ class TD3Trainer:
         return action
 
     def train(
-        self,
-        batch_size=32,
-        max_action=50,
-        max_episode=120,
-        warmup=0,
-        replay_interval=4,
-        update_interval=1,
-        test_interval=1000,
+            self,
+            batch_size=32,
+            max_action=50,
+            max_episode=120,
+            warmup=0,
+            replay_interval=4,
+            update_interval=1,
+            test_interval=1000,
     ):
         """
         Remember the transaction.

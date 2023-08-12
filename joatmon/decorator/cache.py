@@ -3,7 +3,11 @@ import inspect
 import json
 
 from joatmon import context
-from joatmon.utility import JSONEncoder, to_enumerable, to_hash
+from joatmon.utility import (
+    JSONEncoder,
+    to_enumerable,
+    to_hash
+)
 
 
 def cached(cache, duration):

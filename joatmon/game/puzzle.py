@@ -45,7 +45,7 @@ class Puzzle2048(CoreEnv):
             ret += '|'
             for val in row:
                 if val != 0:
-                    v = 2**val
+                    v = 2 ** val
                     ret += '{:7d}'.format(v)
                 else:
                     ret += ' ' * 7
@@ -160,7 +160,7 @@ class Puzzle2048(CoreEnv):
                     if val1 == val2 and val1 != 0 and val2 != 0:
                         self.matrix[row][col] += 1
                         self.matrix[row][col - 1] = 0
-                        reward += 2**val1
+                        reward += 2 ** val1
         elif action == 1:
             for col in range(self.size):
                 for row in range(self.size - 1, 0, -1):
@@ -169,7 +169,7 @@ class Puzzle2048(CoreEnv):
                     if val1 == val2 and val1 != 0 and val2 != 0:
                         self.matrix[row][col] += 1
                         self.matrix[row - 1][col] = 0
-                        reward += 2**val1
+                        reward += 2 ** val1
         elif action == 2:
             for row in range(self.size):
                 for col in range(self.size - 1):
@@ -178,7 +178,7 @@ class Puzzle2048(CoreEnv):
                     if val1 == val2 and val1 != 0 and val2 != 0:
                         self.matrix[row][col] += 1
                         self.matrix[row][col + 1] = 0
-                        reward += 2**val1
+                        reward += 2 ** val1
         elif action == 3:
             for col in range(self.size):
                 for row in range(self.size - 1):
@@ -187,7 +187,7 @@ class Puzzle2048(CoreEnv):
                     if val1 == val2 and val1 != 0 and val2 != 0:
                         self.matrix[row][col] += 1
                         self.matrix[row + 1][col] = 0
-                        reward += 2**val1
+                        reward += 2 ** val1
         else:
             pass
         return reward

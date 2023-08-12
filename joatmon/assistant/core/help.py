@@ -62,10 +62,10 @@ class Task(BaseTask):
         for scripts in settings.get('scripts', []):
             if os.path.isabs(scripts) and os.path.exists(scripts):
                 for module in list(
-                    filter(
-                        lambda x: '__' not in x,
-                        map(lambda x: x.replace('.py', ''), os.listdir(scripts.replace('.', '/'))),
-                    )
+                        filter(
+                            lambda x: '__' not in x,
+                            map(lambda x: x.replace('.py', ''), os.listdir(scripts.replace('.', '/'))),
+                        )
                 ):
                     spec = importlib.util.spec_from_file_location(module, os.path.join(scripts, f'{module}.py'))
                     action_module = importlib.util.module_from_spec(spec)

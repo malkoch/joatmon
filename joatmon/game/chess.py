@@ -144,14 +144,14 @@ def create_move_labels():
     for l1 in range(8):
         for n1 in range(8):
             destinations = (
-                [(t, n1) for t in range(8)]
-                + [(l1, t) for t in range(8)]
-                + [(l1 + t, n1 + t) for t in range(-7, 8)]
-                + [(l1 + t, n1 - t) for t in range(-7, 8)]
-                + [
-                    (l1 + a, n1 + b)
-                    for (a, b) in [(-2, -1), (-1, -2), (-2, 1), (1, -2), (2, -1), (-1, 2), (2, 1), (1, 2)]
-                ]
+                    [(t, n1) for t in range(8)]
+                    + [(l1, t) for t in range(8)]
+                    + [(l1 + t, n1 + t) for t in range(-7, 8)]
+                    + [(l1 + t, n1 - t) for t in range(-7, 8)]
+                    + [
+                        (l1 + a, n1 + b)
+                        for (a, b) in [(-2, -1), (-1, -2), (-2, 1), (1, -2), (2, -1), (-1, 2), (2, 1), (1, 2)]
+                    ]
             )
             for l2, n2 in destinations:
                 if (l1, n1) != (l2, n2) and l2 in range(8) and n2 in range(8):
@@ -191,13 +191,13 @@ class ChessEnv:
     def __init__(self):
         self.board = Board()
         self.board_size = (
-            empty_space
-            + light_border_size
-            + dark_border_size
-            + piece_size * 8
-            + dark_border_size
-            + light_border_size
-            + empty_space
+                empty_space
+                + light_border_size
+                + dark_border_size
+                + piece_size * 8
+                + dark_border_size
+                + light_border_size
+                + empty_space
         )
         self.screen = pygame.display.set_mode((self.board_size, self.board_size))
 
@@ -483,16 +483,16 @@ class ChessEnv:
                 rank_index = square >> 3
 
                 x = (
-                    (file_index if orientation else 7 - file_index) * piece_size
-                    + empty_space
-                    + light_border_size
-                    + dark_border_size
+                        (file_index if orientation else 7 - file_index) * piece_size
+                        + empty_space
+                        + light_border_size
+                        + dark_border_size
                 )
                 y = (
-                    (7 - rank_index if orientation else rank_index) * piece_size
-                    + empty_space
-                    + light_border_size
-                    + dark_border_size
+                        (7 - rank_index if orientation else rank_index) * piece_size
+                        + empty_space
+                        + light_border_size
+                        + dark_border_size
                 )
 
                 color = 'white' if BB_LIGHT_SQUARES & bb else 'grey'
@@ -500,16 +500,16 @@ class ChessEnv:
                 if self.board.piece_at(square) is not None and self.board.piece_at(square).color == self.board.turn:
                     for attacker in self.board.attackers(not self.board.turn, square):
                         if (
-                            self.board.piece_at(attacker) is not None
-                            and self.board.piece_at(attacker).color != self.board.turn
+                                self.board.piece_at(attacker) is not None
+                                and self.board.piece_at(attacker).color != self.board.turn
                         ):
                             arrows.add(Arrow(from_square=attacker, to_square=square, color='red'))
 
                 if self.board.piece_at(square) is not None and self.board.piece_at(square).color == self.board.turn:
                     for attack in self.board.attacks(square):
                         if (
-                            self.board.piece_at(attack) is not None
-                            and self.board.piece_at(attack).color != self.board.turn
+                                self.board.piece_at(attack) is not None
+                                and self.board.piece_at(attack).color != self.board.turn
                         ):
                             arrows.add(Arrow(from_square=square, to_square=attack, color='orange'))
 
@@ -532,29 +532,29 @@ class ChessEnv:
                 to_rank_index = _arrow.to_square >> 3
 
                 from_x = (
-                    (from_file_index if orientation else 7 - from_file_index) * piece_size
-                    + empty_space
-                    + light_border_size
-                    + dark_border_size
+                        (from_file_index if orientation else 7 - from_file_index) * piece_size
+                        + empty_space
+                        + light_border_size
+                        + dark_border_size
                 )
                 from_y = (
-                    (7 - from_rank_index if orientation else from_rank_index) * piece_size
-                    + empty_space
-                    + light_border_size
-                    + dark_border_size
+                        (7 - from_rank_index if orientation else from_rank_index) * piece_size
+                        + empty_space
+                        + light_border_size
+                        + dark_border_size
                 )
 
                 to_x = (
-                    (to_file_index if orientation else 7 - to_file_index) * piece_size
-                    + empty_space
-                    + light_border_size
-                    + dark_border_size
+                        (to_file_index if orientation else 7 - to_file_index) * piece_size
+                        + empty_space
+                        + light_border_size
+                        + dark_border_size
                 )
                 to_y = (
-                    (7 - to_rank_index if orientation else to_rank_index) * piece_size
-                    + empty_space
-                    + light_border_size
-                    + dark_border_size
+                        (7 - to_rank_index if orientation else to_rank_index) * piece_size
+                        + empty_space
+                        + light_border_size
+                        + dark_border_size
                 )
 
                 pygame.draw.arrow(

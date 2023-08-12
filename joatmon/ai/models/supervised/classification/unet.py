@@ -4,7 +4,10 @@ import torch.optim as optim
 
 from joatmon.ai.models.core import CoreModel
 from joatmon.ai.network import UNet
-from joatmon.ai.utility import load, save
+from joatmon.ai.utility import (
+    load,
+    save
+)
 
 __all__ = ['UNetModel']
 
@@ -64,7 +67,7 @@ class UNetModel(CoreModel):
         """
         for module in self.net.modules():
             if isinstance(
-                module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
+                    module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
             ):  # batch norm will be different
                 if w_init:
                     torch.nn.init.kaiming_normal(module.weight)

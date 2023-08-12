@@ -3,7 +3,10 @@ from __future__ import print_function
 import time
 
 from joatmon.assistant.service import BaseService
-from joatmon.decorator.message import consumer, producer
+from joatmon.decorator.message import (
+    consumer,
+    producer
+)
 from joatmon.plugin.core import register
 from joatmon.plugin.message.kafka import KafkaPlugin
 

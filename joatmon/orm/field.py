@@ -2,7 +2,10 @@ import re
 import typing
 import uuid
 from datetime import datetime
-from time import mktime, struct_time
+from time import (
+    mktime,
+    struct_time
+)
 
 from joatmon.serializable import Serializable
 from joatmon.utility import to_enumerable
@@ -24,16 +27,16 @@ class Field(Serializable):
     """
 
     def __init__(
-        self,
-        dtype: typing.Union[type, typing.List, typing.Tuple],
-        nullable: bool = True,
-        default=None,
-        primary: bool = False,
-        encrypt: bool = False,
-        hash_: bool = False,
-        resource: str = None,
-        regex: str = None,
-        fields: dict = None,
+            self,
+            dtype: typing.Union[type, typing.List, typing.Tuple],
+            nullable: bool = True,
+            default=None,
+            primary: bool = False,
+            encrypt: bool = False,
+            hash_: bool = False,
+            resource: str = None,
+            regex: str = None,
+            fields: dict = None,
     ):
         super(Field, self).__init__()
 

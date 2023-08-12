@@ -1,7 +1,11 @@
 import numpy as np
 
 from joatmon.nn import functional as f
-from joatmon.nn.core import Module, Parameter, Tensor
+from joatmon.nn.core import (
+    Module,
+    Parameter,
+    Tensor
+)
 
 __all__ = ['Conv']
 
