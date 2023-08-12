@@ -1,5 +1,6 @@
 import ctypes
 import struct
+import sys
 from ctypes import wintypes
 
 
@@ -263,52 +264,53 @@ class Th32csClass(object):
     ALL = 2032639
 
 
-PSecurityDescriptor = ctypes.POINTER(SecurityDescriptor)
+if sys.platform == 'win32':
+    PSecurityDescriptor = ctypes.POINTER(SecurityDescriptor)
 
-CreateToolhelp32Snapshot = ctypes.windll.kernel32.CreateToolhelp32Snapshot
-CreateToolhelp32Snapshot.argtypes = [ctypes.c_int, ctypes.c_int]
-CreateToolhelp32Snapshot.reltype = ctypes.c_long
+    CreateToolhelp32Snapshot = ctypes.windll.kernel32.CreateToolhelp32Snapshot
+    CreateToolhelp32Snapshot.argtypes = [ctypes.c_int, ctypes.c_int]
+    CreateToolhelp32Snapshot.reltype = ctypes.c_long
 
-Module32First = ctypes.windll.kernel32.Module32First
-Module32First.argtypes = [ctypes.c_void_p, ctypes.POINTER(ModuleEntry32)]
-Module32First.rettype = ctypes.c_int
+    Module32First = ctypes.windll.kernel32.Module32First
+    Module32First.argtypes = [ctypes.c_void_p, ctypes.POINTER(ModuleEntry32)]
+    Module32First.rettype = ctypes.c_int
 
-Module32Next = ctypes.windll.kernel32.Module32Next
-Module32Next.argtypes = [ctypes.c_void_p, ctypes.POINTER(ModuleEntry32)]
-Module32Next.rettype = ctypes.c_int
+    Module32Next = ctypes.windll.kernel32.Module32Next
+    Module32Next.argtypes = [ctypes.c_void_p, ctypes.POINTER(ModuleEntry32)]
+    Module32Next.rettype = ctypes.c_int
 
-ReadProcessMemory = ctypes.windll.kernel32.ReadProcessMemory
-ReadProcessMemory.argtypes = [
-    wintypes.HANDLE,
-    wintypes.LPCVOID,
-    wintypes.LPVOID,
-    ctypes.c_size_t,
-    ctypes.POINTER(ctypes.c_size_t),
-]
+    ReadProcessMemory = ctypes.windll.kernel32.ReadProcessMemory
+    ReadProcessMemory.argtypes = [
+        wintypes.HANDLE,
+        wintypes.LPCVOID,
+        wintypes.LPVOID,
+        ctypes.c_size_t,
+        ctypes.POINTER(ctypes.c_size_t),
+    ]
 
-VirtualQueryEx = ctypes.windll.kernel32.VirtualQueryEx
-VirtualQueryEx.argtypes = [wintypes.HANDLE, wintypes.LPCVOID, ctypes.POINTER(MemoryBasicInformation), ctypes.c_size_t]
-VirtualQueryEx.restype = ctypes.c_size_t
+    VirtualQueryEx = ctypes.windll.kernel32.VirtualQueryEx
+    VirtualQueryEx.argtypes = [wintypes.HANDLE, wintypes.LPCVOID, ctypes.POINTER(MemoryBasicInformation), ctypes.c_size_t]
+    VirtualQueryEx.restype = ctypes.c_size_t
 
-IsWow64Process = None
-if hasattr(ctypes.windll.kernel32, 'IsWow64Process'):
-    IsWow64Process = ctypes.windll.kernel32.IsWow64Process
-    IsWow64Process.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_bool)]
-    IsWow64Process.restype = ctypes.c_bool
+    IsWow64Process = None
+    if hasattr(ctypes.windll.kernel32, 'IsWow64Process'):
+        IsWow64Process = ctypes.windll.kernel32.IsWow64Process
+        IsWow64Process.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_bool)]
+        IsWow64Process.restype = ctypes.c_bool
 
-if ctypes.sizeof(ctypes.c_void_p) == 8:
-    NtWow64ReadVirtualMemory64 = None
-else:
-    try:
-        NtWow64ReadVirtualMemory64 = ctypes.windll.ntdll.NtWow64ReadVirtualMemory64
-        NtWow64ReadVirtualMemory64.argtypes = [
-            wintypes.HANDLE,
-            ctypes.c_longlong,
-            wintypes.LPVOID,
-            ctypes.c_ulonglong,
-            ctypes.POINTER(ctypes.c_ulong),
-        ]
-        NtWow64ReadVirtualMemory64.restype = wintypes.BOOL
-    except Exception as ex:
-        print(str(ex))
+    if ctypes.sizeof(ctypes.c_void_p) == 8:
         NtWow64ReadVirtualMemory64 = None
+    else:
+        try:
+            NtWow64ReadVirtualMemory64 = ctypes.windll.ntdll.NtWow64ReadVirtualMemory64
+            NtWow64ReadVirtualMemory64.argtypes = [
+                wintypes.HANDLE,
+                ctypes.c_longlong,
+                wintypes.LPVOID,
+                ctypes.c_ulonglong,
+                ctypes.POINTER(ctypes.c_ulong),
+            ]
+            NtWow64ReadVirtualMemory64.restype = wintypes.BOOL
+        except Exception as ex:
+            print(str(ex))
+            NtWow64ReadVirtualMemory64 = None
