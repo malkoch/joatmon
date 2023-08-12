@@ -1,6 +1,5 @@
 import collections
 import ctypes
-import sys
 from ctypes import wintypes
 
 __all__ = [
@@ -15,9 +14,6 @@ __all__ = [
     'get_active_window',
     'get_window_text',
 ]
-
-if sys.platform != 'win32':
-    raise RuntimeWarning('The desktop module should only be used on a Windows system.')
 
 TOP = 'top'
 BOTTOM = 'bottom'

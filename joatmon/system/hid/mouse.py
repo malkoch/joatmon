@@ -1,5 +1,4 @@
 import ctypes
-import sys
 
 from joatmon.system.decorators import auto_pause
 from joatmon.system.hid.screen import (
@@ -8,9 +7,6 @@ from joatmon.system.hid.screen import (
 )
 
 __all__ = ['Mouse']
-
-if sys.platform != 'win32':
-    raise RuntimeWarning('The mouse module should only be used on a Windows system.')
 
 
 @auto_pause(duration=0.05)

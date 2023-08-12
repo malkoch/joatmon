@@ -8,9 +8,6 @@ from joatmon.system.hid.screen import grab
 
 __all__ = ['watermark', 'crop', 'show', 'save', 'mask', 'match_template']
 
-if sys.platform != 'win32':
-    raise RuntimeWarning('The image module should only be used on a Windows system.')
-
 
 def watermark(image=None, mark=None, region=None, alpha=0.2) -> numpy.ndarray:
     """

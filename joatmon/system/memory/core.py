@@ -1,10 +1,6 @@
 import ctypes
 import struct
-import sys
 from ctypes import wintypes
-
-if sys.platform != 'win32':
-    raise RuntimeWarning('The ram module should only be used on a Windows system.')
 
 
 def type_unpack(of_type):
