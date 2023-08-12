@@ -1,11 +1,13 @@
 import ctypes
+import sys
 
 from joatmon.system.decorators import auto_pause
 
 __all__ = ['Keyboard']
 
-SendInput = ctypes.windll.user32.SendInput
-MapVirtualKey = ctypes.windll.user32.MapVirtualKeyW
+if sys.platform == 'win32':
+    SendInput = ctypes.windll.user32.SendInput
+    MapVirtualKey = ctypes.windll.user32.MapVirtualKeyW
 
 # Constants for failsafe check and pause
 
