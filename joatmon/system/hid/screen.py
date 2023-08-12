@@ -6,9 +6,6 @@ import numpy
 
 __all__ = ['resolution', 'cursor', 'grab']
 
-if sys.platform != 'win32':
-    raise RuntimeWarning('The screen module should only be used on a Windows system.')
-
 
 class POINT(ctypes.Structure):
     _fields_ = [('x', ctypes.c_long), ('y', ctypes.c_long)]
