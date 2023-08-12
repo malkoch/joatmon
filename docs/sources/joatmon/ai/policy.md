@@ -2,7 +2,7 @@
 
 
 ## CorePolicy
-```python
+```python 
 
 ```
 
@@ -53,7 +53,7 @@ use (bool): Boolean value for using the nn.
 
 
 ## GreedyQPolicy
-```python
+```python 
 
 ```
 
@@ -106,7 +106,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## EpsilonGreedyPolicy
-```python
+```python 
 EpsilonGreedyPolicy(
    max_value = 1.0, min_value = 0.0, decay_steps = 1
 )

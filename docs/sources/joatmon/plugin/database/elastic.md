@@ -2,7 +2,7 @@
 
 
 ## ElasticDatabase
-```python
+```python 
 ElasticDatabase(
    uri
 )

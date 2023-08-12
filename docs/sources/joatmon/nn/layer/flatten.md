@@ -2,7 +2,7 @@
 
 
 ## Flatten
-```python
+```python 
 
 ```
 

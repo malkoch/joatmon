@@ -2,7 +2,7 @@
 
 
 ## BaseTask
-```python
+```python 
 BaseTask(
    api, background = False, **kwargs
 )
@@ -108,7 +108,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## TaskState
-```python
+```python 
 TaskState()
 ```
 
@@ -130,7 +130,7 @@ gamma (float): gamma.
 
 
 ## TaskInfo
-```python
+```python 
 TaskInfo()
 ```
 

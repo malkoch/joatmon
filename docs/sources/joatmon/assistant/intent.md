@@ -2,7 +2,7 @@
 
 
 ## GenericAssistant
-```python
+```python 
 GenericAssistant(
    intents
 )

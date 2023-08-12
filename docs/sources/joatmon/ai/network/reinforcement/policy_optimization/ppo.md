@@ -2,7 +2,7 @@
 
 
 ## PPOActor
-```python
+```python 
 PPOActor(
    in_features, out_features
 )
@@ -45,7 +45,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## PPOCritic
-```python
+```python 
 PPOCritic(
    in_features, out_features
 )

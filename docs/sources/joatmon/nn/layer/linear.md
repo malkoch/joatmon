@@ -2,7 +2,7 @@
 
 
 ## Linear
-```python
+```python 
 Linear(
    in_features: int, out_features: int, bias: bool = True
 )

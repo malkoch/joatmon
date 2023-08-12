@@ -2,7 +2,7 @@
 
 
 ## Locator
-```python
+```python 
 Locator(
    worker, of_type = 'unknown', start = None, end = None
 )

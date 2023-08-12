@@ -2,7 +2,7 @@
 
 
 ## AvgPool
-```python
+```python 
 AvgPool(
    kernel_size, stride, padding
 )

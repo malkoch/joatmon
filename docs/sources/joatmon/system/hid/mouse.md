@@ -2,7 +2,7 @@
 
 
 ## Mouse
-```python
+```python 
 Mouse()
 ```
 
@@ -93,3 +93,4 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
    x, y, event
 )
 ```
+

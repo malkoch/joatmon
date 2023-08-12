@@ -2,7 +2,7 @@
 
 
 ## Quaternion
-```python
+```python 
 Quaternion(
    x
 )
@@ -86,7 +86,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## Sticker
-```python
+```python 
 Sticker(
    color
 )
@@ -129,7 +129,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## Face
-```python
+```python 
 Face(
    n, color, top_left, increment
 )
@@ -215,7 +215,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## Cube
-```python
+```python 
 Cube(
    n = 3
 )
@@ -338,7 +338,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## CubeEnv
-```python
+```python 
 
 ```
 

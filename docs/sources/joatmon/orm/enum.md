@@ -2,7 +2,7 @@
 
 
 ## Meta
-```python
+```python 
 Meta()
 ```
 
@@ -24,7 +24,7 @@ gamma (float): gamma.
 
 
 ## Enum
-```python
+```python 
 Enum()
 ```
 

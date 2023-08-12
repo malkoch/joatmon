@@ -2,7 +2,7 @@
 
 
 ## CachePlugin
-```python
+```python 
 CachePlugin()
 ```
 

@@ -2,7 +2,7 @@
 
 
 ## PostgreSQLDatabase
-```python
+```python 
 PostgreSQLDatabase(
    host, port, user, password, database
 )

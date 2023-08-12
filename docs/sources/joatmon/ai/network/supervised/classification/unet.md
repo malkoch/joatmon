@@ -2,7 +2,7 @@
 
 
 ## DoubleConv
-```python
+```python 
 DoubleConv(
    in_channels, out_channels, mid_channels = None
 )
@@ -45,7 +45,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## Down
-```python
+```python 
 Down(
    in_channels, out_channels
 )
@@ -88,7 +88,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## Up
-```python
+```python 
 Up(
    in_channels, out_channels, bilinear = True
 )
@@ -131,7 +131,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## OutConv
-```python
+```python 
 OutConv(
    in_channels, out_channels
 )
@@ -174,7 +174,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## UNet
-```python
+```python 
 UNet(
    channels, classes, bilinear = False
 )

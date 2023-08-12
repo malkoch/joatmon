@@ -2,7 +2,7 @@
 
 
 ## DatabaseLocalizer
-```python
+```python 
 DatabaseLocalizer(
    database, cls
 )

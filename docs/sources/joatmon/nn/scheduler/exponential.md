@@ -2,7 +2,7 @@
 
 
 ## ExponentialLR
-```python
+```python 
 ExponentialLR(
    optimizer, gamma, last_epoch = -1, verbose = False
 )

@@ -2,7 +2,7 @@
 
 
 ## CoreBuffer
-```python
+```python 
 CoreBuffer(
    values, batch_size
 )
@@ -58,7 +58,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## RingBuffer
-```python
+```python 
 RingBuffer(
    size, batch_size
 )

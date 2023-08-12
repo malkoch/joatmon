@@ -2,7 +2,7 @@
 
 
 ## BaseService
-```python
+```python 
 BaseService(
    api, **kwargs
 )
@@ -95,7 +95,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## ServiceState
-```python
+```python 
 ServiceState()
 ```
 
@@ -117,7 +117,7 @@ gamma (float): gamma.
 
 
 ## ServiceInfo
-```python
+```python 
 ServiceInfo()
 ```
 

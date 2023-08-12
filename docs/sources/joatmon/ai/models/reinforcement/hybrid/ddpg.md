@@ -2,7 +2,7 @@
 
 
 ## DDPGModel
-```python
+```python 
 DDPGModel(
    lr = 0.001, tau = 0.0001, gamma = 0.99, in_features = 1, out_features = 1
 )
@@ -13,11 +13,11 @@ DDPGModel(
 Deep Deterministic Policy Gradient
 
 # Arguments
-actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-optimizer (`keras.optimizers.Optimizer` instance):
+actor_model (`nn.Model` instance): See [Model](#) for details.
+critic_model (`nn.Model` instance): See [Model](#) for details.
+optimizer (`optimizers.Optimizer` instance):
 See [Optimizer](#) for details.
-action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
+action_inp (`layers.Input` / `layers.InputLayer` instance):
 See [Input](#) for details.
 tau (float): tau.
 gamma (float): gamma.

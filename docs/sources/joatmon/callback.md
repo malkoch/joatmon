@@ -2,7 +2,7 @@
 
 
 ## CoreCallback
-```python
+```python 
 
 ```
 
@@ -111,7 +111,7 @@ Called at end of each nn replay
 
 
 ## CallbackList
-```python
+```python 
 CallbackList(
    callbacks
 )
@@ -259,7 +259,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## Loader
-```python
+```python 
 Loader(
    model, run_path, interval
 )
@@ -332,7 +332,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## Renderer
-```python
+```python 
 Renderer(
    environment
 )
@@ -390,7 +390,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## TrainLogger
-```python
+```python 
 TrainLogger(
    run_path, interval
 )
@@ -478,7 +478,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## ValidationLogger
-```python
+```python 
 ValidationLogger(
    run_path, interval
 )
@@ -551,7 +551,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## Visualizer
-```python
+```python 
 Visualizer(
    model, predicate = lambdax: True
 )
@@ -594,7 +594,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## LivePlotter
-```python
+```python 
 LivePlotter()
 ```
 

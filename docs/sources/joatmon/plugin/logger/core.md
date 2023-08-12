@@ -2,7 +2,7 @@
 
 
 ## LogLevel
-```python
+```python 
 LogLevel()
 ```
 
@@ -24,7 +24,7 @@ gamma (float): gamma.
 
 
 ## LoggerPlugin
-```python
+```python 
 LoggerPlugin(
    level, language, ip
 )

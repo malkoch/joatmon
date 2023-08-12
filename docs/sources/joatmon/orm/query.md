@@ -2,7 +2,7 @@
 
 
 ## Arithmetic
-```python
+```python 
 Arithmetic()
 ```
 
@@ -24,7 +24,7 @@ gamma (float): gamma.
 
 
 ## Comparator
-```python
+```python 
 Comparator()
 ```
 
@@ -46,7 +46,7 @@ gamma (float): gamma.
 
 
 ## Equality
-```python
+```python 
 Equality()
 ```
 
@@ -68,7 +68,7 @@ gamma (float): gamma.
 
 
 ## Matching
-```python
+```python 
 Matching()
 ```
 
@@ -90,7 +90,7 @@ gamma (float): gamma.
 
 
 ## Boolean
-```python
+```python 
 Boolean()
 ```
 
@@ -112,7 +112,7 @@ gamma (float): gamma.
 
 
 ## Order
-```python
+```python 
 Order()
 ```
 
@@ -134,7 +134,7 @@ gamma (float): gamma.
 
 
 ## JoinType
-```python
+```python 
 JoinType()
 ```
 
@@ -156,7 +156,7 @@ gamma (float): gamma.
 
 
 ## DatePart
-```python
+```python 
 DatePart()
 ```
 
@@ -178,7 +178,7 @@ gamma (float): gamma.
 
 
 ## Dialects
-```python
+```python 
 Dialects()
 ```
 
@@ -200,7 +200,7 @@ gamma (float): gamma.
 
 
 ## Node
-```python
+```python 
 Node(
    alias
 )
@@ -243,7 +243,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## Term
-```python
+```python 
 Term(
    alias
 )
@@ -286,7 +286,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## ValueWrapper
-```python
+```python 
 ValueWrapper(
    value
 )
@@ -329,7 +329,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## Criterion
-```python
+```python 
 Criterion()
 ```
 
@@ -381,7 +381,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## BasicCriteria
-```python
+```python 
 BasicCriteria(
    comparator: Comparator, left: Term, right: Term, alias = None
 )
@@ -424,7 +424,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## ComplexCriteria
-```python
+```python 
 ComplexCriteria(
    comparator: Comparator, left: Term, right: Term, alias = None
 )
@@ -467,7 +467,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## ArithmeticExpression
-```python
+```python 
 ArithmeticExpression(
    operator: Arithmetic, left, right, alias = None
 )
@@ -510,7 +510,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## Column
-```python
+```python 
 Column(
    name, table
 )
@@ -553,7 +553,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## Table
-```python
+```python 
 Table(
    name, schema = None
 )
@@ -624,7 +624,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## Schema
-```python
+```python 
 Schema(
    name, database
 )
@@ -682,7 +682,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## Database
-```python
+```python 
 Database(
    name
 )
@@ -740,7 +740,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## Count
-```python
+```python 
 Count(
    column
 )
@@ -798,7 +798,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## Array
-```python
+```python 
 Array(
    *column
 )
@@ -869,7 +869,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## JSON
-```python
+```python 
 JSON(
    **kwargs
 )
@@ -966,7 +966,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## Sum
-```python
+```python 
 Sum(
    column
 )
@@ -1009,7 +1009,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## Query
-```python
+```python 
 
 ```
 

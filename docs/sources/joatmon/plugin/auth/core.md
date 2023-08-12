@@ -2,7 +2,7 @@
 
 
 ## Auth
-```python
+```python 
 Auth()
 ```
 

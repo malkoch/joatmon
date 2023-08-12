@@ -2,7 +2,7 @@
 
 
 ## Task
-```python
+```python 
 Task(
    api, **kwargs
 )
@@ -56,7 +56,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## Service
-```python
+```python 
 Service(
    api, **kwargs
 )

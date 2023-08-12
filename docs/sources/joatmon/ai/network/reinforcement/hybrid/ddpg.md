@@ -2,7 +2,7 @@
 
 
 ## DDPGActor
-```python
+```python 
 DDPGActor(
    in_features, out_features
 )
@@ -45,7 +45,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## DDPGCritic
-```python
+```python 
 DDPGCritic(
    in_features, out_features
 )

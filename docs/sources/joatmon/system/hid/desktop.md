@@ -2,7 +2,7 @@
 
 
 ## POINT
-```python
+```python 
 POINT()
 ```
 
@@ -24,7 +24,7 @@ gamma (float): gamma.
 
 
 ## RECT
-```python
+```python 
 RECT()
 ```
 
@@ -46,7 +46,7 @@ gamma (float): gamma.
 
 
 ## RectangleException
-```python
+```python 
 RectangleException()
 ```
 
@@ -68,7 +68,7 @@ gamma (float): gamma.
 
 
 ## GetWindowException
-```python
+```python 
 GetWindowException()
 ```
 
@@ -90,7 +90,7 @@ gamma (float): gamma.
 
 
 ## Rectangle
-```python
+```python 
 Rectangle(
    left = 0, top = 0, width = 0, height = 0, enable_float = False, read_only = False,
    on_change = None, on_read = None
@@ -553,7 +553,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## Window
-```python
+```python 
 Window(
    h_wnd
 )

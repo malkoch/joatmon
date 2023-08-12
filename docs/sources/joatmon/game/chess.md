@@ -2,7 +2,7 @@
 
 
 ## Arrow
-```python
+```python 
 Arrow()
 ```
 
@@ -24,7 +24,7 @@ gamma (float): gamma.
 
 
 ## ChessEnv
-```python
+```python 
 
 ```
 

@@ -2,7 +2,7 @@
 
 
 ## Serializable
-```python
+```python 
 Serializable(
    **kwargs
 )

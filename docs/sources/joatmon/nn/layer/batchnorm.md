@@ -2,7 +2,7 @@
 
 
 ## BatchNorm
-```python
+```python 
 BatchNorm(
    features, eps: float = 1e-05, momentum: float = 0.1, affine: bool = True,
    track_running_stats: bool = True

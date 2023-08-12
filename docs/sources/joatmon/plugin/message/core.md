@@ -2,7 +2,7 @@
 
 
 ## MessagePlugin
-```python
+```python 
 MessagePlugin()
 ```
 

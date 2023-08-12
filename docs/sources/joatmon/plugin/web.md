@@ -2,7 +2,7 @@
 
 
 ## UserPlugin
-```python
+```python 
 UserPlugin(
    key
 )
@@ -58,7 +58,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## TokenPlugin
-```python
+```python 
 TokenPlugin(
    key
 )
@@ -114,7 +114,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## IssuerPlugin
-```python
+```python 
 IssuerPlugin(
    key
 )
@@ -170,7 +170,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## LanguagePlugin
-```python
+```python 
 LanguagePlugin(
    key
 )
@@ -226,7 +226,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## IPPlugin
-```python
+```python 
 IPPlugin(
    key
 )
@@ -282,7 +282,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## InCasePlugin
-```python
+```python 
 InCasePlugin(
    key
 )
@@ -338,7 +338,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## OutCasePlugin
-```python
+```python 
 OutCasePlugin(
    key
 )
@@ -394,7 +394,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## JsonPlugin
-```python
+```python 
 JsonPlugin(
    key
 )
@@ -450,7 +450,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## ArgsPlugin
-```python
+```python 
 ArgsPlugin(
    key
 )
@@ -506,7 +506,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## FormPlugin
-```python
+```python 
 FormPlugin(
    key
 )
@@ -562,7 +562,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## HeadersPlugin
-```python
+```python 
 HeadersPlugin(
    key
 )
@@ -618,7 +618,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## CookiesPlugin
-```python
+```python 
 CookiesPlugin(
    key
 )

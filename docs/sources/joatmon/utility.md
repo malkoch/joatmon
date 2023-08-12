@@ -2,7 +2,7 @@
 
 
 ## JSONEncoder
-```python
+```python 
 JSONEncoder()
 ```
 
@@ -43,7 +43,7 @@ transaction (abstract): state, action, reward, next_state, terminal transaction.
 
 
 ## JSONDecoder
-```python
+```python 
 JSONDecoder(
    *args, **kwargs
 )

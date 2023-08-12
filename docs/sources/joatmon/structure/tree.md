@@ -2,7 +2,7 @@
 
 
 ## Tree
-```python
+```python 
 Tree(
    data
 )

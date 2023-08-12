@@ -2,7 +2,7 @@
 
 
 ## Document
-```python
+```python 
 Document(
    **kwargs
 )
