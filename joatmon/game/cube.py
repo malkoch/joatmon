@@ -151,11 +151,11 @@ class Quaternion:
         """
         x = self.x.reshape((-1, 4)).T
 
-        norm = np.sqrt((x**2).sum(0))
+        norm = np.sqrt((x ** 2).sum(0))
         theta = 2 * np.arccos(x[0] / norm)
 
         v = np.array(x[1:], order='F')
-        v /= np.sqrt(np.sum(v**2, 0))
+        v /= np.sqrt(np.sum(v ** 2, 0))
 
         v = v.T.reshape(self.x.shape[:-1] + (3,))
         theta = theta.reshape(self.x.shape[:-1])
@@ -307,10 +307,10 @@ class Face:
             self.stickers[layer][ind].color = self.stickers[self.n - layer - ind - 1][layer].color
             self.stickers[self.n - layer - ind - 1][layer].color = self.stickers[self.n - layer - 1][
                 self.n - layer - ind - 1
-            ].color
+                ].color
             self.stickers[self.n - layer - 1][self.n - layer - ind - 1].color = self.stickers[layer + ind][
                 self.n - layer - 1
-            ].color
+                ].color
             self.stickers[layer + ind][self.n - layer - 1].color = tmp
 
     def rot90(self):

@@ -1,4 +1,7 @@
-from joatmon.assistant import service, task
+from joatmon.assistant import (
+    service,
+    task
+)
 from joatmon.assistant.task import BaseTask
 
 

@@ -29,7 +29,7 @@ class TilesEnv(CoreEnv):
         for y in range(self.size):
             row = []
             for x in range(self.size):
-                if y * self.size + x + 1 == self.size**2:
+                if y * self.size + x + 1 == self.size ** 2:
                     row.append(0)
                 else:
                     row.append(y * self.size + x + 1)
@@ -99,12 +99,12 @@ class TilesEnv(CoreEnv):
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        r = [i + 1 for i in range(self.size**2)]
+        r = [i + 1 for i in range(self.size ** 2)]
         random.shuffle(r)
 
         for i, elem in enumerate(r):
             div, mod = divmod(i, self.size)
-            if elem == self.size**2:
+            if elem == self.size ** 2:
                 self.tiles[div][mod] = 0
             else:
                 self.tiles[div][mod] = elem

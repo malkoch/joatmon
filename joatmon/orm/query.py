@@ -1199,7 +1199,7 @@ class Query:
             if depth >= 0:
                 sql += '('
             sql += (
-                'select ' + ', '.join([x.build(dialect, depth + 1) + ' as ' + x.alias for x in self.projection]) + '\n'
+                    'select ' + ', '.join([x.build(dialect, depth + 1) + ' as ' + x.alias for x in self.projection]) + '\n'
             )
 
             if len(self.tables) == 0:
@@ -1211,8 +1211,8 @@ class Query:
                     jtype, jtable, condition = join
 
                     sql += (
-                        f'{jtype} join {jtable.build(dialect) if not isinstance(jtable, Query) else jtable.as_table().build(dialect)} on {condition.build(dialect)}'
-                        + '\n'
+                            f'{jtype} join {jtable.build(dialect) if not isinstance(jtable, Query) else jtable.as_table().build(dialect)} on {condition.build(dialect)}'
+                            + '\n'
                     )
 
             if self.condition is not None:

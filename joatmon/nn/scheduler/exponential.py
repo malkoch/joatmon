@@ -48,4 +48,4 @@ class ExponentialLR(LRScheduler):
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        return [base_lr * self.gamma**self.last_epoch for base_lr in self.base_lrs]
+        return [base_lr * self.gamma ** self.last_epoch for base_lr in self.base_lrs]

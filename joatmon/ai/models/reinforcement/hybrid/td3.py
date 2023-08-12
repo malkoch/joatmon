@@ -7,8 +7,16 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 from joatmon.ai.models.core import CoreModel
-from joatmon.ai.network.reinforcement.hybrid.td3 import TD3Actor, TD3Critic
-from joatmon.ai.utility import load, save, to_numpy, to_tensor
+from joatmon.ai.network.reinforcement.hybrid.td3 import (
+    TD3Actor,
+    TD3Critic
+)
+from joatmon.ai.utility import (
+    load,
+    save,
+    to_numpy,
+    to_tensor
+)
 
 __all__ = ['TD3Model']
 
@@ -97,7 +105,7 @@ class TD3Model(CoreModel):
         """
         for module in self.actor_local.modules():
             if isinstance(
-                module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
+                    module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
             ):  # batch norm will be different
                 if w_init is not None:
                     torch.nn.init.kaiming_normal(module.weight)
@@ -105,7 +113,7 @@ class TD3Model(CoreModel):
                     torch.nn.init.kaiming_normal(module.bias)
         for module in self.actor_target.modules():
             if isinstance(
-                module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
+                    module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
             ):  # batch norm will be different
                 if w_init is not None:
                     torch.nn.init.kaiming_normal(module.weight)
@@ -113,7 +121,7 @@ class TD3Model(CoreModel):
                     torch.nn.init.kaiming_normal(module.bias)
         for module in self.critic_local_1.modules():
             if isinstance(
-                module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
+                    module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
             ):  # batch norm will be different
                 if w_init is not None:
                     torch.nn.init.kaiming_normal(module.weight)
@@ -121,7 +129,7 @@ class TD3Model(CoreModel):
                     torch.nn.init.kaiming_normal(module.bias)
         for module in self.critic_target_1.modules():
             if isinstance(
-                module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
+                    module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
             ):  # batch norm will be different
                 if w_init is not None:
                     torch.nn.init.kaiming_normal(module.weight)
@@ -129,7 +137,7 @@ class TD3Model(CoreModel):
                     torch.nn.init.kaiming_normal(module.bias)
         for module in self.critic_local_2.modules():
             if isinstance(
-                module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
+                    module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
             ):  # batch norm will be different
                 if w_init is not None:
                     torch.nn.init.kaiming_normal(module.weight)
@@ -137,7 +145,7 @@ class TD3Model(CoreModel):
                     torch.nn.init.kaiming_normal(module.bias)
         for module in self.critic_target_2.modules():
             if isinstance(
-                module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
+                    module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
             ):  # batch norm will be different
                 if w_init is not None:
                     torch.nn.init.kaiming_normal(module.weight)

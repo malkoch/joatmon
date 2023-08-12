@@ -1,5 +1,10 @@
 import math
-from typing import List, Optional, Tuple, Union
+from typing import (
+    List,
+    Optional,
+    Tuple,
+    Union
+)
 
 from joatmon.array.array import Array
 
@@ -431,7 +436,7 @@ def split(inp: ArrayT, chunks, axis=0) -> ArrayT:
 
     ret = []
     for chunk in range(chunks):
-        ret.append(inp[chunk * chunk_length : (chunk + 1) * chunk_length])
+        ret.append(inp[chunk * chunk_length: (chunk + 1) * chunk_length])
     return type(inp)(ret)
 
 
@@ -665,7 +670,7 @@ def reshape(inp: ArrayT, shape) -> ArrayT:
         raise ValueError('size does not match or invalid')
     if not subdims:
         return flat
-    return Array([reshape(flat[i : i + subsize], subdims) for i in range(0, len(flat), subsize)])
+    return Array([reshape(flat[i: i + subsize], subdims) for i in range(0, len(flat), subsize)])
 
 
 def squeeze(inp: ArrayT, axis: AxisT = None) -> ArrayT:
@@ -732,13 +737,13 @@ def transpose(inp: Union[DataT, ArrayT], axes=None) -> ArrayT:
     def multi_to_one(idx, s):
         r = 0
         for i, _idx in enumerate(idx):
-            r += prod(s[i + 1 :]) * _idx
+            r += prod(s[i + 1:]) * _idx
         return r
 
     def one_to_multi(idx, s):
         r = []
         for i in range(len(s)):
-            div, mod = divmod(idx, prod(s[i + 1 :]))
+            div, mod = divmod(idx, prod(s[i + 1:]))
             r.append(div)
             idx = mod
         return r
@@ -893,7 +898,7 @@ def square(inp: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None) -> Union[
 
 
 def clip(
-    inp: Union[DataT, ArrayT], min_value: DataT, max_value: DataT, *, out: Optional[ArrayT] = None
+        inp: Union[DataT, ArrayT], min_value: DataT, max_value: DataT, *, out: Optional[ArrayT] = None
 ) -> Union[DataT, ArrayT]:
     """
     Remember the transaction.
@@ -964,7 +969,7 @@ def sum(inp: ArrayT, axis: AxisT = None, keepdims=False) -> Union[DataT, ArrayT]
 
     # kahan sum
     shape = size(inp)
-    s = zeros(shape[:axis] + shape[axis + 1 :])
+    s = zeros(shape[:axis] + shape[axis + 1:])
     c = zeros(size(s))
     for i in range(shape[axis]):
         # y = getitem(inp, (slice(None),) * axis + (i,)) - c  # inp[(slice(None),) * axis + (i,)] - c
@@ -1016,7 +1021,7 @@ def var(inp: ArrayT, axis: AxisT = None) -> Union[DataT, ArrayT]:
         m_shape[axis] = 1
         m = reshape(mean(inp, axis), m_shape)
         a = absolute(inp - m)
-        return mean(a**2, axis=axis)
+        return mean(a ** 2, axis=axis)
 
     return mean(absolute(inp - mean(inp)) ** 2)
 
@@ -1137,7 +1142,7 @@ def minimum(inp: ArrayT, axis: AxisT = None) -> Union[DataT, ArrayT]:
 
 
 def add(
-    inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None
+        inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None
 ) -> Union[DataT, ArrayT]:
     """
     Remember the transaction.
@@ -1159,7 +1164,7 @@ def add(
 
 
 def sub(
-    inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None
+        inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None
 ) -> Union[DataT, ArrayT]:
     """
     Remember the transaction.
@@ -1181,7 +1186,7 @@ def sub(
 
 
 def mul(
-    inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None
+        inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None
 ) -> Union[DataT, ArrayT]:
     """
     Remember the transaction.
@@ -1203,7 +1208,7 @@ def mul(
 
 
 def truediv(
-    inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None
+        inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None
 ) -> Union[DataT, ArrayT]:
     """
     Remember the transaction.
@@ -1225,7 +1230,7 @@ def truediv(
 
 
 def floordiv(
-    inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None
+        inp1: Union[DataT, ArrayT], inp2: Union[DataT, ArrayT], *, out: Optional[ArrayT] = None
 ) -> Union[DataT, ArrayT]:
     """
     Remember the transaction.
@@ -1256,7 +1261,7 @@ def power(inp: Union[DataT, ArrayT], p: Union[DataT, ArrayT], *, out: Optional[A
         transaction (abstract): state, action, reward, next_state, terminal transaction.
     """
     if dim(inp) == 0:
-        return inp**p
+        return inp ** p
 
     ret = out or zeros(size(inp))
     for idx, _inp in enumerate(inp):

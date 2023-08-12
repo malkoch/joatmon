@@ -167,7 +167,7 @@ def calculate_adl(df, inplace=True):
     adl_values = [0]  # Initialize ADL with 0
     for i in range(1, len(df)):
         money_flow_multiplier = ((df['close'].to_numpy()[i] - df['low'].to_numpy()[i]) - (df['high'].to_numpy()[i] - df['close'].to_numpy()[i])) / (
-                    df['high'].to_numpy()[i] - df['low'].to_numpy()[i])
+                df['high'].to_numpy()[i] - df['low'].to_numpy()[i])
         money_flow_volume = money_flow_multiplier * df['volume'].to_numpy()[i]
         adl_values.append(adl_values[i - 1] + money_flow_volume)
 

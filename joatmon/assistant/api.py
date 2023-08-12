@@ -8,13 +8,26 @@ import time
 import openai
 
 from joatmon import context
-from joatmon.assistant import service, task
+from joatmon.assistant import (
+    service,
+    task
+)
 from joatmon.assistant.intent import GenericAssistant
-from joatmon.assistant.service import ServiceInfo, ServiceState
+from joatmon.assistant.service import (
+    ServiceInfo,
+    ServiceState
+)
 from joatmon.assistant.stt import STTAgent
-from joatmon.assistant.task import BaseTask, TaskInfo, TaskState
+from joatmon.assistant.task import (
+    BaseTask,
+    TaskInfo,
+    TaskState
+)
 from joatmon.assistant.tts import TTSAgent
-from joatmon.system.hid.console import ConsoleReader, ConsoleWriter
+from joatmon.system.hid.console import (
+    ConsoleReader,
+    ConsoleWriter
+)
 from joatmon.system.hid.microphone import Microphone
 from joatmon.system.hid.speaker import Speaker
 from joatmon.system.lock import RWLock
@@ -89,7 +102,7 @@ class API:
         self.output('starting automatic services')
         services = settings.get('services', [])
         for _service in sorted(
-            filter(lambda x: x['status'] and x['mode'] == 'automatic', services), key=lambda x: x['priority']
+                filter(lambda x: x['status'] and x['mode'] == 'automatic', services), key=lambda x: x['priority']
         ):
             self.start_service(_service['name'])  # need to do them in background
 
@@ -164,8 +177,8 @@ class API:
         while not self.event.is_set():
             for _service in sorted(filter(lambda x: x['status'], services), key=lambda x: x['priority']):
                 if (
-                    _service['name'] not in self.running_services
-                    or self.running_services[_service['name']].state == ServiceState.finished
+                        _service['name'] not in self.running_services
+                        or self.running_services[_service['name']].state == ServiceState.finished
                 ):
                     self.start_service(_service['name'])  # need to do them in background
             time.sleep(1)
@@ -472,7 +485,7 @@ class API:
         self.output('running shutdown tasks')
         tasks = settings.get('tasks', [])
         for _task in sorted(
-            filter(lambda x: x['status'] and x['on'] == 'shutdown', tasks), key=lambda x: x['priority']
+                filter(lambda x: x['status'] and x['on'] == 'shutdown', tasks), key=lambda x: x['priority']
         ):
             self.run_task(_task['name'])
 

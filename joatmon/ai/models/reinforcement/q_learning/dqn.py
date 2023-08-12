@@ -8,7 +8,13 @@ import torch.optim as optim
 
 from joatmon.ai.models.core import CoreModel
 from joatmon.ai.network import DQN
-from joatmon.ai.utility import load, range_tensor, save, to_numpy, to_tensor
+from joatmon.ai.utility import (
+    load,
+    range_tensor,
+    save,
+    to_numpy,
+    to_tensor
+)
 
 __all__ = ['DQNModel']
 
@@ -74,7 +80,7 @@ class DQNModel(CoreModel):
         """
         for module in self.target.modules():
             if isinstance(
-                module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
+                    module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
             ):  # batch norm will be different
                 if w_init is not None:
                     torch.nn.init.kaiming_normal(module.weight)
@@ -82,7 +88,7 @@ class DQNModel(CoreModel):
                     torch.nn.init.kaiming_normal(module.bias)
         for module in self.local.modules():
             if isinstance(
-                module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
+                    module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
             ):  # batch norm will be different
                 if w_init is not None:
                     torch.nn.init.kaiming_normal(module.weight)

@@ -2,7 +2,10 @@ import ctypes
 import sys
 
 from joatmon.system.decorators import auto_pause
-from joatmon.system.hid.screen import cursor, resolution
+from joatmon.system.hid.screen import (
+    cursor,
+    resolution
+)
 
 __all__ = ['Mouse']
 

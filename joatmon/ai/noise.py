@@ -173,9 +173,9 @@ class OrnsteinUhlenbeck(CoreNoise):
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
         x = (
-            self.x_prev
-            + self.theta * (self.mu - self.x_prev) * self.dt
-            + self.current_sigma * np.sqrt(self.dt) * np.random.normal(size=self.size)
+                self.x_prev
+                + self.theta * (self.mu - self.x_prev) * self.dt
+                + self.current_sigma * np.sqrt(self.dt) * np.random.normal(size=self.size)
         )
         self.x_prev = x
         return x

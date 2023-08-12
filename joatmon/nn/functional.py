@@ -1,6 +1,13 @@
 import math
-from functools import partial, update_wrapper
-from typing import List, Tuple, Union
+from functools import (
+    partial,
+    update_wrapper
+)
+from typing import (
+    List,
+    Tuple,
+    Union
+)
 
 from joatmon.nn.core import Tensor
 from joatmon.nn.utility import _calculate_output_dims
@@ -712,7 +719,7 @@ def dense_backward(gradient: Tensor, inp: Tensor, weight: Tensor, bias: Tensor):
 
 
 def conv_backward(
-    gradient: Tensor, inp: Tensor, weight: Tensor, bias: Tensor, stride: int, padding: Union[List[int], Tuple[int]]
+        gradient: Tensor, inp: Tensor, weight: Tensor, bias: Tensor, stride: int, padding: Union[List[int], Tuple[int]]
 ):
     """
     Remember the transaction.
@@ -742,29 +749,29 @@ def conv_backward(
     for _row in range(_output_height):
         for _column in range(_output_width):
             _output_array[
-                :,
-                :,
-                _row * stride : _row * stride + _kernel_height,
-                _column * stride : _column * stride + _kernel_width,
+            :,
+            :,
+            _row * stride: _row * stride + _kernel_height,
+            _column * stride: _column * stride + _kernel_width,
             ] += engine.sum(
-                _weight_array[None, :, :, :, :] * _grad_array[:, :, None, _row : _row + 1, _column : _column + 1],
+                _weight_array[None, :, :, :, :] * _grad_array[:, :, None, _row: _row + 1, _column: _column + 1],
                 axis=1,
             )
             _weight_grad += engine.sum(
                 _padded_input_array[
-                    :,
-                    None,
-                    :,
-                    _row * stride : _row * stride + _kernel_height,
-                    _column * stride : _column * stride + _kernel_width,
+                :,
+                None,
+                :,
+                _row * stride: _row * stride + _kernel_height,
+                _column * stride: _column * stride + _kernel_width,
                 ]
-                * _grad_array[:, :, None, _row : _row + 1, _column : _column + 1],
+                * _grad_array[:, :, None, _row: _row + 1, _column: _column + 1],
                 axis=0,
             )
 
     _set_grad(inp, _weight_grad)
     _set_grad(weight, _bias_grad)
-    _set_grad(bias, _output_array[:, :, padding[0] : padding[0] + _input_height, padding[1] : padding[1] + input_width])
+    _set_grad(bias, _output_array[:, :, padding[0]: padding[0] + _input_height, padding[1]: padding[1] + input_width])
 
 
 def dropout_backward(gradient: Tensor, inp: Tensor, mask, keep_prob: float):
@@ -824,12 +831,12 @@ def batch_norm_backward(gradient: Tensor, inp: Tensor, weight: Tensor, bias: Ten
 
 
 def max_pool_backward(
-    gradient: Tensor,
-    inp: Tensor,
-    kernel_size: Union[List[int], Tuple[int]],
-    stride: int,
-    padding: Union[List[int], Tuple[int]],
-    cache: dict,
+        gradient: Tensor,
+        inp: Tensor,
+        kernel_size: Union[List[int], Tuple[int]],
+        stride: int,
+        padding: Union[List[int], Tuple[int]],
+        cache: dict,
 ):
     """
     Remember the transaction.
@@ -854,26 +861,26 @@ def max_pool_backward(
 
     for _row in range(_output_height):
         for _column in range(_output_width):
-            increment = grad_array[:, :, _row : _row + 1, _column : _column + 1] * cache[(_row, _column)]
+            increment = grad_array[:, :, _row: _row + 1, _column: _column + 1] * cache[(_row, _column)]
             _output_array[
-                :,
-                :,
-                _row * stride : _row * stride + _kernel_height,
-                _column * stride : _column * stride + _kernel_width,
+            :,
+            :,
+            _row * stride: _row * stride + _kernel_height,
+            _column * stride: _column * stride + _kernel_width,
             ] += increment
 
     _set_grad(
         inp,
-        _output_array[:, :, padding[0] : padding[0] + _output_height - 1, padding[1] : padding[1] + _output_width - 1],
+        _output_array[:, :, padding[0]: padding[0] + _output_height - 1, padding[1]: padding[1] + _output_width - 1],
     )
 
 
 def avg_pool_backward(
-    gradient: Tensor,
-    inp: Tensor,
-    kernel_size: Union[List[int], Tuple[int]],
-    stride: int,
-    padding: Union[List[int], Tuple[int]],
+        gradient: Tensor,
+        inp: Tensor,
+        kernel_size: Union[List[int], Tuple[int]],
+        stride: int,
+        padding: Union[List[int], Tuple[int]],
 ):
     """
     Remember the transaction.
@@ -898,17 +905,17 @@ def avg_pool_backward(
 
     for _row in range(_output_height):
         for _column in range(_output_width):
-            increment = grad_array[:, :, _row : _row + 1, _column : _column + 1] / _kernel_height / _kernel_width
+            increment = grad_array[:, :, _row: _row + 1, _column: _column + 1] / _kernel_height / _kernel_width
             _output_array[
-                :,
-                :,
-                _row * stride : _row * stride + _kernel_height,
-                _column * stride : _column * stride + _kernel_width,
+            :,
+            :,
+            _row * stride: _row * stride + _kernel_height,
+            _column * stride: _column * stride + _kernel_width,
             ] += increment
 
     _set_grad(
         inp,
-        _output_array[:, :, padding[0] : padding[0] + _output_height - 1, padding[1] : padding[1] + _output_width - 1],
+        _output_array[:, :, padding[0]: padding[0] + _output_height - 1, padding[1]: padding[1] + _output_width - 1],
     )
 
 
@@ -991,10 +998,10 @@ def lstm_cell_backward(gradient, inp, all_weights, cache):
                 next_forget = fgates[:, layer, time + 1, :]
 
             d_state_array[:, layer, time, :] = (
-                d_out_array[:, layer, time, :]
-                * ogates[:, layer, time, :]
-                * (1 - engine.tanh(cx[:, layer, time, :]) ** 2)
-                + d_next_state * next_forget
+                    d_out_array[:, layer, time, :]
+                    * ogates[:, layer, time, :]
+                    * (1 - engine.tanh(cx[:, layer, time, :]) ** 2)
+                    + d_next_state * next_forget
             )
 
             if time == 0:
@@ -1003,25 +1010,25 @@ def lstm_cell_backward(gradient, inp, all_weights, cache):
                 prev_state = cx[:, layer, time - 1, :]
 
             d_cgate = (
-                d_state_array[:, layer, time, :] * igates[:, layer, time, :] * (1 - cgates[:, layer, time, :] ** 2)
+                    d_state_array[:, layer, time, :] * igates[:, layer, time, :] * (1 - cgates[:, layer, time, :] ** 2)
             )
             d_igate = (
-                d_state_array[:, layer, time, :]
-                * cgates[:, layer, time, :]
-                * igates[:, layer, time, :]
-                * (1 - igates[:, layer, time, :])
+                    d_state_array[:, layer, time, :]
+                    * cgates[:, layer, time, :]
+                    * igates[:, layer, time, :]
+                    * (1 - igates[:, layer, time, :])
             )
             d_fgate = (
-                d_state_array[:, layer, time, :]
-                * prev_state
-                * fgates[:, layer, time, :]
-                * (1 - fgates[:, layer, time, :])
+                    d_state_array[:, layer, time, :]
+                    * prev_state
+                    * fgates[:, layer, time, :]
+                    * (1 - fgates[:, layer, time, :])
             )
             d_ogate = (
-                d_out_array[:, layer, time, :]
-                * engine.tanh(cx[:, layer, time, :])
-                * ogates[:, layer, time, :]
-                * (1 - ogates[:, layer, time, :])
+                    d_out_array[:, layer, time, :]
+                    * engine.tanh(cx[:, layer, time, :])
+                    * ogates[:, layer, time, :]
+                    * (1 - ogates[:, layer, time, :])
             )
 
             d_cgate_array[:, layer, time, :] = d_cgate
@@ -1157,10 +1164,10 @@ def lstm_backward(gradient, inp, all_weights, cache):
                 next_forget = fgates[:, layer, time + 1, :]
 
             d_state_array[:, layer, time, :] = (
-                d_out_array[:, layer, time, :]
-                * ogates[:, layer, time, :]
-                * (1 - engine.tanh(cx[:, layer, time, :]) ** 2)
-                + d_next_state * next_forget
+                    d_out_array[:, layer, time, :]
+                    * ogates[:, layer, time, :]
+                    * (1 - engine.tanh(cx[:, layer, time, :]) ** 2)
+                    + d_next_state * next_forget
             )
 
             if time == 0:
@@ -1169,25 +1176,25 @@ def lstm_backward(gradient, inp, all_weights, cache):
                 prev_state = cx[:, layer, time - 1, :]
 
             d_cgate = (
-                d_state_array[:, layer, time, :] * igates[:, layer, time, :] * (1 - cgates[:, layer, time, :] ** 2)
+                    d_state_array[:, layer, time, :] * igates[:, layer, time, :] * (1 - cgates[:, layer, time, :] ** 2)
             )
             d_igate = (
-                d_state_array[:, layer, time, :]
-                * cgates[:, layer, time, :]
-                * igates[:, layer, time, :]
-                * (1 - igates[:, layer, time, :])
+                    d_state_array[:, layer, time, :]
+                    * cgates[:, layer, time, :]
+                    * igates[:, layer, time, :]
+                    * (1 - igates[:, layer, time, :])
             )
             d_fgate = (
-                d_state_array[:, layer, time, :]
-                * prev_state
-                * fgates[:, layer, time, :]
-                * (1 - fgates[:, layer, time, :])
+                    d_state_array[:, layer, time, :]
+                    * prev_state
+                    * fgates[:, layer, time, :]
+                    * (1 - fgates[:, layer, time, :])
             )
             d_ogate = (
-                d_out_array[:, layer, time, :]
-                * engine.tanh(cx[:, layer, time, :])
-                * ogates[:, layer, time, :]
-                * (1 - ogates[:, layer, time, :])
+                    d_out_array[:, layer, time, :]
+                    * engine.tanh(cx[:, layer, time, :])
+                    * ogates[:, layer, time, :]
+                    * (1 - ogates[:, layer, time, :])
             )
 
             d_cgate_array[:, layer, time, :] = d_cgate
@@ -1677,7 +1684,7 @@ def power(inp, p) -> 'Tensor':
 
     _check_tensors(inp)
 
-    return _create_tensor(inp, data=inp.data**p, func=wrapped_partial(power_backward, inp=inp, p=p))
+    return _create_tensor(inp, data=inp.data ** p, func=wrapped_partial(power_backward, inp=inp, p=p))
 
 
 def clone(inp) -> 'Tensor':
@@ -2222,11 +2229,11 @@ def conv(inp, weight, bias, stride, padding) -> 'Tensor':
         for column in range(output_width):
             output_array[:, :, row, column] = engine.sum(
                 padded_input_array[
-                    :,
-                    None,
-                    :,
-                    row * stride : row * stride + kernel_height,
-                    column * stride : column * stride + kernel_width,
+                :,
+                None,
+                :,
+                row * stride: row * stride + kernel_height,
+                column * stride: column * stride + kernel_width,
                 ]
                 * weight_array[None, :, :, :],
                 axis=(2, 3, 4),
@@ -2287,10 +2294,10 @@ def batch_norm(inp, weight, bias, running_mean, running_var, momentum, eps, trai
         input_mean = engine.mean(input_array, axis=0)
 
         input_mean_difference = input_array - input_mean
-        input_variance = engine.mean(input_mean_difference**2, axis=0)
+        input_variance = engine.mean(input_mean_difference ** 2, axis=0)
         input_standard_deviation = engine.sqrt(input_variance)
         input_standard_deviation[input_standard_deviation == 0] = (
-            input_standard_deviation[input_standard_deviation == 0] + eps
+                input_standard_deviation[input_standard_deviation == 0] + eps
         )
         input_mean_over_input_standard_deviation = input_mean_difference / input_standard_deviation
 
@@ -2306,10 +2313,10 @@ def batch_norm(inp, weight, bias, running_mean, running_var, momentum, eps, trai
         input_mean = engine.mean(input_array, axis=(0, 2, 3))
 
         input_mean_difference = input_array - input_mean.reshape((1, channel, 1, 1))
-        input_variance = engine.mean(input_mean_difference**2, axis=(0, 2, 3))
+        input_variance = engine.mean(input_mean_difference ** 2, axis=(0, 2, 3))
         input_standard_deviation = engine.sqrt(input_variance.reshape((1, channel, 1, 1)))
         input_standard_deviation[input_standard_deviation == 0] = (
-            input_standard_deviation[input_standard_deviation == 0] + eps
+                input_standard_deviation[input_standard_deviation == 0] + eps
         )
         input_mean_over_input_standard_deviation = input_mean_difference / input_standard_deviation
 
@@ -2390,8 +2397,8 @@ def max_pool(inp, kernel_size, stride, padding) -> 'Tensor':
     for row in range(output_height):
         for column in range(output_width):
             padded_input_slice = padded_input_array[
-                :, :, row * stride : row * stride + kernel_height, column * stride : column * stride + kernel_width
-            ]
+                                 :, :, row * stride: row * stride + kernel_height, column * stride: column * stride + kernel_width
+                                 ]
             save_mask(x=padded_input_slice, cords=(row, column))
             output_array[:, :, row, column] = engine.amax(padded_input_slice, axis=(2, 3))
 
@@ -2431,8 +2438,8 @@ def avg_pool(inp, kernel_size, stride, padding) -> 'Tensor':
     for row in range(output_height):
         for column in range(output_width):
             padded_input_slice = padded_input_array[
-                :, :, row * stride : row * stride + kernel_height, column * stride : column * stride + kernel_width
-            ]
+                                 :, :, row * stride: row * stride + kernel_height, column * stride: column * stride + kernel_width
+                                 ]
             output_array[:, :, row, column] = engine.mean(padded_input_slice, axis=(2, 3))
 
     return _create_tensor(
@@ -2639,7 +2646,7 @@ def lstm(inp, all_weights):
 
 
 def adam(
-    params, grads, exp_avgs, exp_avg_sqs, max_exp_avg_sqs, state_steps, amsgrad, beta1, beta2, lr, weight_decay, eps
+        params, grads, exp_avgs, exp_avg_sqs, max_exp_avg_sqs, state_steps, amsgrad, beta1, beta2, lr, weight_decay, eps
 ):
     """
     Remember the transaction.
@@ -2658,8 +2665,8 @@ def adam(
         exp_avg_sq = exp_avg_sqs[i]
         step = state_steps[i]
 
-        bias_correction1 = 1 - beta1**step
-        bias_correction2 = 1 - beta2**step
+        bias_correction1 = 1 - beta1 ** step
+        bias_correction2 = 1 - beta2 ** step
 
         if weight_decay != 0:
             grad._data = grad.data + param.data * weight_decay

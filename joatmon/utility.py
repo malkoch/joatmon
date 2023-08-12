@@ -5,8 +5,16 @@ import os
 import re
 import typing
 import uuid
-from datetime import date, datetime, time, timedelta
-from time import mktime, struct_time
+from datetime import (
+    date,
+    datetime,
+    time,
+    timedelta
+)
+from time import (
+    mktime,
+    struct_time
+)
 from uuid import UUID
 
 pascal_case_pattern = re.compile(r'(?<!^)(?=[A-Z])')
@@ -665,9 +673,9 @@ def get_class_that_defined_method(meth):
     if isinstance(meth, functools.partial):
         return get_class_that_defined_method(meth.func)
     if inspect.ismethod(meth) or (
-        inspect.isbuiltin(meth)
-        and getattr(meth, '__self__', None) is not None
-        and getattr(meth.__self__, '__class__', None)
+            inspect.isbuiltin(meth)
+            and getattr(meth, '__self__', None) is not None
+            and getattr(meth.__self__, '__class__', None)
     ):
         for cls in inspect.getmro(meth.__self__.__class__):
             if meth.__name__ in cls.__dict__:

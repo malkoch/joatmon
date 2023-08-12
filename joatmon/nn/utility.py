@@ -56,10 +56,10 @@ def typename(o):
 
     module = ''
     if (
-        hasattr(o, '__module__')
-        and o.__module__ != 'builtins'
-        and o.__module__ != '__builtin__'
-        and o.__module__ is not None
+            hasattr(o, '__module__')
+            and o.__module__ != 'builtins'
+            and o.__module__ != '__builtin__'
+            and o.__module__ is not None
     ):
         module = o.__module__ + '.'
 
