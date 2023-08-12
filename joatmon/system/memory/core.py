@@ -314,3 +314,12 @@ if sys.platform == 'win32':
         except Exception as ex:
             print(str(ex))
             NtWow64ReadVirtualMemory64 = None
+else:
+    PSecurityDescriptor = None
+    CreateToolhelp32Snapshot = None
+    Module32First = None
+    Module32Next = None
+    ReadProcessMemory = None
+    VirtualQueryEx = None
+    IsWow64Process = None
+    NtWow64ReadVirtualMemory64 = None
