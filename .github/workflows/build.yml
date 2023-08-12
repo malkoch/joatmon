@@ -23,8 +23,21 @@ jobs:
           sudo apt install libcurl4-openssl-dev libssl-dev
           python -m pip install --upgrade pip
           python -m pip install flake8 pytest pytest-cov
+          python -m pip install mkgendocs
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           pip install .[all]
+          python joatmon/generator/doc.py
+          gendocs --config mkgendocs.yml
+
+          git config --global user.email "hamitcanmalkoc@gmail.com"
+          git config --global user.name "Hamitcan Malkoç"
+          git add .
+          git commit -m "doc rebuild"
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tags: false
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
