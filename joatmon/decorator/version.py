@@ -11,17 +11,17 @@ def deprecated(reason: str) -> Callable:
     """
 
     def decorator(func1):
-        message = "Call to deprecated function {name} ({reason})."
+        message = 'Call to deprecated function {name} ({reason}).'
 
         @functools.wraps(func1)
         def new_func1(*args, **kwargs):
-            warnings.simplefilter("always", DeprecationWarning)
+            warnings.simplefilter('always', DeprecationWarning)
             warnings.warn(
                 message.format(name=func1.__name__, reason=reason),
                 category=DeprecationWarning,
                 stacklevel=2,
             )
-            warnings.simplefilter("default", DeprecationWarning)
+            warnings.simplefilter('default', DeprecationWarning)
             return func1(*args, **kwargs)
 
         return new_func1

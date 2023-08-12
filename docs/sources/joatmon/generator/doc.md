@@ -83,4 +83,3 @@ Automate docstring argument variable-type from type-hints.
 **Returns**
 
 * **str**  : feedback message
-

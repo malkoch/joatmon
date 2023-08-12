@@ -42,29 +42,29 @@ if sys.platform == 'win32':
 extras['all'] = list(set([item for group in extras.values() for item in group]))
 
 if sys.version_info < (3,):
-    print("Python 2 has reached end-of-life and is no longer supported by joatmon.")
+    print('Python 2 has reached end-of-life and is no longer supported by joatmon.')
     sys.exit(-1)
 if sys.platform == 'win32' and sys.maxsize.bit_length() == 31:
-    print("32-bit Windows Python runtime is not supported. Please switch to 64-bit Python.")
+    print('32-bit Windows Python runtime is not supported. Please switch to 64-bit Python.')
     sys.exit(-1)
 
 python_min_version = (3, 9, 1)
 python_min_version_str = '.'.join(map(str, python_min_version))
 if sys.version_info < python_min_version:
-    print("You are using Python {}. Python >={} is required.".format(platform.python_version(), python_min_version_str))
+    print('You are using Python {}. Python >={} is required.'.format(platform.python_version(), python_min_version_str))
     sys.exit(-1)
 
 if __name__ == '__main__':
-    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "README.md"), encoding="utf-8") as f:
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'README.md'), encoding='utf-8') as f:
         long_description = f.read()
 
     version_range_max = max(sys.version_info[1], 8) + 1
     setup(
         name=os.getenv('JOATMON_PACKAGE_NAME', 'joatmon'),
         version=VERSION,
-        description="General Purpose Python Library",
+        description='General Purpose Python Library',
         long_description=long_description,
-        long_description_content_type="text/markdown",
+        long_description_content_type='text/markdown',
         packages=[package for package in find_packages(exclude='tests')],
         entry_points={
             'console_scripts': [
