@@ -21,7 +21,7 @@ extras = {
     'decorator': ['async_exit_stack'],
     'download': ['pycurl'],
     'event': [],
-    'game': ['gym', 'pygame', 'opencv-contrib-python', 'pymunk'],
+    'game': ['gym', 'pygame', 'opencv-contrib-python', 'pymunk', 'chess'],
     'image': [],
     'memory': [],
     'nn': [],
