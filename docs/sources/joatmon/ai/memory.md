@@ -2,7 +2,7 @@
 
 
 ## CoreMemory
-```python 
+```python
 CoreMemory(
    buffer, batch_size
 )
@@ -54,7 +54,7 @@ from experience replay memory.
 
 
 ## RingMemory
-```python 
+```python
 RingMemory(
    batch_size = 32, size = 960000
 )

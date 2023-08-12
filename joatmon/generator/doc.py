@@ -361,17 +361,16 @@ def docstring_from_type_hints(repo_dir: Path, overwrite_script: bool = False, te
 def main():
     """Execute when running this script."""
     directory = Path.cwd().joinpath('joatmon')
-    automate_docstring(directory)
+    # automate_docstring(directory)
 
     # docstring_from_type_hints(directory, overwrite_script=False, test=False)
-    """
+
     automate_mkdocs_from_docstring(
         mkdocs_dir='.',
         mkgendocs_f='mkgendocs.yml',
         repo_dir=directory,
         match_string='pages:\n',
     )
-    """
 
 
 if __name__ == '__main__':
