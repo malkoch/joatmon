@@ -41,8 +41,6 @@ class CTX:
 ctx = CTX()
 context.set_ctx(ctx)
 
-openai.api_key = json.loads(open('iva/iva.json', 'r').read())['config']['openai']['key']
-
 
 class API:
     """
@@ -61,6 +59,8 @@ class API:
 
     def __init__(self):
         settings = json.loads(open('iva/iva.json', 'r').read())
+
+        openai.api_key = settings['config']['openai']['key']
 
         self.tts = settings.get('config', {}).get('tts', False)
         self.stt = settings.get('config', {}).get('stt', False)
