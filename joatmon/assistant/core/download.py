@@ -18,7 +18,7 @@ class Task(BaseTask):
         gamma (float): gamma.
     """
 
-    def __init__(self, api, **kwargs):
+    def __init__(self, name, api, **kwargs):
         super(Task, self).__init__(api, True, **kwargs)
 
     @staticmethod

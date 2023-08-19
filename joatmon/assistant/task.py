@@ -32,7 +32,8 @@ class BaseTask:
         gamma (float): gamma.
     """
 
-    def __init__(self, api, background=False, **kwargs):  # another parameter called cache output
+    def __init__(self, name, api, background=False, **kwargs):  # another parameter called cache output
+        self.name = name
         self.api = api
         self.kwargs = kwargs
         self._background = background
@@ -185,7 +186,7 @@ def on_begin(name, *args, **kwargs):
     # Arguments
         transaction (abstract): state, action, reward, next_state, terminal transaction.
     """
-    settings = json.loads(open('iva/iva.json', 'r').read())
+    settings = json.loads(open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'r').read())
     tasks = settings.get('tasks', [])
 
     task_info = first(filter(lambda x: x['name'] == name, tasks))
@@ -202,7 +203,7 @@ def on_begin(name, *args, **kwargs):
             break
 
     settings['tasks'] = tasks
-    open('iva/iva.json', 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
+    open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
 
 
 def on_error(name, *args, **kwargs):
@@ -214,6 +215,8 @@ def on_error(name, *args, **kwargs):
     # Arguments
         transaction (abstract): state, action, reward, next_state, terminal transaction.
     """
+    # make sure to update next_run_time
+    # make sure to update last_run_time
     ...
 
 
@@ -226,6 +229,8 @@ def on_end(name, *args, **kwargs):
     # Arguments
         transaction (abstract): state, action, reward, next_state, terminal transaction.
     """
+    # make sure to update next_run_time
+    # make sure to update last_run_time
     ...
 
 
@@ -253,13 +258,13 @@ def create(api):
     # if on == 'interval' need to as for interval as well
     create_args = {'name': name, 'priority': priority, 'on': on, 'script': script, 'status': True, 'kwargs': kwargs}
 
-    settings = json.loads(open('iva/iva.json', 'r').read())
+    settings = json.loads(open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'r').read())
     tasks = settings.get('tasks', [])
 
     tasks.append(create_args)
 
     settings['tasks'] = tasks
-    open('iva/iva.json', 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
+    open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
 
 
 def get_class(name):
@@ -273,7 +278,7 @@ def get_class(name):
     """
     task = None
 
-    settings = json.loads(open('iva/iva.json', 'r').read())
+    settings = json.loads(open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'r').read())
     for scripts in settings.get('scripts', []):
         if os.path.isabs(scripts):
             if os.path.exists(scripts) and os.path.exists(os.path.join(scripts, f'{name}.py')):
@@ -311,7 +316,7 @@ def get(api, name, kwargs, background):
     # Arguments
         transaction (abstract): state, action, reward, next_state, terminal transaction.
     """
-    settings = json.loads(open('iva/iva.json', 'r').read())
+    settings = json.loads(open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'r').read())
     task_info = first(filter(lambda x: x['status'] and x['name'] == name, settings.get('tasks', [])))
 
     if task_info is None:
@@ -325,9 +330,9 @@ def get(api, name, kwargs, background):
         api.output(f'task {name} is not found')
         return None
 
-    kwargs = {**(kwargs or {}), **task_info['kwargs'], 'parent_os_path': api.parent_os_path, 'os_path': api.os_path}
+    kwargs = {**(kwargs or {}), **task_info.get('kwargs', {}), 'base': os.environ.get('IVA_PATH'), 'cwd': api.cwd}
 
-    task = task(api, **kwargs)
+    task = task(name, api, **kwargs)
     task.background = background
 
     task.events['begin'] += functools.partial(on_begin, name=name)

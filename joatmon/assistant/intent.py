@@ -1,4 +1,5 @@
 import json
+import os.path
 import pickle
 import random
 
@@ -118,9 +119,9 @@ class GenericAssistant:
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        self.model.save(f'iva/weights/{model_name}/weights.h5', self.hist)
-        pickle.dump(self.words, open(f'iva/weights/{model_name}/words.pkl', 'wb'))
-        pickle.dump(self.classes, open(f'iva/weights/{model_name}/classes.pkl', 'wb'))
+        self.model.save(os.path.join(os.environ.get('IVA_PATH'), f'weights/{model_name}/weights.h5'), self.hist)
+        pickle.dump(self.words, open(os.path.join(os.environ.get('IVA_PATH'), f'weights/{model_name}/words.pkl'), 'wb'))
+        pickle.dump(self.classes, open(os.path.join(os.environ.get('IVA_PATH'), f'weights/{model_name}/classes.pkl'), 'wb'))
 
     def load_model(self, model_name=None):
         """
@@ -131,9 +132,9 @@ class GenericAssistant:
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        self.words = pickle.load(open(f'iva/weights/{model_name}/words.pkl', 'rb'))
-        self.classes = pickle.load(open(f'iva/weights/{model_name}/classes.pkl', 'rb'))
-        self.model = tf.keras.models.load_model(f'iva/weights/{model_name}.weights.h5')
+        self.words = pickle.load(open(os.path.join(os.environ.get('IVA_PATH'), f'weights/{model_name}/words.pkl'), 'rb'))
+        self.classes = pickle.load(open(os.path.join(os.environ.get('IVA_PATH'), f'weights/{model_name}/classes.pkl'), 'rb'))
+        self.model = tf.keras.models.load_model(os.path.join(os.environ.get('IVA_PATH'), f'weights/{model_name}/weights.h5'))
 
     def _clean_up_sentence(self, sentence):
         """

@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import json
+import os
 
 import openai
 
@@ -22,8 +23,8 @@ class Task(BaseTask):
         gamma (float): gamma.
     """
 
-    def __init__(self, api, **kwargs):
-        super(Task, self).__init__(api, **kwargs)
+    def __init__(self, name, api, **kwargs):
+        super(Task, self).__init__(name, api, **kwargs)
 
     @staticmethod
     def help():
@@ -54,7 +55,7 @@ class Task(BaseTask):
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        config = json.loads(open('iva/iva.json', 'r').read())['config']['openai']
+        config = json.loads(open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'r').read())['config']['openai']
         openai.api_key = config['key']
 
         message = self.kwargs.get('message', None) or self.api.input('what do you want the message to be')
