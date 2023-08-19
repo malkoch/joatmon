@@ -1,4 +1,5 @@
 import json
+import os.path
 
 from joatmon.assistant.task import BaseTask
 from joatmon.utility import JSONEncoder
@@ -19,8 +20,8 @@ class Task(BaseTask):
         gamma (float): gamma.
     """
 
-    def __init__(self, api, **kwargs):
-        super(Task, self).__init__(api, **kwargs)
+    def __init__(self, name, api, **kwargs):
+        super(Task, self).__init__(name, api, **kwargs)
 
     @staticmethod
     def help():
@@ -83,21 +84,21 @@ class Task(BaseTask):
                         del _parent[names[0]]
             set_config(_parent[names[0]], '.'.join(names[1:]), _value)
 
-        settings = json.loads(open('iva/iva.json', 'r').read())
+        settings = json.loads(open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'r').read())
         config = settings.get('config', {})
 
         if cfg['action'] == 'create':
             set_config(config, cfg['name'], cfg['value'])
             settings['config'] = config
-            open('iva/iva.json', 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
+            open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
         elif cfg['action'] == 'update':
             set_config(config, cfg['name'], cfg['value'])
             settings['config'] = config
-            open('iva/iva.json', 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
+            open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
         elif cfg['action'] == 'delete':
             set_config(config, cfg['name'], None)
             settings['config'] = config
-            open('iva/iva.json', 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
+            open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
         else:
             raise ValueError(f'arguments are not recognized')
 

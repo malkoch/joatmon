@@ -26,13 +26,14 @@ class Service(BaseService):
         gamma (float): gamma.
     """
 
-    def __init__(self, api=None, **kwargs):
-        super(Service, self).__init__(api, **kwargs)
+    def __init__(self, name, api=None, **kwargs):
+        super(Service, self).__init__(name, api, **kwargs)
 
         register(KafkaPlugin, 'kafka_plugin', 'localhost:9092')
 
         self.notification = consumer('kafka_plugin', 'notification')(self.notification)
         self.mail = producer('kafka_plugin', 'mail')(self.mail)
+        self.sms = producer('kafka_plugin', 'sms')(self.sms)
 
     @staticmethod
     def help():
@@ -55,21 +56,40 @@ class Service(BaseService):
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        subject = notification['subject']
-        content_type = notification['content_type']
         content = notification['content']
+        notification_type = notification['type']
 
-        if self.kwargs.get('type', None) == 'mail':
+        if notification_type == 'mail':
             self.mail(
                 {
-                    'content_type': content_type,
+                    'content_type': notification['content_type'],
                     'content': content,
-                    'subject': subject,
-                    'receivers': self.kwargs.get('receivers', []),
+                    'subject': notification['subject'],
+                    'to': notification.get('to', []),
+                    'cc': notification.get('cc', []),
+                    'bcc': notification.get('bcc', [])
+                }
+            )
+        if notification_type == 'sms':
+            self.sms(
+                {
+                    'content': content,
+                    'to': notification.get('to', []),
                 }
             )
 
     def mail(self, mail):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
+        ...
+
+    def sms(self, sms):
         """
         Remember the transaction.
 

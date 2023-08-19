@@ -1,7 +1,3 @@
-import sys
-
-sys.path.insert(0, r'C:\Users\malkoch\Documents\GitHub\joatmon')
-
 from joatmon.assistant import api
 
 

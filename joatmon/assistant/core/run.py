@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import os.path
 import subprocess
 
 from joatmon.assistant.task import BaseTask
@@ -20,8 +21,8 @@ class Task(BaseTask):
         gamma (float): gamma.
     """
 
-    def __init__(self, api, **kwargs):
-        super(Task, self).__init__(api, **kwargs)
+    def __init__(self, name, api, **kwargs):
+        super(Task, self).__init__(name, api, **kwargs)
 
     @staticmethod
     def help():
@@ -53,8 +54,14 @@ class Task(BaseTask):
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
         executable = self.kwargs.get('executable', '') or self.api.input('what do you want to run')
+        args = self.kwargs.get('args', '')
 
-        subprocess.run(['python.exe', executable])
+        # send the os path to all executables
+        # send the parent os path to all executables
+
+        executable_path = os.path.join(self.kwargs.get('base', '/'), 'executables', executable)
+
+        subprocess.run(['python.exe', executable_path] + args.split(' ') + ['--task', self.name])
 
         if not self.stop_event.is_set():
             self.stop_event.set()

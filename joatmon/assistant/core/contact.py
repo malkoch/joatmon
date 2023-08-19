@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import json
+import os
 
 from joatmon.assistant.task import BaseTask
 from joatmon.utility import JSONEncoder
@@ -21,8 +22,8 @@ class Task(BaseTask):
         gamma (float): gamma.
     """
 
-    def __init__(self, api, **kwargs):
-        super(Task, self).__init__(api, **kwargs)
+    def __init__(self, name, api, **kwargs):
+        super(Task, self).__init__(name, api, **kwargs)
 
     @staticmethod
     def help():
@@ -60,7 +61,7 @@ class Task(BaseTask):
         """
         mode = self.kwargs.get('mode', '')
 
-        settings = json.loads(open('iva/iva.json', 'r').read())
+        settings = json.loads(open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'r').read())
         contacts = settings.get('contacts', [])
 
         if mode == 'list':
@@ -77,7 +78,7 @@ class Task(BaseTask):
             ...
 
         settings['contacts'] = contacts
-        open('iva/iva.json', 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
+        open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
 
         if not self.stop_event.is_set():
             self.stop_event.set()

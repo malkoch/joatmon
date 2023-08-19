@@ -241,8 +241,8 @@ def calculate_fibonacci_retracement(df, start_price=None, end_price=None, inplac
     # Calculate the price range
     price_range = end_price - start_price
 
-    # Fibonacci levels: 23.6%, 38.2%, 50%, 61.8%
-    fibonacci_levels = [0.236, 0.382, 0.5, 0.618]
+    # Fibonacci levels: 23.6%, 38.2%, 50%, 61.8%, 78.6%
+    fibonacci_levels = [0.236, 0.382, 0.5, 0.618, 0.786]
 
     # Calculate retracement levels
     retracement_levels = [end_price - level * price_range for level in fibonacci_levels]
@@ -253,11 +253,8 @@ def calculate_fibonacci_retracement(df, start_price=None, end_price=None, inplac
         nearest_price = min(df['close'], key=lambda x: abs(x - level))
         nearest_points.append((nearest_price, level))
 
-    # Create a pandas DataFrame for the results
-    result_df = pd.DataFrame(nearest_points, columns=['Nearest Price', 'Retracement Level'])
-
-    df['nearest price'] = result_df['Nearest Price']
-    df['retracement level'] = result_df['Retracement Level']
+    df['nearest price'] = list(map(lambda x: x[0], nearest_points))
+    df['retracement level'] = list(map(lambda x: x[0], nearest_points))
 
     return df
 
@@ -281,8 +278,8 @@ def calculate_aroon(df, window=5, inplace=True):
     if not inplace:
         df = df.copy()
 
-    aroon_up = [0]
-    aroon_down = [0]
+    aroon_up = [np.nan] * (window - 1)
+    aroon_down = [np.nan] * (window - 1)
 
     for i in range(window, len(df) + 1):
         period = df[i - window: i].to_numpy()

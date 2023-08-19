@@ -1,4 +1,5 @@
 import json
+import os.path
 from io import BytesIO
 
 import openai
@@ -22,7 +23,7 @@ class STTAgent:
     def __init__(self):
         super(STTAgent, self).__init__()
 
-        openai.api_key = json.loads(open('iva/iva.json', 'r').read())['config']['openai']['key']
+        openai.api_key = json.loads(open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'r').read())['config']['openai']['key']
 
     def transcribe(self, audio):
         """

@@ -20,8 +20,8 @@ class Task(BaseTask):
         gamma (float): gamma.
     """
 
-    def __init__(self, api, **kwargs):
-        super(Task, self).__init__(api, **kwargs)
+    def __init__(self, name, api, **kwargs):
+        super(Task, self).__init__(name, api, **kwargs)
 
     @staticmethod
     def help():
@@ -54,23 +54,23 @@ class Task(BaseTask):
         """
         path = self.kwargs.get('path', None) or self.api.input('what is path that you want to change')
 
-        self.kwargs.get('parent_os_path', '')
-        os_path = self.kwargs.get('os_path', '')
+        base = self.kwargs.get('base', '')
+        cwd = self.kwargs.get('cwd', '')
 
         match path:
             case '.':
                 ...
             case '..':
-                if os_path != os.sep:
-                    os_path = os.sep.join(os_path.split(os.sep)[:-1])
-                    if os_path == '':
-                        os_path = os.sep
+                if cwd != os.sep:
+                    cwd = os.sep.join(cwd.split(os.sep)[:-1])
+                    if cwd == '':
+                        cwd = os.sep
             case _:
-                os_path = os.path.join(os_path, path)
+                cwd = os.path.join(cwd, path)
 
-        self.api.os_path = os_path
+        self.api.cwd = cwd
 
-        self.api.output(f'current path is: {os_path}')
+        self.api.output(f'current path is: {cwd}')
 
         if not self.stop_event.is_set():
             self.stop_event.set()

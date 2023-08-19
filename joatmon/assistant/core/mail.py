@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import json
+import os
 import smtplib
 import time
 from email.mime.text import MIMEText
@@ -27,8 +28,8 @@ class Task(BaseTask):
         gamma (float): gamma.
     """
 
-    def __init__(self, api, **kwargs):
-        super(Task, self).__init__(api, **kwargs)
+    def __init__(self, name, api, **kwargs):
+        super(Task, self).__init__(name, api, **kwargs)
 
     @staticmethod
     def help():
@@ -67,14 +68,14 @@ class Task(BaseTask):
         message = self.kwargs.get('message', '') or self.api.input('what do you want the content to be')
         receiver = self.kwargs.get('receiver', '') or self.api.input('what do you want the receiver to be')
 
-        contacts = json.loads(open('iva/iva.json', 'r').read()).get('contacts', [])
+        contacts = json.loads(open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'r').read()).get('contacts', [])
         contact = list(filter(lambda x: x['name'] == receiver, contacts))
         if len(contact) > 0:
             receiver = contact[0]['email']
 
         receivers = [receiver]
 
-        config = json.loads(open('iva/iva.json', 'r').read())['config']['mail']
+        config = json.loads(open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'r').read())['config']['mail']
 
         text_subtype = 'plain'
         subject = subject
@@ -112,8 +113,8 @@ class Service(BaseService):
         gamma (float): gamma.
     """
 
-    def __init__(self, api, **kwargs):
-        super(Service, self).__init__(api, **kwargs)
+    def __init__(self, name, api, **kwargs):
+        super(Service, self).__init__(name, api, **kwargs)
 
         register(KafkaPlugin, 'kafka_plugin', 'localhost:9092')
 
@@ -140,7 +141,7 @@ class Service(BaseService):
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        config = json.loads(open('iva/iva.json', 'r').read())['config']['mail']
+        config = json.loads(open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'r').read())['config']['mail']
 
         text_subtype = mail['content_type']
         content = mail['content']
@@ -150,15 +151,42 @@ class Service(BaseService):
         write_port = config['write_port']
         address = config['address']
         password = config['password']
-        receivers = mail['receivers']
+        to = mail['to']
+        cc = mail['cc']
+        bcc = mail['bcc']
+
+        contacts = json.loads(open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'r').read())['contacts']
+        mails = set(map(lambda x: x['email'], contacts))
+        name_to_mail_mapper = {contact['name']: contact['email'] for contact in contacts}
+        alias_to_mail_mapper = {alias: contact['email'] for contact in contacts for alias in contact['aliases']}
+
+        def mail_getter(x):
+            if x in mails:
+                return x
+
+            if x in name_to_mail_mapper:
+                return name_to_mail_mapper[x]
+
+            if x in alias_to_mail_mapper:
+                return alias_to_mail_mapper[x]
+
+        to = list(map(lambda x: mail_getter(x), to))
+        cc = list(map(lambda x: mail_getter(x), cc))
+        bcc = list(map(lambda x: mail_getter(x), bcc))
+
+        to = list(filter(lambda x: x is not None, to))
+        cc = list(filter(lambda x: x is not None, cc))
+        bcc = list(filter(lambda x: x is not None, bcc))
 
         msg = MIMEText(content, text_subtype)
         msg['Subject'] = subject
         msg['From'] = address
+        msg['To'] = ','.join(to)
+        msg['CC'] = ','.join(cc)
 
         conn = smtplib.SMTP(server, write_port)
         conn.login(address, password)
-        conn.sendmail(address, receivers, msg.as_string())
+        conn.sendmail(address, to + cc + bcc, msg.as_string())
         conn.quit()
 
     def run(self):

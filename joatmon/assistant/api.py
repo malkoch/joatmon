@@ -58,7 +58,9 @@ class API:
     """
 
     def __init__(self):
-        settings = json.loads(open('iva/iva.json', 'r').read())
+        self.cwd = os.sep
+
+        settings = json.loads(open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'r').read())
 
         openai.api_key = settings['config']['openai']['key']
 
@@ -79,14 +81,11 @@ class API:
 
         self.output('input and output devices are initialized')
 
-        self.assistant = GenericAssistant('iva/iva.json')
+        self.assistant = GenericAssistant(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'))
         self.assistant.train_model()
         self.assistant.save_model('iva')
 
         self.output('intent assistant is initialized')
-
-        self.parent_os_path = os.path.abspath(os.path.curdir)
-        self.os_path = os.sep
 
         self.lock = RWLock()
         self.running_tasks = {}  # running, finished
@@ -134,7 +133,7 @@ class API:
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
         while not self.event.is_set():
-            settings = json.loads(open('iva/iva.json', 'r').read())
+            settings = json.loads(open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'r').read())
             tasks = settings.get('tasks', [])
             tasks = filter(lambda x: x['status'], tasks)
             tasks = filter(lambda x: x['on'] == 'interval', tasks)
@@ -168,7 +167,7 @@ class API:
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        settings = json.loads(open('iva/iva.json', 'r').read())
+        settings = json.loads(open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'r').read())
 
         services = settings.get('services', [])
 
@@ -246,7 +245,7 @@ class API:
 
         tasks = []
 
-        settings = json.loads(open('iva/iva.json', 'r').read())
+        settings = json.loads(open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'r').read())
         for scripts_folder in settings.get('scripts', []):
             if os.path.isabs(scripts_folder):
                 for script_file in os.listdir(scripts_folder):
@@ -367,6 +366,13 @@ class API:
                 return False
 
             match line.lower():
+                case 'list processes':
+                    for k, v in self.running_tasks.items():
+                        print(f'{v.name}: {v.state}')
+                    for k, v in self.running_services.items():
+                        print(f'{v.name}: {v.state}')
+
+                    return False
                 case 'enable':
                     return False
                 case 'disable':
@@ -478,9 +484,11 @@ class API:
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
+
+        # need to make sure this closes the threads and runnables
         self.output('shutting down the system')
 
-        settings = json.loads(open('iva/iva.json', 'r').read())
+        settings = json.loads(open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'r').read())
 
         self.output('running shutdown tasks')
         tasks = settings.get('tasks', [])
@@ -530,5 +538,14 @@ def main():
     # Arguments
         transaction (abstract): state, action, reward, next_state, terminal transaction.
     """
+
+    if os.environ.get('IVA_PATH', None) is None:
+        print('you need to set the IVA_PATH for this to work')
+        exit(1)
+
+    if not os.path.exists(os.environ.get('IVA_PATH')):
+        print(f'you need to make sure that IVA_PATH={os.environ.get("IVA_PATH")} exists in your system')
+        exit(1)
+
     api = API()
     api.mainloop()

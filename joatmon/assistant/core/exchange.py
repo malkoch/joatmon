@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import json
+import os
 
 import requests
 
@@ -22,8 +23,8 @@ class Task(BaseTask):
         gamma (float): gamma.
     """
 
-    def __init__(self, api, **kwargs):
-        super(Task, self).__init__(api, **kwargs)
+    def __init__(self, name, api, **kwargs):
+        super(Task, self).__init__(name, api, **kwargs)
 
     @staticmethod
     def help():
@@ -50,7 +51,7 @@ class Task(BaseTask):
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        key = json.loads(open('iva/iva.json', 'r').read())['config']['exchange']['key']
+        key = json.loads(open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'r').read())['config']['exchange']['key']
 
         data = []
 
