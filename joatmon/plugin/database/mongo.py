@@ -8,11 +8,17 @@ import pymongo
 from bson.binary import UuidRepresentation
 from bson.codec_options import DEFAULT_CODEC_OPTIONS
 from pymongo import (
+    DeleteMany,
+    InsertOne,
     read_concern,
+    UpdateMany,
     write_concern
 )
 
-from joatmon.orm.constraint import UniqueConstraint
+from joatmon.orm.constraint import (
+    PrimaryKeyConstraint,
+    UniqueConstraint
+)
 from joatmon.plugin.database.core import DatabasePlugin
 
 
@@ -42,6 +48,28 @@ class MongoDatabase(DatabasePlugin):
 
         self.session = None
 
+    async def connect(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
+        ...
+
+    async def disconnect(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
+        ...
+
     async def _check_collection(self, collection):
         """
         Remember the transaction.
@@ -63,6 +91,23 @@ class MongoDatabase(DatabasePlugin):
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
 
+        # even if collection is not structured, need to create indexes
+        # even if collection is not structured, need to use default values. do not do full validate but do partial
+        # need to write more converter. for numpy, torch etc.
+        # need to write bulk writer
+        # need to implement cache mechanism, so that when reading and writing it can be used as buffer to decrease database connection number
+        # when using session, create a buffer and in the end apply all operations with bulk_write
+        self.database.create_collection(collection.__collection__)
+
+    async def _create_schema(self, collection):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         def get_type(dtype: typing.Union[type, typing.List, typing.Tuple]):
             type_mapper = {
                 datetime: ['date'],
@@ -81,8 +126,6 @@ class MongoDatabase(DatabasePlugin):
                 return sum(list(map(lambda x: type_mapper.get(x, ['object']), dtype)), [])
             else:
                 return type_mapper.get(dtype, ['object'])
-
-        self.database.create_collection(collection.__collection__)
 
         vexpr = {
             '$jsonSchema': {
@@ -112,8 +155,17 @@ class MongoDatabase(DatabasePlugin):
 
         self.database.command(cmd)
 
+    async def _create_indexes(self, collection):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
         index_names = set()
-        for index_name, index in collection.constraints(collection).items():
+        for index_name, index in collection.constraints(collection, lambda x: isinstance(x, (PrimaryKeyConstraint, UniqueConstraint))).items():
             if ',' in index.field:
                 index_fields = list(map(lambda x: x.strip(), index.field.split(',')))
             else:
@@ -123,9 +175,20 @@ class MongoDatabase(DatabasePlugin):
                 continue
             index_names.add(index_name)
             try:
-                self.database[collection.__collection__].create_index(
-                    c, unique=isinstance(index, UniqueConstraint), name=index_name
-                )
+                self.database[collection.__collection__].create_index(c, unique=True, name=index_name)
+            except Exception as ex:
+                print(str(ex))
+        for index_name, index in collection.indexes(collection).items():
+            if ',' in index.field:
+                index_fields = list(map(lambda x: x.strip(), index.field.split(',')))
+            else:
+                index_fields = [index.field]
+            c = [(f'{k}', 1) for k in index_fields]
+            if index_name in index_names:
+                continue
+            index_names.add(index_name)
+            try:
+                self.database[collection.__collection__].create_index(c, name=index_name)
             except Exception as ex:
                 print(str(ex))
 
@@ -140,6 +203,10 @@ class MongoDatabase(DatabasePlugin):
         """
         if not await self._check_collection(collection):
             await self._create_collection(collection)
+            await self._create_indexes(collection)
+
+            if collection.structured and collection.force:
+                await self._create_schema(collection)
 
     async def _get_collection(self, collection):
         """
@@ -165,17 +232,21 @@ class MongoDatabase(DatabasePlugin):
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
+
+        to_insert = []
         for doc in docs:
             d = dict(**doc)
 
             if document.__metaclass__.structured and document.__metaclass__.force:
-                await self._ensure_collection(document.__metaclass__)
                 d = document(**doc).validate()
             elif document.__metaclass__.structured:
                 warnings.warn(f'document validation will be ignored')
 
-            collection = await self._get_collection(document.__metaclass__.__collection__)
-            collection.insert_one(d, session=self.session)
+            to_insert.append(InsertOne(d))
+
+        await self._ensure_collection(document.__metaclass__)
+        collection = await self._get_collection(document.__metaclass__.__collection__)
+        collection.bulk_write(to_insert, session=self.session)
 
     async def read(self, document, query):
         """
@@ -186,11 +257,7 @@ class MongoDatabase(DatabasePlugin):
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        if document.__metaclass__.structured and document.__metaclass__.force:
-            await self._ensure_collection(document.__metaclass__)
-        elif document.__metaclass__.structured:
-            warnings.warn(f'document validation will be ignored')
-
+        await self._ensure_collection(document.__metaclass__)
         collection = await self._get_collection(document.__metaclass__.__collection__)
         result = collection.find(dict(**query), {'_id': 0}, session=self.session)
 
@@ -206,13 +273,13 @@ class MongoDatabase(DatabasePlugin):
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        if document.__metaclass__.structured and document.__metaclass__.force:
-            await self._ensure_collection(document.__metaclass__)
-        elif document.__metaclass__.structured:
-            warnings.warn(f'document validation will be ignored')
-
+        await self._ensure_collection(document.__metaclass__)
         collection = await self._get_collection(document.__metaclass__.__collection__)
-        collection.update_many(dict(**query), {'$set': dict(**update)}, session=self.session)
+
+        to_update = []
+        for q, u in zip(query, update):
+            to_update.append(UpdateMany(dict(**q), {'$set': u}, upsert=True))
+        collection.bulk_write(to_update, session=self.session)
 
     async def delete(self, document, query):
         """
@@ -223,13 +290,9 @@ class MongoDatabase(DatabasePlugin):
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        if document.__metaclass__.structured and document.__metaclass__.force:
-            await self._ensure_collection(document.__metaclass__)
-        elif document.__metaclass__.structured:
-            warnings.warn(f'document validation will be ignored')
-
+        await self._ensure_collection(document.__metaclass__)
         collection = await self._get_collection(document.__metaclass__.__collection__)
-        collection.delete_many(dict(**query), session=self.session)
+        collection.bulk_write([DeleteMany(dict(**query))], session=self.session)
 
     async def start(self):
         """

@@ -957,7 +957,7 @@ pages:
     classes:
       - RMSprop
   - page: "./joatmon/decorator/otp.md"
-    source: "joatmon/decorator/otp.py"
+    source: "joatmon/decorator/totp.py"
     functions:
       - authorized
   - page: "./joatmon/assistant/core/say.md"
@@ -1088,7 +1088,7 @@ pages:
     classes:
       - DQN
   - page: "./joatmon/plugin/otp/otp.md"
-    source: "joatmon/plugin/otp/otp.py"
+    source: "joatmon/plugin/otp/totp.py"
     classes:
       - TOTP
   - page: "./joatmon/ai/network/reinforcement/policy_optimization/ppo.md"

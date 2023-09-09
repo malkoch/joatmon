@@ -161,7 +161,7 @@ class PrimaryKeyConstraint(Constraint):
         super(PrimaryKeyConstraint, self).__init__(field)
 
 
-class ForeignKeyConstrain(Constraint):
+class ForeignKeyConstraint(Constraint):
     """
     Deep Deterministic Policy Gradient
 
@@ -177,7 +177,7 @@ class ForeignKeyConstrain(Constraint):
     """
 
     def __enter__(self, field):
-        super(ForeignKeyConstrain, self).__init__(field)
+        super(ForeignKeyConstraint, self).__init__(field)
 
 
 # unique constraint should have more than one field
