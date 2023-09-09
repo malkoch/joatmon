@@ -3,7 +3,6 @@ from datetime import datetime
 
 import psycopg2
 
-from joatmon.decorator import debug
 from joatmon.orm.constraint import UniqueConstraint
 from joatmon.orm.meta import normalize_kwargs
 from joatmon.orm.query import Dialects
@@ -31,43 +30,10 @@ class PostgreSQLDatabase(DatabasePlugin):
     UPDATED_COLLECTIONS = set()
 
     def __init__(self, host, port, user, password, database):
-        self._host = host
-        self._port = port
-        self._user = user
-        self._password = password
-        self._database = database
-
-        # self.connection = psycopg2.connect(
-        #     database=database, user=user, password=password, host=host, port=port  # , async_=True
-        # )
-        # self.connection.autocommit = True
-
-        self.connection = None
-
-    async def connect(self):
-        """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
-        """
         self.connection = psycopg2.connect(
-            database=self._database, user=self._user, password=self._password, host=self._host, port=self._port  # , async_=True
+            database=database, user=user, password=password, host=host, port=port  # , async_=True
         )
         self.connection.autocommit = True
-
-    async def disconnect(self):
-        """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
-        """
-        self.connection.close()
 
     async def _check_collection(self, collection):
         """
@@ -454,6 +420,12 @@ class PostgreSQLDatabase(DatabasePlugin):
         keys = [desc[0] for desc in cursor.description]
         for doc in cursor.fetchall():
             yield document(**dict(zip(keys, doc)))
+
+    async def execute(self, document, query):
+        ...
+
+    async def count(self, query):
+        ...
 
     async def start(self):
         """

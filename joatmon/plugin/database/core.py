@@ -36,28 +36,6 @@ class DatabasePlugin(Plugin):
 
         return self
 
-    async def connect(self):
-        """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
-        """
-        raise NotImplementedError
-
-    async def disconnect(self):
-        """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
-        """
-        raise NotImplementedError
-
     async def create(self, document):
         """
         Remember the transaction.

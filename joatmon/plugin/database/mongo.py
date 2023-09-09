@@ -48,28 +48,6 @@ class MongoDatabase(DatabasePlugin):
 
         self.session = None
 
-    async def connect(self):
-        """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
-        """
-        ...
-
-    async def disconnect(self):
-        """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
-        """
-        ...
-
     async def _check_collection(self, collection):
         """
         Remember the transaction.
@@ -223,6 +201,15 @@ class MongoDatabase(DatabasePlugin):
         else:
             return self.session.client[self.database_name].get_collection(collection, codec_options=codec_options)
 
+    async def create(self, document):
+        ...
+
+    async def alter(self, document):
+        ...
+
+    async def drop(self, document):
+        ...
+
     async def insert(self, document, *docs):
         """
         Remember the transaction.
@@ -293,6 +280,15 @@ class MongoDatabase(DatabasePlugin):
         await self._ensure_collection(document.__metaclass__)
         collection = await self._get_collection(document.__metaclass__.__collection__)
         collection.bulk_write([DeleteMany(dict(**query))], session=self.session)
+
+    async def view(self, document, query):
+        ...
+
+    async def execute(self, document, query):
+        ...
+
+    async def count(self, query):
+        ...
 
     async def start(self):
         """
