@@ -19,10 +19,28 @@ class RWLock(object):
         gamma (float): gamma.
     """
 
-    def __init__(self):
+    def __init__(self, modes=None, max_read=0):
         self.w_lock = Lock()
         self.num_r_lock = Lock()
         self.num_r = 0
+
+    def __enter__(self):
+        ...
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        ...
+
+    def __aenter__(self):
+        ...
+
+    def __aexit__(self, exc_type, exc_val, exc_tb):
+        ...
+
+    async def read(self):
+        ...
+
+    async def write(self):
+        ...
 
     def r_acquire(self):
         """

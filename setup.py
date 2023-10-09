@@ -10,11 +10,11 @@ from setuptools import find_packages
 from joatmon import VERSION
 
 extras = {
-    'ai': ['numpy', 'torch', 'matplotlib', 'six', 'Pillow'],
+    'ai': ['numpy', 'torch', 'matplotlib', 'six', 'Pillow'],  # torch has to be removed
     'algorithm': [],
     'analysis': ['pandas'],
     'array': [],
-    'assistant': ['feedparser', 'requests', 'colorama', 'schedule', 'psutil', 'nltk', 'tensorflow', 'openai', 'transitions'],
+    'assistant': ['feedparser', 'requests', 'colorama', 'schedule', 'psutil', 'nltk', 'tensorflow', 'openai', 'transitions'],  # tensorflow has to be removed
     'backend': [],
     'callback': [],
     'content': [],

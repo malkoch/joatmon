@@ -1,4 +1,5 @@
 import functools
+import inspect
 import warnings
 from typing import Callable
 
@@ -10,20 +11,21 @@ def deprecated(reason: str) -> Callable:
     when the function is used.
     """
 
-    def decorator(func1):
+    def _decorator(func):
         message = 'Call to deprecated function {name} ({reason}).'
 
-        @functools.wraps(func1)
-        def new_func1(*args, **kwargs):
+        @functools.wraps(func)
+        def _wrapper(*args, **kwargs):
             warnings.simplefilter('always', DeprecationWarning)
             warnings.warn(
-                message.format(name=func1.__name__, reason=reason),
+                f'Call to deprecated function {func.__name__} ({reason}).',
                 category=DeprecationWarning,
                 stacklevel=2,
             )
             warnings.simplefilter('default', DeprecationWarning)
-            return func1(*args, **kwargs)
+            return func(*args, **kwargs)
 
-        return new_func1
+        _wrapper.__signature__ = inspect.signature(func)
+        return _wrapper
 
-    return decorator
+    return _decorator

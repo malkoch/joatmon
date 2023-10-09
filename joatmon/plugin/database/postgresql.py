@@ -29,6 +29,7 @@ class PostgreSQLDatabase(DatabasePlugin):
     CREATED_COLLECTIONS = set()
     UPDATED_COLLECTIONS = set()
 
+    # on del method
     def __init__(self, host, port, user, password, database):
         self.connection = psycopg2.connect(
             database=database, user=user, password=password, host=host, port=port  # , async_=True
@@ -135,7 +136,7 @@ class PostgreSQLDatabase(DatabasePlugin):
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        ...
+        await self._ensure_collection(document.__metaclass__)
 
     async def alter(self, document):
         """
