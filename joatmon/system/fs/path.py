@@ -41,7 +41,16 @@ class Path:
 
         return Path(os.path.join(self.path, other))
 
+    def __add__(self, other):
+        return self / other
+
     def __itruediv__(self, other):
+        new = self / other
+        self.path = new.path
+
+        return self
+
+    def __iadd__(self, other):
         new = self / other
         self.path = new.path
 
@@ -55,6 +64,15 @@ class Path:
             return new
 
         return self
+
+    def __dir__(self):
+        if self.isdir():
+            return self
+        else:
+            return self.parent()
+
+    def parent(self):
+        return Path(os.path.join(self.path, '..'))
 
     def exists(self):
         """
@@ -90,6 +108,17 @@ class Path:
         return os.path.isfile(self.path)
 
     def mkdir(self):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
+        return os.mkdir(self.path)
+
+    def touch(self):
         """
         Remember the transaction.
 

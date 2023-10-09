@@ -90,6 +90,21 @@ def log(logger, on_begin=None, on_success=None, on_error=None):
                 await on_error(func, ex, *args, **kwargs)
                 raise ex
 
+        # import warnings
+        #
+        # def fxn():
+        #     warnings.warn("deprecated", DeprecationWarning)
+        #
+        # with warnings.catch_warnings(record=True) as w:
+        #     # Cause all warnings to always be triggered.
+        #     warnings.simplefilter("always")
+        #     # Trigger a warning.
+        #     fxn()
+        #     # Verify some things
+        #     assert len(w) == 1
+        #     assert issubclass(w[-1].category, DeprecationWarning)
+        #     assert "deprecated" in str(w[-1].message)
+
         _wrapper.__signature__ = inspect.signature(func)
         return _wrapper
 

@@ -44,8 +44,8 @@ class KafkaPlugin(MessagePlugin):
         """
         return self.client.topics[topic].get_simple_consumer(
             auto_commit_enable=True,
-            consumer_timeout_ms=1000,
+            consumer_timeout_ms=10,
             consumer_group='my_group',
-            auto_commit_interval_ms=1000,
+            auto_commit_interval_ms=10,
             auto_offset_reset=OffsetType.LATEST,
         )

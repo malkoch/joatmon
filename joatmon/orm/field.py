@@ -32,10 +32,8 @@ class Field(Serializable):
             nullable: bool = True,
             default=None,
             primary: bool = False,
-            encrypt: bool = False,
             hash_: bool = False,
-            resource: str = None,
-            regex: str = None,
+            resource: bool = False,
             fields: dict = None,
     ):
         super(Field, self).__init__()
@@ -43,11 +41,12 @@ class Field(Serializable):
         self.dtype = dtype
         self.nullable = nullable
         self.primary = primary
-        self.encrypt = encrypt
         self.hash_ = hash_
-        self.resource = resource
-        self.regex = regex
         self.fields = fields or {}
+
+        if resource:
+            self.resource = '{{@resource.{0}}}'
+            self.regex = r'{@resource\.(.*?)}'
 
         # is resource template changed
 
@@ -55,9 +54,6 @@ class Field(Serializable):
             self.default = lambda: default
         else:
             self.default = default
-
-        self.encrypted = False
-        self.hashed = False
 
 
 def get_converter(field: Field):
@@ -121,7 +117,7 @@ def get_converter(field: Field):
 
         if isinstance(value, str):
             # print(re.findall(r'{@resource\.(.*?)}', value))
-            if field.resource is not None and len(re.findall(field.regex, value)) == 0:
+            if getattr(field, 'resource', None) is not None and len(re.findall(field.regex, value)) == 0:
                 value = field.resource.format(value)
             return value
 

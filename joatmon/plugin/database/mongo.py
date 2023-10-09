@@ -19,6 +19,7 @@ from joatmon.orm.constraint import (
     PrimaryKeyConstraint,
     UniqueConstraint
 )
+from joatmon.orm.meta import normalize_kwargs
 from joatmon.plugin.database.core import DatabasePlugin
 
 
@@ -208,7 +209,10 @@ class MongoDatabase(DatabasePlugin):
         ...
 
     async def drop(self, document):
-        ...
+        if self.session is None:
+            self.database.drop_collection(document.__metaclass__.__collection__)
+        else:
+            self.session.client[self.database_name].drop_collection(document.__metaclass__.__collection__)
 
     async def insert(self, document, *docs):
         """
@@ -225,7 +229,10 @@ class MongoDatabase(DatabasePlugin):
             d = dict(**doc)
 
             if document.__metaclass__.structured and document.__metaclass__.force:
-                d = document(**doc).validate()
+                if isinstance(doc, document):
+                    d = doc.validate()
+                else:
+                    d = document(**d).validate()
             elif document.__metaclass__.structured:
                 warnings.warn(f'document validation will be ignored')
 
@@ -233,7 +240,7 @@ class MongoDatabase(DatabasePlugin):
 
         await self._ensure_collection(document.__metaclass__)
         collection = await self._get_collection(document.__metaclass__.__collection__)
-        collection.bulk_write(to_insert, session=self.session)
+        collection.bulk_write(to_insert, session=self.session)  # bulk write might be causing collection already in use error
 
     async def read(self, document, query):
         """
@@ -244,6 +251,9 @@ class MongoDatabase(DatabasePlugin):
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
+        if document.__metaclass__.structured and document.__metaclass__.force:
+            query = normalize_kwargs(document.__metaclass__, **query)
+
         await self._ensure_collection(document.__metaclass__)
         collection = await self._get_collection(document.__metaclass__.__collection__)
         result = collection.find(dict(**query), {'_id': 0}, session=self.session)
@@ -260,13 +270,15 @@ class MongoDatabase(DatabasePlugin):
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
+        if document.__metaclass__.structured and document.__metaclass__.force:
+            query = normalize_kwargs(document.__metaclass__, **query)
+            update = normalize_kwargs(document.__metaclass__, **update)
+
         await self._ensure_collection(document.__metaclass__)
         collection = await self._get_collection(document.__metaclass__.__collection__)
 
-        to_update = []
-        for q, u in zip(query, update):
-            to_update.append(UpdateMany(dict(**q), {'$set': u}, upsert=True))
-        collection.bulk_write(to_update, session=self.session)
+        to_update = [UpdateMany(dict(**query), {'$set': update}, upsert=True)]
+        collection.bulk_write(to_update, session=self.session)  # bulk write might be causing collection already in use error
 
     async def delete(self, document, query):
         """
@@ -277,9 +289,12 @@ class MongoDatabase(DatabasePlugin):
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
+        if document.__metaclass__.structured and document.__metaclass__.force:
+            query = normalize_kwargs(document.__metaclass__, **query)
+
         await self._ensure_collection(document.__metaclass__)
         collection = await self._get_collection(document.__metaclass__.__collection__)
-        collection.bulk_write([DeleteMany(dict(**query))], session=self.session)
+        collection.bulk_write([DeleteMany(dict(**query))], session=self.session)  # bulk write might be causing collection already in use error
 
     async def view(self, document, query):
         ...

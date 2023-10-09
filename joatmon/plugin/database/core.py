@@ -36,6 +36,9 @@ class DatabasePlugin(Plugin):
 
         return self
 
+    # def __del__(self):
+    #     self.end()
+
     async def create(self, document):
         """
         Remember the transaction.
