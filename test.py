@@ -1,7 +1,6 @@
 import json
 import os
 import random
-import warnings
 
 import nltk
 import numpy as np
@@ -16,11 +15,11 @@ from joatmon.nn.layer.activation.softmax import Softmax
 from joatmon.nn.layer.dropout import Dropout
 from joatmon.nn.layer.linear import Linear
 from joatmon.nn.loss.cce import CCELoss
-from joatmon.nn.optimizer.adam import Adam
 from joatmon.nn.optimizer.rmsprop import RMSprop
 
 nltk.download('punkt', quiet=True)
 nltk.download('wordnet', quiet=True)
+
 
 # warnings.filterwarnings('error')
 
@@ -84,6 +83,24 @@ class GenericAssistant:
 
         self.lemmatizer = WordNetLemmatizer()
 
+        self.words = []
+        self.classes = []
+        ignore_letters = ['!', '?', ',', '.']
+
+        for intent in self.intents['intents']:
+            for pattern in intent['patterns']:
+                word = nltk.word_tokenize(pattern)
+                self.words.extend(word)
+                if intent['name'] not in self.classes:
+                    self.classes.append(intent['name'])
+
+        self.words = [self.lemmatizer.lemmatize(w.lower()) for w in self.words if w not in ignore_letters]
+        self.words = sorted(list(set(self.words)))
+
+        self.classes = sorted(list(set(self.classes)))
+
+        self.model = IntentModel(len(self.words), len(self.classes))
+
     def load_json_intents(self, intents):
         """
         Remember the transaction.
@@ -105,23 +122,14 @@ class GenericAssistant:
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
 
-        self.words = []
-        self.classes = []
         documents = []
-        ignore_letters = ['!', '?', ',', '.']
 
         for intent in self.intents['intents']:
             for pattern in intent['patterns']:
                 word = nltk.word_tokenize(pattern)
-                self.words.extend(word)
                 documents.append((word, intent['name']))
                 if intent['name'] not in self.classes:
                     self.classes.append(intent['name'])
-
-        self.words = [self.lemmatizer.lemmatize(w.lower()) for w in self.words if w not in ignore_letters]
-        self.words = sorted(list(set(self.words)))
-
-        self.classes = sorted(list(set(self.classes)))
 
         training = []
         output_empty = [0] * len(self.classes)
@@ -142,7 +150,6 @@ class GenericAssistant:
         train_x = [x[0] for x in training]
         train_y = [x[1] for x in training]
 
-        self.model = IntentModel(len(train_x[0]), len(train_y[0]))
         self.model.train()
 
         # optimizer = Adam(params=list(self.model.parameters()), lr=.0001, weight_decay=1e-6)
@@ -170,7 +177,6 @@ class GenericAssistant:
         """
         with open(f'{model_name}.json', 'w') as f:
             f.write(json.dumps(self.model.state_dict()))
-        # self.model.save(os.path.join(os.environ.get('IVA_PATH'), f'weights/{model_name}/weights.h5'), self.hist)
         # pickle.dump(self.words, open(os.path.join(os.environ.get('IVA_PATH'), f'weights/{model_name}/words.pkl'), 'wb'))
         # pickle.dump(self.classes, open(os.path.join(os.environ.get('IVA_PATH'), f'weights/{model_name}/classes.pkl'), 'wb'))
 
@@ -187,7 +193,6 @@ class GenericAssistant:
             self.model.load_state_dict(json.loads(f.read()))
         # self.words = pickle.load(open(os.path.join(os.environ.get('IVA_PATH'), f'weights/{model_name}/words.pkl'), 'rb'))
         # self.classes = pickle.load(open(os.path.join(os.environ.get('IVA_PATH'), f'weights/{model_name}/classes.pkl'), 'rb'))
-        # self.model = tf.keras.models.load_model(os.path.join(os.environ.get('IVA_PATH'), f'weights/{model_name}/weights.h5'))
 
     def _clean_up_sentence(self, sentence):
         """
@@ -232,7 +237,7 @@ class GenericAssistant:
 
         p = self._bag_of_words(sentence, self.words)
         res = self.model(Tensor.from_array(np.array([p])))[0]
-        error_threshold = 0.1
+        error_threshold = 0.001
         results = [[i, r] for i, r in enumerate(res) if r.data > error_threshold]
 
         results.sort(key=lambda x: x[1].data, reverse=True)
@@ -256,23 +261,29 @@ class GenericAssistant:
 
 
 assistant = GenericAssistant(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'))
-assistant.train_model()
-
 result = assistant.request('activate')
 print(result)
-result = assistant.request('activate')
-print(result)
-
-assistant.save_model('my_model')
-
-assistant = GenericAssistant(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'))
-assistant.train_model()
-
-result = assistant.request('activate')
-print(result)
-
 assistant.load_model('my_model')
 
 result = assistant.request('activate')
 print(result)
-# assistant.save_model('iva')
+
+# assistant.train_model()
+#
+# result = assistant.request('activate')
+# print(result)
+# result = assistant.request('activate')
+# print(result)
+#
+# assistant.save_model('my_model')
+#
+# assistant = GenericAssistant(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'))
+# assistant.train_model()
+#
+# result = assistant.request('activate')
+# print(result)
+#
+# assistant.load_model('my_model')
+#
+# result = assistant.request('activate')
+# print(result)

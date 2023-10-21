@@ -840,7 +840,7 @@ def dense_backward(gradient: Tensor, inp: Tensor, weight: Tensor, bias: Tensor):
 
     _set_grad(inp, engine.dot(gradient.data, weight.data))
     _set_grad(weight, engine.dot(gradient.data.T, inp.data))
-    _set_grad(bias, engine.sum(gradient.data, axis=0, keepdims=True))
+    _set_grad(bias, engine.sum(gradient.data, axis=0))
 
 
 def conv_backward(
@@ -2288,7 +2288,7 @@ def to_array(inp):
         )
     if inp.requires_grad:
         raise RuntimeError("Can't call numpy() on Tensor that requires grad. Use tensor.detach().numpy() instead.")
-    return engine.array(inp.data, copy=True)
+    return engine.copy(inp.data)
 
 
 def half(inp) -> 'Tensor':
