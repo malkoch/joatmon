@@ -1,4 +1,4 @@
-from joatmon.serializable import Serializable
+from joatmon.core.serializable import Serializable
 
 
 class ValidationException(Exception):

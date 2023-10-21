@@ -5,8 +5,8 @@ import sys
 import time
 import traceback
 
-from joatmon import context
-from joatmon.utility import (
+from joatmon.core import context
+from joatmon.core.utility import (
     get_function_args,
     get_function_kwargs,
     to_enumerable

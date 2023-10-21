@@ -1,3 +1,3 @@
-from joatmon.ai.network.reinforcement.hybrid.ddpg import *
-from joatmon.ai.network.reinforcement.q_learning.dqn import *
-from joatmon.ai.network.supervised.classification.unet import *
+from joatmon.ai.network.ddpg import *
+from joatmon.ai.network.dqn import *
+from joatmon.ai.network.unet import *

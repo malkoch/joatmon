@@ -1,6 +1,6 @@
 from joatmon.orm.field import get_converter
 from joatmon.orm.meta import Meta
-from joatmon.serializable import Serializable
+from joatmon.core.serializable import Serializable
 
 
 class Document(Serializable):  # need to have copy and deepcopy functions as well

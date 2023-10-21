@@ -7,7 +7,7 @@ from joatmon.orm.constraint import UniqueConstraint
 from joatmon.orm.meta import normalize_kwargs
 from joatmon.orm.query import Dialects
 from joatmon.plugin.database.core import DatabasePlugin
-from joatmon.utility import get_converter
+from joatmon.core.utility import get_converter
 
 
 class PostgreSQLDatabase(DatabasePlugin):

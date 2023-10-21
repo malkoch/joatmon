@@ -1,12 +1,10 @@
-
-
 ```python
 import gym
 
-from joatmon.ai.models.reinforcement.hybrid.td3 import TD3Model
+from joatmon.ai.models.td3 import TD3Model
 from joatmon.ai.processor import RLProcessor
 from joatmon.ai.trainer import TD3Trainer
-from joatmon.callback import (
+from joatmon.core.callback import (
     CallbackList,
     Loader,
     Renderer,

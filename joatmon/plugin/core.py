@@ -1,7 +1,15 @@
-from joatmon import context
+from joatmon.core import context
 
 
 def register(cls, alias, *args, **kwargs):
+    if isinstance(cls, str):
+        try:
+            _module = __import__('.'.join(cls.split('.')[:-1]), fromlist=[f'{cls.split(".")[-1]}'])
+        except ModuleNotFoundError:
+            raise Exception(f'class {cls} is not found')
+
+        cls = getattr(_module, cls.split(".")[-1], None)
+
     context.set_value(alias.replace('-', '_'), PluginProxy(cls, *args, **kwargs))
 
 

@@ -1,6 +1,6 @@
 import re
 
-from joatmon.serializable import Serializable
+from joatmon.core.serializable import Serializable
 
 
 class Relation(Serializable):

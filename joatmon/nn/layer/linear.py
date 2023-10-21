@@ -1,6 +1,11 @@
+import math
+
 import numpy as np
 
-from joatmon.nn import functional as f
+from joatmon.nn import (
+    functional as f,
+    init
+)
 from joatmon.nn.core import (
     Module,
     Parameter,
@@ -51,9 +56,11 @@ class Linear(Module):
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        self.weight = Parameter(Tensor.from_array(data=np.ones((self.out_features, self.in_features))))
+        init.kaiming_uniform(self.weight, a=math.sqrt(5))
         if self.bias is not None:
-            self.bias = Parameter(Tensor.from_array(data=np.zeros((self.out_features,))))
+            fan_in, _ = init._calculate_fan_in_and_fan_out(self.weight)
+            bound = 1 / math.sqrt(fan_in) if fan_in > 0 else 0
+            init.uniform(self.bias, -bound, bound)
 
     def forward(self, inp):
         """

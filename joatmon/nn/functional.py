@@ -40,10 +40,17 @@ __all__ = [
     'ceil_backward',
     'clip_backward',
     'negative_backward',
+    'log_backward',
     'summation_backward',
     'mean_backward',
     'std_backward',
     'var_backward',
+    # 'greater_or_equal_backward',
+    # 'greater_backward',
+    # 'lesser_or_equal_backward',
+    # 'lesser_backward',
+    # 'equal_backward',
+    # 'not_equal_backward',
     'add_backward',
     'sub_backward',
     'mul_backward',
@@ -79,10 +86,17 @@ __all__ = [
     'ceil',
     'clip',
     'negative',
+    'log',
     'summation',
     'mean',
     'std',
     'var',
+    # 'greater_or_equal',
+    # 'greater',
+    # 'lesser_or_equal',
+    # 'lesser',
+    # 'equal',
+    # 'not_equal',
     'add',
     'sub',
     'mul',
@@ -476,7 +490,22 @@ def negative_backward(gradient: Tensor, inp: Tensor):
     _check_tensors(inp)
     engine = _get_engine(inp)
 
-    _set_grad(inp, gradient.data * engine.ones_like(inp.data))
+    _set_grad(inp, gradient.data * -engine.ones_like(inp.data))
+
+
+def log_backward(gradient: Tensor, inp: Tensor):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+    _check_tensors(inp)
+    engine = _get_engine(inp)
+
+    _set_grad(inp, gradient.data * (1 / inp.data))
 
 
 def summation_backward(gradient: Tensor, inp: Tensor):
@@ -537,6 +566,102 @@ def var_backward(gradient: Tensor, inp: Tensor):
     engine = _get_engine(inp)
 
     _set_grad(inp, gradient.data * engine.ones_like(inp.data))
+
+
+# def greater_or_equal_backward(gradient: Tensor, inp1: Tensor, inp2: Tensor):
+#     """
+#     Remember the transaction.
+#
+#     Accepts a state, action, reward, next_state, terminal transaction.
+#
+#     # Arguments
+#         transaction (abstract): state, action, reward, next_state, terminal transaction.
+#     """
+#     _check_tensors(inp1, inp2)
+#     engine = _get_engine(inp1, inp2)
+#
+#     _set_grad(inp1, gradient.data * engine.ones_like(inp1.data))
+#     _set_grad(inp2, gradient.data * engine.ones_like(inp2.data))
+#
+#
+# def greater_backward(gradient: Tensor, inp1: Tensor, inp2: Tensor):
+#     """
+#     Remember the transaction.
+#
+#     Accepts a state, action, reward, next_state, terminal transaction.
+#
+#     # Arguments
+#         transaction (abstract): state, action, reward, next_state, terminal transaction.
+#     """
+#     _check_tensors(inp1, inp2)
+#     engine = _get_engine(inp1, inp2)
+#
+#     _set_grad(inp1, gradient.data * engine.ones_like(inp1.data))
+#     _set_grad(inp2, gradient.data * engine.ones_like(inp2.data))
+#
+#
+# def lesser_or_equal_backward(gradient: Tensor, inp1: Tensor, inp2: Tensor):
+#     """
+#     Remember the transaction.
+#
+#     Accepts a state, action, reward, next_state, terminal transaction.
+#
+#     # Arguments
+#         transaction (abstract): state, action, reward, next_state, terminal transaction.
+#     """
+#     _check_tensors(inp1, inp2)
+#     engine = _get_engine(inp1, inp2)
+#
+#     _set_grad(inp1, gradient.data * engine.ones_like(inp1.data))
+#     _set_grad(inp2, gradient.data * engine.ones_like(inp2.data))
+#
+#
+# def lesser_backward(gradient: Tensor, inp1: Tensor, inp2: Tensor):
+#     """
+#     Remember the transaction.
+#
+#     Accepts a state, action, reward, next_state, terminal transaction.
+#
+#     # Arguments
+#         transaction (abstract): state, action, reward, next_state, terminal transaction.
+#     """
+#     _check_tensors(inp1, inp2)
+#     engine = _get_engine(inp1, inp2)
+#
+#     _set_grad(inp1, gradient.data * engine.ones_like(inp1.data))
+#     _set_grad(inp2, gradient.data * engine.ones_like(inp2.data))
+#
+#
+# def equal_backward(gradient: Tensor, inp1: Tensor, inp2: Tensor):
+#     """
+#     Remember the transaction.
+#
+#     Accepts a state, action, reward, next_state, terminal transaction.
+#
+#     # Arguments
+#         transaction (abstract): state, action, reward, next_state, terminal transaction.
+#     """
+#     _check_tensors(inp1, inp2)
+#     engine = _get_engine(inp1, inp2)
+#
+#     _set_grad(inp1, gradient.data * engine.ones_like(inp1.data))
+#     _set_grad(inp2, gradient.data * engine.ones_like(inp2.data))
+#
+#
+# def not_equal_backward(gradient: Tensor, inp1: Tensor, inp2: Tensor):
+#     """
+#     Remember the transaction.
+#
+#     Accepts a state, action, reward, next_state, terminal transaction.
+#
+#     # Arguments
+#         transaction (abstract): state, action, reward, next_state, terminal transaction.
+#     """
+#     _check_tensors(inp1, inp2)
+#     engine = _get_engine(inp1, inp2)
+#
+#     _set_grad(inp1, gradient.data * engine.ones_like(inp1.data))
+#     _set_grad(inp2, gradient.data * engine.ones_like(inp2.data))
 
 
 def add_backward(gradient: Tensor, inp1: Tensor, inp2: Tensor):
@@ -1534,6 +1659,22 @@ def negative(inp) -> 'Tensor':
     return _create_tensor(inp, data=engine.negative(inp.data), func=wrapped_partial(negative_backward, inp=inp))
 
 
+def log(inp) -> 'Tensor':
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+    _check_tensors(inp)
+    engine = _get_engine(inp)
+
+    # print(inp.data)
+    return _create_tensor(inp, data=engine.log(inp.data), func=wrapped_partial(log_backward, inp=inp))
+
+
 def summation(inp) -> 'Tensor':
     """
     Remember the transaction.
@@ -1592,6 +1733,120 @@ def var(inp) -> 'Tensor':
     engine = _get_engine(inp)
 
     return _create_tensor(inp, data=engine.var(inp.data), func=wrapped_partial(var_backward, inp=inp))
+
+
+# def greater_or_equal(inp1, inp2) -> 'Tensor':
+#     """
+#     Remember the transaction.
+#
+#     Accepts a state, action, reward, next_state, terminal transaction.
+#
+#     # Arguments
+#         transaction (abstract): state, action, reward, next_state, terminal transaction.
+#     """
+#     if not isinstance(inp2, Tensor):
+#         inp2 = from_array(inp2, device=inp1.device)
+#
+#     _check_tensors(inp1, inp2)
+#
+#     return _create_tensor(
+#         inp1, inp2, data=inp1.data >= inp2.data, func=wrapped_partial(greater_or_equal_backward, inp1=inp1, inp2=inp2)
+#     )
+#
+#
+# def greater(inp1, inp2) -> 'Tensor':
+#     """
+#     Remember the transaction.
+#
+#     Accepts a state, action, reward, next_state, terminal transaction.
+#
+#     # Arguments
+#         transaction (abstract): state, action, reward, next_state, terminal transaction.
+#     """
+#     if not isinstance(inp2, Tensor):
+#         inp2 = from_array(inp2, device=inp1.device)
+#
+#     _check_tensors(inp1, inp2)
+#
+#     return _create_tensor(
+#         inp1, inp2, data=inp1.data > inp2.data, func=wrapped_partial(greater_backward, inp1=inp1, inp2=inp2)
+#     )
+#
+#
+# def lesser_or_equal(inp1, inp2) -> 'Tensor':
+#     """
+#     Remember the transaction.
+#
+#     Accepts a state, action, reward, next_state, terminal transaction.
+#
+#     # Arguments
+#         transaction (abstract): state, action, reward, next_state, terminal transaction.
+#     """
+#     if not isinstance(inp2, Tensor):
+#         inp2 = from_array(inp2, device=inp1.device)
+#
+#     _check_tensors(inp1, inp2)
+#
+#     return _create_tensor(
+#         inp1, inp2, data=inp1.data <= inp2.data, func=wrapped_partial(lesser_or_equal_backward, inp1=inp1, inp2=inp2)
+#     )
+#
+#
+# def lesser(inp1, inp2) -> 'Tensor':
+#     """
+#     Remember the transaction.
+#
+#     Accepts a state, action, reward, next_state, terminal transaction.
+#
+#     # Arguments
+#         transaction (abstract): state, action, reward, next_state, terminal transaction.
+#     """
+#     if not isinstance(inp2, Tensor):
+#         inp2 = from_array(inp2, device=inp1.device)
+#
+#     _check_tensors(inp1, inp2)
+#
+#     return _create_tensor(
+#         inp1, inp2, data=inp1.data < inp2.data, func=wrapped_partial(lesser_backward, inp1=inp1, inp2=inp2)
+#     )
+#
+#
+# def equal(inp1, inp2) -> 'Tensor':
+#     """
+#     Remember the transaction.
+#
+#     Accepts a state, action, reward, next_state, terminal transaction.
+#
+#     # Arguments
+#         transaction (abstract): state, action, reward, next_state, terminal transaction.
+#     """
+#     if not isinstance(inp2, Tensor):
+#         inp2 = from_array(inp2, device=inp1.device)
+#
+#     _check_tensors(inp1, inp2)
+#
+#     return _create_tensor(
+#         inp1, inp2, data=inp1.data == inp2.data, func=wrapped_partial(equal_backward, inp1=inp1, inp2=inp2)
+#     )
+#
+#
+# def not_equal(inp1, inp2) -> 'Tensor':
+#     """
+#     Remember the transaction.
+#
+#     Accepts a state, action, reward, next_state, terminal transaction.
+#
+#     # Arguments
+#         transaction (abstract): state, action, reward, next_state, terminal transaction.
+#     """
+#     if not isinstance(inp2, Tensor):
+#         inp2 = from_array(inp2, device=inp1.device)
+#
+#     _check_tensors(inp1, inp2)
+#
+#     return _create_tensor(
+#         inp1, inp2, data=inp1.data != inp2.data, func=wrapped_partial(not_equal_backward, inp1=inp1, inp2=inp2)
+#     )
 
 
 def add(inp1, inp2) -> 'Tensor':
@@ -2156,7 +2411,7 @@ def softmax(inp) -> 'Tensor':
     _check_tensors(inp)
     engine = _get_engine(inp)
 
-    e = engine.exp(inp.data - inp.data.amax(axis=1, keepdims=True))
+    e = engine.exp(inp.data - inp.data.max(axis=1, keepdims=True))
     z = e / engine.sum(e, axis=1, keepdims=True)
     return _create_tensor(inp, data=z, func=wrapped_partial(softmax_backward, inp=inp))
 
@@ -2716,9 +2971,9 @@ def rmsprop(params, grads, square_avgs, alphas, momentum_buffers, grad_avgs, mom
         if centered:
             grad_avg = grad_avgs[i]
             grad_avg._data = grad_avg.data * alpha + grad.data * (1 - alpha)
-            avg = engine.sqrt(square_avg - (grad_avg * grad_avg)) + eps
+            avg = engine.sqrt(square_avg.data - (grad_avg.data * grad_avg.data)) + eps
         else:
-            avg = engine.sqrt(square_avg) + eps
+            avg = engine.sqrt(square_avg.data) + eps
 
         if momentum > 0:
             buf = momentum_buffers[i]

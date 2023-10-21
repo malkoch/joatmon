@@ -3,9 +3,9 @@ import threading
 import time
 from threading import Thread
 
-from joatmon import context
-from joatmon.event import Event
-from joatmon.utility import JSONEncoder
+from joatmon.core import context
+from joatmon.core.event import Event
+from joatmon.core.utility import JSONEncoder
 
 __all__ = ['producer', 'consumer']
 

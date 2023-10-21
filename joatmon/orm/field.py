@@ -7,8 +7,8 @@ from time import (
     struct_time
 )
 
-from joatmon.serializable import Serializable
-from joatmon.utility import to_enumerable
+from joatmon.core.serializable import Serializable
+from joatmon.core.utility import to_enumerable
 
 
 class Field(Serializable):

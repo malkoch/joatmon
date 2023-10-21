@@ -1,4 +1,4 @@
-from joatmon import context
+from joatmon.core import context
 from joatmon.plugin.logger.core import LoggerPlugin
 
 

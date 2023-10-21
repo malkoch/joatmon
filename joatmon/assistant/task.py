@@ -9,8 +9,8 @@ import threading
 
 from transitions import Machine
 
-from joatmon.event import Event
-from joatmon.utility import (
+from joatmon.core.event import Event
+from joatmon.core.utility import (
     first,
     get_module_classes,
     JSONEncoder

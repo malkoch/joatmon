@@ -2,8 +2,8 @@ import functools
 import inspect
 import json
 
-from joatmon import context
-from joatmon.utility import (
+from joatmon.core import context
+from joatmon.core.utility import (
     JSONEncoder,
     to_enumerable,
     to_hash

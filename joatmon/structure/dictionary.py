@@ -1,6 +1,6 @@
 import json
 
-from joatmon.utility import to_enumerable
+from joatmon.core.utility import to_enumerable
 
 
 def value_to_cls(value, cls):

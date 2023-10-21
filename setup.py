@@ -10,11 +10,10 @@ from setuptools import find_packages
 from joatmon import VERSION
 
 extras = {
-    'ai': ['numpy', 'torch', 'matplotlib', 'six', 'Pillow'],  # torch has to be removed
-    'algorithm': [],
+    'ai': ['numpy', 'matplotlib', 'six', 'Pillow'],
     'analysis': ['pandas'],
     'array': [],
-    'assistant': ['feedparser', 'requests', 'colorama', 'schedule', 'psutil', 'nltk', 'tensorflow', 'openai', 'transitions'],  # tensorflow has to be removed
+    'assistant': ['feedparser', 'requests', 'colorama', 'schedule', 'psutil', 'nltk', 'openai', 'transitions'],
     'backend': [],
     'callback': [],
     'content': [],
@@ -66,11 +65,11 @@ if __name__ == '__main__':
         long_description=long_description,
         long_description_content_type='text/markdown',
         packages=[package for package in find_packages(exclude='tests')],
-        entry_points={
-            'console_scripts': [
-                'assistant = scripts.assistant:main'
-            ]
-        },
+        # entry_points={
+        #     'console_scripts': [
+        #         'assistant = scripts.assistant:main'
+        #     ]
+        # },
         install_requires=[
             'bumpversion'
         ],
@@ -82,7 +81,8 @@ if __name__ == '__main__':
             'joatmon': [
                 'game/assets/chess/*.png',
                 'game/assets/sokoban/sprites/*.png',
-                'game/assets/sokoban/xmls/*.xml'
+                'game/assets/sokoban/xmls/*.xml',
+                'assistant/assets/*.wav'
             ]
         },
         url='https://github.com/malkoch/joatmon',
