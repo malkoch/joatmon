@@ -56,6 +56,7 @@ class Adam(Optimizer):
             state_steps = []
 
             for p in group['params']:
+                # print(p, p.grad, p.requires_grad)
                 if p.grad is not None:
                     params_with_grad.append(p)
                     grads.append(p.grad)

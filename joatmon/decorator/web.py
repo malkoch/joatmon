@@ -1,8 +1,8 @@
 import functools
 import inspect
 
-from joatmon import context
-from joatmon.utility import (
+from joatmon.core import context
+from joatmon.core.utility import (
     to_case,
     to_enumerable
 )

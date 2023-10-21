@@ -1,9 +1,12 @@
-from joatmon.nn import functional as f
+from joatmon.nn import (
+    functional as f,
+    Module
+)
 
 __all__ = ['Dropout']
 
 
-class Dropout:
+class Dropout(Module):
     """
     Deep Deterministic Policy Gradient
 
@@ -18,7 +21,9 @@ class Dropout:
         gamma (float): gamma.
     """
 
-    def __init__(self, keep_prob):
+    def __init__(self, keep_prob=.5):
+        super(Dropout, self).__init__()
+
         self._keep_prob = keep_prob
 
     def forward(self, inp):
@@ -30,4 +35,7 @@ class Dropout:
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        return f.dropout(inp=inp, keep_prob=self._keep_prob)
+        if self.training:
+            return f.dropout(inp=inp, keep_prob=self._keep_prob)
+        else:
+            return inp

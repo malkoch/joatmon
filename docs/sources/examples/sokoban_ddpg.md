@@ -1,12 +1,10 @@
-
-
 ```python
 import gym
 
 from joatmon.ai.models import DDPGModel
 from joatmon.ai.processor import RLProcessor
 from joatmon.ai.trainer import DDPGTrainer
-from joatmon.callback import (
+from joatmon.core.callback import (
     CallbackList,
     Loader,
     Renderer,

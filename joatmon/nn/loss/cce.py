@@ -34,5 +34,6 @@ class CCELoss(Loss):
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        self._loss = -(target * np.log(prediction.data) + (1 - target) * np.log(1 - prediction.data)).summation()
+        # self._loss = -(target * prediction.log() + (1 - target) * (1 - prediction).log()).summation()
+        self._loss = -(target * (prediction + 1e-100).log()).summation()
         return self._loss

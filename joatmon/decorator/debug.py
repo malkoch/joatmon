@@ -2,8 +2,6 @@ import functools
 import inspect
 import time
 
-from joatmon import context
-
 
 def timeit():
     """

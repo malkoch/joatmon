@@ -11,6 +11,8 @@ from typing import (
     Any,
     Callable,
     Iterator,
+    List,
+    Mapping,
     Optional,
     Set,
     Tuple,
@@ -161,11 +163,35 @@ class Tensor:
         # self._requires_grad = value.requires_grad
         self._data[key] = value.data
 
+    # def __ge__(self, other):
+    #     return self.greater_or_equal(other)
+    #
+    # def __gt__(self, other):
+    #     return self.greater(other)
+    #
+    # def __le__(self, other):
+    #     return self.lesser_or_equal(other)
+    #
+    # def __lt__(self, other):
+    #     return self.lesser(other)
+    #
+    # def __eq__(self, other):
+    #     return self.equal(other)
+    #
+    # def __ne__(self, other):
+    #     return self.not_equal(other)
+
     def __add__(self, other) -> 'Tensor':
+        return self.add(other)
+
+    def __radd__(self, other):
         return self.add(other)
 
     def __sub__(self, other) -> 'Tensor':
         return self.sub(other)
+
+    def __rsub__(self, other):
+        return -self + other
 
     def __mul__(self, other) -> 'Tensor':
         return self.mul(other)
@@ -178,6 +204,9 @@ class Tensor:
 
     def __abs__(self) -> 'Tensor':
         return self.absolute()
+
+    def __neg__(self):
+        return self.negative()
 
     def chunk(self, chunks, dim=0):
         """
@@ -344,6 +373,17 @@ class Tensor:
         """
         ...
 
+    def log(self) -> 'Tensor':
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
+        ...
+
     def summation(self) -> 'Tensor':
         """
         Remember the transaction.
@@ -387,6 +427,72 @@ class Tensor:
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
         ...
+
+    # def greater_or_equal(self, other) -> 'Tensor':
+    #     """
+    #     Remember the transaction.
+    #
+    #     Accepts a state, action, reward, next_state, terminal transaction.
+    #
+    #     # Arguments
+    #         transaction (abstract): state, action, reward, next_state, terminal transaction.
+    #     """
+    #     ...
+    #
+    # def greater(self, other) -> 'Tensor':
+    #     """
+    #     Remember the transaction.
+    #
+    #     Accepts a state, action, reward, next_state, terminal transaction.
+    #
+    #     # Arguments
+    #         transaction (abstract): state, action, reward, next_state, terminal transaction.
+    #     """
+    #     ...
+    #
+    # def lesser_or_equal(self, other) -> 'Tensor':
+    #     """
+    #     Remember the transaction.
+    #
+    #     Accepts a state, action, reward, next_state, terminal transaction.
+    #
+    #     # Arguments
+    #         transaction (abstract): state, action, reward, next_state, terminal transaction.
+    #     """
+    #     ...
+    #
+    # def lesser(self, other) -> 'Tensor':
+    #     """
+    #     Remember the transaction.
+    #
+    #     Accepts a state, action, reward, next_state, terminal transaction.
+    #
+    #     # Arguments
+    #         transaction (abstract): state, action, reward, next_state, terminal transaction.
+    #     """
+    #     ...
+    #
+    # def equal(self, other) -> 'Tensor':
+    #     """
+    #     Remember the transaction.
+    #
+    #     Accepts a state, action, reward, next_state, terminal transaction.
+    #
+    #     # Arguments
+    #         transaction (abstract): state, action, reward, next_state, terminal transaction.
+    #     """
+    #     ...
+    #
+    # def not_equal(self, other) -> 'Tensor':
+    #     """
+    #     Remember the transaction.
+    #
+    #     Accepts a state, action, reward, next_state, terminal transaction.
+    #
+    #     # Arguments
+    #         transaction (abstract): state, action, reward, next_state, terminal transaction.
+    #     """
+    #     ...
 
     def add(self, other) -> 'Tensor':
         """
@@ -933,6 +1039,10 @@ class Module:
             raise KeyError('module name can\'t be empty string ""')
         self._modules[name] = module
 
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        return state
+
     def __setstate__(self, state):
         self.__dict__.update(state)
 
@@ -957,6 +1067,7 @@ class Module:
                         d.discard(name)
 
         params = self.__dict__.get('_parameters')
+        # print(params)
         if isinstance(value, Parameter):
             if params is None:
                 raise AttributeError('cannot assign parameters before Module.__init__() call')
@@ -1008,6 +1119,71 @@ class Module:
             del self._modules[name]
         else:
             object.__delattr__(self, name)
+
+    def _save_to_state_dict(self, destination, prefix):
+        for name, param in self._parameters.items():
+            if param is not None:
+                destination[prefix + name] = param.detach().to_array().tolist()
+
+    def state_dict(self, *, destination=None, prefix=''):
+        if destination is None:
+            destination = OrderedDict()
+
+        self._save_to_state_dict(destination, prefix)
+        for name, module in self._modules.items():
+            if module is not None:
+                module.state_dict(destination=destination, prefix=prefix + name + '.')
+        return destination
+
+    def _load_from_state_dict(self, state_dict, prefix):
+        local_name_params = self._parameters.items()
+        local_state = {k: v for k, v in local_name_params if v is not None}
+
+        for name, param in local_state.items():
+            key = prefix + name
+            if key in state_dict:
+                input_param = Tensor.from_array(state_dict[key])
+
+                if len(param.shape) == 0 and len(input_param.shape) == 1:
+                    input_param = input_param[0]
+
+                if input_param.shape != param.shape:
+                    # local shape should match the one in checkpoint
+                    warnings.warn(
+                        'size mismatch for {}: copying a param with shape {} from checkpoint, '
+                        'the shape in current model is {}.'
+                        .format(key, input_param.shape, param.shape)
+                    )
+                    continue
+
+                try:
+                    # Shape checks are already done above
+                    if isinstance(param, Parameter) and not isinstance(input_param, Parameter):
+                        setattr(self, name, Parameter(input_param))
+                    else:
+                        setattr(self, name, input_param)
+                except Exception as ex:
+                    warnings.warn(
+                        f'While copying the parameter named "{key}", '
+                        f'whose dimensions in the model are {param.size()} and '
+                        f'whose dimensions in the checkpoint are {input_param.size()}, '
+                        f'an exception occurred : {ex.args}.'
+                    )
+
+    def load_state_dict(self, state_dict: Mapping[str, Any]):
+        if not isinstance(state_dict, Mapping):
+            raise TypeError(f"Expected state_dict to be dict-like, got {type(state_dict)}.")
+
+        def load(module, local_state_dict, prefix=''):
+            module._load_from_state_dict(local_state_dict, prefix)
+            for name, child in module._modules.items():
+                if child is not None:
+                    child_prefix = prefix + name + '.'
+                    child_state_dict = {k: v for k, v in local_state_dict.items() if k.startswith(child_prefix)}
+                    load(child, child_state_dict, child_prefix)
+
+        load(self, state_dict)
+        del load
 
     def _named_members(self, get_members_fn, prefix='', recurse=True):
         """
@@ -1163,36 +1339,6 @@ class Module:
                     else:
                         p.grad.requires_grad = False
                     p.grad.fill(0)
-
-    def state_dict(self):
-        """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
-        """
-
-    def load_state_dict(self):
-        """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
-        """
-
-    def save_state_dict(self):
-        """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
-        """
 
     def _apply(self):
         """

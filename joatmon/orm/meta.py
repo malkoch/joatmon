@@ -4,7 +4,7 @@ import typing
 from joatmon.orm.constraint import Constraint
 from joatmon.orm.field import Field
 from joatmon.orm.index import Index
-from joatmon.utility import get_converter
+from joatmon.core.utility import get_converter
 
 
 class Meta(type):

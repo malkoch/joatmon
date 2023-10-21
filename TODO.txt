@@ -1,0 +1,9 @@
+- instead of callback use event
+- remove utility, serializable, event, context module, instead use core functions and classes
+- remove tensorflow and torch dependencies, use our own nn module, let people set backend, context can be used
+- minimax, maximim algorithms to ai module
+- alpha-beta pruning, monte carlo to ai module - maybe policies
+- if any connection is not transactional, do the action and close the action
+    - afterwards open the connection again
+- if any connection is transactional, wait for the commit action, then close the action
+    - afterwards open the connection again

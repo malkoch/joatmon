@@ -7,7 +7,7 @@ import threading
 
 from transitions import Machine
 
-from joatmon.utility import (
+from joatmon.core.utility import (
     first,
     JSONEncoder
 )

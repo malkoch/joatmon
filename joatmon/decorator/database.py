@@ -3,7 +3,7 @@ import inspect
 
 import async_exit_stack
 
-from joatmon import context
+from joatmon.core import context
 
 
 def transaction(names):

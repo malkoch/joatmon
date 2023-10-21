@@ -1,7 +1,7 @@
 import functools
 import inspect
 
-from joatmon import context
+from joatmon.core import context
 
 
 def authorized(auth, token, issuer):  # use current token and issuer

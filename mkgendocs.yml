@@ -42,8 +42,8 @@ pages:
     source: "joatmon/plugin/localizer/database.py"
     classes:
       - DatabaseLocalizer
-  - page: "./joatmon/assistant/core/weather.md"
-    source: "joatmon/assistant/core/weather.py"
+  - page: "./joatmon/assistant/action/weather.md"
+    source: "joatmon/assistant/action/weather.py"
     classes:
       - Task
   - page: "./joatmon/orm/query.md"
@@ -87,8 +87,8 @@ pages:
     source: "joatmon/plugin/logger/file.py"
     classes:
       - FileLogger
-  - page: "./joatmon/assistant/core/cwd.md"
-    source: "joatmon/assistant/core/cwd.py"
+  - page: "./joatmon/assistant/action/cwd.md"
+    source: "joatmon/assistant/action/cwd.py"
     classes:
       - Task
   - page: "./joatmon/array/array.md"
@@ -122,8 +122,8 @@ pages:
     source: "joatmon/system/memory/locator.py"
     classes:
       - Locator
-  - page: "./joatmon/assistant/core/rm.md"
-    source: "joatmon/assistant/core/rm.py"
+  - page: "./joatmon/assistant/action/rm.md"
+    source: "joatmon/assistant/action/rm.py"
     classes:
       - Task
   - page: "./joatmon/assistant/service.md"
@@ -143,12 +143,12 @@ pages:
     source: "joatmon/decorator/auth.py"
     functions:
       - authorized
-  - page: "./joatmon/assistant/core/run.md"
-    source: "joatmon/assistant/core/run.py"
+  - page: "./joatmon/assistant/action/run.md"
+    source: "joatmon/assistant/action/run.py"
     classes:
       - Task
-  - page: "./joatmon/ai/network/core.md"
-    source: "joatmon/ai/network/core.py"
+  - page: "./joatmon/ai/network/action.md"
+    source: "joatmon/ai/network/action.py"
     classes:
       - CoreNetwork
   - page: "./joatmon/orm/index.md"
@@ -174,8 +174,8 @@ pages:
       - CoreRandom
       - GaussianRandom
       - OrnsteinUhlenbeck
-  - page: "./joatmon/assistant/core/cd.md"
-    source: "joatmon/assistant/core/cd.py"
+  - page: "./joatmon/assistant/action/cd.md"
+    source: "joatmon/assistant/action/cd.py"
     classes:
       - Task
   - page: "./joatmon/plugin/logger/terminal.md"
@@ -320,8 +320,8 @@ pages:
     functions:
       - inorder
       - inorder_r
-  - page: "./joatmon/assistant/core/viewer.md"
-    source: "joatmon/assistant/core/viewer.py"
+  - page: "./joatmon/assistant/action/viewer.md"
+    source: "joatmon/assistant/action/viewer.py"
     classes:
       - Task
   - page: "./joatmon/nn/layer/activation/softmax.md"
@@ -364,8 +364,8 @@ pages:
     source: "joatmon/assistant/stt.py"
     classes:
       - STTAgent
-  - page: "./joatmon/assistant/core/save.md"
-    source: "joatmon/assistant/core/save.py"
+  - page: "./joatmon/assistant/action/save.md"
+    source: "joatmon/assistant/action/save.py"
     classes:
       - Task
   - page: "./joatmon/system/gui/widgets/option.md"
@@ -385,8 +385,8 @@ pages:
     classes:
       - Meta
       - Enum
-  - page: "./joatmon/assistant/core/notification.md"
-    source: "joatmon/assistant/core/notification.py"
+  - page: "./joatmon/assistant/action/notification.md"
+    source: "joatmon/assistant/action/notification.py"
     classes:
       - Service
   - page: "./joatmon/ai/policy.md"
@@ -406,24 +406,24 @@ pages:
     functions:
       - postorder
       - postorder_r
-  - page: "./joatmon/plugin/otp/core.md"
-    source: "joatmon/plugin/otp/core.py"
+  - page: "./joatmon/plugin/otp/action.md"
+    source: "joatmon/plugin/otp/action.py"
     classes:
       - OTP
-  - page: "./joatmon/assistant/core/contact.md"
-    source: "joatmon/assistant/core/contact.py"
+  - page: "./joatmon/assistant/action/contact.md"
+    source: "joatmon/assistant/action/contact.py"
     classes:
       - Task
-  - page: "./joatmon/assistant/core/mkdir.md"
-    source: "joatmon/assistant/core/mkdir.py"
+  - page: "./joatmon/assistant/action/mkdir.md"
+    source: "joatmon/assistant/action/mkdir.py"
     classes:
       - Task
-  - page: "./joatmon/assistant/core/create.md"
-    source: "joatmon/assistant/core/create.py"
+  - page: "./joatmon/assistant/action/create.md"
+    source: "joatmon/assistant/action/create.py"
     classes:
       - Task
-  - page: "./joatmon/assistant/core/move.md"
-    source: "joatmon/assistant/core/move.py"
+  - page: "./joatmon/assistant/action/move.md"
+    source: "joatmon/assistant/action/move.py"
     classes:
       - Task
   - page: "./joatmon/algoritm/search/binary.md"
@@ -432,8 +432,8 @@ pages:
       - binary_search
       - binary_search_helper
       - binary_search_r
-  - page: "./joatmon/nn/core.md"
-    source: "joatmon/nn/core.py"
+  - page: "./joatmon/nn/action.md"
+    source: "joatmon/nn/action.py"
     classes:
       - ModuleAttributeException
       - RemovableHandle
@@ -470,13 +470,13 @@ pages:
     source: "joatmon/nn/layer/linear.py"
     classes:
       - Linear
-  - page: "./joatmon/assistant/core/mail.md"
-    source: "joatmon/assistant/core/mail.py"
+  - page: "./joatmon/assistant/action/mail.md"
+    source: "joatmon/assistant/action/mail.py"
     classes:
       - Task
       - Service
-  - page: "./joatmon/plugin/core.md"
-    source: "joatmon/plugin/core.py"
+  - page: "./joatmon/plugin/action.md"
+    source: "joatmon/plugin/action.py"
     functions:
       - register
     classes:
@@ -506,8 +506,8 @@ pages:
     source: "joatmon/ai/models/reinforcement/q_learning/dqn.py"
     classes:
       - DQNModel
-  - page: "./joatmon/plugin/localizer/core.md"
-    source: "joatmon/plugin/localizer/core.py"
+  - page: "./joatmon/plugin/localizer/action.md"
+    source: "joatmon/plugin/localizer/action.py"
     classes:
       - Localizer
   - page: "./joatmon/system/gui/widgets/button.md"
@@ -532,8 +532,8 @@ pages:
     classes:
       - DDPGActor
       - DDPGCritic
-  - page: "./joatmon/plugin/auth/core.md"
-    source: "joatmon/plugin/auth/core.py"
+  - page: "./joatmon/plugin/auth/action.md"
+    source: "joatmon/plugin/auth/action.py"
     classes:
       - Auth
   - page: "./joatmon/orm/constraint.md"
@@ -561,8 +561,8 @@ pages:
     source: "joatmon/system/memory/worker.py"
     classes:
       - Worker
-  - page: "./joatmon/assistant/core/note.md"
-    source: "joatmon/assistant/core/note.py"
+  - page: "./joatmon/assistant/action/note.md"
+    source: "joatmon/assistant/action/note.py"
     classes:
       - Task
       - Service
@@ -574,12 +574,12 @@ pages:
     source: "joatmon/system/hid/speaker.py"
     classes:
       - Speaker
-  - page: "./joatmon/assistant/core/greeter.md"
-    source: "joatmon/assistant/core/greeter.py"
+  - page: "./joatmon/assistant/action/greeter.md"
+    source: "joatmon/assistant/action/greeter.py"
     classes:
       - Task
-  - page: "./joatmon/assistant/core/translate.md"
-    source: "joatmon/assistant/core/translate.py"
+  - page: "./joatmon/assistant/action/translate.md"
+    source: "joatmon/assistant/action/translate.py"
     classes:
       - Task
   - page: "./joatmon/utility.md"
@@ -653,8 +653,8 @@ pages:
     classes:
       - Event
       - AsyncEvent
-  - page: "./joatmon/assistant/core/clock.md"
-    source: "joatmon/assistant/core/clock.py"
+  - page: "./joatmon/assistant/action/clock.md"
+    source: "joatmon/assistant/action/clock.py"
     classes:
       - Task
   - page: "./joatmon/ai/utility.md"
@@ -672,8 +672,8 @@ pages:
     source: "joatmon/assistant/intent.py"
     classes:
       - GenericAssistant
-  - page: "./joatmon/plugin/logger/core.md"
-    source: "joatmon/plugin/logger/core.py"
+  - page: "./joatmon/plugin/logger/action.md"
+    source: "joatmon/plugin/logger/action.py"
     classes:
       - LogLevel
       - LoggerPlugin
@@ -757,8 +757,8 @@ pages:
       - calculate_chaikin_oscillator
       - calculate_adx
       - calculate_tma
-  - page: "./joatmon/system/memory/core.md"
-    source: "joatmon/system/memory/core.py"
+  - page: "./joatmon/system/memory/action.md"
+    source: "joatmon/system/memory/action.py"
     functions:
       - type_unpack
       - hex_dump
@@ -768,8 +768,8 @@ pages:
       - SystemInfo
       - SecurityDescriptor
       - Th32csClass
-  - page: "./joatmon/game/core.md"
-    source: "joatmon/game/core.py"
+  - page: "./joatmon/game/action.md"
+    source: "joatmon/game/action.py"
     classes:
       - CoreSpace
       - CoreEnv
@@ -785,8 +785,8 @@ pages:
     source: "joatmon/structure/graph.py"
     classes:
       - Graph
-  - page: "./joatmon/plugin/message/core.md"
-    source: "joatmon/plugin/message/core.py"
+  - page: "./joatmon/plugin/message/action.md"
+    source: "joatmon/plugin/message/action.py"
     classes:
       - MessagePlugin
   - page: "./joatmon/array/random.md"
@@ -960,8 +960,8 @@ pages:
     source: "joatmon/decorator/totp.py"
     functions:
       - authorized
-  - page: "./joatmon/assistant/core/say.md"
-    source: "joatmon/assistant/core/say.py"
+  - page: "./joatmon/assistant/action/say.md"
+    source: "joatmon/assistant/action/say.py"
     classes:
       - Task
   - page: "./joatmon/nn/scheduler/exponential.md"
@@ -991,16 +991,16 @@ pages:
     source: "joatmon/nn/layer/pool/avgpool.py"
     classes:
       - AvgPool
-  - page: "./joatmon/assistant/core/system.md"
-    source: "joatmon/assistant/core/system.py"
+  - page: "./joatmon/assistant/action/system.md"
+    source: "joatmon/assistant/action/system.py"
     classes:
       - Task
   - page: "./joatmon/game/tiles.md"
     source: "joatmon/game/tiles.py"
     classes:
       - TilesEnv
-  - page: "./joatmon/plugin/cache/core.md"
-    source: "joatmon/plugin/cache/core.py"
+  - page: "./joatmon/plugin/cache/action.md"
+    source: "joatmon/plugin/cache/action.py"
     classes:
       - CachePlugin
   - page: "./joatmon/system/hid/desktop.md"
@@ -1039,16 +1039,16 @@ pages:
     source: "joatmon/nn/layer/conv.py"
     classes:
       - Conv
-  - page: "./joatmon/assistant/core/camera.md"
-    source: "joatmon/assistant/core/camera.py"
+  - page: "./joatmon/assistant/action/camera.md"
+    source: "joatmon/assistant/action/camera.py"
     classes:
       - Task
   - page: "./joatmon/system/gui/widgets/dropdown.md"
     source: "joatmon/system/gui/widgets/dropdown.py"
     classes:
       - ComboBox
-  - page: "./joatmon/assistant/core/browser.md"
-    source: "joatmon/assistant/core/browser.py"
+  - page: "./joatmon/assistant/action/browser.md"
+    source: "joatmon/assistant/action/browser.py"
     classes:
       - Task
   - page: "./joatmon/ai/models/supervised/classification/unet.md"
@@ -1075,8 +1075,8 @@ pages:
       - automate_mkdocs_from_docstring
       - indent
       - docstring_from_type_hints
-  - page: "./joatmon/assistant/core/config.md"
-    source: "joatmon/assistant/core/config.py"
+  - page: "./joatmon/assistant/action/config.md"
+    source: "joatmon/assistant/action/config.py"
     classes:
       - Task
   - page: "./joatmon/nn/layer/batchnorm.md"
@@ -1096,8 +1096,8 @@ pages:
     classes:
       - PPOActor
       - PPOCritic
-  - page: "./joatmon/assistant/core/agenda.md"
-    source: "joatmon/assistant/core/agenda.py"
+  - page: "./joatmon/assistant/action/agenda.md"
+    source: "joatmon/assistant/action/agenda.py"
     classes:
       - Task
       - Service
@@ -1105,16 +1105,16 @@ pages:
     source: "joatmon/system/fs/file.py"
     classes:
       - File
-  - page: "./joatmon/plugin/database/core.md"
-    source: "joatmon/plugin/database/core.py"
+  - page: "./joatmon/plugin/database/action.md"
+    source: "joatmon/plugin/database/action.py"
     classes:
       - DatabasePlugin
   - page: "./joatmon/system/fs/path.md"
     source: "joatmon/system/fs/path.py"
     classes:
       - Path
-  - page: "./joatmon/assistant/core/ls.md"
-    source: "joatmon/assistant/core/ls.py"
+  - page: "./joatmon/assistant/action/ls.md"
+    source: "joatmon/assistant/action/ls.py"
     classes:
       - Task
   - page: "./joatmon/nn/layer/activation/relu.md"
@@ -1132,8 +1132,8 @@ pages:
       - set_ctx
       - get_value
       - set_value
-  - page: "./joatmon/assistant/core/todo.md"
-    source: "joatmon/assistant/core/todo.py"
+  - page: "./joatmon/assistant/action/todo.md"
+    source: "joatmon/assistant/action/todo.py"
     classes:
       - Task
       - Service
@@ -1141,16 +1141,16 @@ pages:
     source: "joatmon/system/gui/widgets/widget.py"
     classes:
       - Element
-  - page: "./joatmon/assistant/core/help.md"
-    source: "joatmon/assistant/core/help.py"
+  - page: "./joatmon/assistant/action/help.md"
+    source: "joatmon/assistant/action/help.py"
     classes:
       - Task
-  - page: "./joatmon/assistant/core/exchange.md"
-    source: "joatmon/assistant/core/exchange.py"
+  - page: "./joatmon/assistant/action/exchange.md"
+    source: "joatmon/assistant/action/exchange.py"
     classes:
       - Task
-  - page: "./joatmon/assistant/core/download.md"
-    source: "joatmon/assistant/core/download.py"
+  - page: "./joatmon/assistant/action/download.md"
+    source: "joatmon/assistant/action/download.py"
     classes:
       - Task
   - page: "./joatmon/game/chess.md"
@@ -1165,7 +1165,7 @@ pages:
     source: "joatmon/system/gui/widgets/scroll_view.py"
     classes:
       - Label
-  - page: "./joatmon/ai/models/core.md"
-    source: "joatmon/ai/models/core.py"
+  - page: "./joatmon/ai/models/action.md"
+    source: "joatmon/ai/models/action.py"
     classes:
       - CoreModel

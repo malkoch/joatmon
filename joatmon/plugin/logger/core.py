@@ -1,6 +1,6 @@
 from typing import Union
 
-from joatmon import context
+from joatmon.core import context
 from joatmon.orm.enum import Enum
 from joatmon.plugin.core import Plugin
 
