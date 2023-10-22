@@ -1,15 +1,51 @@
 import json
-import os.path
-import pickle
 import random
 
 import nltk
 import numpy as np
-import tensorflow as tf
 from nltk.stem import WordNetLemmatizer
+
+from joatmon.nn import (
+    Module,
+    Tensor
+)
+from joatmon.nn.layer.activation.relu import ReLU
+from joatmon.nn.layer.activation.softmax import Softmax
+from joatmon.nn.layer.dropout import Dropout
+from joatmon.nn.layer.linear import Linear
+from joatmon.nn.loss.cce import CCELoss
+from joatmon.nn.optimizer.rmsprop import RMSprop
 
 nltk.download('punkt', quiet=True)
 nltk.download('wordnet', quiet=True)
+
+
+class IntentModel(Module):
+    def __init__(self, in_shape, out_shape):
+        super(IntentModel, self).__init__()
+
+        self.linear1 = Linear(in_shape, 128)
+        self.relu1 = ReLU()
+        self.dropout1 = Dropout(.5)
+        self.linear2 = Linear(128, 64)
+        self.relu2 = ReLU()
+        self.dropout2 = Dropout(.5)
+        self.linear3 = Linear(64, out_shape)
+        self.softmax = Softmax()
+
+    def forward(self, x):
+        x = self.linear1(x)
+        x = self.relu1(x)
+        x = self.dropout1(x)
+
+        x = self.linear2(x)
+        x = self.relu2(x)
+        x = self.dropout2(x)
+
+        x = self.linear3(x)
+        x = self.softmax(x)
+
+        return x
 
 
 class GenericAssistant:
@@ -33,23 +69,33 @@ class GenericAssistant:
         self.classes = None
         self.words = None
 
-        self.intents = intents
-
-        if intents.endswith('.json'):
-            self.load_json_intents(intents)
+        if isinstance(intents, str):
+            if intents.endswith('.json'):
+                self.intents = json.loads(open(intents).read())
+            else:
+                self.intents = json.loads(intents)
+        else:
+            self.intents = intents
 
         self.lemmatizer = WordNetLemmatizer()
 
-    def load_json_intents(self, intents):
-        """
-        Remember the transaction.
+        self.words = []
+        self.classes = []
+        ignore_letters = ['!', '?', ',', '.']
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        for intent in self.intents['intents']:
+            for pattern in intent['patterns']:
+                word = nltk.word_tokenize(pattern)
+                self.words.extend(word)
+                if intent['name'] not in self.classes:
+                    self.classes.append(intent['name'])
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
-        """
-        self.intents = json.loads(open(intents).read())
+        self.words = [self.lemmatizer.lemmatize(w.lower()) for w in self.words if w not in ignore_letters]
+        self.words = sorted(list(set(self.words)))
+
+        self.classes = sorted(list(set(self.classes)))
+
+        self.model = IntentModel(len(self.words), len(self.classes))
 
     def train_model(self):
         """
@@ -60,23 +106,15 @@ class GenericAssistant:
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        self.words = []
-        self.classes = []
+
         documents = []
-        ignore_letters = ['!', '?', ',', '.']
 
         for intent in self.intents['intents']:
             for pattern in intent['patterns']:
                 word = nltk.word_tokenize(pattern)
-                self.words.extend(word)
                 documents.append((word, intent['name']))
                 if intent['name'] not in self.classes:
                     self.classes.append(intent['name'])
-
-        self.words = [self.lemmatizer.lemmatize(w.lower()) for w in self.words if w not in ignore_letters]
-        self.words = sorted(list(set(self.words)))
-
-        self.classes = sorted(list(set(self.classes)))
 
         training = []
         output_empty = [0] * len(self.classes)
@@ -93,48 +131,25 @@ class GenericAssistant:
             training.append([bag, output_row])
 
         random.shuffle(training)
-        training = np.array(training)
 
-        train_x = list(training[:, 0])
-        train_y = list(training[:, 1])
+        train_x = [x[0] for x in training]
+        train_y = [x[1] for x in training]
 
-        self.model = tf.keras.models.Sequential()
-        self.model.add(tf.keras.layers.Dense(128, input_shape=(len(train_x[0]),), activation='relu'))
-        self.model.add(tf.keras.layers.Dropout(0.5))
-        self.model.add(tf.keras.layers.Dense(64, activation='relu'))
-        self.model.add(tf.keras.layers.Dropout(0.5))
-        self.model.add(tf.keras.layers.Dense(len(train_y[0]), activation='softmax'))
+        self.model.train()
 
-        sgd = tf.keras.optimizers.legacy.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
-        self.model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
+        # optimizer = Adam(params=list(self.model.parameters()), lr=.0001, weight_decay=1e-6)
+        optimizer = RMSprop(params=list(self.model.parameters()), lr=.0005, weight_decay=1e-6)
+        loss = CCELoss()
 
-        self.hist = self.model.fit(np.array(train_x), np.array(train_y), epochs=200, batch_size=5, verbose=0)
+        batch_x = Tensor.from_array(train_x)
+        batch_y = Tensor.from_array(train_y)
+        for epoch in range(200):
+            predict = self.model(batch_x)
 
-    def save_model(self, model_name=None):
-        """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
-        """
-        self.model.save(os.path.join(os.environ.get('IVA_PATH'), f'weights/{model_name}/weights.h5'), self.hist)
-        pickle.dump(self.words, open(os.path.join(os.environ.get('IVA_PATH'), f'weights/{model_name}/words.pkl'), 'wb'))
-        pickle.dump(self.classes, open(os.path.join(os.environ.get('IVA_PATH'), f'weights/{model_name}/classes.pkl'), 'wb'))
-
-    def load_model(self, model_name=None):
-        """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
-        """
-        self.words = pickle.load(open(os.path.join(os.environ.get('IVA_PATH'), f'weights/{model_name}/words.pkl'), 'rb'))
-        self.classes = pickle.load(open(os.path.join(os.environ.get('IVA_PATH'), f'weights/{model_name}/classes.pkl'), 'rb'))
-        self.model = tf.keras.models.load_model(os.path.join(os.environ.get('IVA_PATH'), f'weights/{model_name}/weights.h5'))
+            model_loss = loss(predict, batch_y)
+            optimizer.zero_grad()
+            model_loss.backward()
+            optimizer.step()
 
     def _clean_up_sentence(self, sentence):
         """
@@ -175,12 +190,14 @@ class GenericAssistant:
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        p = self._bag_of_words(sentence, self.words)
-        res = self.model.predict(np.array([p]), verbose=0)[0]
-        error_threshold = 0.1
-        results = [[i, r] for i, r in enumerate(res) if r > error_threshold]
+        self.model.eval()
 
-        results.sort(key=lambda x: x[1], reverse=True)
+        p = self._bag_of_words(sentence, self.words)
+        res = self.model(Tensor.from_array(np.array([p])))[0]
+        error_threshold = 0.001
+        results = [[i, r] for i, r in enumerate(res) if r.data > error_threshold]
+
+        results.sort(key=lambda x: x[1].data, reverse=True)
         return_list = []
         for r in results:
             return_list.append({'intent': self.classes[r[0]], 'probability': r[1]})
