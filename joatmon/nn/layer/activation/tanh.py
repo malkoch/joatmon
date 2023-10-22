@@ -1,10 +1,10 @@
 from joatmon.nn import functional as f
 from joatmon.nn.core import Module
 
-__all__ = ['TanH']
+__all__ = ['Tanh']
 
 
-class TanH(Module):
+class Tanh(Module):
     """
     Deep Deterministic Policy Gradient
 
@@ -20,7 +20,7 @@ class TanH(Module):
     """
 
     def __init__(self):
-        super(TanH, self).__init__()
+        super(Tanh, self).__init__()
 
     def forward(self, inp):
         """
