@@ -906,9 +906,9 @@ def conv_backward(
                 axis=0,
             )
 
-    _set_grad(inp, _weight_grad)
-    _set_grad(weight, _bias_grad)
-    _set_grad(bias, _output_array[:, :, padding[0]: padding[0] + _input_height, padding[1]: padding[1] + input_width])
+    _set_grad(inp, _output_array[:, :, padding[0]: padding[0] + _input_height, padding[1]: padding[1] + input_width])
+    _set_grad(weight, _weight_grad)
+    _set_grad(bias, _bias_grad)
 
 
 def conv_transpose_backward(
@@ -922,38 +922,37 @@ def conv_transpose_backward(
     # Arguments
         transaction (abstract): state, action, reward, next_state, terminal transaction.
     """
-    # _check_tensors(inp, weight, bias)
-    # engine = _get_engine(inp, weight, bias)
-    #
-    # _padded_input_array = engine.pad(
-    #     inp.data, ((0, 0), (0, 0), (padding[0], padding[0]), (padding[1], padding[1])), mode='constant'
-    # )
-    # _weight_array = weight.data
-    # _grad_array = gradient.data
-    #
-    # _, _, _input_height, input_width = inp.shape
-    # _, _, _kernel_height, _kernel_width = _weight_array.shape
-    # _, _, _output_height, _output_width = _grad_array.shape
-    # _output_array = engine.zeros_like(_padded_input_array)
-    #
-    # _weight_grad = engine.zeros_like(_weight_array)
-    # _bias_grad = _grad_array.sum(axis=(0, 2, 3))
-    #
-    # for _row in range(_output_height):
-    #     for _column in range(_output_width):
-    #         _output_array[:, :, _row * stride: _row * stride + _kernel_height, _column * stride: _column * stride + _kernel_width, ] += engine.sum(
-    #             _weight_array[None, :, :, :, :] * _grad_array[:, :, None, _row: _row + 1, _column: _column + 1],
-    #             axis=1,
-    #         )
-    #         _weight_grad += engine.sum(
-    #             _padded_input_array[:, None, :, _row * stride: _row * stride + _kernel_height, _column * stride: _column * stride + _kernel_width, ]
-    #             * _grad_array[:, :, None, _row: _row + 1, _column: _column + 1],
-    #             axis=0,
-    #         )
-    #
-    # _set_grad(inp, _weight_grad)
-    # _set_grad(weight, _bias_grad)
-    # _set_grad(bias, _output_array[:, :, padding[0]: padding[0] + _input_height, padding[1]: padding[1] + input_width])
+    _check_tensors(inp, weight, bias)
+    engine = _get_engine(inp, weight, bias)
+
+    _weight_array = weight.data
+    _grad_array = gradient.data
+
+    _, _, _input_height, _input_width = inp.shape
+    _, _, _kernel_height, _kernel_width = _weight_array.shape
+    _, _, _output_height, _output_width = _grad_array.shape
+
+    _output_array = engine.zeros_like(inp.data)
+
+    _weight_grad = engine.zeros_like(_weight_array)
+    _bias_grad = _grad_array.sum(axis=(0, 2, 3))
+
+    for row in range(_output_height - _kernel_height + 1):
+        for column in range(_output_width - _kernel_width + 1):
+            d_output_slice = _grad_array[:, :, row:row + _kernel_height, column:column + _kernel_width]
+            for i in range(_grad_array.shape[1]):  # Iterate over input channels
+                _weight_grad[:, i, :, :] += engine.sum(
+                    inp.data[:, :, None, row:row + 1, column:column + 1] * d_output_slice[:, i, None, None, :],
+                    axis=(0, 2)
+                )
+                _output_array[:, :, row:row + 1, column:column + 1] += engine.sum(
+                    d_output_slice[:, i, None, :] * weight.data[None, :, i, :, :],
+                    axis=(2, 3)
+                )[:, :, None, None]
+
+    _set_grad(inp, _output_array)
+    _set_grad(weight, _weight_grad)
+    _set_grad(bias, _bias_grad)
 
 
 def bilinear_interpolation_backward(gradient: Tensor, inp: Tensor, scale_factor):
@@ -2655,7 +2654,17 @@ def conv_transpose(inp, weight, bias, stride, padding) -> 'Tensor':
 
     for row in range(input_height):
         for column in range(input_width):
-            output_array[:, :, row:row + kernel_height, column:column + kernel_width] += engine.sum(inp.data[:, :, row, column] * weight_array[None, :, :, :], axis=(2,))
+            # print('-' * 30)
+            # print(row, column)
+            # print(inp.data[:, :, None, row:row+1, column:column+1].shape)  # b, c, 1, 1
+            # print(weight_array[None, :, :, :].shape)  # None, i, o, kh, kw
+            # print((inp.data[:, :, None, row:row+1, column:column+1] * weight_array[None, :, :, :]).shape)
+            # print(engine.sum(inp.data[:, :, None, row:row+1, column:column+1] * weight_array[None, :, :, :], axis=(1,)).shape)
+            # print(output_array[:, :, row:row + kernel_height, column:column + kernel_width].shape)
+            # print('-' * 30)
+            output_array[:, :, row:row + kernel_height, column:column + kernel_width] += engine.sum(
+                inp.data[:, :, None, row:row + 1, column:column + 1] * weight_array[None, :, :, :], axis=(1,)
+            )
 
     return _create_tensor(
         inp,
