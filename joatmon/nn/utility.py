@@ -11,7 +11,7 @@ EPOCH_DEPRECATION_WARNING = (
 SAVE_STATE_WARNING = 'Please also save or load the state of the optimizer when saving or loading the scheduler.'
 
 
-def _calculate_input_dims(output_shape, kernel_shape, padding, stride):
+def _calculate_input_dims(output_shape, kernel_shape, padding, stride):  # instead of this, use is_transpose parameter and use function below
     """
     Remember the transaction.
 
@@ -21,7 +21,7 @@ def _calculate_input_dims(output_shape, kernel_shape, padding, stride):
         transaction (abstract): state, action, reward, next_state, terminal transaction.
     """
     batch_size, _, output_height, output_width = output_shape
-    out_filter_number, _, filter_height, filter_width = kernel_shape
+    _, out_filter_number, filter_height, filter_width = kernel_shape  # need to check
 
     input_height = (output_height - 1) * stride - 2 * padding[0] + (filter_height - 1) + 1
     input_width = (output_width - 1) * stride - 2 * padding[1] + (filter_width - 1) + 1

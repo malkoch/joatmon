@@ -79,7 +79,7 @@ class ConvTranspose(Module):
         self._stride = stride
         self._padding = padding
 
-        self.weight = Parameter(Tensor.from_array(np.ones((out_features, in_features, *kernel_size))))
+        self.weight = Parameter(Tensor.from_array(np.ones((in_features, out_features, *kernel_size))))
         self.bias = Parameter(Tensor.from_array(np.ones((out_features,))))
 
     def forward(self, inp):
