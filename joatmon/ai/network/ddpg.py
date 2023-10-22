@@ -1,10 +1,18 @@
-import torch
-import torch.nn as nn
-
 __all__ = ['DDPGActor', 'DDPGCritic']
 
+from joatmon.array import functional
+from joatmon.nn import (
+    Module,
+    Sequential
+)
+from joatmon.nn.layer.activation.relu import ReLU
+from joatmon.nn.layer.activation.tanh import Tanh
+from joatmon.nn.layer.batchnorm import BatchNorm
+from joatmon.nn.layer.conv import Conv
+from joatmon.nn.layer.linear import Linear
 
-class DDPGActor(nn.Module):
+
+class DDPGActor(Module):
     """
     Deep Deterministic Policy Gradient
 
@@ -22,27 +30,27 @@ class DDPGActor(nn.Module):
     def __init__(self, in_features, out_features):
         super(DDPGActor, self).__init__()
 
-        self.extractor = nn.Sequential(
-            nn.Conv2d(in_channels=in_features, out_channels=32, kernel_size=(8, 8), stride=(4, 4)),
-            nn.BatchNorm2d(num_features=32),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(in_channels=32, out_channels=64, kernel_size=(4, 4), stride=(2, 2)),
-            nn.BatchNorm2d(num_features=64),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=(3, 3), stride=(1, 1)),
-            nn.BatchNorm2d(num_features=64),
-            nn.ReLU(inplace=True),
+        self.extractor = Sequential(
+            Conv(in_features=in_features, out_features=32, kernel_size=(8, 8), stride=(4, 4)),
+            BatchNorm(features=32),
+            ReLU(),
+            Conv(in_features=32, out_features=64, kernel_size=(4, 4), stride=(2, 2)),
+            BatchNorm(features=64),
+            ReLU(),
+            Conv(in_features=64, out_features=64, kernel_size=(3, 3), stride=(1, 1)),
+            BatchNorm(features=64),
+            ReLU(),
         )
 
-        self.predictor = nn.Sequential(
-            nn.Linear(in_features=7 * 7 * 64, out_features=200),
-            nn.BatchNorm1d(num_features=200),
-            nn.ReLU(inplace=True),
-            nn.Linear(in_features=200, out_features=200),
-            nn.BatchNorm1d(num_features=200),
-            nn.ReLU(inplace=True),
-            nn.Linear(in_features=200, out_features=out_features),
-            nn.Tanh(),
+        self.predictor = Sequential(
+            Linear(in_features=7 * 7 * 64, out_features=200),
+            BatchNorm(features=200),
+            ReLU(),
+            Linear(in_features=200, out_features=200),
+            BatchNorm(features=200),
+            ReLU(),
+            Linear(in_features=200, out_features=out_features),
+            Tanh(),
         )
 
     def forward(self, x):
@@ -58,7 +66,7 @@ class DDPGActor(nn.Module):
         return self.predictor(x.view(x.size(0), -1))
 
 
-class DDPGCritic(nn.Module):
+class DDPGCritic(Module):
     """
     Deep Deterministic Policy Gradient
 
@@ -76,26 +84,26 @@ class DDPGCritic(nn.Module):
     def __init__(self, in_features, out_features):
         super(DDPGCritic, self).__init__()
 
-        self.extractor = nn.Sequential(
-            nn.Conv2d(in_channels=in_features, out_channels=32, kernel_size=(8, 8), stride=(4, 4)),
-            nn.BatchNorm2d(num_features=32),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(in_channels=32, out_channels=64, kernel_size=(4, 4), stride=(2, 2)),
-            nn.BatchNorm2d(num_features=64),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=(3, 3), stride=(1, 1)),
-            nn.BatchNorm2d(num_features=64),
-            nn.ReLU(inplace=True),
+        self.extractor = Sequential(
+            Conv(in_features=in_features, out_features=32, kernel_size=(8, 8), stride=(4, 4)),
+            BatchNorm(features=32),
+            ReLU(),
+            Conv(in_features=32, out_features=64, kernel_size=(4, 4), stride=(2, 2)),
+            BatchNorm(features=64),
+            ReLU(),
+            Conv(in_features=64, out_features=64, kernel_size=(3, 3), stride=(1, 1)),
+            BatchNorm(features=64),
+            ReLU(),
         )
 
-        self.relu = nn.ReLU(inplace=True)
+        self.relu = ReLU()
 
-        self.linear1 = nn.Linear(in_features=7 * 7 * 64, out_features=200)
-        self.linear2 = nn.Linear(in_features=200 + out_features, out_features=200)
-        self.linear3 = nn.Linear(in_features=200, out_features=1)
+        self.linear1 = Linear(in_features=7 * 7 * 64, out_features=200)
+        self.linear2 = Linear(in_features=200 + out_features, out_features=200)
+        self.linear3 = Linear(in_features=200, out_features=1)
 
-        self.bn1 = nn.BatchNorm1d(200)
-        self.bn2 = nn.BatchNorm1d(200)
+        self.bn1 = BatchNorm(features=200)
+        self.bn2 = BatchNorm(features=200)
 
     def forward(self, x, y):
         """
@@ -109,6 +117,6 @@ class DDPGCritic(nn.Module):
         x = self.extractor(x)
 
         x = self.relu(self.bn1(self.linear1(x.view(x.size(0), -1))))
-        x = torch.cat([x, y], dim=1)
+        x = functional.concatenate([x, y], axis=1)
         x = self.relu(self.bn2(self.linear2(x)))
         return self.linear3(x)

@@ -1,9 +1,12 @@
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
+from joatmon.nn import (
+    functional,
+    Module,
+    Tensor
+)
+from joatmon.nn.layer.linear import Linear
 
 
-class PPOActor(nn.Module):
+class PPOActor(Module):
     """
     Deep Deterministic Policy Gradient
 
@@ -21,11 +24,11 @@ class PPOActor(nn.Module):
     def __init__(self, in_features, out_features):
         super(PPOActor, self).__init__()
 
-        self.hidden1 = nn.Linear(in_features, 128)
-        self.hidden2 = nn.Linear(128, 128)
-        self.out = nn.Linear(128, out_features)
+        self.hidden1 = Linear(in_features, 128)
+        self.hidden2 = Linear(128, 128)
+        self.out = Linear(128, out_features)
 
-    def forward(self, state: torch.Tensor) -> torch.Tensor:
+    def forward(self, state: Tensor) -> Tensor:
         """
         Remember the transaction.
 
@@ -34,14 +37,14 @@ class PPOActor(nn.Module):
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        x = F.relu(self.hidden1(state))
-        x = F.relu(self.hidden2(x))
+        x = functional.relu(self.hidden1(state), alpha=0)
+        x = functional.relu(self.hidden2(x), alpha=0)
         action = self.out(x).tanh()
 
         return action
 
 
-class PPOCritic(nn.Module):
+class PPOCritic(Module):
     """
     Deep Deterministic Policy Gradient
 
@@ -59,11 +62,11 @@ class PPOCritic(nn.Module):
     def __init__(self, in_features, out_features):
         super(PPOCritic, self).__init__()
 
-        self.hidden1 = nn.Linear(in_features + out_features, 128)
-        self.hidden2 = nn.Linear(128, 128)
-        self.out = nn.Linear(128, 1)
+        self.hidden1 = Linear(in_features + out_features, 128)
+        self.hidden2 = Linear(128, 128)
+        self.out = Linear(128, 1)
 
-    def forward(self, state: torch.Tensor, action: torch.Tensor) -> torch.Tensor:
+    def forward(self, state: Tensor, action: Tensor) -> Tensor:
         """
         Remember the transaction.
 
@@ -72,9 +75,9 @@ class PPOCritic(nn.Module):
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        x = torch.cat((state, action), dim=-1)
-        x = F.relu(self.hidden1(x))
-        x = F.relu(self.hidden2(x))
+        x = functional.concat([state, action], axis=-1)
+        x = functional.relu(self.hidden1(x))
+        x = functional.relu(self.hidden2(x))
         value = self.out(x)
 
         return value

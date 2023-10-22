@@ -2496,7 +2496,7 @@ def gpu(inp) -> 'Tensor':
     return inp
 
 
-def relu(inp, alpha) -> 'Tensor':
+def relu(inp, alpha=0.0) -> 'Tensor':
     """
     Remember the transaction.
 
