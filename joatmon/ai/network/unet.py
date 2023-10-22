@@ -1,9 +1,19 @@
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
+from joatmon.nn import (
+    functional,
+    Module,
+    Sequential
+)
+from joatmon.nn.layer.activation.relu import ReLU
+from joatmon.nn.layer.batchnorm import BatchNorm
+from joatmon.nn.layer.conv import (
+    Conv,
+    ConvTranspose
+)
+from joatmon.nn.layer.pool.maxpool import MaxPool
+from joatmon.nn.layer.upsample import Upsample
 
 
-class DoubleConv(nn.Module):
+class DoubleConv(Module):
     """
     Deep Deterministic Policy Gradient
 
@@ -22,13 +32,13 @@ class DoubleConv(nn.Module):
         super().__init__()
         if not mid_channels:
             mid_channels = out_channels
-        self.double_conv = nn.Sequential(
-            nn.Conv2d(in_channels, mid_channels, kernel_size=3, padding=1, bias=False),
-            nn.BatchNorm2d(mid_channels),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(mid_channels, out_channels, kernel_size=3, padding=1, bias=False),
-            nn.BatchNorm2d(out_channels),
-            nn.ReLU(inplace=True),
+        self.double_conv = Sequential(
+            Conv(in_channels, mid_channels, kernel_size=3, padding=1),
+            BatchNorm(mid_channels),
+            ReLU(),
+            Conv(mid_channels, out_channels, kernel_size=3, padding=1),
+            BatchNorm(out_channels),
+            ReLU(),
         )
 
     def forward(self, x):
@@ -43,7 +53,7 @@ class DoubleConv(nn.Module):
         return self.double_conv(x)
 
 
-class Down(nn.Module):
+class Down(Module):
     """
     Deep Deterministic Policy Gradient
 
@@ -60,7 +70,7 @@ class Down(nn.Module):
 
     def __init__(self, in_channels, out_channels):
         super().__init__()
-        self.maxpool_conv = nn.Sequential(nn.MaxPool2d(2), DoubleConv(in_channels, out_channels))
+        self.maxpool_conv = Sequential(MaxPool(2), DoubleConv(in_channels, out_channels))
 
     def forward(self, x):
         """
@@ -74,7 +84,7 @@ class Down(nn.Module):
         return self.maxpool_conv(x)
 
 
-class Up(nn.Module):
+class Up(Module):
     """
     Deep Deterministic Policy Gradient
 
@@ -93,10 +103,10 @@ class Up(nn.Module):
         super().__init__()
 
         if bilinear:
-            self.up = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)
+            self.up = Upsample(scale_factor=2, mode='bilinear')
             self.conv = DoubleConv(in_channels, out_channels, in_channels // 2)
         else:
-            self.up = nn.ConvTranspose2d(in_channels, in_channels // 2, kernel_size=2, stride=2)
+            self.up = ConvTranspose(in_channels, in_channels // 2, kernel_size=2, stride=2)
             self.conv = DoubleConv(in_channels, out_channels)
 
     def forward(self, x1, x2):
@@ -113,12 +123,12 @@ class Up(nn.Module):
         diff_y = x2.size()[2] - x1.size()[2]
         diff_x = x2.size()[3] - x1.size()[3]
 
-        x1 = F.pad(x1, [diff_x // 2, diff_x - diff_x // 2, diff_y // 2, diff_y - diff_y // 2])
-        x = torch.cat([x2, x1], dim=1)
+        x1 = functional.pad(x1, [diff_x // 2, diff_x - diff_x // 2, diff_y // 2, diff_y - diff_y // 2])
+        x = functional.concat([x2, x1], axis=1)
         return self.conv(x)
 
 
-class OutConv(nn.Module):
+class OutConv(Module):
     """
     Deep Deterministic Policy Gradient
 
@@ -135,7 +145,7 @@ class OutConv(nn.Module):
 
     def __init__(self, in_channels, out_channels):
         super(OutConv, self).__init__()
-        self.conv = nn.Conv2d(in_channels, out_channels, kernel_size=1)
+        self.conv = Conv(in_channels, out_channels, kernel_size=1)
 
     def forward(self, x):
         """
@@ -149,7 +159,7 @@ class OutConv(nn.Module):
         return self.conv(x)
 
 
-class UNet(nn.Module):
+class UNet(Module):
     """
     Deep Deterministic Policy Gradient
 
