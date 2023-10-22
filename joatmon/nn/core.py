@@ -196,6 +196,9 @@ class Tensor:
     def __mul__(self, other) -> 'Tensor':
         return self.mul(other)
 
+    def __rmul__(self, other):
+        return self.mul(other)
+
     def __truediv__(self, other) -> 'Tensor':
         return self.div(other)
 
@@ -1481,6 +1484,62 @@ class Module:
         keys = [key for key in keys if not key[0].isdigit()]
 
         return sorted(keys)
+
+
+class Sequential(Module):
+    def __init__(self, *args):
+        super().__init__()
+        if len(args) == 1 and isinstance(args[0], OrderedDict):
+            for key, module in args[0].items():
+                self.add_module(key, module)
+        else:
+            for idx, module in enumerate(args):
+                self.add_module(str(idx), module)
+
+    def _get_item_by_idx(self, iterator, idx):
+        """Get the idx-th item of the iterator"""
+        size = len(self)
+        idx = operator.index(idx)
+        if not -size <= idx < size:
+            raise IndexError('index {} is out of range'.format(idx))
+        idx %= size
+        return next(islice(iterator, idx, None))
+
+    def __getitem__(self, idx: Union[slice, int]):
+        if isinstance(idx, slice):
+            return self.__class__(OrderedDict(list(self._modules.items())[idx]))
+        else:
+            return self._get_item_by_idx(self._modules.values(), idx)
+
+    def __setitem__(self, idx: int, module: Module):
+        key: str = self._get_item_by_idx(self._modules.keys(), idx)
+        return setattr(self, key, module)
+
+    def __delitem__(self, idx: Union[slice, int]):
+        if isinstance(idx, slice):
+            for key in list(self._modules.keys())[idx]:
+                delattr(self, key)
+        else:
+            key = self._get_item_by_idx(self._modules.keys(), idx)
+            delattr(self, key)
+        # To preserve numbering
+        str_indices = [str(i) for i in range(len(self._modules))]
+        self._modules = OrderedDict(list(zip(str_indices, self._modules.values())))
+
+    def __len__(self):
+        return len(self._modules)
+
+    def __iter__(self):
+        return iter(self._modules.values())
+
+    # NB: We can't really type check this function as the type of input
+    # may change dynamically (as is tested in
+    # TestScript.test_sequential_intermediary_types).  Cannot annotate
+    # with Any as TorchScript expects a more precise type
+    def forward(self, inp):
+        for module in self:
+            inp = module(inp)
+        return inp
 
 
 class Loss(Module):

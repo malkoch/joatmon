@@ -18,9 +18,9 @@ class MaxPool:
         gamma (float): gamma.
     """
 
-    def __init__(self, kernel_size, stride, padding):
+    def __init__(self, kernel_size, stride=None, padding=0):
         self._kernel_size = kernel_size
-        self._stride = stride
+        self._stride = stride if (stride is not None) else kernel_size
         self._padding = padding
 
     def forward(self, inp):
