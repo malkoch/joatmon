@@ -10,7 +10,10 @@ from typing import (
 )
 
 from joatmon.nn.core import Tensor
-from joatmon.nn.utility import _calculate_output_dims
+from joatmon.nn.utility import (
+    _calculate_input_dims,
+    _calculate_output_dims
+)
 
 BooleanT = Union[bool]
 IntegerT = Union[int]
@@ -26,6 +29,7 @@ IndexT = Union[int, slice, Tuple[Union[int, slice], ...]]
 
 __all__ = [
     'is_tensor',
+    'pad_backward',
     'concat_backward',
     'stack_backward',
     'chunk_backward',
@@ -63,12 +67,15 @@ __all__ = [
     'tanh_backward',
     'dense_backward',
     'conv_backward',
+    'conv_transpose_backward',
+    'bilinear_interpolation_backward',
     'dropout_backward',
     'batch_norm_backward',
     'max_pool_backward',
     'avg_pool_backward',
     'lstm_cell_backward',
     'lstm_backward',
+    'pad',
     'concat',
     'stack',
     'chunk',
@@ -139,6 +146,8 @@ __all__ = [
     'tanh',
     'dense',
     'conv',
+    'conv_transpose',
+    'bilinear_interpolation',
     'dropout',
     'batch_norm',
     'max_pool',
@@ -270,6 +279,21 @@ def is_tensor(obj: object) -> bool:
         transaction (abstract): state, action, reward, next_state, terminal transaction.
     """
     return isinstance(obj, Tensor)
+
+
+def pad_backward(gradient: Tensor, inp: Tensor):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+    _check_tensors(inp)
+    engine = _get_engine(inp)
+
+    _set_grad(inp, gradient.data * engine.ones_like(inp.data))
 
 
 def concat_backward(gradient: Tensor, tensors: List[Tensor], axis: int = 0):
@@ -503,7 +527,6 @@ def log_backward(gradient: Tensor, inp: Tensor):
         transaction (abstract): state, action, reward, next_state, terminal transaction.
     """
     _check_tensors(inp)
-    engine = _get_engine(inp)
 
     _set_grad(inp, gradient.data * (1 / inp.data))
 
@@ -873,23 +896,12 @@ def conv_backward(
 
     for _row in range(_output_height):
         for _column in range(_output_width):
-            _output_array[
-            :,
-            :,
-            _row * stride: _row * stride + _kernel_height,
-            _column * stride: _column * stride + _kernel_width,
-            ] += engine.sum(
+            _output_array[:, :, _row * stride: _row * stride + _kernel_height, _column * stride: _column * stride + _kernel_width, ] += engine.sum(
                 _weight_array[None, :, :, :, :] * _grad_array[:, :, None, _row: _row + 1, _column: _column + 1],
                 axis=1,
             )
             _weight_grad += engine.sum(
-                _padded_input_array[
-                :,
-                None,
-                :,
-                _row * stride: _row * stride + _kernel_height,
-                _column * stride: _column * stride + _kernel_width,
-                ]
+                _padded_input_array[:, None, :, _row * stride: _row * stride + _kernel_height, _column * stride: _column * stride + _kernel_width, ]
                 * _grad_array[:, :, None, _row: _row + 1, _column: _column + 1],
                 axis=0,
             )
@@ -897,6 +909,114 @@ def conv_backward(
     _set_grad(inp, _weight_grad)
     _set_grad(weight, _bias_grad)
     _set_grad(bias, _output_array[:, :, padding[0]: padding[0] + _input_height, padding[1]: padding[1] + input_width])
+
+
+def conv_transpose_backward(
+        gradient: Tensor, inp: Tensor, weight: Tensor, bias: Tensor, stride: int, padding: Union[List[int], Tuple[int]]
+):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+    # _check_tensors(inp, weight, bias)
+    # engine = _get_engine(inp, weight, bias)
+    #
+    # _padded_input_array = engine.pad(
+    #     inp.data, ((0, 0), (0, 0), (padding[0], padding[0]), (padding[1], padding[1])), mode='constant'
+    # )
+    # _weight_array = weight.data
+    # _grad_array = gradient.data
+    #
+    # _, _, _input_height, input_width = inp.shape
+    # _, _, _kernel_height, _kernel_width = _weight_array.shape
+    # _, _, _output_height, _output_width = _grad_array.shape
+    # _output_array = engine.zeros_like(_padded_input_array)
+    #
+    # _weight_grad = engine.zeros_like(_weight_array)
+    # _bias_grad = _grad_array.sum(axis=(0, 2, 3))
+    #
+    # for _row in range(_output_height):
+    #     for _column in range(_output_width):
+    #         _output_array[:, :, _row * stride: _row * stride + _kernel_height, _column * stride: _column * stride + _kernel_width, ] += engine.sum(
+    #             _weight_array[None, :, :, :, :] * _grad_array[:, :, None, _row: _row + 1, _column: _column + 1],
+    #             axis=1,
+    #         )
+    #         _weight_grad += engine.sum(
+    #             _padded_input_array[:, None, :, _row * stride: _row * stride + _kernel_height, _column * stride: _column * stride + _kernel_width, ]
+    #             * _grad_array[:, :, None, _row: _row + 1, _column: _column + 1],
+    #             axis=0,
+    #         )
+    #
+    # _set_grad(inp, _weight_grad)
+    # _set_grad(weight, _bias_grad)
+    # _set_grad(bias, _output_array[:, :, padding[0]: padding[0] + _input_height, padding[1]: padding[1] + input_width])
+
+
+def bilinear_interpolation_backward(gradient: Tensor, inp: Tensor, scale_factor):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+    _check_tensors(inp)
+    engine = _get_engine(inp)
+
+    b, c, height, width = inp.data.shape
+
+    if isinstance(scale_factor, (list, tuple)):  # make sure they have same dimensions
+        scale_factors = scale_factor
+    else:
+        scale_factors = [scale_factor for _ in range(2)]
+
+    output_size = [int(inp.data.shape[idx + 2] * scale_factors[idx]) for idx in range(2)]
+
+    # Initialize the output image
+    interpolated_image = engine.zeros([b, c] + output_size, dtype=engine.float32)
+
+    new_grad = engine.zeros_like(inp.data)
+
+    for batch in range(b):
+        for y in range(output_size[0]):
+            for x in range(output_size[1]):
+                # Calculate the corresponding coordinates in the original image
+                original_x = x / scale_factors[1]
+                original_y = y / scale_factors[0]
+
+                # Find the four nearest neighbor pixels in the original image
+                x0 = int(original_x)
+                x1 = min(x0 + 1, width - 1)
+                y0 = int(original_y)
+                y1 = min(y0 + 1, height - 1)
+
+                # Calculate the weights for bilinear interpolation
+                weight_x1 = original_x - x0
+                weight_x0 = 1 - weight_x1
+                weight_y1 = original_y - y0
+                weight_y0 = 1 - weight_y1
+
+                # Perform bilinear interpolation for each color channel
+                for channel in range(c):
+                    interpolated_value = (
+                            inp.data[batch, channel, y0, x0] * weight_x0 * weight_y0 +
+                            inp.data[batch, channel, y0, x1] * weight_x1 * weight_y0 +
+                            inp.data[batch, channel, y1, x0] * weight_x0 * weight_y1 +
+                            inp.data[batch, channel, y1, x1] * weight_x1 * weight_y1
+                    )
+                    interpolated_image[batch, channel, y, x] = interpolated_value
+
+                    new_grad[batch, channel, y0, x0] += weight_x0 * weight_y0 * gradient.data[batch, channel, y, x]
+                    new_grad[batch, channel, y0, x1] += weight_x1 * weight_y0 * gradient.data[batch, channel, y, x]
+                    new_grad[batch, channel, y1, x0] += weight_x0 * weight_y1 * gradient.data[batch, channel, y, x]
+                    new_grad[batch, channel, y1, x1] += weight_x1 * weight_y1 * gradient.data[batch, channel, y, x]
+
+    _set_grad(inp, new_grad)
 
 
 def dropout_backward(gradient: Tensor, inp: Tensor, mask, keep_prob: float):
@@ -987,12 +1107,7 @@ def max_pool_backward(
     for _row in range(_output_height):
         for _column in range(_output_width):
             increment = grad_array[:, :, _row: _row + 1, _column: _column + 1] * cache[(_row, _column)]
-            _output_array[
-            :,
-            :,
-            _row * stride: _row * stride + _kernel_height,
-            _column * stride: _column * stride + _kernel_width,
-            ] += increment
+            _output_array[:, :, _row * stride: _row * stride + _kernel_height, _column * stride: _column * stride + _kernel_width, ] += increment
 
     _set_grad(
         inp,
@@ -1031,12 +1146,7 @@ def avg_pool_backward(
     for _row in range(_output_height):
         for _column in range(_output_width):
             increment = grad_array[:, :, _row: _row + 1, _column: _column + 1] / _kernel_height / _kernel_width
-            _output_array[
-            :,
-            :,
-            _row * stride: _row * stride + _kernel_height,
-            _column * stride: _column * stride + _kernel_width,
-            ] += increment
+            _output_array[:, :, _row * stride: _row * stride + _kernel_height, _column * stride: _column * stride + _kernel_width, ] += increment
 
     _set_grad(
         inp,
@@ -1374,6 +1484,27 @@ def lstm_backward(gradient, inp, all_weights, cache):
         _set_grad(all_weights[layer][1], d_whh_array[layer])
         _set_grad(all_weights[layer][2], d_bih_array[layer])
         _set_grad(all_weights[layer][3], d_bhh_array[layer])
+
+
+def pad(inp: Tensor, padding, mode="constant") -> 'Tensor':
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+    _check_tensors(inp)
+    engine = _get_engine(inp)
+
+    left, right, top, bottom = padding
+
+    return _create_tensor(
+        inp, data=engine.pad(
+            inp.data, ((0, 0), (0, 0), (top, bottom), (left, right)), mode=mode
+        ), func=wrapped_partial(pad_backward, inp=inp)
+    )
 
 
 def concat(tensors: List[Tensor], axis: int = 0) -> 'Tensor':
@@ -2483,13 +2614,7 @@ def conv(inp, weight, bias, stride, padding) -> 'Tensor':
     for row in range(output_height):
         for column in range(output_width):
             output_array[:, :, row, column] = engine.sum(
-                padded_input_array[
-                :,
-                None,
-                :,
-                row * stride: row * stride + kernel_height,
-                column * stride: column * stride + kernel_width,
-                ]
+                padded_input_array[:, None, :, row * stride: row * stride + kernel_height, column * stride: column * stride + kernel_width, ]
                 * weight_array[None, :, :, :],
                 axis=(2, 3, 4),
             )
@@ -2500,6 +2625,103 @@ def conv(inp, weight, bias, stride, padding) -> 'Tensor':
         bias,
         data=output_array + bias_array[:, None, None],
         func=wrapped_partial(conv_backward, inp=inp, weight=weight, bias=bias, stride=stride, padding=padding),
+    )
+
+
+def conv_transpose(inp, weight, bias, stride, padding) -> 'Tensor':
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+    _check_tensors(inp, weight, bias)
+    engine = _get_engine(inp, weight, bias)
+
+    weight_array = weight.data
+    bias_array = bias.data
+
+    input_shape = inp.data.shape
+    output_shape = _calculate_input_dims(
+        output_shape=input_shape, kernel_shape=weight.shape, padding=padding, stride=stride
+    )
+
+    output_array = engine.zeros(output_shape)
+
+    _, _, kernel_height, kernel_width = weight.shape
+    _, _, input_height, input_width = input_shape
+
+    for row in range(input_height):
+        for column in range(input_width):
+            output_array[:, :, row:row + kernel_height, column:column + kernel_width] += engine.sum(inp.data[:, :, row, column] * weight_array[None, :, :, :], axis=(2,))
+
+    return _create_tensor(
+        inp,
+        weight,
+        bias,
+        data=output_array + bias_array[:, None, None],
+        func=wrapped_partial(conv_transpose_backward, inp=inp, weight=weight, bias=bias, stride=stride, padding=padding),
+    )
+
+
+def bilinear_interpolation(inp, scale_factor):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+    _check_tensors(inp)
+    engine = _get_engine(inp)
+    b, c, height, width = inp.data.shape
+
+    if isinstance(scale_factor, (list, tuple)):  # make sure they have same dimensions
+        scale_factors = scale_factor
+    else:
+        scale_factors = [scale_factor for _ in range(2)]
+
+    output_size = [int(inp.data.shape[idx + 2] * scale_factors[idx]) for idx in range(2)]
+
+    # Initialize the output image
+    interpolated_image = engine.zeros([b, c] + output_size, dtype=engine.float32)
+
+    for batch in range(b):
+        for y in range(output_size[0]):
+            for x in range(output_size[1]):
+                # Calculate the corresponding coordinates in the original image
+                original_x = x / scale_factors[1]
+                original_y = y / scale_factors[0]
+
+                # Find the four nearest neighbor pixels in the original image
+                x0 = int(original_x)
+                x1 = min(x0 + 1, width - 1)
+                y0 = int(original_y)
+                y1 = min(y0 + 1, height - 1)
+
+                # Calculate the weights for bilinear interpolation
+                weight_x1 = original_x - x0
+                weight_x0 = 1 - weight_x1
+                weight_y1 = original_y - y0
+                weight_y0 = 1 - weight_y1
+
+                # Perform bilinear interpolation for each color channel
+                for channel in range(c):
+                    interpolated_value = (
+                            inp.data[batch, channel, y0, x0] * weight_x0 * weight_y0 +
+                            inp.data[batch, channel, y0, x1] * weight_x1 * weight_y0 +
+                            inp.data[batch, channel, y1, x0] * weight_x0 * weight_y1 +
+                            inp.data[batch, channel, y1, x1] * weight_x1 * weight_y1
+                    )
+                    interpolated_image[batch, channel, y, x] = interpolated_value
+
+    return _create_tensor(
+        inp,
+        data=interpolated_image,
+        func=wrapped_partial(bilinear_interpolation_backward, inp=inp, scale_factor=scale_factor),
     )
 
 
