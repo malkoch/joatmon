@@ -163,23 +163,47 @@ class Tensor:
         # self._requires_grad = value.requires_grad
         self._data[key] = value.data
 
-    # def __ge__(self, other):
-    #     return self.greater_or_equal(other)
-    #
-    # def __gt__(self, other):
-    #     return self.greater(other)
-    #
-    # def __le__(self, other):
-    #     return self.lesser_or_equal(other)
-    #
-    # def __lt__(self, other):
-    #     return self.lesser(other)
-    #
-    # def __eq__(self, other):
-    #     return self.equal(other)
-    #
-    # def __ne__(self, other):
-    #     return self.not_equal(other)
+    def __ge__(self, other):
+        # return self.greater_or_equal(other)
+        if isinstance(other, Tensor):
+            return Tensor(data=self.data >= other.data)
+        else:
+            return Tensor(data=self.data >= other)
+
+    def __gt__(self, other):
+        # return self.greater(other)
+        if isinstance(other, Tensor):
+            return Tensor(data=self.data > other.data)
+        else:
+            return Tensor(data=self.data > other)
+
+    def __le__(self, other):
+        # return self.lesser_or_equal(other)
+        if isinstance(other, Tensor):
+            return Tensor(data=self.data <= other.data)
+        else:
+            return Tensor(data=self.data <= other)
+
+    def __lt__(self, other):
+        # return self.lesser(other)
+        if isinstance(other, Tensor):
+            return Tensor(data=self.data < other.data)
+        else:
+            return Tensor(data=self.data < other)
+
+    def __eq__(self, other):
+        # return self.equal(other)
+        if isinstance(other, Tensor):
+            return Tensor(data=self.data == other.data)
+        else:
+            return Tensor(data=self.data == other)
+
+    def __ne__(self, other):
+        # return self.not_equal(other)
+        if isinstance(other, Tensor):
+            return Tensor(data=self.data != other.data)
+        else:
+            return Tensor(data=self.data != other)
 
     def __add__(self, other) -> 'Tensor':
         return self.add(other)

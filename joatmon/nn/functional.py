@@ -49,6 +49,7 @@ __all__ = [
     'mean_backward',
     'std_backward',
     'var_backward',
+    'where_backward',
     # 'greater_or_equal_backward',
     # 'greater_backward',
     # 'lesser_or_equal_backward',
@@ -98,6 +99,7 @@ __all__ = [
     'mean',
     'std',
     'var',
+    'where',
     # 'greater_or_equal',
     # 'greater',
     # 'lesser_or_equal',
@@ -439,7 +441,7 @@ def absolute_backward(gradient: Tensor, inp: Tensor):
     _check_tensors(inp)
     engine = _get_engine(inp)
 
-    _set_grad(inp, gradient.data * engine.ones_like(inp.data))
+    _set_grad(inp, gradient.data * engine.where(inp.data > 0, 1, -1))
 
 
 def around_backward(gradient: Tensor, inp: Tensor):
@@ -558,7 +560,7 @@ def mean_backward(gradient: Tensor, inp: Tensor):
     _check_tensors(inp)
     engine = _get_engine(inp)
 
-    _set_grad(inp, gradient.data * engine.ones_like(inp.data))
+    _set_grad(inp, gradient.data * engine.ones_like(inp.data) / engine.prod(inp.data.shape))
 
 
 def std_backward(gradient: Tensor, inp: Tensor):
@@ -589,6 +591,25 @@ def var_backward(gradient: Tensor, inp: Tensor):
     engine = _get_engine(inp)
 
     _set_grad(inp, gradient.data * engine.ones_like(inp.data))
+
+
+def where_backward(gradient: Tensor, condition: Tensor, tensor1: Tensor, tensor2: Tensor):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+    _check_tensors(tensor1, tensor2)
+    engine = _get_engine(tensor1, tensor2)
+
+    inp_grad = engine.where(condition.data, 1, 0)
+    other_grad = engine.where(condition.data, 0, 1)
+
+    _set_grad(tensor1, gradient.data * inp_grad)
+    _set_grad(tensor2, gradient.data * other_grad)
 
 
 # def greater_or_equal_backward(gradient: Tensor, inp1: Tensor, inp2: Tensor):
@@ -1865,6 +1886,25 @@ def var(inp) -> 'Tensor':
     return _create_tensor(inp, data=engine.var(inp.data), func=wrapped_partial(var_backward, inp=inp))
 
 
+def where(condition, tensor1, tensor2) -> 'Tensor':
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+    _check_tensors(tensor1, tensor2)
+    engine = _get_engine(tensor1, tensor2)
+
+    return _create_tensor(
+        tensor1, tensor2,
+        data=engine.where(condition.data, tensor1.data, tensor2.data),
+        func=wrapped_partial(where_backward, condition=condition, tensor1=tensor1, tensor2=tensor2)
+    )
+
+
 # def greater_or_equal(inp1, inp2) -> 'Tensor':
 #     """
 #     Remember the transaction.
@@ -2170,7 +2210,7 @@ def rand(size, requires_grad=False, device='cpu', dtype='float32') -> 'Tensor':
         transaction (abstract): state, action, reward, next_state, terminal transaction.
     """
     engine = _get_engine(device)
-    return from_array(engine.random.rand(size).astype(dtype), requires_grad, device)
+    return from_array(engine.random.rand(*size).astype(dtype), requires_grad, device)
 
 
 def randint(low=0, high=0, size=None, requires_grad=False, device='cpu', dtype='float32') -> 'Tensor':
