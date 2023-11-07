@@ -161,11 +161,6 @@ __all__ = [
 ]
 
 
-# need to implement inplace
-
-# should have c / c++ codes to use them in functional apis
-
-
 def wrapped_partial(func, *args, **kwargs):
     """
     Remember the transaction.
