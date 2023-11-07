@@ -7,3 +7,13 @@
     - afterwards open the connection again
 - if any connection is transactional, wait for the commit action, then close the action
     - afterwards open the connection again
+
+- need to implement inplace
+- need to implement loss functions
+- need to implement min, max methods
+- need to implement greater etc. methods
+- if the input is parameter, just do the calculation
+
+- should have c / c++ codes to use them in functional apis
+
+- implement the array module as well, check the performance and correctness using numpy
