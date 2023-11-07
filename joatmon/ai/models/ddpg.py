@@ -1,10 +1,6 @@
 import copy
 import os
 
-import torch
-import torch.nn as nn
-import torch.optim as optim
-
 from joatmon.ai.models.core import CoreModel
 from joatmon.ai.network.ddpg import (
     DDPGActor,
@@ -16,6 +12,12 @@ from joatmon.ai.utility import (
     to_numpy,
     to_tensor
 )
+from joatmon.nn import init
+from joatmon.nn.layer.batchnorm import BatchNorm
+from joatmon.nn.layer.conv import Conv
+from joatmon.nn.layer.linear import Linear
+from joatmon.nn.loss.huber import HuberLoss
+from joatmon.nn.optimizer.adam import Adam
 
 __all__ = ['DDPGModel']
 
@@ -50,10 +52,10 @@ class DDPGModel(CoreModel):
         self.tau = tau
         self.gamma = gamma
 
-        self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=self.lr)
+        self.actor_optimizer = Adam(list(self.actor_local.parameters()), lr=self.lr)
 
-        self.critic_optimizer = optim.Adam(self.critic_local.parameters(), lr=self.lr)
-        self.critic_loss = nn.SmoothL1Loss()
+        self.critic_optimizer = Adam(list(self.critic_local.parameters()), lr=self.lr)
+        self.critic_loss = HuberLoss()
 
     def load(self, path=''):
         """
@@ -94,36 +96,36 @@ class DDPGModel(CoreModel):
         """
         for module in self.actor_local.modules():
             if isinstance(
-                    module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
+                    module, (Conv, BatchNorm, Linear)
             ):  # batch norm will be different
                 if w_init is not None:
-                    torch.nn.init.kaiming_normal(module.weight)
+                    init.kaiming_normal(module.weight)
                 if b_init is not None:  # bias init will be different
-                    torch.nn.init.kaiming_normal(module.bias)
+                    init.kaiming_normal(module.bias)
         for module in self.actor_target.modules():
             if isinstance(
-                    module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
+                    module, (Conv, BatchNorm, Linear)
             ):  # batch norm will be different
                 if w_init is not None:
-                    torch.nn.init.kaiming_normal(module.weight)
+                    init.kaiming_normal(module.weight)
                 if b_init is not None:  # bias init will be different
-                    torch.nn.init.kaiming_normal(module.bias)
+                    init.kaiming_normal(module.bias)
         for module in self.critic_local.modules():
             if isinstance(
-                    module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
+                    module, (Conv, BatchNorm, Linear)
             ):  # batch norm will be different
                 if w_init is not None:
-                    torch.nn.init.kaiming_normal(module.weight)
+                    init.kaiming_normal(module.weight)
                 if b_init is not None:  # bias init will be different
-                    torch.nn.init.kaiming_normal(module.bias)
+                    init.kaiming_normal(module.bias)
         for module in self.critic_target.modules():
             if isinstance(
-                    module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
+                    module, (Conv, BatchNorm, Linear)
             ):  # batch norm will be different
                 if w_init is not None:
-                    torch.nn.init.kaiming_normal(module.weight)
+                    init.kaiming_normal(module.weight)
                 if b_init is not None:  # bias init will be different
-                    torch.nn.init.kaiming_normal(module.bias)
+                    init.kaiming_normal(module.bias)
 
     def softupdate(self, network: str):
         """
@@ -136,12 +138,10 @@ class DDPGModel(CoreModel):
         """
         if network == 'actor':
             for target_param, param in zip(self.actor_target.parameters(), self.actor_local.parameters()):
-                target_param.detach_()
-                target_param.copy_(target_param * (1.0 - self.tau) + param * self.tau)
+                target_param._data = target_param.data * (1.0 - self.tau) + param.data * self.tau
         elif network == 'critic':
             for target_param, param in zip(self.critic_target.parameters(), self.critic_local.parameters()):
-                target_param.detach_()
-                target_param.copy_(target_param * (1.0 - self.tau) + param * self.tau)
+                target_param._data = target_param.data * (1.0 - self.tau) + param.data * self.tau
         else:
             raise ValueError
 
@@ -156,12 +156,10 @@ class DDPGModel(CoreModel):
         """
         if network == 'actor':
             for target_param, param in zip(self.actor_target.parameters(), self.actor_local.parameters()):
-                target_param.detach_()
-                target_param.copy_(param)
+                target_param._data = param.data
         elif network == 'critic':
             for target_param, param in zip(self.critic_target.parameters(), self.critic_local.parameters()):
-                target_param.detach_()
-                target_param.copy_(param)
+                target_param._data = param.data
         else:
             raise ValueError
 
