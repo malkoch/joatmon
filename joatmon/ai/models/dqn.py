@@ -2,9 +2,7 @@ import copy
 import os
 
 import numpy as np
-import torch
-import torch.nn as nn
-import torch.optim as optim
+from joatmon.nn import init
 
 from joatmon.ai.models.core import CoreModel
 from joatmon.ai.network import DQN
@@ -17,6 +15,15 @@ from joatmon.ai.utility import (
 )
 
 __all__ = ['DQNModel']
+
+from joatmon.nn.layer.batchnorm import BatchNorm
+
+from joatmon.nn.layer.conv import Conv
+from joatmon.nn.layer.linear import Linear
+
+from joatmon.nn.loss.huber import HuberLoss
+
+from joatmon.nn.optimizer.adam import Adam
 
 
 class DQNModel(CoreModel):
@@ -42,8 +49,8 @@ class DQNModel(CoreModel):
         self.tau = tau
         self.gamma = gamma
 
-        self.optimizer = optim.Adam(self.local.parameters(), lr=self.lr)
-        self.loss = nn.SmoothL1Loss()
+        self.optimizer = Adam(list(self.local.parameters()), lr=self.lr)
+        self.loss = HuberLoss()
 
     def load(self, path=''):
         """
@@ -80,20 +87,20 @@ class DQNModel(CoreModel):
         """
         for module in self.target.modules():
             if isinstance(
-                    module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
+                    module, (Conv, BatchNorm, Linear)
             ):  # batch norm will be different
                 if w_init is not None:
-                    torch.nn.init.kaiming_normal(module.weight)
+                    init.kaiming_normal(module.weight)
                 if b_init is not None:  # bias init will be different
-                    torch.nn.init.kaiming_normal(module.bias)
+                    init.kaiming_normal(module.bias)
         for module in self.local.modules():
             if isinstance(
-                    module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
+                    module, (Conv, BatchNorm, Linear)
             ):  # batch norm will be different
                 if w_init is not None:
-                    torch.nn.init.kaiming_normal(module.weight)
+                    init.kaiming_normal(module.weight)
                 if b_init is not None:  # bias init will be different
-                    torch.nn.init.kaiming_normal(module.bias)
+                    init.kaiming_normal(module.bias)
 
     def softupdate(self):
         """
@@ -105,8 +112,7 @@ class DQNModel(CoreModel):
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
         for target_param, param in zip(self.target.parameters(), self.local.parameters()):
-            target_param.detach_()
-            target_param.copy_(target_param * (1.0 - self.tau) + param * self.tau)
+            target_param._data = target_param.data * (1.0 - self.tau) + param.data * self.tau
 
     def hardupdate(self):
         """
@@ -118,8 +124,7 @@ class DQNModel(CoreModel):
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
         for target_param, param in zip(self.target.parameters(), self.local.parameters()):
-            target_param.detach_()
-            target_param.copy_(param)
+            target_param._data = param.data
 
     def predict(self, state=None):
         """
@@ -164,7 +169,7 @@ class DQNModel(CoreModel):
         loss = self.loss(q, q_next)
         self.optimizer.zero_grad()
         loss.backward()
-        nn.utils.clip_grad_norm_(self.local.parameters(), 1)
+        # nn.utils.clip_grad_norm_(self.local.parameters(), 1)
         self.optimizer.step()
 
         if update_target:

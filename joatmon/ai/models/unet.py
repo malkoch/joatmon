@@ -1,13 +1,18 @@
-import torch
-import torch.nn as nn
-import torch.optim as optim
-
 from joatmon.ai.models.core import CoreModel
 from joatmon.ai.network import UNet
 from joatmon.ai.utility import (
     load,
     save
 )
+from joatmon.nn import init
+from joatmon.nn.layer.batchnorm import BatchNorm
+
+from joatmon.nn.layer.conv import Conv
+from joatmon.nn.layer.linear import Linear
+
+from joatmon.nn.loss.huber import HuberLoss
+
+from joatmon.nn.optimizer.adam import Adam
 
 __all__ = ['UNetModel']
 
@@ -31,8 +36,8 @@ class UNetModel(CoreModel):
 
         self.lr = lr
 
-        self.optimizer = optim.Adam(self.net.parameters(), lr=self.lr)
-        self.loss = nn.SmoothL1Loss()
+        self.optimizer = Adam(list(self.net.parameters()), lr=self.lr)
+        self.loss = HuberLoss()
 
     def load(self, path=''):
         """
@@ -67,12 +72,12 @@ class UNetModel(CoreModel):
         """
         for module in self.net.modules():
             if isinstance(
-                    module, (torch.nn.Conv2d, torch.nn.BatchNorm2d, torch.nn.Linear)
+                    module, (Conv, BatchNorm, Linear)
             ):  # batch norm will be different
                 if w_init:
-                    torch.nn.init.kaiming_normal(module.weight)
+                    init.kaiming_normal(module.weight)
                 if b_init:  # bias init will be different
-                    torch.nn.init.kaiming_normal(module.bias)
+                    init.kaiming_normal(module.bias)
 
     def predict(self, state=None):
         """

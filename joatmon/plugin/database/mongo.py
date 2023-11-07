@@ -72,7 +72,7 @@ class MongoDatabase(DatabasePlugin):
 
         # even if collection is not structured, need to create indexes
         # even if collection is not structured, need to use default values. do not do full validate but do partial
-        # need to write more converter. for numpy, torch etc.
+        # need to write more converter.
         # need to write bulk writer
         # need to implement cache mechanism, so that when reading and writing it can be used as buffer to decrease database connection number
         # when using session, create a buffer and in the end apply all operations with bulk_write
