@@ -1,8 +1,6 @@
 import copy
 import os
 
-from joatmon.nn import init
-
 from joatmon.ai.models.core import CoreModel
 from joatmon.ai.network.td3 import (
     TD3Actor,
@@ -14,17 +12,14 @@ from joatmon.ai.utility import (
     to_numpy,
     to_tensor
 )
-
-__all__ = ['TD3Model']
-
+from joatmon.nn import init
 from joatmon.nn.layer.batchnorm import BatchNorm
-
 from joatmon.nn.layer.conv import Conv
 from joatmon.nn.layer.linear import Linear
-
 from joatmon.nn.loss.huber import HuberLoss
-
 from joatmon.nn.optimizer.adam import Adam
+
+__all__ = ['TD3Model']
 
 
 class TD3Model(CoreModel):
