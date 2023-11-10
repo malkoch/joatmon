@@ -2527,7 +2527,7 @@ def gpu(inp) -> 'Tensor':
 
     inp._device = 'gpu'
     inp._data = _get_engine().array(inp.data)
-    # inp._data = cp.array(inp.data)
+    # inp._data = cp.array2(inp.data)
     return inp
 
 

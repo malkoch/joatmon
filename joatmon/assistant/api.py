@@ -298,7 +298,10 @@ class API:
         functions = list(map(lambda x: x.help(), tasks))
         functions = list(filter(lambda x: x, functions))
 
-        response = openai.ChatCompletion.create(
+        # can be moved to intent
+        # different intent tools can be written
+        # they can get input as text or audio
+        response = openai.ChatCompletion.create(  # need to be able to swap different ai tools
             model='gpt-3.5-turbo-0613', messages=[{'role': 'user', 'content': response}], functions=functions
         )
 

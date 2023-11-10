@@ -17,3 +17,5 @@
 - should have c / c++ codes to use them in functional apis
 
 - implement the array module as well, check the performance and correctness using numpy
+- hold the array data as one dimensional, when indexing etc. convert indexes to one dimensional, then do operation
+- hold some data like shape etc. in array cache, so that we do not need to calculate it everytime

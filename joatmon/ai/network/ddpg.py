@@ -1,6 +1,5 @@
 __all__ = ['DDPGActor', 'DDPGCritic']
 
-from joatmon.array import functional
 from joatmon.nn import (
     Module,
     Sequential
