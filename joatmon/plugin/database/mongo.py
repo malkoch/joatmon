@@ -96,8 +96,8 @@ class MongoDatabase(DatabasePlugin):
                 bool: ['bool'],
                 UUID: ['binData'],
                 dict: ['object'],
-                list: ['array'],
-                tuple: ['array'],
+                list: ['array2'],
+                tuple: ['array2'],
                 object: ['object'],
             }
 

@@ -1,3 +1,127 @@
+__all__ = []
+
+
+def prod(inp, axis=None) -> int:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+    p = 1
+    for data in inp:
+        p *= data
+    return p
+
+
+def unravel_index(index: int, shape: list) -> list:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+    r = []
+    for i in range(len(shape)):
+        div, mod = divmod(index, prod(shape[i + 1:]))
+        r.append(div)
+        index = mod
+    return r
+
+
+def ravel_index(index: list, shape: list) -> int:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+    r = 0
+    for i, _idx in enumerate(index):
+        r += prod(shape[i + 1:]) * _idx
+    return r
+
+
+def dim(inp: list) -> int:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+    if isinstance(inp, (bool, int, float)):
+        return 0
+    return dim(inp[0]) + 1
+
+
+def flatten(inp: list) -> list:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+    data_type = type(inp)
+
+    ret = []
+    for data in inp:
+        if dim(data) == 0:
+            ret.append(data)
+        elif dim(data) == 1:
+            ret += data
+        else:
+            ret += flatten(data)
+    return data_type(ret)
+
+
+def size(inp: list, axis: int = None):
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+    if isinstance(inp, (bool, int, float)):
+        return ()
+
+    if axis is None or axis < 0:
+        return tuple([len(inp)] + list(size(inp[0])))
+    return tuple((size(inp[0], axis=axis - 1)))
+
+
+def reshape(inp: list, shape: list) -> list:
+    """
+    Remember the transaction.
+
+    Accepts a state, action, reward, next_state, terminal transaction.
+
+    # Arguments
+        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    """
+    flat = flatten(inp)
+
+    subdims = shape[1:]
+    subsize = prod(subdims)
+    if shape[0] * subsize != len(flat):
+        raise ValueError('size does not match or invalid')
+    if not subdims:
+        return flat
+    return [reshape(flat[i: i + subsize], subdims) for i in range(0, len(flat), subsize)]
+
+
+'''
 import math
 from typing import (
     List,
@@ -6,7 +130,7 @@ from typing import (
     Union
 )
 
-from joatmon.array.array import Array
+from joatmon.array2.array import Array
 
 __all__ = [
     'absolute',
@@ -119,7 +243,7 @@ class Broadcast:
 
         # both parameters are NDArray
         if dim(inp1) != 0 and dim(inp2) != 0 and dim(inp1) != dim(inp2):
-            # print('reshaping inp2 array')
+            # print('reshaping inp2 array2')
             new_shape = [1] * (len(size(inp1)) - len(size(inp2))) + list(size(inp2))
             inp2 = reshape(inp2, new_shape)
 
@@ -134,7 +258,7 @@ class Broadcast:
 
         # first dimension sizes are not the same but the first dimension size of the second input is 1, it can be broadcast
         if dim(inp1) != 0 and dim(inp2) != 0 and size(inp1, 0) != size(inp2, 0) and size(inp2, 0) == 1:
-            # print('repeating and reshaping inp2 array')
+            # print('repeating and reshaping inp2 array2')
             inp2 = reshape(repeat(inp2, size(inp1, 0)), (size(inp1, 0),) + size(inp2)[1:])
 
         self.inp1 = inp1
@@ -241,7 +365,7 @@ def empty(shape) -> Array:
         transaction (abstract): state, action, reward, next_state, terminal transaction.
     """
     if len(shape) == 0:
-        raise ValueError('array shape has to be at least 1-dimensional')
+        raise ValueError('array2 shape has to be at least 1-dimensional')
 
     ret = []
     for _ in range(shape[0]):
@@ -259,7 +383,7 @@ def full(shape) -> Array:
         transaction (abstract): state, action, reward, next_state, terminal transaction.
     """
     if len(shape) == 0:
-        raise ValueError('array shape has to be at least 1-dimensional')
+        raise ValueError('array2 shape has to be at least 1-dimensional')
 
     ret = []
     for _ in range(shape[0]):
@@ -277,7 +401,7 @@ def zeros(shape) -> Array:
         transaction (abstract): state, action, reward, next_state, terminal transaction.
     """
     if len(shape) == 0:
-        raise ValueError('array shape has to be at least 1-dimensional')
+        raise ValueError('array2 shape has to be at least 1-dimensional')
 
     ret = []
     for _ in range(shape[0]):
@@ -298,7 +422,7 @@ def ones(shape) -> Array:
         transaction (abstract): state, action, reward, next_state, terminal transaction.
     """
     if len(shape) == 0:
-        raise ValueError('array shape has to be at least 1-dimensional')
+        raise ValueError('array2 shape has to be at least 1-dimensional')
 
     ret = []
     for _ in range(shape[0]):
@@ -432,7 +556,7 @@ def split(inp: ArrayT, chunks, axis=0) -> ArrayT:
     length = len(inp)
     chunk_length = length // chunks
     if chunk_length * chunks != length:
-        raise ValueError(f'array with length {length} cannot be divided into {chunks} chunks')
+        raise ValueError(f'array2 with length {length} cannot be divided into {chunks} chunks')
 
     ret = []
     for chunk in range(chunks):
@@ -750,7 +874,7 @@ def transpose(inp: Union[DataT, ArrayT], axes=None) -> ArrayT:
 
     if axes is None:
         if dim(inp) != 2:
-            raise ValueError(f'axes has to be used on {dim(inp)}-dim array')
+            raise ValueError(f'axes has to be used on {dim(inp)}-dim array2')
         axes = (1, 0)
 
     shape = size(inp)
@@ -1399,3 +1523,4 @@ def dot(inp1: ArrayT, inp2: ArrayT, *, out: Optional[ArrayT] = None) -> ArrayT:
         transaction (abstract): state, action, reward, next_state, terminal transaction.
     """
     ...
+'''

@@ -10,31 +10,19 @@ from setuptools import find_packages
 from joatmon import VERSION
 
 extras = {
-    'ai': ['numpy', 'matplotlib', 'six', 'Pillow'],
-    'analysis': ['pandas'],
+    'ai': [],
+    'analysis': [],
     'array': [],
-    'assistant': ['feedparser', 'requests', 'colorama', 'schedule', 'psutil', 'nltk', 'openai', 'transitions'],
-    'backend': [],
-    'callback': [],
-    'content': [],
-    'decorator': ['async_exit_stack'],
-    'download': ['pycurl'],
-    'event': [],
-    'game': ['gym', 'pygame', 'opencv-contrib-python', 'pymunk', 'chess'],
+    'assistant': [],
+    'automate': [],
+    'decorator': [],
+    'game': [],
     'image': [],
-    'memory': [],
+    'language': [],
     'nn': [],
-    'noise': [],
     'orm': [],
-    'plugin': ['pyjwt', 'redis', 'couchbase', 'elasticsearch', 'pymongo', 'psycopg2', 'pykafka', 'pyotp'],
-    'policy': [],
-    'random': [],
-    'search': ['requests'],
-    'serializable': [],
     'structure': [],
-    'system': ['opencv-contrib-python', 'numpy', 'elevenlabs', 'openai', 'SpeechRecognition', 'whisper', 'pyttsx3'],
-    'utility': [],
-    'version': [],
+    'system': []
 }
 if sys.platform == 'win32':
     extras['system'].extend(['pywin32'])

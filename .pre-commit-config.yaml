@@ -33,7 +33,7 @@
 #      args: ["--max-line-length=120", "--ignore=D100,D104,E203,E402,E501,W503"]
 #    - id: automate_functions
 #      name: Add functions to mkgendocs configurations YAML
-#      entry: bash -c "python3 joatmon/generator/doc.py; git add ." --
+#      entry: bash -c "python3 joatmon/automate/doc.py; git add ." --
 #      language: system
 #    - id: mkgendocs
 #      name: Generate markdown from docstrings

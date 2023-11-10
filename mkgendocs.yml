@@ -1069,8 +1069,8 @@ pages:
     functions:
       - normal
       - uniform
-  - page: "./joatmon/generator/doc.md"
-    source: "joatmon/generator/doc.py"
+  - page: "./joatmon/automate/doc.md"
+    source: "joatmon/automate/doc.py"
     functions:
       - automate_mkdocs_from_docstring
       - indent

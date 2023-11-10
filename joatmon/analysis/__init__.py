@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 
-# some data is pandas.series, some data is numpy array
+# some data is pandas.series, some data is numpy array2
 # need to make sure all of them are the same type
 def calculate_sma(df, window=3, inplace=True):
     """Simple Moving Average (SMA)"""
