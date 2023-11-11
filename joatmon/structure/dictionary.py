@@ -27,7 +27,7 @@ class CustomDictionary(dict):
         gamma (float): gamma.
     """
 
-    def __init__(self, data):
+    def __init__(self, data):  # ignore case parameter
         super(CustomDictionary, self).__init__()
         for k, v in data.items():
             self.__dict__[k] = value_to_cls(v, CustomDictionary)

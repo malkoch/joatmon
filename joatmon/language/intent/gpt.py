@@ -1,4 +1,7 @@
-class TTSAgent:
+from joatmon.language.intent.core import IntentAgent
+
+
+class GPTIntent(IntentAgent):
     """
     Deep Deterministic Policy Gradient
 
@@ -13,7 +16,7 @@ class TTSAgent:
         gamma (float): gamma.
     """
 
-    def convert(self, text):
+    def request(self, message):
         """
         Remember the transaction.
 

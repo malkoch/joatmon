@@ -1,4 +1,4 @@
-class TTSAgent:
+class IntentAgent:
     """
     Deep Deterministic Policy Gradient
 
@@ -13,7 +13,7 @@ class TTSAgent:
         gamma (float): gamma.
     """
 
-    def convert(self, text):
+    def request(self, message):
         """
         Remember the transaction.
 
@@ -22,3 +22,4 @@ class TTSAgent:
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
+        ...

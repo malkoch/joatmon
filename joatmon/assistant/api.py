@@ -11,18 +11,15 @@ from joatmon.assistant import (
     service,
     task
 )
-from joatmon.assistant.intent import GenericAssistant
 from joatmon.assistant.service import (
     ServiceInfo,
     ServiceState
 )
-from joatmon.assistant.stt import STTAgent
 from joatmon.assistant.task import (
     BaseTask,
     TaskInfo,
     TaskState
 )
-from joatmon.assistant.tts import TTSAgent
 from joatmon.core import context
 from joatmon.core.utility import get_module_classes
 from joatmon.plugin.core import register
@@ -65,26 +62,41 @@ class API:
 
         openai.api_key = settings['config']['openai']['key']
 
-        self.tts = settings.get('config', {}).get('tts', False)
-        self.stt = settings.get('config', {}).get('stt', False)
+        self.tts = settings.get('config', {}).get('tts', None)
+        self.stt = settings.get('config', {}).get('stt', None)
 
         if self.tts:
-            self.tts_agent = TTSAgent()
+            cls = self.tts['engine']
+            try:
+                _module = __import__('.'.join(cls.split('.')[:-1]), fromlist=[f'{cls.split(".")[-1]}'])
+            except ModuleNotFoundError:
+                raise Exception(f'class {cls} is not found')
+
+            cls = getattr(_module, cls.split(".")[-1], None)
+
+            self.tts_agent = cls(self.tts['config'])
             self.speaker = Speaker()
         else:
             self.writer = ConsoleWriter()
 
         if self.stt:
-            self.stt_agent = STTAgent()
+            # self.stt_agent = STTAgent()
             self.microphone = Microphone()
         else:
             self.reader = ConsoleReader()
 
         self.output('input and output devices are initialized')
 
-        self.assistant = GenericAssistant(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'))
+        cls = settings.get('config', {}).get('intent', None)['engine']
+        try:
+            _module = __import__('.'.join(cls.split('.')[:-1]), fromlist=[f'{cls.split(".")[-1]}'])
+        except ModuleNotFoundError:
+            raise Exception(f'class {cls} is not found')
+
+        cls = getattr(_module, cls.split(".")[-1], None)
+
+        self.assistant = cls(settings.get('config', {}).get('intent', None)['intents'])
         self.assistant.train_model()
-        self.assistant.save_model('iva')
 
         self.output('intent assistant is initialized')
 

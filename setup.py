@@ -23,7 +23,7 @@ extras = {
     'orm': [],
     'structure': [],
     'system': []
-}
+}  # plugin requirements
 if sys.platform == 'win32':
     extras['system'].extend(['pywin32'])
 extras['all'] = list(set([item for group in extras.values() for item in group]))
