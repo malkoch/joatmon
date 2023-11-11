@@ -150,6 +150,9 @@ class Tensor:
 
         return f'Tensor({string})'
 
+    def __hash__(self):
+        return id(self)
+
     def __getitem__(self, item):
         data = self.data[item]
         tensor = Tensor.from_array(data, requires_grad=self.requires_grad)
