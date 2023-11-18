@@ -49,7 +49,7 @@ class DatabaseLocalizer(Localizer):
             db_resource = list(filter(lambda x: x.key == found_key, db_resources))[0]
             if getattr(db_resource, language, None) is None:
                 setattr(db_resource, language, db_resource.key)
-                await database.update(self.cls, {'object_id': db_resource.object_id}, db_resource)
+                await database.update(self.cls, {'object_id': db_resource.object_id}, {**db_resource})
 
         db_resources = await to_list_async(database.read(self.cls, {'key': {'$in': keys}}))
         return db_resources
