@@ -2,7 +2,7 @@ import functools
 import inspect
 
 
-def handler():
+def handler(ex=None):
     """
     Remember the transaction.
 
@@ -17,8 +17,8 @@ def handler():
         async def _wrapper(*args, **kwargs):
             try:
                 return func(*args, **kwargs)
-            except Exception as ex:
-                print(str(ex))
+            except ex as exception:
+                print(str(exception))
                 return None
             finally:
                 return None
