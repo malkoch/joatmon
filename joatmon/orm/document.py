@@ -83,6 +83,7 @@ class Document(Serializable):  # need to have copy and deepcopy functions as wel
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
+        # if meta is not structured and not forced, might still need to soft validate
         if not self.__metaclass__.structured and not self.__metaclass__.force:
             raise ValueError('unstructured document cannot be validated')
 

@@ -19,6 +19,11 @@ def get(func):
     """
     func.__method__ = 'get'
 
+    # short description
+    # long description
+    # parameters
+    # return
+
     return func
 
 
@@ -32,6 +37,11 @@ def post(func):
         transaction (abstract): state, action, reward, next_state, terminal transaction.
     """
     func.__method__ = 'post'
+
+    # short description
+    # long description
+    # parameters
+    # return
 
     return func
 
