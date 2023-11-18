@@ -2,6 +2,7 @@ import functools
 import inspect
 
 from joatmon.core import context
+from joatmon.core.exception import CoreException
 from joatmon.core.utility import (
     to_case,
     to_enumerable
@@ -103,8 +104,8 @@ def wrap(func):
         try:
             data = await func(*args, **kwargs)
             return {'data': to_enumerable(data), 'error': None, 'success': True}
-        except Exception as ex:
-            return {'data': None, 'error': str(ex), 'success': False}
+        except CoreException as ex:
+            return {'data': None, 'error': f'{{@resource.{ex}}}', 'success': False}
 
     _wrapper.__signature__ = inspect.signature(func)
     return _wrapper

@@ -1,4 +1,5 @@
 import jwt
+from joatmon.core.exception import CoreException
 
 from joatmon.plugin.auth.core import Auth
 
@@ -50,11 +51,7 @@ class JWTAuth(Auth):
         """
         try:
             decoded = jwt.decode(token, self.secret, issuer=issuer, audience=audience, algorithms='HS256')
-        except jwt.DecodeError:
-            raise ValueError('token_decode_error')
-        except jwt.ExpiredSignatureError:
-            raise ValueError('token_expired')
-        except ValueError:
-            raise ValueError('token_decode_error')
+        except (jwt.PyJWTError, ValueError):
+            raise CoreException('not_authorized')
 
         return decoded
