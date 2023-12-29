@@ -24,15 +24,10 @@ extras = {
     'structure': [],
     'system': []
 }  # plugin requirements
-if sys.platform == 'win32':
-    extras['system'].extend(['pywin32'])
 extras['all'] = list(set([item for group in extras.values() for item in group]))
 
 if sys.version_info < (3,):
     print('Python 2 has reached end-of-life and is no longer supported by joatmon.')
-    sys.exit(-1)
-if sys.platform == 'win32' and sys.maxsize.bit_length() == 31:
-    print('32-bit Windows Python runtime is not supported. Please switch to 64-bit Python.')
     sys.exit(-1)
 
 python_min_version = (3, 9, 1)
@@ -76,7 +71,7 @@ if __name__ == '__main__':
         url='https://github.com/malkoch/joatmon',
         download_url='https://github.com/malkoch/joatmon/tags',
         author='Hamitcan Malkoç',
-        author_email='hamitcanmalkoc@gmail.com',
+        author_email='info@hamitcanmalkoc.com',
         python_requires='>={}'.format(python_min_version_str),
         classifiers=[
                         'Development Status :: 5 - Production/Stable',
