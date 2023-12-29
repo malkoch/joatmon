@@ -47,7 +47,7 @@ if __name__ == '__main__':
         description='General Purpose Python Library',
         long_description=long_description,
         long_description_content_type='text/markdown',
-        packages=[package for package in find_packages(exclude='tests')],
+        packages=[package for package in find_packages(exclude=('examples', 'scripts', 'tests'))],
         # entry_points={
         #     'console_scripts': [
         #         'assistant = scripts.assistant:main'
