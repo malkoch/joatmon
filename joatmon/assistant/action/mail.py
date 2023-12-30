@@ -6,10 +6,11 @@ import smtplib
 import time
 from email.mime.text import MIMEText
 
+from elevenlabs import play
+
 from joatmon.assistant.service import BaseService
 from joatmon.assistant.task import BaseTask
 from joatmon.decorator.message import consumer
-from joatmon.system.hid.speaker import play
 
 
 class Task(BaseTask):
