@@ -14,7 +14,7 @@ pages:
       - add_consumer
       - consumer
   - page: "./joatmon/plugin/web.md"
-    source: "joatmon/plugin/value.py"
+    source: "joatmon/plugin/web.py"
     classes:
       - UserPlugin
       - TokenPlugin
