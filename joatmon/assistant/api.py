@@ -5,6 +5,8 @@ import os
 import threading
 import time
 
+import openai
+
 from joatmon.assistant import (
     service,
     task
@@ -21,6 +23,12 @@ from joatmon.assistant.task import (
 from joatmon.core import context
 from joatmon.core.utility import get_module_classes
 from joatmon.plugin.core import register
+from joatmon.system.hid.console import (
+    ConsoleReader,
+    ConsoleWriter
+)
+from joatmon.system.hid.microphone import Microphone
+from joatmon.system.hid.speaker import Speaker
 from joatmon.system.lock import RWLock
 
 
