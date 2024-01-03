@@ -1,17 +1,6 @@
-from joatmon.nn.processing import (
-    OneHotEncoder,
-    pad_sequences,
-    Tokenizer,
-    word_tokenize
-)
+from joatmon.language.intent.local import LocalIntent
 
 intents = [
-    {
-        "name": "",
-        "patterns": [
-            ""
-        ]
-    },
     {
         "name": "enable",
         "patterns": [
@@ -88,28 +77,11 @@ intents = [
     }
 ]
 
-x_values = []
-y_values = []
+model = LocalIntent(intents)
+model.train_model()
+model.save_model('intent')
 
-data = []
 for intent in intents:
-    for pattern in intent.get('patterns', []):
-        if intent.get('name', None):
-            x_values.append(pattern)
-            y_values.append(intent.get('name', None))
-
-encoder = OneHotEncoder()
-encoder.fit(y_values)
-
-tokenized = [word_tokenize(d) for d in x_values]
-
-tokenizer = Tokenizer()
-tokenizer.fit_on_text(tokenized)
-
-x_values = list(tokenizer.text_to_sequence(tokenized))
-y_values = encoder.transform(y_values)
-
-x_values = pad_sequences(x_values)
-
-print(x_values)
-print(y_values)
+    for pattern in intent['patterns']:
+        result = model.request(pattern)
+        print(pattern, intent['name'], result)

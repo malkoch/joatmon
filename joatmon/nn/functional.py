@@ -1818,7 +1818,7 @@ def log(inp) -> 'Tensor':
     engine = _get_engine(inp)
 
     # print(inp.data)
-    return _create_tensor(inp, data=engine.log(inp.data), func=wrapped_partial(log_backward, inp=inp))
+    return _create_tensor(inp, data=engine.log2(inp.data), func=wrapped_partial(log_backward, inp=inp))
 
 
 def summation(inp) -> 'Tensor':
