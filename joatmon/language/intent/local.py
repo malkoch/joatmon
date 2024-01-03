@@ -4,6 +4,7 @@ import nltk
 import numpy as np
 from nltk.stem import WordNetLemmatizer
 
+from joatmon.ai.utility import load, save
 from joatmon.language.intent.core import IntentAgent
 from joatmon.nn import (
     Module,
@@ -13,7 +14,7 @@ from joatmon.nn.layer.activation.relu import ReLU
 from joatmon.nn.layer.activation.softmax import Softmax
 from joatmon.nn.layer.dropout import Dropout
 from joatmon.nn.layer.linear import Linear
-from joatmon.nn.loss.cce import CCELoss
+from joatmon.nn.loss.mse import MSELoss
 from joatmon.nn.optimizer.rmsprop import RMSprop
 
 nltk.download('punkt', quiet=True)
@@ -91,6 +92,28 @@ class LocalIntent(IntentAgent):
 
         self.model = IntentModel(len(self.words), len(self.classes))
 
+    def save_model(self, name):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
+        save(self.model, name)
+
+    def load_model(self, name):
+        """
+        Remember the transaction.
+
+        Accepts a state, action, reward, next_state, terminal transaction.
+
+        # Arguments
+            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        """
+        load(self.model, name)
+
     def train_model(self):
         """
         Remember the transaction.
@@ -131,19 +154,21 @@ class LocalIntent(IntentAgent):
 
         self.model.train()
 
-        # optimizer = Adam(params=list(self.model.parameters()), lr=.0001, weight_decay=1e-6)
-        optimizer = RMSprop(params=list(self.model.parameters()), lr=.0005, weight_decay=1e-6)
-        loss = CCELoss()
+        optimizer = RMSprop(params=list(self.model.parameters()), lr=.0001)
+        loss = MSELoss()
 
-        batch_x = Tensor.from_array(train_x)
-        batch_y = Tensor.from_array(train_y)
-        for epoch in range(200):
-            predict = self.model(batch_x)
+        batch_size = 2
+        for epoch in range(5000):
+            for i in range(0, len(train_x) // batch_size):
+                batch_x = Tensor.from_array(train_x[i * batch_size:(i + 1) * batch_size])
+                batch_y = Tensor.from_array(train_y[i * batch_size:(i + 1) * batch_size])
 
-            model_loss = loss(predict, batch_y)
-            optimizer.zero_grad()
-            model_loss.backward()
-            optimizer.step()
+                predict = self.model(batch_x)
+
+                model_loss = loss(predict, batch_y)
+                optimizer.zero_grad()
+                model_loss.backward()
+                optimizer.step()
 
     def _clean_up_sentence(self, sentence):
         """

@@ -1,7 +1,7 @@
+import json
 import os
 
 import numpy as np
-import torch
 
 
 def load(network, path):
@@ -23,7 +23,7 @@ def load(network, path):
     if not os.path.exists(network_path):
         pass
     else:
-        weights = torch.load(network_path)
+        weights = json.load(open(network_path, 'r'))
 
         model_weights = network.state_dict()
         model_keys = list(model_weights.keys())
@@ -70,7 +70,7 @@ def save(network, path):
         except Exception as ex:
             print(str(ex))
 
-    torch.save(weights, network_path)
+    json.dump(weights, open(network_path, 'w'))
 
 
 def display(values, positions):
