@@ -196,7 +196,7 @@ def create(api):
     # on recovery
     create_args = {'name': name, 'priority': priority, 'mode': mode, 'script': script, 'status': True, 'kwargs': kwargs}
 
-    settings = json.loads(open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'r').read())
+    settings = json.loads(open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'r').read())
     services = settings.get('services', [])
 
     services.append(create_args)
@@ -216,7 +216,7 @@ def get_class(name):
     """
     service = None
 
-    settings = json.loads(open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'r').read())
+    settings = json.loads(open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'r').read())
     for scripts in settings.get('scripts', []):
         if os.path.isabs(scripts):
             if os.path.exists(scripts) and os.path.exists(os.path.join(scripts, f'{name}.py')):
@@ -250,7 +250,7 @@ def get(api, name):
     # Arguments
         transaction (abstract): state, action, reward, next_state, terminal transaction.
     """
-    settings = json.loads(open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'r').read())
+    settings = json.loads(open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'r').read())
     task_info = first(filter(lambda x: x['status'] and x['name'] == name, settings.get('services', [])))
 
     if task_info is None:
@@ -264,7 +264,7 @@ def get(api, name):
         api.output('service is not found')
         return None
 
-    kwargs = {**task_info.get('kwargs', {}), 'base': os.environ.get('IVA_PATH'), 'cwd': api.cwd}
+    kwargs = {**task_info.get('kwargs', {}), 'base': os.environ.get('ASSISTANT_HOME')}
 
     service = service(name, api, **kwargs)
     return service

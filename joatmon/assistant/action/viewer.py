@@ -33,7 +33,7 @@ class Task(BaseTask):
         """
         return {
             'name': 'viewer',
-            'description': 'a function for user to view event of the iva',
+            'description': 'a function for user to view event of the assistant',
             'parameters': {'type': 'object', 'properties': {}, 'required': []},
         }
 

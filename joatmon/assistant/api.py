@@ -1,11 +1,8 @@
 import datetime
-import importlib.util
 import json
 import os
 import threading
 import time
-
-import openai
 
 from joatmon.assistant import (
     service,
@@ -16,19 +13,11 @@ from joatmon.assistant.service import (
     ServiceState
 )
 from joatmon.assistant.task import (
-    BaseTask,
     TaskInfo,
     TaskState
 )
 from joatmon.core import context
-from joatmon.core.utility import get_module_classes
-from joatmon.plugin.core import register
-from joatmon.system.hid.console import (
-    ConsoleReader,
-    ConsoleWriter
-)
-from joatmon.system.hid.microphone import Microphone
-from joatmon.system.hid.speaker import Speaker
+from joatmon.core.event import Event
 from joatmon.system.lock import RWLock
 
 
@@ -56,58 +45,7 @@ class API:
     """
 
     def __init__(self):
-        self.cwd = os.sep
-
-        settings = json.loads(open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'r').read())
-
-        openai.api_key = settings['config']['openai']['key']
-
-        self.tts = settings.get('config', {}).get('tts', None)
-        self.stt = settings.get('config', {}).get('stt', None)
-
-        if self.tts:
-            cls = self.tts['engine']
-            try:
-                _module = __import__('.'.join(cls.split('.')[:-1]), fromlist=[f'{cls.split(".")[-1]}'])
-            except ModuleNotFoundError:
-                raise Exception(f'class {cls} is not found')
-
-            cls = getattr(_module, cls.split(".")[-1], None)
-
-            self.tts_agent = cls(self.tts['config'])
-            self.speaker = Speaker()
-        else:
-            self.writer = ConsoleWriter()
-
-        if self.stt:
-            # self.stt_agent = STTAgent()
-            self.microphone = Microphone()
-        else:
-            self.reader = ConsoleReader()
-
-        self.output('input and output devices are initialized')
-
-        cls = settings.get('config', {}).get('intent', None)['engine']
-        try:
-            _module = __import__('.'.join(cls.split('.')[:-1]), fromlist=[f'{cls.split(".")[-1]}'])
-        except ModuleNotFoundError:
-            raise Exception(f'class {cls} is not found')
-
-        cls = getattr(_module, cls.split(".")[-1], None)
-
-        self.assistant = cls(settings.get('config', {}).get('intent', None)['intents'])
-        self.assistant.train_model()
-
-        self.output('intent assistant is initialized')
-
-        for name, value in settings.get('plugins', {}).items():
-            cls = value.get('cls', None)
-            args = value.get('args', ())
-            kwargs = value.get('kwargs', {})
-
-            register(cls, name, *args, **kwargs)
-
-        self.output('plugins are registered')
+        settings = json.loads(open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'r').read())
 
         self.lock = RWLock()
         self.running_tasks = {}  # running, finished
@@ -115,35 +53,34 @@ class API:
 
         self.event = threading.Event()
 
-        self.output('running startup tasks')
         tasks = settings.get('tasks', [])
         for _task in sorted(filter(lambda x: x['status'] and x['on'] == 'startup', tasks), key=lambda x: x['priority']):
             self.run_task(_task['name'])  # need to do them in background
 
-        self.output('starting automatic services')
         services = settings.get('services', [])
         for _service in sorted(
                 filter(lambda x: x['status'] and x['mode'] == 'automatic', services), key=lambda x: x['priority']
         ):
             self.start_service(_service['name'])  # need to do them in background
 
-        self.output('creating cleanup thread')
         self.cleaning_thread = threading.Thread(target=self.clean)
         self.cleaning_thread.start()
         time.sleep(1)
 
-        self.output('starting service runner thread')
         self.service_thread = threading.Thread(target=self.run_services)
         self.service_thread.start()
         time.sleep(1)
 
-        self.output('creating task scheduler thread')
         self.interval_thread = threading.Thread(target=self.run_interval)
         self.interval_thread.start()
         time.sleep(1)
 
-        # make it async
-        # need event viewer
+        self.events = {
+            'on_init': Event(),
+            'on_get_command': Event(),
+            'on_get_action': Event(),
+            'on_output': Event(),
+        }
 
     def run_interval(self):
         """
@@ -155,7 +92,7 @@ class API:
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
         while not self.event.is_set():
-            settings = json.loads(open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'r').read())
+            settings = json.loads(open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'r').read())
             tasks = settings.get('tasks', [])
             tasks = filter(lambda x: x['status'], tasks)
             tasks = filter(lambda x: x['on'] == 'interval', tasks)
@@ -175,9 +112,6 @@ class API:
             for _task in sorted(old_tasks, key=lambda x: x['priority']):
                 self.run_task(task_name=_task['name'], kwargs=None, background=True)  # need to do them in background
 
-            # need to run to do as well
-            # need to run agenda as well
-
             time.sleep(1)
 
     def run_services(self):
@@ -189,7 +123,7 @@ class API:
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        settings = json.loads(open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'r').read())
+        settings = json.loads(open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'r').read())
 
         services = settings.get('services', [])
 
@@ -238,7 +172,7 @@ class API:
 
             time.sleep(1)
 
-    def listen_intent(self):
+    def get_command(self):
         """
         Remember the transaction.
 
@@ -247,14 +181,12 @@ class API:
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        response = self.input('what is your intent')
-        intent, prob = self.intent(response)
-        if prob > 0.9:
-            return intent
+        if self.events['on_get_command']:
+            return self.events['on_get_command'].fire()
         else:
-            return response
+            return input('what is your command: ')
 
-    def listen_command(self):
+    def get_action(self):
         """
         Remember the transaction.
 
@@ -263,93 +195,10 @@ class API:
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        response = self.input('what is your command')
-
-        tasks = []
-
-        settings = json.loads(open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'r').read())
-        for scripts_folder in settings.get('scripts', []):
-            if os.path.isabs(scripts_folder):
-                for script_file in os.listdir(scripts_folder):
-                    spec = importlib.util.spec_from_file_location(
-                        scripts_folder, os.path.join(scripts_folder, script_file)
-                    )
-                    action_module = importlib.util.module_from_spec(spec)
-                    spec.loader.exec_module(action_module)
-
-                    for class_ in get_module_classes(action_module):
-                        if not issubclass(class_[1], BaseTask) or class_[1] is BaseTask:
-                            continue
-
-                        tasks.append(class_[1])
-            else:
-                try:
-                    _module = __import__('.'.join(scripts_folder.split('.')), fromlist=[scripts_folder.split('.')[-1]])
-
-                    scripts_folder = _module.__path__[0]
-
-                    for script_file in os.listdir(scripts_folder):
-                        if '__' in script_file:
-                            continue
-
-                        spec = importlib.util.spec_from_file_location(
-                            scripts_folder, os.path.join(scripts_folder, script_file)
-                        )
-                        action_module = importlib.util.module_from_spec(spec)
-                        spec.loader.exec_module(action_module)
-
-                        for class_ in get_module_classes(action_module):
-                            if not issubclass(class_[1], BaseTask) or class_[1] is BaseTask:
-                                continue
-
-                            tasks.append(class_[1])
-                except ModuleNotFoundError:
-                    print('module not found')
-                    continue
-
-        functions = list(map(lambda x: x.help(), tasks))
-        functions = list(filter(lambda x: x, functions))
-
-        # can be moved to intent
-        # different intent tools can be written
-        # they can get input as text or audio
-        response = openai.ChatCompletion.create(  # need to be able to swap different ai tools
-            model='gpt-3.5-turbo-0613', messages=[{'role': 'user', 'content': response}], functions=functions
-        )
-
-        result = response['choices'][0]
-        if result['finish_reason'] == 'function_call':
-            message = result['message']
-
-            return message['function_call']['name'], json.loads(message['function_call']['arguments'])
-
-    def input(self, prompt=None):
-        """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
-        """
-        # put the input to the queue
-        # if the task is called from outside, putting inputs to the queue by hand will make it work
-
-        # if not english, translate to english
-        # then get the response
-        # get the intent
-        # run the action
-        # translate the response if needed
-
-        if prompt:
-            self.output(prompt)
-
-        if self.stt:
-            response = self.microphone.listen()
-            response = self.stt_agent.transcribe(response)
+        if self.events['on_get_action']:
+            return self.events['on_get_action'].fire()
         else:
-            response = self.reader.read()
-        return response
+            return input('what do you want me to do: '), {}
 
     def output(self, text):
         """
@@ -360,24 +209,12 @@ class API:
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        if self.tts:
-            text = self.tts_agent.convert(text)
-            self.speaker.say(text)
+        if self.events['on_output']:
+            self.events['on_output'].fire(text)
         else:
-            self.writer.write(text)
+            print(text)
 
-    def intent(self, text):
-        """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
-        """
-        return self.assistant.request(text)
-
-    def do_action(self, line):
+    def do_command(self, command):
         """
         Remember the transaction.
 
@@ -387,10 +224,10 @@ class API:
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
         try:
-            if line is None or line == '':
+            if command is None or command == '':
                 return False
 
-            match line.lower():
+            match command.lower():
                 case 'list processes':
                     for k, v in self.running_tasks.items():
                         print(f'{v.name}: {v.state}')
@@ -398,36 +235,15 @@ class API:
                         print(f'{v.name}: {v.state}')
 
                     return False
-                case 'enable':
-                    return False
-                case 'disable':
-                    return False
-                case 'update':
-                    return False
-                case 'delete':
-                    return False
-                case 'configure':
-                    return False
-                case 'start':
-                    return False
-                case 'stop':
-                    return False
-                case 'restart':
-                    return False
-                case 'skip':
-                    return False
-                case 'help':
-                    return False
                 case 'exit':
                     return self.exit()
                 case 'activate':
-                    command, arguments = self.listen_command()
+                    command, arguments = self.get_action()
                     return self.run_task(task_name=command, kwargs=arguments)
                 case _:
-                    raise ValueError(f'wanted command is {line}, default case is not implemented')
+                    raise ValueError(f'wanted command is {command}, default case is not implemented')
         except Exception as ex:
             print(str(ex))  # use stacktrace and write all exception details, line number, function name, file name etc.
-            # return self.exit()
 
     def run_task(self, task_name, kwargs=None, background=False):
         """
@@ -510,19 +326,14 @@ class API:
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
 
-        # need to make sure this closes the threads and runnables
-        self.output('shutting down the system')
+        settings = json.loads(open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'r').read())
 
-        settings = json.loads(open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'r').read())
-
-        self.output('running shutdown tasks')
         tasks = settings.get('tasks', [])
         for _task in sorted(
                 filter(lambda x: x['status'] and x['on'] == 'shutdown', tasks), key=lambda x: x['priority']
         ):
             self.run_task(_task['name'])
 
-        self.output('stopping background tasks, jobs and services')
         with self.lock.r_locked():
             task_keys = [key for key in self.running_tasks.keys()]
             service_keys = [key for key in self.running_services.keys()]
@@ -534,10 +345,6 @@ class API:
             self.stop_service(key)
 
         self.event.set()
-        self.output('closing input device')
-        if self.stt:
-            self.microphone.stop()
-        self.output('shutdown')
         return True
 
     def mainloop(self):
@@ -549,28 +356,9 @@ class API:
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
+
+        self.events['on_init'].fire()
+
         while not self.event.is_set():
-            command = self.listen_intent()
-            self.do_action(command)
-
-
-def main():
-    """
-    Remember the transaction.
-
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
-    """
-
-    if os.environ.get('IVA_PATH', None) is None:
-        print('you need to set the IVA_PATH for this to work')
-        exit(1)
-
-    if not os.path.exists(os.environ.get('IVA_PATH')):
-        print(f'you need to make sure that IVA_PATH={os.environ.get("IVA_PATH")} exists in your system')
-        exit(1)
-
-    api = API()
-    api.mainloop()
+            command = self.get_command()
+            self.do_command(command)
