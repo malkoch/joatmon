@@ -21,8 +21,6 @@ class Speaker:
     def __init__(self):
         super(Speaker, self).__init__()
 
-        # set_api_key(json.loads(open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'r').read())['config']['elevenlabs']['key'])
-
     def say(self, audio):
         """
         Remember the transaction.

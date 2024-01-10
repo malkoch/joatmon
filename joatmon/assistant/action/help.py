@@ -58,7 +58,7 @@ class Task(BaseTask):
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        settings = json.loads(open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'r').read())
+        settings = json.loads(open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'r').read())
         for scripts in settings.get('scripts', []):
             if os.path.isabs(scripts) and os.path.exists(scripts):
                 for module in list(

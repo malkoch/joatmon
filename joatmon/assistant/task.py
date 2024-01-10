@@ -186,7 +186,7 @@ def on_begin(name, *args, **kwargs):
     # Arguments
         transaction (abstract): state, action, reward, next_state, terminal transaction.
     """
-    settings = json.loads(open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'r').read())
+    settings = json.loads(open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'r').read())
     tasks = settings.get('tasks', [])
 
     task_info = first(filter(lambda x: x['name'] == name, tasks))
@@ -203,7 +203,7 @@ def on_begin(name, *args, **kwargs):
             break
 
     settings['tasks'] = tasks
-    open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
+    open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
 
 
 def on_error(name, *args, **kwargs):
@@ -258,13 +258,13 @@ def create(api):
     # if on == 'interval' need to as for interval as well
     create_args = {'name': name, 'priority': priority, 'on': on, 'script': script, 'status': True, 'kwargs': kwargs}
 
-    settings = json.loads(open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'r').read())
+    settings = json.loads(open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'r').read())
     tasks = settings.get('tasks', [])
 
     tasks.append(create_args)
 
     settings['tasks'] = tasks
-    open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
+    open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
 
 
 def get_class(name):
@@ -278,7 +278,7 @@ def get_class(name):
     """
     task = None
 
-    settings = json.loads(open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'r').read())
+    settings = json.loads(open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'r').read())
     for scripts in settings.get('scripts', []):
         if os.path.isabs(scripts):
             if os.path.exists(scripts) and os.path.exists(os.path.join(scripts, f'{name}.py')):
@@ -290,7 +290,8 @@ def get_class(name):
         else:
             try:
                 _module = __import__(scripts, fromlist=[f'{name}'])
-            except ModuleNotFoundError:
+            except ModuleNotFoundError as ex:
+                print(str(ex))
                 continue
 
             action_module = getattr(_module, name, None)
@@ -316,7 +317,7 @@ def get(api, name, kwargs, background):
     # Arguments
         transaction (abstract): state, action, reward, next_state, terminal transaction.
     """
-    settings = json.loads(open(os.path.join(os.environ.get('IVA_PATH'), 'iva.json'), 'r').read())
+    settings = json.loads(open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'r').read())
     task_info = first(filter(lambda x: x['status'] and x['name'] == name, settings.get('tasks', [])))
 
     if task_info is None:
@@ -330,7 +331,7 @@ def get(api, name, kwargs, background):
         api.output(f'task {name} is not found')
         return None
 
-    kwargs = {**(kwargs or {}), **task_info.get('kwargs', {}), 'base': os.environ.get('IVA_PATH'), 'cwd': api.cwd}
+    kwargs = {**(kwargs or {}), **task_info.get('kwargs', {}), 'base': os.environ.get('ASSISTANT_HOME')}
 
     task = task(name, api, **kwargs)
     task.background = background

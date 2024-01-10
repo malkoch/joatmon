@@ -19,6 +19,9 @@ class Event:
     def __init__(self):
         self._subscribers = {}
 
+    def __bool__(self):
+        return bool(self._subscribers)
+
     def __iadd__(self, fn):
         func = fn
         runnable = fn
@@ -55,8 +58,10 @@ class Event:
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
+        ret = None
         for name, fn in self._subscribers.items():
-            fn(*args, **kwargs)
+            ret = fn(*args, **kwargs)
+        return ret
 
 
 class AsyncEvent:
@@ -76,6 +81,9 @@ class AsyncEvent:
 
     def __init__(self):
         self._subscribers = {}
+
+    def __bool__(self):
+        return bool(self._subscribers)
 
     def __iadd__(self, fn):
         if fn.__qualname__ not in self._subscribers:
@@ -104,5 +112,7 @@ class AsyncEvent:
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
+        ret = None
         for name, fn in self._subscribers.items():
-            await fn(*args, **kwargs)
+            ret = await fn(*args, **kwargs)
+        return ret
