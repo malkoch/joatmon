@@ -35,7 +35,7 @@ class Microphone:
 
         self.listening_thread = threading.Thread(target=self.record_audio)
 
-        # self.listening_thread.start()
+        self.listening_thread.start()
 
     def record_audio(self):
         """
@@ -64,9 +64,7 @@ class Microphone:
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        return input()
-
-        # return self.audio_queue.get()
+        return self.audio_queue.get()
 
     def stop(self):
         """
