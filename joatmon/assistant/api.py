@@ -195,7 +195,7 @@ class API:
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        _task = task.get(self, task_name, kwargs, background)
+        _task = task.get(task_name, kwargs, background)
         if _task is None:
             return False
 
@@ -218,7 +218,7 @@ class API:
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        _task = service.get(self, service_name)
+        _task = service.get(service_name)
         if _task is None:
             return False
 
