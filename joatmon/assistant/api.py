@@ -1,6 +1,7 @@
 import datetime
 import json
 import os
+import sys
 import threading
 import time
 
@@ -16,17 +17,7 @@ from joatmon.assistant.task import (
     TaskInfo,
     TaskState
 )
-from joatmon.core import context
-from joatmon.core.event import Event
 from joatmon.system.lock import RWLock
-
-
-class CTX:
-    ...
-
-
-ctx = CTX()
-context.set_ctx(ctx)
 
 
 class API:
@@ -74,13 +65,6 @@ class API:
         self.interval_thread = threading.Thread(target=self.run_interval)
         self.interval_thread.start()
         time.sleep(1)
-
-        self.events = {
-            'on_init': Event(),
-            'on_get_command': Event(),
-            'on_get_action': Event(),
-            'on_output': Event(),
-        }
 
     def run_interval(self):
         """
@@ -172,49 +156,7 @@ class API:
 
             time.sleep(1)
 
-    def get_command(self):
-        """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
-        """
-        if self.events['on_get_command']:
-            return self.events['on_get_command'].fire()
-        else:
-            return input('what is your command: ')
-
-    def get_action(self):
-        """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
-        """
-        if self.events['on_get_action']:
-            return self.events['on_get_action'].fire()
-        else:
-            return input('what do you want me to do: '), {}
-
-    def output(self, text):
-        """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
-        """
-        if self.events['on_output']:
-            self.events['on_output'].fire(text)
-        else:
-            print(text)
-
-    def do_command(self, command):
+    def do_command(self, command, action=None, arguments=None):
         """
         Remember the transaction.
 
@@ -238,8 +180,7 @@ class API:
                 case 'exit':
                     return self.exit()
                 case 'activate':
-                    command, arguments = self.get_action()
-                    return self.run_task(task_name=command, kwargs=arguments)
+                    return self.run_task(task_name=action, kwargs=arguments)
                 case _:
                     raise ValueError(f'wanted command is {command}, default case is not implemented')
         except Exception as ex:
@@ -356,9 +297,39 @@ class API:
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-
-        self.events['on_init'].fire()
-
         while not self.event.is_set():
-            command = self.get_command()
-            self.do_command(command)
+            time.sleep(0.1)
+
+
+if sys.platform == 'win32':
+    class COSMO:
+        def __init__(self):
+            self.api = API()
+
+        def action(self, command, action, arguments):
+            self.api.do_command(command, action, arguments)
+
+        def run(self):
+            self.api.mainloop()
+elif sys.platform == 'darwin':
+    class COSMO:
+        def __init__(self):
+            self.api = API()
+
+        def action(self, command, action, arguments):
+            self.api.do_command(command, action, arguments)
+
+        def run(self):
+            self.api.mainloop()
+elif sys.platform == 'linux':
+    class COSMO:
+        def __init__(self):
+            self.api = API()
+
+        def action(self, command, action, arguments):
+            self.api.do_command(command, action, arguments)
+
+        def run(self):
+            self.api.mainloop()
+else:
+    raise ValueError(f'unsupported platform: {sys.platform}')
