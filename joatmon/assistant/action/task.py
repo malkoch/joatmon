@@ -1,8 +1,4 @@
-from __future__ import print_function
-
-import os.path
-import subprocess
-
+from joatmon.assistant import task
 from joatmon.assistant.task import BaseTask
 
 
@@ -35,12 +31,12 @@ class Task(BaseTask):
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
         return {
-            'name': 'run',
-            'description': 'a function for user to run an executable',
+            'name': 'create',
+            'description': 'a function for user to create service or task',
             'parameters': {
                 'type': 'object',
-                'properties': {'executable': {'type': 'string', 'description': 'executable to run'}},
-                'required': ['executable'],
+                'properties': {'mode': {'type': 'string', 'enum': ['task', 'service']}},
+                'required': ['mode'],
             },
         }
 
@@ -53,15 +49,15 @@ class Task(BaseTask):
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        executable = self.kwargs.get('executable', '')
-        args = self.kwargs.get('args', '')
+        action = self.kwargs.get('action', '')
+        on = self.kwargs.get('on', '')
+        name = self.kwargs.get('name', '')
+        priority = self.kwargs.get('priority', 0)
+        script = self.kwargs.get('script', '')
+        kwargs = self.kwargs.get('kwargs', {})
 
-        # send the os path to all executables
-        # send the parent os path to all executables
-
-        executable_path = os.path.join(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'executables', executable)
-
-        subprocess.run(['python.exe', executable_path] + args.split(' ') + ['--task', self.name])
+        if action == 'create':
+            task.create(name, priority, on, script, kwargs)
 
         if not self.stop_event.is_set():
             self.stop_event.set()

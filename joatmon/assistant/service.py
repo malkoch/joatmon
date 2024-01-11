@@ -7,6 +7,7 @@ import threading
 
 from transitions import Machine
 
+from joatmon.core.event import Event
 from joatmon.core.utility import (
     first,
     JSONEncoder
@@ -28,12 +29,13 @@ class BaseService:
         gamma (float): gamma.
     """
 
-    def __init__(self, name, api, **kwargs):
+    def __init__(self, name, **kwargs):
         self.name = name
-        self.api = api
         self.kwargs = kwargs
         self.event = threading.Event()
         self.thread = threading.Thread(target=self.run)
+
+        self.events = {'begin': Event(), 'end': Event(), 'error': Event()}
 
         states = ['none', 'started', 'stopped', 'running', 'exception', 'starting', 'stopping']
         self.machine = Machine(model=self, states=states, initial='none')
@@ -175,7 +177,7 @@ def on_end(name, *args, **kwargs):
     ...
 
 
-def create(api):
+def create(name, priority, mode, script, kwargs):
     """
     Remember the transaction.
 
@@ -184,14 +186,6 @@ def create(api):
     # Arguments
         transaction (abstract): state, action, reward, next_state, terminal transaction.
     """
-    name = api.input('name')
-    priority = api.input('priority')
-    mode = api.input('mode')
-    script = api.input('script')
-    kwargs = {}
-    for k in get_class(script).params():
-        kwargs[k] = api.input(k)
-
     # on error
     # on recovery
     create_args = {'name': name, 'priority': priority, 'mode': mode, 'script': script, 'status': True, 'kwargs': kwargs}
@@ -202,7 +196,7 @@ def create(api):
     services.append(create_args)
 
     settings['services'] = services
-    open(os.path.join(api.base, 'iva.json'), 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
+    open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
 
 
 def get_class(name):
@@ -241,7 +235,7 @@ def get_class(name):
     return service
 
 
-def get(api, name):
+def get(name):
     """
     Remember the transaction.
 
@@ -261,10 +255,9 @@ def get(api, name):
     service = get_class(script)
 
     if service is None:
-        api.output('service is not found')
         return None
 
-    kwargs = {**task_info.get('kwargs', {}), 'base': os.environ.get('ASSISTANT_HOME')}
+    kwargs = task_info.get('kwargs', {})
 
-    service = service(name, api, **kwargs)
+    service = service(name, **kwargs)
     return service

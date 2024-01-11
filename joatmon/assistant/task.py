@@ -32,9 +32,8 @@ class BaseTask:
         gamma (float): gamma.
     """
 
-    def __init__(self, name, api, background=False, **kwargs):  # another parameter called cache output
+    def __init__(self, name, background=False, **kwargs):  # another parameter called cache output
         self.name = name
-        self.api = api
         self.kwargs = kwargs
         self._background = background
         if self.background:
@@ -234,7 +233,7 @@ def on_end(name, *args, **kwargs):
     ...
 
 
-def create(api):
+def create(name, priority, on, script, kwargs):
     """
     Remember the transaction.
 
@@ -243,19 +242,11 @@ def create(api):
     # Arguments
         transaction (abstract): state, action, reward, next_state, terminal transaction.
     """
-    name = api.input('name')
-    priority = api.input('priority')
-    on = api.input('on')
-    script = api.input('script')
-    kwargs = {}
-    for k in get_class(script).params():
-        kwargs[k] = api.input(k)
-
     # need last run time
     # need next run time
     # need last run result
     # need interval
-    # if on == 'interval' need to as for interval as well
+    # if on == 'interval' need to ask for interval as well
     create_args = {'name': name, 'priority': priority, 'on': on, 'script': script, 'status': True, 'kwargs': kwargs}
 
     settings = json.loads(open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'r').read())
@@ -308,7 +299,7 @@ def get_class(name):
     return task
 
 
-def get(api, name, kwargs, background):
+def get(name, kwargs, background):
     """
     Remember the transaction.
 
@@ -328,12 +319,11 @@ def get(api, name, kwargs, background):
     task = get_class(script)
 
     if task is None:
-        api.output(f'task {name} is not found')
         return None
 
-    kwargs = {**(kwargs or {}), **task_info.get('kwargs', {}), 'base': os.environ.get('ASSISTANT_HOME')}
+    kwargs = {**(kwargs or {}), **task_info.get('kwargs', {})}
 
-    task = task(name, api, **kwargs)
+    task = task(name, **kwargs)
     task.background = background
 
     task.events['begin'] += functools.partial(on_begin, name=name)
