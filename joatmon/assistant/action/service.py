@@ -1,7 +1,4 @@
-from joatmon.assistant import (
-    service,
-    task
-)
+from joatmon.assistant import service
 from joatmon.assistant.task import BaseTask
 
 
@@ -20,8 +17,8 @@ class Task(BaseTask):
         gamma (float): gamma.
     """
 
-    def __init__(self, name, api, **kwargs):
-        super(Task, self).__init__(name, api, **kwargs)
+    def __init__(self, name, **kwargs):
+        super(Task, self).__init__(name, **kwargs)
 
     @staticmethod
     def help():
@@ -52,10 +49,15 @@ class Task(BaseTask):
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        if self.kwargs.get('mode', '') == 'task':
-            task.create(self.api)
-        if self.kwargs.get('mode', '') == 'service':
-            service.create(self.api)
+        action = self.kwargs.get('action', '')
+        mode = self.kwargs.get('mode', '')
+        name = self.kwargs.get('name', '')
+        priority = self.kwargs.get('priority', 0)
+        script = self.kwargs.get('script', '')
+        kwargs = self.kwargs.get('kwargs', {})
+
+        if action == 'create':
+            service.create(name, priority, mode, script, kwargs)
 
         if not self.stop_event.is_set():
             self.stop_event.set()

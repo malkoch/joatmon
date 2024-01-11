@@ -20,8 +20,8 @@ class Task(BaseTask):
         gamma (float): gamma.
     """
 
-    def __init__(self, name, api, **kwargs):
-        super(Task, self).__init__(name, api, **kwargs)
+    def __init__(self, name, **kwargs):
+        super(Task, self).__init__(name, **kwargs)
 
     @staticmethod
     def help():
@@ -43,7 +43,7 @@ class Task(BaseTask):
                     'name': {'type': 'string', 'description': 'name of the configuration'},
                     'value': {'type': 'string', 'description': 'value of the configuration'},
                 },
-                'required': ['action', 'name'],
+                'required': ['action', 'name', 'value'],
             },
         }
 
@@ -56,10 +56,12 @@ class Task(BaseTask):
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        action = self.kwargs.get('action', '') or self.api.input('what do you want to configure')
+        action = self.kwargs.get('action', '')
         assert action in ('create', 'update', 'delete')
-        name = self.kwargs.get('name', '') or self.api.input('what is the name')
-        value = self.kwargs.get('value', '') or self.api.input('what is the value')
+        name = self.kwargs.get('name', '')
+        assert name != ''
+        value = self.kwargs.get('value', '')
+        assert value != ''
 
         cfg = {'action': action, 'name': name, 'value': value}
 

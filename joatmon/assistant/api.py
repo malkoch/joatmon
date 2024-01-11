@@ -299,11 +299,13 @@ class API:
         """
         while not self.event.is_set():
             time.sleep(0.1)
+        self.exit()
 
 
 if sys.platform == 'win32':
     class COSMO:
         def __init__(self):
+            print('COSMO is supported on Windows')
             self.api = API()
 
         def action(self, command, action, arguments):
@@ -314,6 +316,7 @@ if sys.platform == 'win32':
 elif sys.platform == 'darwin':
     class COSMO:
         def __init__(self):
+            print('COSMO is supported on MAC')
             self.api = API()
 
         def action(self, command, action, arguments):
@@ -324,6 +327,7 @@ elif sys.platform == 'darwin':
 elif sys.platform == 'linux':
     class COSMO:
         def __init__(self):
+            print('COSMO is supported on Linux')
             self.api = API()
 
         def action(self, command, action, arguments):
