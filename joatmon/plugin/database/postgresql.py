@@ -32,9 +32,16 @@ class PostgreSQLDatabase(DatabasePlugin):
     # on del method
     def __init__(self, host, port, user, password, database):
         self.connection = psycopg2.connect(
-            database=database, user=user, password=password, host=host, port=port  # , async_=True
+            user=user, password=password, host=host, port=port  # , async_=True
         )
+
         self.connection.autocommit = True
+
+        cursor = self.connection.cursor()
+        cursor.execute(f"SELECT 1 FROM pg_catalog.pg_database WHERE datname = '{database}'")
+        exists = cursor.fetchone()
+        if not exists:
+            cursor.execute(f'CREATE DATABASE {database}')
 
     async def _check_collection(self, collection):
         """

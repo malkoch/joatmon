@@ -1,7 +1,6 @@
 import datetime
 import json
 import os
-import sys
 import threading
 import time
 
@@ -300,40 +299,3 @@ class API:
         while not self.event.is_set():
             time.sleep(0.1)
         self.exit()
-
-
-if sys.platform == 'win32':
-    class COSMO:
-        def __init__(self):
-            print('COSMO is supported on Windows')
-            self.api = API()
-
-        def action(self, command, action, arguments):
-            self.api.do_command(command, action, arguments)
-
-        def run(self):
-            self.api.mainloop()
-elif sys.platform == 'darwin':
-    class COSMO:
-        def __init__(self):
-            print('COSMO is supported on MAC')
-            self.api = API()
-
-        def action(self, command, action, arguments):
-            self.api.do_command(command, action, arguments)
-
-        def run(self):
-            self.api.mainloop()
-elif sys.platform == 'linux':
-    class COSMO:
-        def __init__(self):
-            print('COSMO is supported on Linux')
-            self.api = API()
-
-        def action(self, command, action, arguments):
-            self.api.do_command(command, action, arguments)
-
-        def run(self):
-            self.api.mainloop()
-else:
-    raise ValueError(f'unsupported platform: {sys.platform}')
