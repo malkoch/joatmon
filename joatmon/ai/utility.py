@@ -3,6 +3,8 @@ import os
 
 import numpy as np
 
+from joatmon.nn import functional
+
 
 def load(network, path):
     """
@@ -138,7 +140,7 @@ def range_tensor(end):
     # Arguments
         transaction (abstract): state, action, reward, next_state, terminal transaction.
     """
-    return torch.arange(end).long()
+    return functional.arange(end).long()
 
 
 def to_numpy(t):
@@ -162,8 +164,8 @@ def to_tensor(x):
     # Arguments
         transaction (abstract): state, action, reward, next_state, terminal transaction.
     """
-    if isinstance(x, torch.Tensor):
+    if isinstance(x, functional.Tensor):
         return x
     x = np.asarray(x, dtype=np.float32)
-    x = torch.tensor(x, dtype=torch.float32)
+    x = functional.tensor(x, dtype=functional.float32)
     return x
