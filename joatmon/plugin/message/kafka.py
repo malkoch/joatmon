@@ -1,6 +1,32 @@
+import typing
+
 import confluent_kafka
 
-from joatmon.plugin.message.core import MessagePlugin
+from joatmon.plugin.message.core import Consumer, MessagePlugin, Producer
+
+
+class KafkaProducer(Producer):
+    def __init__(self, producer: confluent_kafka.Producer):
+        self.producer = producer
+
+    def produce(self, topic: str, message: str):
+        self.producer.produce(topic, message)
+        self.producer.flush()
+
+
+class KafkaConsumer(Consumer):
+    def __init__(self, consumer: confluent_kafka.Consumer):
+        self.consumer = consumer
+
+    def consume(self) -> typing.Optional[str]:
+        msg = self.consumer.poll(timeout=1)
+
+        if msg is None:
+            return
+
+        if not msg.error():
+            self.consumer.commit(asynchronous=False)
+            return msg.value()
 
 
 class KafkaPlugin(MessagePlugin):
@@ -36,7 +62,7 @@ class KafkaPlugin(MessagePlugin):
 
         producer = confluent_kafka.Producer(self.conf)
 
-        return producer
+        return KafkaProducer(producer)
 
     def get_consumer(self, topic):
         """
@@ -54,4 +80,4 @@ class KafkaPlugin(MessagePlugin):
         consumer = confluent_kafka.Consumer(self.conf)
         consumer.subscribe([topic])
 
-        return consumer
+        return KafkaConsumer(consumer)

@@ -1,6 +1,16 @@
 from joatmon.plugin.core import Plugin
 
 
+class Producer:
+    def produce(self, topic: str, message: str):
+        raise NotImplementedError
+
+
+class Consumer:
+    def consume(self) -> str:
+        raise NotImplementedError
+
+
 class MessagePlugin(Plugin):
     """
     Deep Deterministic Policy Gradient
@@ -16,7 +26,7 @@ class MessagePlugin(Plugin):
         gamma (float): gamma.
     """
 
-    def get_producer(self, topic):
+    def get_producer(self, topic) -> Producer:
         """
         Remember the transaction.
 
@@ -27,7 +37,7 @@ class MessagePlugin(Plugin):
         """
         raise NotImplementedError
 
-    def get_consumer(self, topic):
+    def get_consumer(self, topic) -> Consumer:
         """
         Remember the transaction.
 
