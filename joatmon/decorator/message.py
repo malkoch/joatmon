@@ -1,6 +1,7 @@
 import json
 import threading
 import time
+import uuid
 from threading import Thread
 
 from joatmon.core import context
@@ -23,8 +24,9 @@ def producer(kafka, topic):
     def _decorator(func):
         def _wrapper(*args, **kwargs):
             p = context.get_value(kafka).get_producer(topic)
-            message = json.dumps({'args': args, 'kwargs': kwargs}, cls=JSONEncoder).encode('utf-8')
-            p.produce(message)
+            message = json.dumps({'args': args, 'kwargs': kwargs}, cls=JSONEncoder)
+            p.produce(topic, message)
+            p.flush()
             return func(*args, **kwargs)
 
         return _wrapper
@@ -46,22 +48,19 @@ def loop(topic, cons):
     # Arguments
         transaction (abstract): state, action, reward, next_state, terminal transaction.
     """
-    for message in cons:
-        time.sleep(0.1)
 
-        if not threading.main_thread().is_alive():
-            break
-
-        if message is None:
+    while threading.main_thread().is_alive():
+        msg = cons.poll(timeout=1.0)
+        if msg is None:
             continue
 
-        cons.commit_offsets()
+        if not msg.error():
+            cons.commit(asynchronous=False)
 
-        packet = json.loads(message.value.decode('utf-8'))
-        args = packet['args']
-        kwargs = packet['kwargs']
-
-        consumer_events[topic].fire(*args, **kwargs)
+            packet = json.loads(msg.value())
+            args = packet['args']
+            kwargs = packet['kwargs']
+            consumer_events[topic].fire(*args, **kwargs)
 
 
 def consumer_loop_creator():

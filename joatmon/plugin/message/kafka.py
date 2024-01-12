@@ -1,5 +1,4 @@
-from pykafka import KafkaClient
-from pykafka.common import OffsetType
+import confluent_kafka
 
 from joatmon.plugin.message.core import MessagePlugin
 
@@ -20,7 +19,9 @@ class KafkaPlugin(MessagePlugin):
     """
 
     def __init__(self, host):
-        self.client = KafkaClient(host)
+        self.conf = {
+            'bootstrap.servers': host
+        }
 
     def get_producer(self, topic):
         """
@@ -31,7 +32,11 @@ class KafkaPlugin(MessagePlugin):
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        return self.client.topics[topic].get_producer()
+        self.conf['client.id'] = 'joatmon'
+
+        producer = confluent_kafka.Producer(self.conf)
+
+        return producer
 
     def get_consumer(self, topic):
         """
@@ -42,10 +47,11 @@ class KafkaPlugin(MessagePlugin):
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        return self.client.topics[topic].get_simple_consumer(
-            auto_commit_enable=True,
-            consumer_timeout_ms=10,
-            consumer_group='my_group',
-            auto_commit_interval_ms=10,
-            auto_offset_reset=OffsetType.LATEST,
-        )
+        self.conf['group.id'] = 'joatmon'
+        self.conf['auto.offset.reset'] = 'earliest'
+        self.conf['enable.auto.commit'] = False
+
+        consumer = confluent_kafka.Consumer(self.conf)
+        consumer.subscribe([topic])
+
+        return consumer
