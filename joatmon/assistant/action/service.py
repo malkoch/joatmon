@@ -31,7 +31,7 @@ class Task(BaseTask):
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
         return {
-            'name': 'create',
+            'name': 'service',
             'description': 'a function for user to create service or task',
             'parameters': {
                 'type': 'object',
