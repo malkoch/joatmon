@@ -134,6 +134,10 @@ class BaseTask:
 
         self.events['end'].fire()
 
+    @staticmethod
+    def output(**kwargs):
+        ...
+
 
 class TaskState(enum.Enum):
     """

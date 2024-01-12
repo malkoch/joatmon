@@ -155,7 +155,7 @@ class API:
 
             time.sleep(1)
 
-    def do_command(self, command, action=None, arguments=None):
+    def action(self, action, arguments):
         """
         Remember the transaction.
 
@@ -165,10 +165,10 @@ class API:
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
         try:
-            if command is None or command == '':
+            if action is None or action == '':
                 return False
 
-            match command.lower():
+            match action.lower():
                 case 'list processes':
                     for k, v in self.running_tasks.items():
                         print(f'{v.name}: {v.state}')
@@ -178,10 +178,8 @@ class API:
                     return False
                 case 'exit':
                     return self.exit()
-                case 'activate':
-                    return self.run_task(task_name=action, kwargs=arguments)
                 case _:
-                    raise ValueError(f'wanted command is {command}, default case is not implemented')
+                    return self.run_task(task_name=action, kwargs=arguments)
         except Exception as ex:
             print(str(ex))  # use stacktrace and write all exception details, line number, function name, file name etc.
 
@@ -285,17 +283,5 @@ class API:
             self.stop_service(key)
 
         self.event.set()
-        return True
 
-    def mainloop(self):
-        """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
-        """
-        while not self.event.is_set():
-            time.sleep(0.1)
-        self.exit()
+        exit(1)
