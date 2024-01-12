@@ -1204,16 +1204,16 @@ class Module:
         if not isinstance(state_dict, Mapping):
             raise TypeError(f"Expected state_dict to be dict-like, got {type(state_dict)}.")
 
-        def load(module, local_state_dict, prefix=''):
-            module._load_from_state_dict(local_state_dict, prefix)
-            for name, child in module._modules.items():
-                if child is not None:
-                    child_prefix = prefix + name + '.'
-                    child_state_dict = {k: v for k, v in local_state_dict.items() if k.startswith(child_prefix)}
-                    load(child, child_state_dict, child_prefix)
+        # def load(module, local_state_dict, prefix=''):
+        #     module._load_from_state_dict(local_state_dict, prefix)
+        #     for name, child in module._modules.items():
+        #         if child is not None:
+        #             child_prefix = prefix + name + '.'
+        #             child_state_dict = {k: v for k, v in local_state_dict.items() if k.startswith(child_prefix)}
+        #             load(child, child_state_dict, child_prefix)
 
-        load(self, state_dict)
-        del load
+        # load(self, state_dict)
+        # del load
 
     def _named_members(self, get_members_fn, prefix='', recurse=True):
         """
