@@ -1,3 +1,4 @@
+import base64
 import functools
 import inspect
 import json
@@ -742,6 +743,8 @@ class JSONEncoder(json.JSONEncoder):
             return (datetime.min + obj).time().isoformat()
         if isinstance(obj, uuid.UUID):
             return str(obj)
+        if isinstance(obj, bytes):
+            return base64.b64encode(obj).decode('utf-8')
         if callable(obj):
             return str(obj)
         return str(obj)
