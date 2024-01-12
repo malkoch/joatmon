@@ -1,7 +1,6 @@
 import json
 import threading
 import time
-import uuid
 from threading import Thread
 
 from joatmon.core import context
@@ -11,7 +10,7 @@ from joatmon.core.utility import JSONEncoder
 __all__ = ['producer', 'consumer']
 
 
-def producer(kafka, topic):
+def producer(plugin, topic):
     """
     Remember the transaction.
 
@@ -23,10 +22,9 @@ def producer(kafka, topic):
 
     def _decorator(func):
         def _wrapper(*args, **kwargs):
-            p = context.get_value(kafka).get_producer(topic)
+            p = context.get_value(plugin).get_producer(topic)
             message = json.dumps({'args': args, 'kwargs': kwargs}, cls=JSONEncoder)
             p.produce(topic, message)
-            p.flush()
             return func(*args, **kwargs)
 
         return _wrapper
@@ -50,17 +48,14 @@ def loop(topic, cons):
     """
 
     while threading.main_thread().is_alive():
-        msg = cons.poll(timeout=1.0)
+        msg = cons.consume()
         if msg is None:
             continue
 
-        if not msg.error():
-            cons.commit(asynchronous=False)
-
-            packet = json.loads(msg.value())
-            args = packet['args']
-            kwargs = packet['kwargs']
-            consumer_events[topic].fire(*args, **kwargs)
+        packet = json.loads(msg)
+        args = packet['args']
+        kwargs = packet['kwargs']
+        consumer_events[topic].fire(*args, **kwargs)
 
 
 def consumer_loop_creator():
@@ -101,7 +96,7 @@ def add_consumer(topic, c):
 # need to have another parameter called is_batch or batch_size
 # if False or None consumer will be working with one message at a time
 # if not False and None consumer will be working in batch mode
-def consumer(kafka, topic):
+def consumer(plugin, topic):
     """
     Remember the transaction.
 
@@ -112,7 +107,7 @@ def consumer(kafka, topic):
     """
 
     def _decorator(func):
-        c = context.get_value(kafka).get_consumer(topic)
+        c = context.get_value(plugin).get_consumer(topic)
 
         add_consumer(topic, c)
         consumer_events[topic] += func
