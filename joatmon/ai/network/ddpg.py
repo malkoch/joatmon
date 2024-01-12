@@ -2,7 +2,7 @@ __all__ = ['DDPGActor', 'DDPGCritic']
 
 from joatmon.nn import (
     Module,
-    Sequential
+    Sequential, functional
 )
 from joatmon.nn.layer.activation.relu import ReLU
 from joatmon.nn.layer.activation.tanh import Tanh
@@ -116,6 +116,6 @@ class DDPGCritic(Module):
         x = self.extractor(x)
 
         x = self.relu(self.bn1(self.linear1(x.view(x.size(0), -1))))
-        x = functional.concatenate([x, y], axis=1)
+        x = functional.concat([x, y], axis=1)
         x = self.relu(self.bn2(self.linear2(x)))
         return self.linear3(x)

@@ -12,7 +12,7 @@ from joatmon.ai.utility import (
     to_numpy,
     to_tensor
 )
-from joatmon.nn import init
+from joatmon.nn import functional, init
 from joatmon.nn.layer.batchnorm import BatchNorm
 from joatmon.nn.layer.conv import Conv
 from joatmon.nn.layer.linear import Linear
@@ -229,7 +229,7 @@ class TD3Model(CoreModel):
         a_next = self.actor_target(next_states)
         q_next_1 = self.critic_target_1(next_states, a_next)
         q_next_2 = self.critic_target_2(next_states, a_next)
-        q_next = torch.min(q_next_1, q_next_2)
+        q_next = functional.min(q_next_1, q_next_2)
 
         q_next = self.gamma * q_next * (1 - terminals)
         q_next.add_(rewards)
@@ -238,8 +238,8 @@ class TD3Model(CoreModel):
         q_1 = self.critic_local_1(states, actions)
         q_2 = self.critic_local_2(states, actions)
 
-        critic_1_loss = F.mse_loss(q_1, q_next)
-        critic_2_loss = F.mse_loss(q_2, q_next)
+        critic_1_loss = functional.mse_loss(q_1, q_next)
+        critic_2_loss = functional.mse_loss(q_2, q_next)
 
         critic_loss = critic_1_loss + critic_2_loss
         self.critic_optimizer.zero_grad()
