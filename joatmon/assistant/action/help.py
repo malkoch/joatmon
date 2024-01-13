@@ -1,9 +1,9 @@
 import importlib.util
-import inspect
 import json
 import os
 
 from joatmon.assistant.task import BaseTask
+from joatmon.core.utility import JSONEncoder, get_module_classes
 
 
 class Task(BaseTask):
@@ -58,6 +58,10 @@ class Task(BaseTask):
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
+        script = self.kwargs.get('script', None)
+
+        tasks = []
+
         settings = json.loads(open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'r').read())
         for scripts in settings.get('scripts', []):
             if os.path.isabs(scripts) and os.path.exists(scripts):
@@ -71,20 +75,44 @@ class Task(BaseTask):
                     action_module = importlib.util.module_from_spec(spec)
                     spec.loader.exec_module(action_module)
 
+                    if script is not None and action_module != script:
+                        continue
+
                     task = getattr(action_module, 'Task', None)
                     if task is None:
                         continue
-                    task.help(self)
+                    tasks.append(task)
             else:
-                _module = __import__(scripts, fromlist=[''])
+                try:
+                    _module = __import__('.'.join(scripts.split('.')), fromlist=[scripts.split('.')[-1]])
 
-                for module in inspect.getmembers(_module, predicate=inspect.ismodule):
-                    action_module = getattr(_module, module[0])
+                    scripts = _module.__path__[0]
 
-                    task = getattr(action_module, 'Task', None)
-                    if task is None:
-                        continue
-                    task.help(self)
+                    for script_file in os.listdir(scripts):
+                        if '__' in script_file:
+                            continue
+
+                        if script is not None and script_file.replace('.py', '') != script:
+                            continue
+
+                        spec = importlib.util.spec_from_file_location(
+                            scripts, os.path.join(scripts, script_file)
+                        )
+                        action_module = importlib.util.module_from_spec(spec)
+                        spec.loader.exec_module(action_module)
+
+                        for class_ in get_module_classes(action_module):
+                            if not issubclass(class_[1], BaseTask) or class_[1] is BaseTask:
+                                continue
+
+                            tasks.append(class_[1])
+                except ModuleNotFoundError:
+                    print('module not found')
+                    continue
+
+        functions = list(map(lambda x: x.help(), tasks))
+        functions = list(filter(lambda x: x, functions))
+        BaseTask.output(message=json.dumps(functions, indent=4, cls=JSONEncoder))
 
         if not self.stop_event.is_set():
             self.stop_event.set()

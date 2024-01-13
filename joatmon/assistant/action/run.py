@@ -62,6 +62,7 @@ class Task(BaseTask):
         executable_path = os.path.join(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'executables', executable)
 
         subprocess.run(['python.exe', executable_path] + args.split(' ') + ['--task', self.name])
+        # run them in a thread
 
         if not self.stop_event.is_set():
             self.stop_event.set()
