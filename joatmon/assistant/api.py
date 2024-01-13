@@ -155,7 +155,7 @@ class API:
 
             time.sleep(1)
 
-    def action(self, action, arguments):
+    def action(self, action, arguments):  # each request must have request id and client id or token
         """
         Remember the transaction.
 
