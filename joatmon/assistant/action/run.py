@@ -21,8 +21,8 @@ class Task(BaseTask):
         gamma (float): gamma.
     """
 
-    def __init__(self, name, **kwargs):
-        super(Task, self).__init__(name, **kwargs)
+    def __init__(self, name, api, **kwargs):
+        super(Task, self).__init__(name, api, **kwargs)
 
     @staticmethod
     def help():
@@ -59,7 +59,7 @@ class Task(BaseTask):
         # send the os path to all executables
         # send the parent os path to all executables
 
-        executable_path = os.path.join(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'executables', executable)
+        executable_path = os.path.join(self.api.cwd, 'executables', executable)
 
         subprocess.run(['python.exe', executable_path] + args.split(' ') + ['--task', self.name])
         # run them in a thread

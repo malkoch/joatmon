@@ -1,14 +1,10 @@
 import dataclasses
 import enum
-import importlib.util
-import json
-import os
 import threading
 
 from transitions import Machine
 
 from joatmon.core.event import Event
-from joatmon.core.utility import (JSONEncoder, first)
 
 
 class BaseService:
@@ -26,8 +22,9 @@ class BaseService:
         gamma (float): gamma.
     """
 
-    def __init__(self, name, **kwargs):
+    def __init__(self, name, api, **kwargs):
         self.name = name
+        self.api = api
         self.kwargs = kwargs
         self.event = threading.Event()
         self.thread = threading.Thread(target=self.run)
@@ -138,93 +135,4 @@ events = {
     'begin': Event(),
     'end': Event(),
     'error': Event(),
-    'create': Event(),
-    'update': Event(),
-    'delete': Event(),
 }
-
-
-def create(name, priority, mode, script, kwargs):
-    """
-    Remember the transaction.
-
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
-    """
-    # on error
-    # on recovery
-    create_args = {'name': name, 'priority': priority, 'mode': mode, 'script': script, 'status': True, 'kwargs': kwargs}
-
-    settings = json.loads(open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'r').read())
-    services = settings.get('services', [])
-
-    services.append(create_args)
-
-    settings['services'] = services
-    open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
-
-
-def get_class(name):
-    """
-    Remember the transaction.
-
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
-    """
-    service = None
-
-    settings = json.loads(open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'r').read())
-    for scripts in settings.get('scripts', []):
-        if os.path.isabs(scripts):
-            if os.path.exists(scripts) and os.path.exists(os.path.join(scripts, f'{name}.py')):
-                spec = importlib.util.spec_from_file_location(scripts, os.path.join(scripts, f'{name}.py'))
-                action_module = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(action_module)
-            else:
-                continue
-        else:
-            try:
-                _module = __import__(scripts, fromlist=[f'{name}'])
-            except ModuleNotFoundError:
-                continue
-
-            action_module = getattr(_module, name, None)
-
-        if action_module is None:
-            continue
-
-        service = getattr(action_module, 'Service', None)
-
-    return service
-
-
-def get(name):
-    """
-    Remember the transaction.
-
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
-    """
-    settings = json.loads(open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'r').read())
-    task_info = first(filter(lambda x: x['status'] and x['name'] == name, settings.get('services', [])))
-
-    if task_info is None:
-        task_info = {'script': name, 'kwargs': {}}
-
-    script = task_info['script']
-
-    service = get_class(script)
-
-    if service is None:
-        return None
-
-    kwargs = task_info.get('kwargs', {})
-
-    service = service(name, **kwargs)
-    return service

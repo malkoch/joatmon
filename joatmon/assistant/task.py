@@ -1,14 +1,10 @@
 import dataclasses
 import enum
-import importlib.util
-import json
-import os
 import threading
 
 from transitions import Machine
 
 from joatmon.core.event import Event
-from joatmon.core.utility import (JSONEncoder, first, get_module_classes)
 
 
 class BaseTask:
@@ -26,8 +22,9 @@ class BaseTask:
         gamma (float): gamma.
     """
 
-    def __init__(self, name, **kwargs):  # another parameter called cache output
+    def __init__(self, name, api, **kwargs):  # another parameter called cache output
         self.name = name
+        self.api = api
         self.kwargs = kwargs
         self.thread = threading.Thread(target=self.run)
         self.stop_event = threading.Event()
@@ -78,7 +75,7 @@ class BaseTask:
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        events['begin'].fire()
+        events['begin'].fire(self.name)
 
         self.thread.start()
 
@@ -93,7 +90,7 @@ class BaseTask:
         """
         self.stop_event.set()
 
-        events['end'].fire()
+        events['end'].fire(self.name)
 
 
 class TaskState(enum.Enum):
@@ -141,102 +138,4 @@ events = {
     'begin': Event(),
     'end': Event(),
     'error': Event(),
-    'create': Event(),
-    'update': Event(),
-    'delete': Event(),
 }
-
-
-def create(name, priority, on, script, kwargs):
-    """
-    Remember the transaction.
-
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
-    """
-    # need last run time
-    # need next run time
-    # need last run result
-    # need interval
-    # if on == 'interval' need to ask for interval as well
-    create_args = {'name': name, 'priority': priority, 'on': on, 'script': script, 'status': True, 'kwargs': kwargs}
-
-    settings = json.loads(open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'r').read())
-    tasks = settings.get('tasks', [])
-
-    tasks.append(create_args)
-
-    settings['tasks'] = tasks
-    open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
-
-
-def get_class(name):
-    """
-    Remember the transaction.
-
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
-    """
-    task = None
-
-    settings = json.loads(open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'r').read())
-    for scripts in settings.get('scripts', []):
-        if os.path.isabs(scripts):
-            if os.path.exists(scripts) and os.path.exists(os.path.join(scripts, f'{name}.py')):
-                spec = importlib.util.spec_from_file_location(scripts, os.path.join(scripts, f'{name}.py'))
-                action_module = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(action_module)
-            else:
-                continue
-        else:
-            try:
-                _module = __import__(scripts, fromlist=[f'{name}'])
-            except ModuleNotFoundError as ex:
-                print(str(ex))
-                continue
-
-            action_module = getattr(_module, name, None)
-
-        if action_module is None:
-            continue
-
-        for class_ in get_module_classes(action_module):
-            if not issubclass(class_[1], BaseTask) or class_[1] is BaseTask:
-                continue
-
-            task = class_[1]
-
-    return task
-
-
-def get(name, kwargs):
-    """
-    Remember the transaction.
-
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
-    """
-    settings = json.loads(open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'r').read())
-    task_info = first(filter(lambda x: x['status'] and x['name'] == name, settings.get('tasks', [])))
-
-    if task_info is None:
-        task_info = {'script': name, 'kwargs': {}}
-
-    script = task_info['script']
-
-    task = get_class(script)
-
-    if task is None:
-        return None
-
-    kwargs = {**(kwargs or {}), **task_info.get('kwargs', {})}
-
-    task = task(name, **kwargs)
-
-    return task
