@@ -1,19 +1,16 @@
 import datetime
+import importlib.util
+import json
+import os
 import threading
 import time
 
-from joatmon.assistant import (
-    service,
-    task
-)
-from joatmon.assistant.service import (
-    ServiceInfo,
-    ServiceState
-)
+from joatmon.assistant.service import (BaseService, ServiceInfo, ServiceState)
 from joatmon.assistant.task import (
-    TaskInfo,
+    BaseTask, TaskInfo,
     TaskState
 )
+from joatmon.core.utility import first, get_module_classes
 from joatmon.system.lock import RWLock
 
 
@@ -34,7 +31,10 @@ class API:
         gamma (float): gamma.
     """
 
-    def __init__(self, tasks=None, services=None):
+    def __init__(self, base_folder, action_folders, tasks=None, services=None):
+        self.cwd = base_folder
+        self.folders = action_folders
+
         self.tasks = tasks or []
         self.services = services or []
 
@@ -123,6 +123,7 @@ class API:
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
+        # maybe call stop function of the task or service
         while not self.event.is_set():
             with self.lock.r_locked():
                 task_keys = [key for key in self.running_tasks.keys()]
@@ -141,9 +142,11 @@ class API:
 
             for key in delete_task_keys:
                 with self.lock.w_locked():
+                    self.running_tasks[key].task.stop()
                     del self.running_tasks[key]
             for key in delete_service_keys:
                 with self.lock.w_locked():
+                    self.running_services[key].service.stop()
                     del self.running_services[key]
 
             time.sleep(1)
@@ -176,9 +179,6 @@ class API:
         except Exception as ex:
             print(str(ex))  # use stacktrace and write all exception details, line number, function name, file name etc.
 
-    def create_task(self):
-        ...
-
     def run_task(self, task_name, kwargs=None):
         """
         Remember the transaction.
@@ -188,22 +188,58 @@ class API:
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        _task = task.get(task_name, kwargs)
-        if _task is None:
+        settings = json.loads(open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'r').read())
+        task_info = first(filter(lambda x: x['status'] and x['name'] == task_name, settings.get('tasks', [])))
+
+        if task_info is None:
+            task_info = {'script': task_name, 'kwargs': {}}
+
+        script = task_info['script']
+
+        task = None
+
+        settings = json.loads(open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'r').read())
+        for scripts in settings.get('scripts', []):
+            if os.path.isabs(scripts):
+                if os.path.exists(scripts) and os.path.exists(os.path.join(scripts, f'{script}.py')):
+                    spec = importlib.util.spec_from_file_location(scripts, os.path.join(scripts, f'{script}.py'))
+                    action_module = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(action_module)
+                else:
+                    continue
+            else:
+                try:
+                    _module = __import__(scripts, fromlist=[f'{script}'])
+                except ModuleNotFoundError as ex:
+                    print(str(ex))
+                    continue
+
+                action_module = getattr(_module, script, None)
+
+            if action_module is None:
+                continue
+
+            for class_ in get_module_classes(action_module):
+                if not issubclass(class_[1], BaseTask) or class_[1] is BaseTask:
+                    continue
+
+                task = class_[1]
+
+        if task is None:
             return False
 
-        if _task.background:
-            if task_name not in self.running_tasks:
-                self.running_tasks[task_name] = TaskInfo(task_name, TaskState.running, _task)
-            else:
-                self.running_tasks[task_name].state = TaskState.running
-                self.running_tasks[task_name].task = _task
-        _task.start()
+        kwargs = {**(kwargs or {}), **task_info.get('kwargs', {})}
+
+        task = task(task_name, self, **kwargs)
+
+        if task_name not in self.running_tasks:
+            self.running_tasks[task_name] = TaskInfo(task_name, TaskState.running, task)
+        else:
+            self.running_tasks[task_name].state = TaskState.running
+            self.running_tasks[task_name].task = task
+        task.start()
 
         return False
-
-    def create_service(self):
-        ...
 
     def start_service(self, service_name):
         """
@@ -214,16 +250,54 @@ class API:
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        _task = service.get(service_name)
-        if _task is None:
+        task_info = first(filter(lambda x: x['status'] and x['name'] == service_name, self.services))
+
+        if task_info is None:
+            task_info = {'script': service_name, 'kwargs': {}}
+
+        script = task_info['script']
+
+        service = None
+
+        settings = json.loads(open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'r').read())
+        for scripts in settings.get('scripts', []):
+            if os.path.isabs(scripts):
+                if os.path.exists(scripts) and os.path.exists(os.path.join(scripts, f'{script}.py')):
+                    spec = importlib.util.spec_from_file_location(scripts, os.path.join(scripts, f'{script}.py'))
+                    action_module = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(action_module)
+                else:
+                    continue
+            else:
+                try:
+                    _module = __import__(scripts, fromlist=[f'{script}'])
+                except ModuleNotFoundError:
+                    continue
+
+                action_module = getattr(_module, script, None)
+
+            if action_module is None:
+                continue
+
+            for class_ in get_module_classes(action_module):
+                if not issubclass(class_[1], BaseService) or class_[1] is BaseService:
+                    continue
+
+                service = class_[1]
+
+        if service is None:
             return False
 
+        kwargs = task_info.get('kwargs', {})
+
+        service = service(service_name, self, **kwargs)
+
         if service_name not in self.running_services:
-            self.running_services[service_name] = ServiceInfo(service_name, ServiceState.running, _task)
+            self.running_services[service_name] = ServiceInfo(service_name, ServiceState.running, service)
         else:
             self.running_services[service_name].state = ServiceState.running
-            self.running_services[service_name].service = _task
-        _task.start()
+            self.running_services[service_name].service = service
+        service.start()
 
         return False
 

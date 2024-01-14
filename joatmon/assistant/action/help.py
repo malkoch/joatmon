@@ -21,8 +21,8 @@ class Task(BaseTask):
         gamma (float): gamma.
     """
 
-    def __init__(self, name, **kwargs):
-        super(Task, self).__init__(name, **kwargs)
+    def __init__(self, name, api, **kwargs):
+        super(Task, self).__init__(name, api, **kwargs)
 
     @staticmethod
     def help():
@@ -62,8 +62,7 @@ class Task(BaseTask):
 
         tasks = []
 
-        settings = json.loads(open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'r').read())
-        for scripts in settings.get('scripts', []):
+        for scripts in self.api.folders:
             if os.path.isabs(scripts) and os.path.exists(scripts):
                 for module in list(
                         filter(
