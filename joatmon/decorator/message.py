@@ -24,6 +24,7 @@ def producer(plugin, topic):
         def _wrapper(*args, **kwargs):
             p = context.get_value(plugin).get_producer(topic)
             message = json.dumps({'args': args, 'kwargs': kwargs}, cls=JSONEncoder)
+            # print(f'producer: {topic} {message}')
             p.produce(topic, message)
             return func(*args, **kwargs)
 
@@ -52,10 +53,16 @@ def loop(topic, cons):
         if msg is None:
             continue
 
+        # print(f'consumer: {topic} {msg}')
+
         packet = json.loads(msg)
         args = packet['args']
         kwargs = packet['kwargs']
-        consumer_events[topic].fire(*args, **kwargs)
+
+        try:
+            consumer_events[topic].fire(*args, **kwargs)
+        except Exception as ex:
+            print(str(ex))
 
 
 def consumer_loop_creator():

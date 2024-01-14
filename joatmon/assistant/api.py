@@ -1,6 +1,4 @@
 import datetime
-import json
-import os
 import threading
 import time
 
@@ -19,6 +17,8 @@ from joatmon.assistant.task import (
 from joatmon.system.lock import RWLock
 
 
+# instead of reading from system.json, get these values as an argument
+# after creating task or service, need to restart the system
 class API:
     """
     Deep Deterministic Policy Gradient
@@ -34,8 +34,9 @@ class API:
         gamma (float): gamma.
     """
 
-    def __init__(self):
-        settings = json.loads(open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'r').read())
+    def __init__(self, tasks=None, services=None):
+        self.tasks = tasks or []
+        self.services = services or []
 
         self.lock = RWLock()
         self.running_tasks = {}  # running, finished
@@ -43,13 +44,11 @@ class API:
 
         self.event = threading.Event()
 
-        tasks = settings.get('tasks', [])
-        for _task in sorted(filter(lambda x: x['status'] and x['on'] == 'startup', tasks), key=lambda x: x['priority']):
+        for _task in sorted(filter(lambda x: x['status'] and x['on'] == 'startup', self.tasks), key=lambda x: x['priority']):
             self.run_task(_task['name'])  # need to do them in background
 
-        services = settings.get('services', [])
         for _service in sorted(
-                filter(lambda x: x['status'] and x['mode'] == 'automatic', services), key=lambda x: x['priority']
+                filter(lambda x: x['status'] and x['mode'] == 'automatic', self.services), key=lambda x: x['priority']
         ):
             self.start_service(_service['name'])  # need to do them in background
 
@@ -75,9 +74,7 @@ class API:
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
         while not self.event.is_set():
-            settings = json.loads(open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'r').read())
-            tasks = settings.get('tasks', [])
-            tasks = filter(lambda x: x['status'], tasks)
+            tasks = filter(lambda x: x['status'], self.tasks)
             tasks = filter(lambda x: x['on'] == 'interval', tasks)
             tasks = filter(lambda x: x['interval'] > 0, tasks)
             tasks = list(tasks)
@@ -106,14 +103,10 @@ class API:
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        settings = json.loads(open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'r').read())
-
-        services = settings.get('services', [])
-
         # if the service is closed for some reason and is configured as restart automatically, need to restart the service
 
         while not self.event.is_set():
-            for _service in sorted(filter(lambda x: x['status'], services), key=lambda x: x['priority']):
+            for _service in sorted(filter(lambda x: x['status'], self.services), key=lambda x: x['priority']):
                 if (
                         _service['name'] not in self.running_services
                         or self.running_services[_service['name']].state == ServiceState.finished
@@ -263,12 +256,8 @@ class API:
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-
-        settings = json.loads(open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'r').read())
-
-        tasks = settings.get('tasks', [])
         for _task in sorted(
-                filter(lambda x: x['status'] and x['on'] == 'shutdown', tasks), key=lambda x: x['priority']
+                filter(lambda x: x['status'] and x['on'] == 'shutdown', self.tasks), key=lambda x: x['priority']
         ):
             self.run_task(_task['name'])
 
