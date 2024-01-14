@@ -112,7 +112,7 @@ class Task(BaseTask):
 
         functions = list(map(lambda x: x.help(), tasks))
         functions = list(filter(lambda x: x, functions))
-        BaseTask.output(message=json.dumps(functions, indent=4, cls=JSONEncoder))
+        _ = json.dumps(functions, indent=4, cls=JSONEncoder)
 
         if not self.stop_event.is_set():
             self.stop_event.set()

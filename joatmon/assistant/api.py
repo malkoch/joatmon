@@ -88,9 +88,9 @@ class API:
             old_tasks = list(old_tasks)
 
             for _task in sorted(new_tasks, key=lambda x: x['priority']):
-                self.run_task(task_name=_task['name'], kwargs=None, background=True)  # need to do them in background
+                self.run_task(task_name=_task['name'], kwargs=None)  # need to do them in background
             for _task in sorted(old_tasks, key=lambda x: x['priority']):
-                self.run_task(task_name=_task['name'], kwargs=None, background=True)  # need to do them in background
+                self.run_task(task_name=_task['name'], kwargs=None)  # need to do them in background
 
             time.sleep(1)
 
@@ -176,7 +176,10 @@ class API:
         except Exception as ex:
             print(str(ex))  # use stacktrace and write all exception details, line number, function name, file name etc.
 
-    def run_task(self, task_name, kwargs=None, background=False):
+    def create_task(self):
+        ...
+
+    def run_task(self, task_name, kwargs=None):
         """
         Remember the transaction.
 
@@ -185,7 +188,7 @@ class API:
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        _task = task.get(task_name, kwargs, background)
+        _task = task.get(task_name, kwargs)
         if _task is None:
             return False
 
@@ -198,6 +201,9 @@ class API:
         _task.start()
 
         return False
+
+    def create_service(self):
+        ...
 
     def start_service(self, service_name):
         """

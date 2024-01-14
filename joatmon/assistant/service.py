@@ -8,10 +8,7 @@ import threading
 from transitions import Machine
 
 from joatmon.core.event import Event
-from joatmon.core.utility import (
-    first,
-    JSONEncoder
-)
+from joatmon.core.utility import (JSONEncoder, first)
 
 
 class BaseService:
@@ -34,8 +31,6 @@ class BaseService:
         self.kwargs = kwargs
         self.event = threading.Event()
         self.thread = threading.Thread(target=self.run)
-
-        self.events = {'begin': Event(), 'end': Event(), 'error': Event()}
 
         states = ['none', 'started', 'stopped', 'running', 'exception', 'starting', 'stopping']
         self.machine = Machine(model=self, states=states, initial='none')
@@ -139,42 +134,14 @@ class ServiceInfo:
     service: BaseService
 
 
-def on_begin(name, *args, **kwargs):
-    """
-    Remember the transaction.
-
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
-    """
-    ...
-
-
-def on_error(name, *args, **kwargs):
-    """
-    Remember the transaction.
-
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
-    """
-    # if the service has recovery option, run it
-    # else end
-    ...
-
-
-def on_end(name, *args, **kwargs):
-    """
-    Remember the transaction.
-
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
-    """
-    ...
+events = {
+    'begin': Event(),
+    'end': Event(),
+    'error': Event(),
+    'create': Event(),
+    'update': Event(),
+    'delete': Event(),
+}
 
 
 def create(name, priority, mode, script, kwargs):

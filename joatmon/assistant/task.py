@@ -1,7 +1,5 @@
 import dataclasses
-import datetime
 import enum
-import functools
 import importlib.util
 import json
 import os
@@ -10,11 +8,7 @@ import threading
 from transitions import Machine
 
 from joatmon.core.event import Event
-from joatmon.core.utility import (
-    first,
-    get_module_classes,
-    JSONEncoder
-)
+from joatmon.core.utility import (JSONEncoder, first, get_module_classes)
 
 
 class BaseTask:
@@ -32,44 +26,14 @@ class BaseTask:
         gamma (float): gamma.
     """
 
-    def __init__(self, name, background=False, **kwargs):  # another parameter called cache output
+    def __init__(self, name, **kwargs):  # another parameter called cache output
         self.name = name
         self.kwargs = kwargs
-        self._background = background
-        if self.background:
-            self.thread = threading.Thread(target=self.run)
+        self.thread = threading.Thread(target=self.run)
         self.stop_event = threading.Event()
-
-        self.events = {'begin': Event(), 'end': Event(), 'error': Event()}
 
         states = ['none', 'started', 'stopped', 'running', 'exception', 'starting', 'stopping']
         self.machine = Machine(model=self, states=states, initial='none')
-
-    @property
-    def background(self):
-        """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
-        """
-        return self._background
-
-    @background.setter
-    def background(self, value):
-        """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
-        """
-        self._background = value
-        if self.background:
-            self.thread = threading.Thread(target=self.run)
 
     @staticmethod
     def help():
@@ -114,12 +78,9 @@ class BaseTask:
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        self.events['begin'].fire()
+        events['begin'].fire()
 
-        if self.background:
-            self.thread.start()
-        else:
-            self.run()
+        self.thread.start()
 
     def stop(self):
         """
@@ -132,7 +93,7 @@ class BaseTask:
         """
         self.stop_event.set()
 
-        self.events['end'].fire()
+        events['end'].fire()
 
 
 class TaskState(enum.Enum):
@@ -176,61 +137,14 @@ class TaskInfo:
     task: BaseTask
 
 
-def on_begin(name, *args, **kwargs):
-    """
-    Remember the transaction.
-
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
-    """
-    settings = json.loads(open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'r').read())
-    tasks = settings.get('tasks', [])
-
-    task_info = first(filter(lambda x: x['name'] == name, tasks))
-    if task_info is None:
-        return
-
-    task_info['last_run_time'] = datetime.datetime.now()
-    if task_info['on'] == 'interval':
-        task_info['next_run_time'] = task_info['last_run_time'] + datetime.timedelta(seconds=task_info['interval'])
-
-    for idx, task in enumerate(tasks):
-        if task['name'] == task_info['name']:
-            tasks[idx] = task_info
-            break
-
-    settings['tasks'] = tasks
-    open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'w').write(json.dumps(settings, indent=4, cls=JSONEncoder))
-
-
-def on_error(name, *args, **kwargs):
-    """
-    Remember the transaction.
-
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
-    """
-    # make sure to update next_run_time
-    # make sure to update last_run_time
-    ...
-
-
-def on_end(name, *args, **kwargs):
-    """
-    Remember the transaction.
-
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
-    """
-    # make sure to update next_run_time
-    # make sure to update last_run_time
-    ...
+events = {
+    'begin': Event(),
+    'end': Event(),
+    'error': Event(),
+    'create': Event(),
+    'update': Event(),
+    'delete': Event(),
+}
 
 
 def create(name, priority, on, script, kwargs):
@@ -299,7 +213,7 @@ def get_class(name):
     return task
 
 
-def get(name, kwargs, background):
+def get(name, kwargs):
     """
     Remember the transaction.
 
@@ -324,9 +238,5 @@ def get(name, kwargs, background):
     kwargs = {**(kwargs or {}), **task_info.get('kwargs', {})}
 
     task = task(name, **kwargs)
-    task.background = background
 
-    task.events['begin'] += functools.partial(on_begin, name=name)
-    task.events['end'] += functools.partial(on_end, name=name)
-    task.events['error'] += functools.partial(on_error, name=name)
     return task
