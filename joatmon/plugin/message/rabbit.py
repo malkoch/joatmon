@@ -52,7 +52,7 @@ class RabbitMQPlugin(MessagePlugin):
         self.username = username
         self.password = password
 
-        self.q = queue.Queue()
+        self.d = {}
 
     def get_producer(self, topic):
         """
@@ -63,6 +63,9 @@ class RabbitMQPlugin(MessagePlugin):
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
+        if topic not in self.d:
+            self.d[topic] = queue.Queue()
+
         credentials = pika.PlainCredentials(self.username, self.password)
         connection = pika.BlockingConnection(pika.ConnectionParameters(host=self.host, port=self.port, credentials=credentials))
         channel = connection.channel()
@@ -84,6 +87,9 @@ class RabbitMQPlugin(MessagePlugin):
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
+        if topic not in self.d:
+            self.d[topic] = queue.Queue()
+
         credentials = pika.PlainCredentials(self.username, self.password)
         connection = pika.BlockingConnection(pika.ConnectionParameters(host=self.host, port=self.port, credentials=credentials))
         channel = connection.channel()
@@ -93,12 +99,12 @@ class RabbitMQPlugin(MessagePlugin):
         channel.queue_bind(exchange=topic, queue=topic, routing_key=topic)
 
         def callback(ch, method, properties, body):
-            self.q.put(body)
+            self.d[topic].put(body)
 
         channel.basic_consume(queue=topic, on_message_callback=callback, auto_ack=True)
         threading.Thread(target=channel.start_consuming).start()
 
         consumer = RabbitConsumer(channel)
-        consumer.set_q(self.q)
+        consumer.set_q(self.d[topic])
 
         return consumer
