@@ -1,21 +1,21 @@
+import asyncio
 import datetime
 import importlib.util
-import json
 import os
-import threading
-import time
+import typing
+import uuid
 
-from joatmon.assistant.service import (BaseService, ServiceInfo, ServiceState)
+from joatmon.assistant.runnable import Runnable
+from joatmon.assistant.service import (BaseService, Service)
 from joatmon.assistant.task import (
-    BaseTask, TaskInfo,
-    TaskState
+    BaseTask, Task
 )
 from joatmon.core.utility import first, get_module_classes
-from joatmon.system.lock import RWLock
 
 
 # instead of reading from system.json, get these values as an argument
 # after creating task or service, need to restart the system
+# make this async, we can get exceptions from it as well
 class API:
     """
     Deep Deterministic Policy Gradient
@@ -31,40 +31,48 @@ class API:
         gamma (float): gamma.
     """
 
-    def __init__(self, base_folder, action_folders, tasks=None, services=None):
-        self.cwd = base_folder
-        self.folders = action_folders
+    def __init__(self, loop, cwd, folders=None, tasks: typing.Optional[typing.List[Task]] = None, services: typing.Optional[typing.List[Service]] = None):
+        self.loop = loop
+        self.cwd = cwd
+        self.folders = folders or []
 
         self.tasks = tasks or []
         self.services = services or []
 
-        self.lock = RWLock()
-        self.running_tasks = {}  # running, finished
-        self.running_services = {}  # running, enabled, disabled, stopped, finished
+        self.processes: typing.List[Runnable] = []
 
-        self.event = threading.Event()
+        self.event = asyncio.Event()
 
-        for _task in sorted(filter(lambda x: x['status'] and x['on'] == 'startup', self.tasks), key=lambda x: x['priority']):
-            self.run_task(_task['name'])  # need to do them in background
+    async def main(self):
+        for _task in sorted(filter(lambda x: x.status and x.on == 'startup', self.tasks), key=lambda x: x.priority):
+            self.run_task(_task.name)
 
-        for _service in sorted(
-                filter(lambda x: x['status'] and x['mode'] == 'automatic', self.services), key=lambda x: x['priority']
-        ):
-            self.start_service(_service['name'])  # need to do them in background
+        for _service in sorted(filter(lambda x: x.status and x.mode == 'automatic', self.services), key=lambda x: x.priority):
+            self.start_service(_service.name)
 
-        self.cleaning_thread = threading.Thread(target=self.clean)
-        self.cleaning_thread.start()
-        time.sleep(1)
+        self.cleaning_task = asyncio.ensure_future(self.clean(), loop=self.loop)
+        self.service_task = asyncio.ensure_future(self.run_services(), loop=self.loop)
+        self.interval_task = asyncio.ensure_future(self.run_interval(), loop=self.loop)
 
-        self.service_thread = threading.Thread(target=self.run_services)
-        self.service_thread.start()
-        time.sleep(1)
+        while not self.event.is_set():
+            try:
+                done, pending = await asyncio.wait(
+                    list(map(lambda x: x.task, self.processes)) + [self.cleaning_task, self.service_task, self.interval_task],
+                    return_when=asyncio.FIRST_COMPLETED
+                )
 
-        self.interval_thread = threading.Thread(target=self.run_interval)
-        self.interval_thread.start()
-        time.sleep(1)
+                if self.cleaning_task in done:
+                    self.cleaning_task = asyncio.ensure_future(self.clean(), loop=self.loop)
+                if self.service_task in done:
+                    self.service_task = asyncio.ensure_future(self.run_services(), loop=self.loop)
+                if self.interval_task in done:
+                    self.interval_task = asyncio.ensure_future(self.run_interval(), loop=self.loop)
+            except Exception as ex:
+                print(str(ex))
 
-    def run_interval(self):
+            await asyncio.sleep(0.1)
+
+    async def run_interval(self):
         """
         Remember the transaction.
 
@@ -73,28 +81,25 @@ class API:
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        while not self.event.is_set():
-            tasks = filter(lambda x: x['status'], self.tasks)
-            tasks = filter(lambda x: x['on'] == 'interval', tasks)
-            tasks = filter(lambda x: x['interval'] > 0, tasks)
-            tasks = list(tasks)
+        tasks = filter(lambda x: x['status'], self.tasks)
+        tasks = filter(lambda x: x['on'] == 'interval', tasks)
+        tasks = filter(lambda x: x['interval'] > 0, tasks)
+        tasks = list(tasks)
 
-            new_tasks = filter(lambda x: x.get('last_run_time', None) is None, tasks)
-            new_tasks = list(new_tasks)
-            old_tasks = filter(lambda x: x.get('next_run_time', None) is not None, tasks)
-            old_tasks = filter(
-                lambda x: datetime.datetime.now() > datetime.datetime.fromisoformat(x['next_run_time']), old_tasks
-            )
-            old_tasks = list(old_tasks)
+        new_tasks = filter(lambda x: x.get('last_run_time', None) is None, tasks)
+        new_tasks = list(new_tasks)
+        old_tasks = filter(lambda x: x.get('next_run_time', None) is not None, tasks)
+        old_tasks = filter(
+            lambda x: datetime.datetime.now() > datetime.datetime.fromisoformat(x['next_run_time']), old_tasks
+        )
+        old_tasks = list(old_tasks)
 
-            for _task in sorted(new_tasks, key=lambda x: x['priority']):
-                self.run_task(task_name=_task['name'], kwargs=None)  # need to do them in background
-            for _task in sorted(old_tasks, key=lambda x: x['priority']):
-                self.run_task(task_name=_task['name'], kwargs=None)  # need to do them in background
+        for _task in sorted(new_tasks, key=lambda x: x['priority']):
+            self.run_task(task_name=_task['name'], kwargs=None)  # need to do them in background
+        for _task in sorted(old_tasks, key=lambda x: x['priority']):
+            self.run_task(task_name=_task['name'], kwargs=None)  # need to do them in background
 
-            time.sleep(1)
-
-    def run_services(self):
+    async def run_services(self):
         """
         Remember the transaction.
 
@@ -105,16 +110,11 @@ class API:
         """
         # if the service is closed for some reason and is configured as restart automatically, need to restart the service
 
-        while not self.event.is_set():
-            for _service in sorted(filter(lambda x: x['status'], self.services), key=lambda x: x['priority']):
-                if (
-                        _service['name'] not in self.running_services
-                        or self.running_services[_service['name']].state == ServiceState.finished
-                ):
-                    self.start_service(_service['name'])  # need to do them in background
-            time.sleep(1)
+        for _service in sorted(filter(lambda x: x['status'], self.services), key=lambda x: x['priority']):
+            if _service.id not in list(map(lambda x: x.service.id, self.processes)):
+                self.start_service(_service['name'])  # need to do them in background
 
-    def clean(self):
+    async def clean(self):
         """
         Remember the transaction.
 
@@ -123,33 +123,11 @@ class API:
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        # maybe call stop function of the task or service
-        while not self.event.is_set():
-            with self.lock.r_locked():
-                task_keys = [key for key in self.running_tasks.keys()]
-                service_keys = [key for key in self.running_services.keys()]
+        ended_processes = list(filter(lambda x: not x.running(), self.processes))
+        self.processes = list(filter(lambda x: x.running(), self.processes))
 
-            delete_task_keys = []
-            for key in task_keys:
-                task_info = self.running_tasks[key]
-                if not task_info.task.running():
-                    delete_task_keys.append(key)
-            delete_service_keys = []
-            for key in service_keys:
-                task_info = self.running_services[key]
-                if not task_info.service.running() and task_info.state != ServiceState.stopped:
-                    delete_service_keys.append(key)
-
-            for key in delete_task_keys:
-                with self.lock.w_locked():
-                    self.running_tasks[key].task.stop()
-                    del self.running_tasks[key]
-            for key in delete_service_keys:
-                with self.lock.w_locked():
-                    self.running_services[key].service.stop()
-                    del self.running_services[key]
-
-            time.sleep(1)
+        for process in ended_processes:
+            process.stop()
 
     def action(self, action, arguments):  # each request must have request id and client id or token
         """
@@ -166,10 +144,11 @@ class API:
 
             match action.lower():
                 case 'list processes':
-                    for k, v in self.running_tasks.items():
-                        print(f'{v.name}: {v.state}')
-                    for k, v in self.running_services.items():
-                        print(f'{v.name}: {v.state}')
+                    for process in self.processes:
+                        if process.type == 'task':
+                            print(f'{process.info.name}, {process.process_id}: {process.running()}')
+                        if process.type == 'service':
+                            print(f'{process.info.name}, {process.process_id}: {process.running()}')
 
                     return False
                 case 'exit':
@@ -178,6 +157,53 @@ class API:
                     return self.run_task(task_name=action, kwargs=arguments)
         except Exception as ex:
             print(str(ex))  # use stacktrace and write all exception details, line number, function name, file name etc.
+
+    def _run_task(self, task: Task, **kwargs):
+        cls = None
+        for scripts in self.folders:
+            if os.path.isabs(scripts):
+                if os.path.exists(scripts) and os.path.exists(os.path.join(scripts, f'{task.script}.py')):
+                    spec = importlib.util.spec_from_file_location(scripts, os.path.join(scripts, f'{task.script}.py'))
+                    action_module = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(action_module)
+                else:
+                    continue
+            else:
+                try:
+                    _module = __import__(scripts, fromlist=[f'{task.script}'])
+                except ModuleNotFoundError as ex:
+                    print(str(ex))
+                    continue
+
+                action_module = getattr(_module, task.script, None)
+
+            if action_module is None:
+                continue
+
+            for class_ in get_module_classes(action_module):
+                if not issubclass(class_[1], Runnable):
+                    continue
+
+                if class_[1] is Runnable:
+                    continue
+
+                if not issubclass(class_[1], BaseTask):
+                    continue
+
+                if class_[1] is BaseTask:
+                    continue
+
+                cls = class_[1]
+
+        if cls is None:
+            return False
+
+        kwargs = {**(kwargs or {}), **task.arguments}
+
+        obj = cls(task, self, **kwargs)
+        obj.start()
+
+        self.processes.append(obj)
 
     def run_task(self, task_name, kwargs=None):
         """
@@ -188,58 +214,61 @@ class API:
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        settings = json.loads(open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'r').read())
-        task_info = first(filter(lambda x: x['status'] and x['name'] == task_name, settings.get('tasks', [])))
-
+        task_info: typing.Optional[Task] = first(filter(lambda x: x.status and x.name == task_name, self.tasks))
         if task_info is None:
-            task_info = {'script': task_name, 'kwargs': {}}
+            task_info = Task(
+                id=str(uuid.uuid4()),
+                name=task_name,
+                description='',
+                script=task_name,
+                status=True,
+                on='manual',
+                priority=0,
+                arguments={},
+                created_at=datetime.datetime.now(),
+                updated_at=datetime.datetime.now(),
+            )
+        self._run_task(task_info, **kwargs)
 
-        script = task_info['script']
+        return False
 
-        task = None
+    def _start_service(self, service: Service):
+        service_cls = None
 
-        settings = json.loads(open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'r').read())
-        for scripts in settings.get('scripts', []):
+        for scripts in self.folders:
             if os.path.isabs(scripts):
-                if os.path.exists(scripts) and os.path.exists(os.path.join(scripts, f'{script}.py')):
-                    spec = importlib.util.spec_from_file_location(scripts, os.path.join(scripts, f'{script}.py'))
+                if os.path.exists(scripts) and os.path.exists(os.path.join(scripts, f'{service.script}.py')):
+                    spec = importlib.util.spec_from_file_location(scripts, os.path.join(scripts, f'{service.script}.py'))
                     action_module = importlib.util.module_from_spec(spec)
                     spec.loader.exec_module(action_module)
                 else:
                     continue
             else:
                 try:
-                    _module = __import__(scripts, fromlist=[f'{script}'])
-                except ModuleNotFoundError as ex:
-                    print(str(ex))
+                    _module = __import__(scripts, fromlist=[f'{service.script}'])
+                except ModuleNotFoundError:
                     continue
 
-                action_module = getattr(_module, script, None)
+                action_module = getattr(_module, service.script, None)
 
             if action_module is None:
                 continue
 
             for class_ in get_module_classes(action_module):
-                if not issubclass(class_[1], BaseTask) or class_[1] is BaseTask:
+                if not issubclass(class_[1], BaseService) or class_[1] is BaseService:
                     continue
 
-                task = class_[1]
+                service_cls = class_[1]
 
-        if task is None:
+        if service_cls is None:
             return False
 
-        kwargs = {**(kwargs or {}), **task_info.get('kwargs', {})}
+        kwargs = service_cls.arguments
 
-        task = task(task_name, self, **kwargs)
+        obj = service_cls(service, self, **kwargs)
+        obj.start()
 
-        if task_name not in self.running_tasks:
-            self.running_tasks[task_name] = TaskInfo(task_name, TaskState.running, task)
-        else:
-            self.running_tasks[task_name].state = TaskState.running
-            self.running_tasks[task_name].task = task
-        task.start()
-
-        return False
+        self.processes.append(obj)
 
     def start_service(self, service_name):
         """
@@ -250,56 +279,12 @@ class API:
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        task_info = first(filter(lambda x: x['status'] and x['name'] == service_name, self.services))
+        task_info = first(filter(lambda x: x.status and x.name == service_name, self.services))
 
         if task_info is None:
-            task_info = {'script': service_name, 'kwargs': {}}
-
-        script = task_info['script']
-
-        service = None
-
-        settings = json.loads(open(os.path.join(os.environ.get('ASSISTANT_HOME'), 'system.json'), 'r').read())
-        for scripts in settings.get('scripts', []):
-            if os.path.isabs(scripts):
-                if os.path.exists(scripts) and os.path.exists(os.path.join(scripts, f'{script}.py')):
-                    spec = importlib.util.spec_from_file_location(scripts, os.path.join(scripts, f'{script}.py'))
-                    action_module = importlib.util.module_from_spec(spec)
-                    spec.loader.exec_module(action_module)
-                else:
-                    continue
-            else:
-                try:
-                    _module = __import__(scripts, fromlist=[f'{script}'])
-                except ModuleNotFoundError:
-                    continue
-
-                action_module = getattr(_module, script, None)
-
-            if action_module is None:
-                continue
-
-            for class_ in get_module_classes(action_module):
-                if not issubclass(class_[1], BaseService) or class_[1] is BaseService:
-                    continue
-
-                service = class_[1]
-
-        if service is None:
             return False
 
-        kwargs = task_info.get('kwargs', {})
-
-        service = service(service_name, self, **kwargs)
-
-        if service_name not in self.running_services:
-            self.running_services[service_name] = ServiceInfo(service_name, ServiceState.running, service)
-        else:
-            self.running_services[service_name].state = ServiceState.running
-            self.running_services[service_name].service = service
-        service.start()
-
-        return False
+        self._start_service(task_info)
 
     def stop_service(self, service_name):
         """
@@ -310,9 +295,11 @@ class API:
         # Arguments
             transaction (abstract): state, action, reward, next_state, terminal transaction.
         """
-        self.running_services[service_name].state = ServiceState.stopped
-        self.running_services[service_name].service.stop()
-        return False
+
+        for process in self.processes:
+            if process.type == 'service' and process.info.name == service_name:
+                process.stop()
+                return False
 
     def restart_service(self, service_name):
         """
@@ -341,15 +328,8 @@ class API:
         ):
             self.run_task(_task['name'])
 
-        with self.lock.r_locked():
-            task_keys = [key for key in self.running_tasks.keys()]
-            service_keys = [key for key in self.running_services.keys()]
-
-        for key in task_keys:
-            task_info = self.running_tasks[key]
-            task_info.task.stop()
-        for key in service_keys:
-            self.stop_service(key)
+        for process in self.processes:
+            process.stop()
 
         self.event.set()
 
