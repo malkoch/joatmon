@@ -21,8 +21,8 @@ class Task(BaseTask):
         gamma (float): gamma.
     """
 
-    def __init__(self, name, api, **kwargs):
-        super(Task, self).__init__(name, api, **kwargs)
+    def __init__(self, task, api, **kwargs):
+        super(Task, self).__init__(task, api, **kwargs)
 
     @staticmethod
     def help():
@@ -49,7 +49,7 @@ class Task(BaseTask):
             },
         }
 
-    def run(self):
+    async def run(self):
         """
         Remember the transaction.
 
@@ -111,7 +111,5 @@ class Task(BaseTask):
 
         functions = list(map(lambda x: x.help(), tasks))
         functions = list(filter(lambda x: x, functions))
+        print(functions)
         _ = json.dumps(functions, indent=4, cls=JSONEncoder)
-
-        if not self.stop_event.is_set():
-            self.stop_event.set()
