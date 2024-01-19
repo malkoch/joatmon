@@ -9,17 +9,13 @@ from joatmon.core.utility import get_converter
 
 class Meta(type):
     """
-    Deep Deterministic Policy Gradient
+    Metaclass for ORM system. It provides methods to access fields, constraints, and indexes of a class.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes:
+        __collection__ (str): The collection name in the database.
+        structured (bool): Whether the class is structured.
+        force (bool): Whether to force the structure.
+        qb: The query builder for the class.
     """
 
     __collection__ = 'meta'
@@ -30,61 +26,75 @@ class Meta(type):
     qb = None
 
     def __new__(mcs, name, bases, dct):
+        """
+        Creates a new instance of the Meta class.
+
+        Args:
+            name (str): The name of the class.
+            bases (tuple): The base classes of the class.
+            dct (dict): The dictionary of class attributes.
+
+        Returns:
+            Meta: A new instance of the Meta class.
+        """
         return super().__new__(mcs, name, bases, dct)
 
     def fields(cls, predicate=lambda x: True) -> typing.Dict[str, Field]:
         """
-        Remember the transaction.
+        Gets the fields of the class.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            predicate (callable): A function that determines which fields to include.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            dict: A dictionary of the fields of the class.
         """
         return {k: v for k, v in inspect.getmembers(cls, lambda x: isinstance(x, Field)) if predicate(v)}
 
     def constraints(cls, predicate=lambda x: True) -> typing.Dict[str, Constraint]:
         """
-        Remember the transaction.
+        Gets the constraints of the class.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            predicate (callable): A function that determines which constraints to include.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            dict: A dictionary of the constraints of the class.
         """
         return {k: v for k, v in inspect.getmembers(cls, lambda x: isinstance(x, Constraint)) if predicate(v)}
 
     def indexes(cls, predicate=lambda x: True) -> typing.Dict[str, Index]:
         """
-        Remember the transaction.
+        Gets the indexes of the class.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            predicate (callable): A function that determines which indexes to include.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            dict: A dictionary of the indexes of the class.
         """
         return {k: v for k, v in inspect.getmembers(cls, lambda x: isinstance(x, Index)) if predicate(v)}
 
     def query(cls):
         """
-        Remember the transaction.
+        Gets the query builder for the class.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            The query builder for the class.
         """
         return cls.qb
 
 
 def normalize_kwargs(meta, **kwargs):
     """
-    Remember the transaction.
+    Normalizes the keyword arguments to match the fields of the class.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        meta (Meta): The metaclass of the class.
+        **kwargs: The keyword arguments to normalize.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        dict: A dictionary of the normalized keyword arguments.
     """
     ret = {}
 

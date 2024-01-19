@@ -13,17 +13,14 @@ from joatmon.core.utility import to_enumerable
 
 class Field(Serializable):
     """
-    Deep Deterministic Policy Gradient
+    Base class for all fields in the ORM system.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes:
+        dtype (type): The data type of the field.
+        nullable (bool): Whether the field can be null.
+        primary (bool): Whether the field is a primary key.
+        hash_ (bool): Whether the field is a hash field.
+        fields (dict): The sub-fields of the field, if it is a complex field.
     """
 
     def __init__(
@@ -58,12 +55,13 @@ class Field(Serializable):
 
 def get_converter(field: Field):
     """
-    Remember the transaction.
+    Returns a converter function for the given field.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        field (Field): The field for which to get a converter.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        callable: A function that can convert values to the field's data type.
     """
 
     def _datetime_converter(value: object) -> typing.Optional[datetime]:

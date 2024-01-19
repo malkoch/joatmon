@@ -3,33 +3,20 @@ from joatmon.core.serializable import Serializable
 
 class ValidationException(Exception):
     """
-    Deep Deterministic Policy Gradient
+    Exception raised for errors in the validation process.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes:
+        message -- explanation of the error
     """
 
 
 class Constraint(Serializable):
     """
-    Deep Deterministic Policy Gradient
+    Base class for all constraints.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes:
+        field (str): The field to which the constraint applies.
+        validator (callable): A function that validates the field's value.
     """
 
     def __init__(self, field, validator=None):
@@ -41,12 +28,14 @@ class Constraint(Serializable):
     @staticmethod
     def create(constraint_type, **kwargs):
         """
-        Remember the transaction.
+        Factory method for creating constraints.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            constraint_type (str): The type of constraint to create.
+            **kwargs: Additional keyword arguments for the constraint's constructor.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            Constraint: A new constraint of the specified type.
         """
         if constraint_type == 'length':
             return LengthConstraint(**kwargs)
@@ -59,12 +48,16 @@ class Constraint(Serializable):
 
     def check(self, obj):
         """
-        Remember the transaction.
+        Checks whether the constraint is satisfied.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            obj: The object to check.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            bool: True if the constraint is satisfied, False otherwise.
+
+        Raises:
+            ValidationException: If the constraint is not satisfied.
         """
         if self.validator is not None:
             if callable(self.validator):
@@ -80,17 +73,11 @@ class Constraint(Serializable):
 
 class LengthConstraint(Constraint):
     """
-    Deep Deterministic Policy Gradient
+    Constraint that checks whether a field's value has a valid length.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes:
+        min_length (int): The minimum valid length. None if there is no minimum.
+        max_length (int): The maximum valid length. None if there is no maximum.
     """
 
     def __init__(self, field, min_length=None, max_length=None):
@@ -112,17 +99,11 @@ class LengthConstraint(Constraint):
 
 class IntegerValueConstraint(Constraint):
     """
-    Deep Deterministic Policy Gradient
+    Constraint that checks whether a field's value is within a valid range.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes:
+        min_value (int): The minimum valid value. None if there is no minimum.
+        max_value (int): The maximum valid value. None if there is no maximum.
     """
 
     def __init__(self, field, min_value=None, max_value=None):
@@ -144,17 +125,7 @@ class IntegerValueConstraint(Constraint):
 
 class PrimaryKeyConstraint(Constraint):
     """
-    Deep Deterministic Policy Gradient
-
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Constraint that checks whether a field's value is a valid primary key.
     """
 
     def __init__(self, field):
@@ -163,17 +134,7 @@ class PrimaryKeyConstraint(Constraint):
 
 class ForeignKeyConstraint(Constraint):
     """
-    Deep Deterministic Policy Gradient
-
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Constraint that checks whether a field's value is a valid foreign key.
     """
 
     def __enter__(self, field):
@@ -183,17 +144,7 @@ class ForeignKeyConstraint(Constraint):
 # unique constraint should have more than one field
 class UniqueConstraint(Constraint):
     """
-    Deep Deterministic Policy Gradient
-
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Constraint that checks whether a field's value is unique.
     """
 
     def __init__(self, field):
@@ -202,17 +153,10 @@ class UniqueConstraint(Constraint):
 
 class CustomConstraint(Constraint):
     """
-    Deep Deterministic Policy Gradient
+    Constraint that checks whether a field's value satisfies a custom condition.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes:
+        validator (callable): A function that validates the field's value.
     """
 
     def __init__(self, field, validator=lambda x: True):
