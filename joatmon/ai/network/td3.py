@@ -8,17 +8,19 @@ from joatmon.nn.layer.linear import Linear
 
 class TD3Actor(Module):
     """
-    Deep Deterministic Policy Gradient
+    Twin Delayed Deep Deterministic Policy Gradient Actor Model.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    This class is used to create the actor model for the TD3 algorithm.
+    The actor model is responsible for selecting actions based on the current state of the environment.
+
+    Attributes:
+        hidden1 (Linear): The first hidden layer.
+        hidden2 (Linear): The second hidden layer.
+        out (Linear): The output layer.
+
+    Args:
+        in_features (int): The number of input features.
+        out_features (int): The number of output features (actions).
     """
 
     def __init__(self, in_features, out_features):
@@ -30,12 +32,15 @@ class TD3Actor(Module):
 
     def forward(self, state: Tensor) -> Tensor:
         """
-        Remember the transaction.
+        Forward pass through the actor model.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Accepts a state and returns the predicted action.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            state (Tensor): The input tensor representing the current state of the environment.
+
+        Returns:
+            Tensor: The output tensor representing the predicted action.
         """
         x = functional.relu(self.hidden1(state))
         x = functional.relu(self.hidden2(x))
@@ -46,17 +51,19 @@ class TD3Actor(Module):
 
 class TD3Critic(Module):
     """
-    Deep Deterministic Policy Gradient
+    Twin Delayed Deep Deterministic Policy Gradient Critic Model.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    This class is used to create the critic model for the TD3 algorithm.
+    The critic model is responsible for evaluating the value of the selected action.
+
+    Attributes:
+        hidden1 (Linear): The first hidden layer.
+        hidden2 (Linear): The second hidden layer.
+        out (Linear): The output layer.
+
+    Args:
+        in_features (int): The number of input features.
+        out_features (int): The number of output features (actions).
     """
 
     def __init__(self, in_features, out_features):
@@ -68,12 +75,16 @@ class TD3Critic(Module):
 
     def forward(self, state: Tensor, action: Tensor) -> Tensor:
         """
-        Remember the transaction.
+        Forward pass through the critic model.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Accepts a state and action and returns the value of the selected action.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            state (Tensor): The input tensor representing the current state of the environment.
+            action (Tensor): The input tensor representing the selected action.
+
+        Returns:
+            Tensor: The output tensor representing the value of the selected action.
         """
         x = functional.concat([state, action], axis=-1)
         x = functional.relu(self.hidden1(x))

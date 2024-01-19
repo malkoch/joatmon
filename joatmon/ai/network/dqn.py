@@ -10,17 +10,18 @@ from joatmon.nn.layer.linear import Linear
 
 class DQN(Module):
     """
-    Deep Deterministic Policy Gradient
+    Deep Q-Network Model.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    This class is used to create the DQN model for the DQN algorithm.
+    The DQN model is responsible for selecting actions based on the current state of the environment.
+
+    Attributes:
+        extractor (Sequential): A sequence of convolutional layers used for feature extraction.
+        predictor (Sequential): A sequence of linear layers used for action prediction.
+
+    Args:
+        in_features (int): The number of input features.
+        out_features (int): The number of output features (actions).
     """
 
     def __init__(self, in_features, out_features):
@@ -46,12 +47,15 @@ class DQN(Module):
 
     def forward(self, x):
         """
-        Remember the transaction.
+        Forward pass through the DQN model.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Accepts a state and returns the predicted action.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            x (Tensor): The input tensor representing the current state of the environment.
+
+        Returns:
+            Tensor: The output tensor representing the predicted action.
         """
         x = self.extractor(x)
         return self.predictor(x.view(x.size(0), -1))

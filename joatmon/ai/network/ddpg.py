@@ -13,17 +13,18 @@ from joatmon.nn.layer.linear import Linear
 
 class DDPGActor(Module):
     """
-    Deep Deterministic Policy Gradient
+    Deep Deterministic Policy Gradient Actor Model.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    This class is used to create the actor model for the DDPG algorithm.
+    The actor model is responsible for selecting actions based on the current state of the environment.
+
+    Attributes:
+        extractor (Sequential): A sequence of convolutional layers used for feature extraction.
+        predictor (Sequential): A sequence of linear layers used for action prediction.
+
+    Args:
+        in_features (int): The number of input features.
+        out_features (int): The number of output features (actions).
     """
 
     def __init__(self, in_features, out_features):
@@ -54,12 +55,13 @@ class DDPGActor(Module):
 
     def forward(self, x):
         """
-        Remember the transaction.
+        Forward pass through the actor model.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            x (Tensor): The input tensor representing the current state of the environment.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            Tensor: The output tensor representing the selected action.
         """
         x = self.extractor(x)
         return self.predictor(x.view(x.size(0), -1))
@@ -67,17 +69,23 @@ class DDPGActor(Module):
 
 class DDPGCritic(Module):
     """
-    Deep Deterministic Policy Gradient
+    Deep Deterministic Policy Gradient Critic Model.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    This class is used to create the critic model for the DDPG algorithm.
+    The critic model is responsible for evaluating the value of the selected action.
+
+    Attributes:
+        extractor (Sequential): A sequence of convolutional layers used for feature extraction.
+        relu (ReLU): The ReLU activation function.
+        linear1 (Linear): The first linear layer.
+        linear2 (Linear): The second linear layer.
+        linear3 (Linear): The third linear layer.
+        bn1 (BatchNorm): The first batch normalization layer.
+        bn2 (BatchNorm): The second batch normalization layer.
+
+    Args:
+        in_features (int): The number of input features.
+        out_features (int): The number of output features (actions).
     """
 
     def __init__(self, in_features, out_features):
@@ -106,12 +114,14 @@ class DDPGCritic(Module):
 
     def forward(self, x, y):
         """
-        Remember the transaction.
+        Forward pass through the critic model.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            x (Tensor): The input tensor representing the current state of the environment.
+            y (Tensor): The input tensor representing the selected action.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            Tensor: The output tensor representing the value of the selected action.
         """
         x = self.extractor(x)
 
