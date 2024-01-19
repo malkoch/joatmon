@@ -6,12 +6,17 @@ from joatmon.core import context
 
 def authorized(auth, token, issuer):  # use current token and issuer
     """
-    Remember the transaction.
+    Decorator for authorizing a function call.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    This decorator retrieves the current token and issuer from the context, and uses them to authorize the function call. If the authorization is successful, the function is called; otherwise, an exception is raised.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Args:
+        auth (str): The name of the authorizer in the context.
+        token (str): The name of the token in the context.
+        issuer (str): The name of the issuer in the context.
+
+    Returns:
+        function: The decorated function.
     """
 
     def _decorator(func):

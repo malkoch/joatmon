@@ -4,12 +4,15 @@ import inspect
 
 def retry(times=5):
     """
-    Remember the transaction.
+    Decorator for retrying a function call.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    This decorator wraps the function in a try-except block. If the function raises an exception, the decorator catches it, prints its message, and retries the function call. The function call is retried a specified number of times.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Args:
+        times (int, optional): The number of times to retry the function call. Defaults to 5.
+
+    Returns:
+        function: The decorated function.
     """
 
     def _decorator(func):

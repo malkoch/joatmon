@@ -4,12 +4,15 @@ import inspect
 
 def handler(ex=None):
     """
-    Remember the transaction.
+    Decorator for handling exceptions in a function.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    This decorator wraps the function in a try-except block. If the function raises an exception of type `ex`, the exception is caught and its message is printed. The function then returns None.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Args:
+        ex (Exception, optional): The type of exception to catch. If None, all exceptions are caught. Defaults to None.
+
+    Returns:
+        function: The decorated function.
     """
 
     def _decorator(func):

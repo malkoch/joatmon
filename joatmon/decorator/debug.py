@@ -5,12 +5,12 @@ import time
 
 def timeit():
     """
-    Remember the transaction.
+    Decorator for timing the execution of a function.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    This decorator measures the time it takes to execute the decorated function. It prints the function's name and the execution time in seconds.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        function: The decorated function.
     """
 
     def _decorator(func):

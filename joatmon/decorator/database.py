@@ -8,12 +8,15 @@ from joatmon.core import context
 
 def transaction(names):
     """
-    Remember the transaction.
+    Decorator for managing database transactions.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    This decorator retrieves one or more database connections from the context and uses them to manage a database transaction. The transaction is started before the function is called and is committed or rolled back after the function is called, depending on whether the function raises an exception.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Args:
+        names (list of str): The names of the database connections in the context.
+
+    Returns:
+        function: The decorated function.
     """
 
     def _decorator(func):
