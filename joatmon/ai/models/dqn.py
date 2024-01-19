@@ -28,17 +28,26 @@ from joatmon.nn.optimizer.adam import Adam
 
 class DQNModel(CoreModel):
     """
-    Deep Q Network
+    Deep Q Network Model.
+
+    This class implements the DQN model, which is a type of reinforcement learning model.
+    It inherits from the CoreModel class and overrides its abstract methods.
 
     # Arguments
-        models (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+        lr (float): The learning rate for the Adam optimizer.
+        tau (float): The factor for soft update of target parameters.
+        gamma (float): The discount factor.
+        in_features (int): The number of input features.
+        out_features (int): The number of output features.
     """
 
     def __init__(self, lr=1e-3, tau=1e-4, gamma=0.99, in_features=1, out_features=1):
+        """
+        Constructor for the DQNModel class.
+
+        Initializes the local and target networks.
+        Also initializes the optimizer and loss function for the networks.
+        """
         super().__init__()
 
         self.local = DQN(in_features, out_features)
@@ -54,36 +63,31 @@ class DQNModel(CoreModel):
 
     def load(self, path=''):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Load the local and target networks from the specified path.
 
         # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+            path (str): The path to the directory where the networks are stored.
         """
         load(self.local, os.path.join(path, 'local'))
         load(self.target, os.path.join(path, 'target'))
 
     def save(self, path=''):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Save the local and target networks to the specified path.
 
         # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+            path (str): The path to the directory where the networks should be saved.
         """
         save(self.local, os.path.join(path, 'local'))
         save(self.target, os.path.join(path, 'target'))
 
     def initialize(self, w_init=None, b_init=None):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Initialize the weights and biases of the local and target networks.
 
         # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+            w_init (callable, optional): The function to use for initializing the weights.
+            b_init (callable, optional): The function to use for initializing the biases.
         """
         for module in self.target.modules():
             if isinstance(
@@ -104,48 +108,41 @@ class DQNModel(CoreModel):
 
     def softupdate(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Perform a soft update of the target network parameters.
         """
         for target_param, param in zip(self.target.parameters(), self.local.parameters()):
             target_param._data = target_param.data * (1.0 - self.tau) + param.data * self.tau
 
     def hardupdate(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Perform a hard update of the target network parameters.
         """
         for target_param, param in zip(self.target.parameters(), self.local.parameters()):
             target_param._data = param.data
 
     def predict(self, state=None):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Get the action for a given state.
 
         # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+            state (array-like, optional): The current state.
+
+        # Returns
+            action (array-like): The predicted action for the given state.
         """
         self.local.eval()
         return np.argmax(to_numpy(self.local(to_tensor(state))).flatten())
 
     def train(self, batch=None, update_target=False):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Train the local network with a given batch.
 
         # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+            batch (tuple of array-like, optional): The batch of experiences to train on.
+            update_target (bool, optional): Whether to perform a soft update of the target network.
+
+        # Returns
+            loss (float): The loss of the local network.
         """
         self.local.train()
 
@@ -179,10 +176,7 @@ class DQNModel(CoreModel):
 
     def evaluate(self):
         """
-        Remember the transaction.
+        Evaluate the local and target networks.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method should be overridden in a subclass.
         """

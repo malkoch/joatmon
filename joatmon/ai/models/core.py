@@ -1,44 +1,50 @@
 class CoreModel(object):
     """
-    Abstract base class for all implemented nn.
+    This is an abstract base class for all implemented neural networks (nn).
+    It should not be used directly, but instead, one of the concrete neural networks should be used.
 
-    Do not use this abstract base class directly
-    but instead use one of the concrete nn implemented.
-
-    To implement your own nn, you have to implement the following methods:
-
-    - `act`
-    - `replay`
+    To implement your own neural network, you need to implement the following methods:
     - `load`
     - `save`
+    - `initialize`
+    - `predict`
+    - `train`
+    - `evaluate`
     """
 
     def __init__(self):
+        """
+        Constructor for the CoreModel class.
+        """
         super(CoreModel, self).__init__()
 
     def load(self):
         """
-        load
+        Abstract method to load a neural network model.
+        This method should be overridden in a subclass.
         """
         raise NotImplementedError
 
     def save(self):
         """
-        save
+        Abstract method to save a neural network model.
+        This method should be overridden in a subclass.
         """
         raise NotImplementedError
 
     def initialize(self):
         """
-        initialize
+        Abstract method to initialize a neural network model.
+        This method should be overridden in a subclass.
         """
         raise NotImplementedError
 
     def predict(self):
         """
-        Get the action for given state.
+        Abstract method to get the action for a given state.
 
-        Accepts a state and returns an abstract action.
+        This method accepts a state and returns an abstract action.
+        It should be overridden in a subclass.
 
         # Arguments
             state (abstract): Current state of the game.
@@ -50,7 +56,9 @@ class CoreModel(object):
 
     def train(self):
         """
-        Train the nn with given batch.
+        Abstract method to train the neural network with a given batch.
+
+        This method should be overridden in a subclass.
 
         # Arguments
             batch (abstract): Mini Batch from Experience Replay Memory.
@@ -59,6 +67,7 @@ class CoreModel(object):
 
     def evaluate(self):
         """
-        evaluate
+        Abstract method to evaluate the neural network model.
+        This method should be overridden in a subclass.
         """
         raise NotImplementedError
