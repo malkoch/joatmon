@@ -13,25 +13,40 @@ from joatmon.assistant.task import (
 from joatmon.core.utility import first, get_module_classes
 
 
-# instead of reading from system.json, get these values as an argument
-# after creating task or service, need to restart the system
-# make this async, we can get exceptions from it as well
 class API:
     """
-    Deep Deterministic Policy Gradient
+    API class for managing tasks and services.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    This class provides a way to manage tasks and services, including running tasks, starting and stopping services, and cleaning up processes.
+
+    Attributes:
+        loop (asyncio.AbstractEventLoop): The event loop where the tasks and services are run.
+        cwd (str): The current working directory.
+        folders (list): The folders where the scripts for tasks and services are located.
+        tasks (list): The list of tasks.
+        services (list): The list of services.
+        processes (list): The list of running processes.
+        event (asyncio.Event): An event for signaling the termination of the API.
+
+    Args:
+        loop (asyncio.AbstractEventLoop): The event loop where the tasks and services are run.
+        cwd (str): The current working directory.
+        folders (list, optional): The folders where the scripts for tasks and services are located.
+        tasks (list, optional): The list of tasks.
+        services (list, optional): The list of services.
     """
 
     def __init__(self, loop, cwd, folders=None, tasks: typing.Optional[typing.List[Task]] = None, services: typing.Optional[typing.List[Service]] = None):
+        """
+        Initialize the API.
+
+        Args:
+            loop (asyncio.AbstractEventLoop): The event loop where the tasks and services are run.
+            cwd (str): The current working directory.
+            folders (list, optional): The folders where the scripts for tasks and services are located.
+            tasks (list, optional): The list of tasks.
+            services (list, optional): The list of services.
+        """
         self.loop = loop
         self.cwd = cwd
         self.folders = folders or []
@@ -44,6 +59,11 @@ class API:
         self.event = asyncio.Event()
 
     async def main(self):
+        """
+        Main method for running the API.
+
+        This method starts the tasks and services, and waits for them to complete. It also handles cleaning up the processes.
+        """
         for _task in sorted(filter(lambda x: x.status and x.on == 'startup', self.tasks), key=lambda x: x.priority):
             self.run_task(_task.name)
 
@@ -74,12 +94,9 @@ class API:
 
     async def run_interval(self):
         """
-        Remember the transaction.
+        Run tasks at specified intervals.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method runs the tasks that are configured to run at specified intervals.
         """
         tasks = filter(lambda x: x['status'], self.tasks)
         tasks = filter(lambda x: x['on'] == 'interval', tasks)
@@ -101,12 +118,9 @@ class API:
 
     async def run_services(self):
         """
-        Remember the transaction.
+        Run services.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method runs the services that are configured to run automatically.
         """
         # if the service is closed for some reason and is configured as restart automatically, need to restart the service
 
@@ -116,12 +130,9 @@ class API:
 
     async def clean(self):
         """
-        Remember the transaction.
+        Clean up processes.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method cleans up the processes that have ended.
         """
         ended_processes = list(filter(lambda x: not x.running(), self.processes))
         self.processes = list(filter(lambda x: x.running(), self.processes))
@@ -131,12 +142,13 @@ class API:
 
     def action(self, action, arguments):  # each request must have request id and client id or token
         """
-        Remember the transaction.
+        Perform an action.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        This method performs an action based on the provided action name and arguments.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            action (str): The name of the action to perform.
+            arguments (dict): The arguments for the action.
         """
         try:
             if action is None or action == '':
@@ -159,6 +171,15 @@ class API:
             print(str(ex))  # use stacktrace and write all exception details, line number, function name, file name etc.
 
     def _run_task(self, task: Task, **kwargs):
+        """
+        Run a task.
+
+        This method runs a task with the provided arguments.
+
+        Args:
+            task (Task): The task to run.
+            kwargs (dict): The arguments for the task.
+        """
         cls = None
         for scripts in self.folders:
             if os.path.isabs(scripts):
@@ -207,12 +228,13 @@ class API:
 
     def run_task(self, task_name, kwargs=None):
         """
-        Remember the transaction.
+        Run a task by name.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        This method runs a task with the provided name and arguments.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            task_name (str): The name of the task to run.
+            kwargs (dict, optional): The arguments for the task.
         """
         task_info: typing.Optional[Task] = first(filter(lambda x: x.status and x.name == task_name, self.tasks))
         if task_info is None:
@@ -233,6 +255,14 @@ class API:
         return False
 
     def _start_service(self, service: Service):
+        """
+        Start a service.
+
+        This method starts a service.
+
+        Args:
+            service (Service): The service to start.
+        """
         service_cls = None
 
         for scripts in self.folders:
@@ -272,12 +302,12 @@ class API:
 
     def start_service(self, service_name):
         """
-        Remember the transaction.
+        Start a service by name.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        This method starts a service with the provided name.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            service_name (str): The name of the service to start.
         """
         task_info = first(filter(lambda x: x.status and x.name == service_name, self.services))
 
@@ -288,12 +318,12 @@ class API:
 
     def stop_service(self, service_name):
         """
-        Remember the transaction.
+        Stop a service by name.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        This method stops a service with the provided name.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            service_name (str): The name of the service to stop.
         """
 
         for process in self.processes:
@@ -303,12 +333,12 @@ class API:
 
     def restart_service(self, service_name):
         """
-        Remember the transaction.
+        Restart a service by name.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        This method restarts a service with the provided name.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            service_name (str): The name of the service to restart.
         """
         self.stop_service(service_name)
         self.start_service(service_name)
@@ -316,12 +346,9 @@ class API:
 
     def exit(self):
         """
-        Remember the transaction.
+        Exit the API.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method stops all tasks and services, and signals the termination of the API.
         """
         for _task in sorted(
                 filter(lambda x: x['status'] and x['on'] == 'shutdown', self.tasks), key=lambda x: x['priority']
