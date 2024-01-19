@@ -11,12 +11,16 @@ __all__ = ['watermark', 'crop', 'show', 'save', 'mask', 'match_template']
 
 def watermark(image=None, mark=None, region=None, alpha=0.2) -> numpy.ndarray:
     """
-    Remember the transaction.
-
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Adds a watermark to an image.
 
     # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+        image (numpy.ndarray): The image to watermark. If None, the current screen is grabbed.
+        mark (numpy.ndarray): The watermark to add.
+        region (tuple): The region to apply the watermark to. Should be a tuple of (left, top, right, bottom).
+        alpha (float): The transparency of the watermark. Default is 0.2.
+
+    # Returns
+        numpy.ndarray: The watermarked image.
     """
     if mark is None:
         raise Exception
@@ -42,12 +46,14 @@ def watermark(image=None, mark=None, region=None, alpha=0.2) -> numpy.ndarray:
 
 def crop(image=None, region=None) -> numpy.ndarray:
     """
-    Remember the transaction.
-
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Crops an image to a specified region.
 
     # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+        image (numpy.ndarray): The image to crop. If None, the current screen is grabbed.
+        region (tuple): The region to crop to. Should be a tuple of (left, top, right, bottom).
+
+    # Returns
+        numpy.ndarray: The cropped image.
     """
     if image is None:
         image = grab()
@@ -62,12 +68,11 @@ def crop(image=None, region=None) -> numpy.ndarray:
 
 def show(image, title) -> None:
     """
-    Remember the transaction.
-
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Displays an image in a new window.
 
     # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+        image (numpy.ndarray): The image to display.
+        title (str): The title of the window.
     """
     cv2.imshow(title, image)
     cv2.waitKey(1)
@@ -75,24 +80,26 @@ def show(image, title) -> None:
 
 def save(image, path) -> None:
     """
-    Remember the transaction.
-
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Saves an image to a file.
 
     # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+        image (numpy.ndarray): The image to save.
+        path (str): The path to save the image to.
     """
     cv2.imwrite(path, image)
 
 
 def mask(image=None, r1=(0, 255), g1=(0, 255), b1=(0, 255), r2=None, g2=None, b2=None):
     """
-    Remember the transaction.
-
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Applies a mask to an image.
 
     # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+        image (numpy.ndarray): The image to mask. If None, the current screen is grabbed.
+        r1, g1, b1 (tuple): The lower and upper bounds for the first color range.
+        r2, g2, b2 (tuple): The lower and upper bounds for the second color range.
+
+    # Returns
+        numpy.ndarray: The masked image.
     """
     if image is None:
         image = grab()
@@ -119,12 +126,15 @@ def mask(image=None, r1=(0, 255), g1=(0, 255), b1=(0, 255), r2=None, g2=None, b2
 
 def match_template(image=None, template=None, threshold=0.8) -> list:
     """
-    Remember the transaction.
-
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Matches a template to an image.
 
     # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+        image (numpy.ndarray): The image to match the template to. If None, the current screen is grabbed.
+        template (numpy.ndarray): The template to match.
+        threshold (float): The matching threshold. Default is 0.8.
+
+    # Returns
+        list: A list of points where the template matches the image.
     """
     if template is None:
         raise Exception
