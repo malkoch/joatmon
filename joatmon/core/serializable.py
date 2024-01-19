@@ -10,20 +10,21 @@ from joatmon.core.utility import (
 
 class Serializable(object):
     """
-    Deep Deterministic Policy Gradient
+    Serializable class for managing serializable objects.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    This class provides a way to manage serializable objects, including their conversion to and from various formats such as dictionary, JSON, and bytes.
+
+    Attributes:
+        **kwargs: Variable length keyword arguments.
     """
 
     def __init__(self, **kwargs):
+        """
+        Initialize a Serializable object.
+
+        Args:
+            **kwargs: Variable length keyword arguments.
+        """
         for slot_name, slot_value in kwargs.items():
             if not isinstance(slot_name, str):
                 raise ValueError(
@@ -32,131 +33,141 @@ class Serializable(object):
             setattr(self, slot_name, slot_value)
 
     def __str__(self):
+        """
+        Convert the Serializable object to a pretty JSON string.
+
+        Returns:
+            str: The pretty JSON string representation of the Serializable object.
+        """
         return self.pretty_json
 
     def __repr__(self):
+        """
+        Return the string representation of the Serializable object.
+
+        Returns:
+            str: The string representation of the Serializable object.
+        """
         return str(self)
 
     def keys(self):
         """
-        Remember the transaction.
+        Yield the keys of the Serializable object.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Yields:
+            str: The keys of the Serializable object.
         """
         for key in self.__dict__.keys():
             yield key
 
     def values(self):
         """
-        Remember the transaction.
+        Yield the values of the Serializable object.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Yields:
+            Any: The values of the Serializable object.
         """
         for value in self.__dict__.values():
             yield value
 
     def items(self):
         """
-        Remember the transaction.
+        Yield the key-value pairs of the Serializable object.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Yields:
+            tuple: The key-value pairs of the Serializable object.
         """
         for key, value in self.__dict__.items():
             yield key, value
 
     def __getitem__(self, key):
+        """
+        Get the value of the Serializable object for the given key.
+
+        Args:
+            key (str): The key to get the value for.
+
+        Returns:
+            Any: The value of the Serializable object for the given key.
+        """
         return self.__dict__[key]
 
     @property
     def dict(self):
         """
-        Remember the transaction.
+        Convert the Serializable object to a dictionary.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            dict: The dictionary representation of the Serializable object.
         """
         return to_enumerable(self)
 
     @classmethod
     def from_dict(cls, dictionary: dict):
         """
-        Remember the transaction.
+        Create a Serializable object from a dictionary.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            dictionary (dict): The dictionary to create the Serializable object from.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            Serializable: The Serializable object created from the dictionary.
         """
         return cls(**dictionary)
 
     @property
     def json(self) -> str:
         """
-        Remember the transaction.
+        Convert the Serializable object to a JSON string.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            str: The JSON string representation of the Serializable object.
         """
         return json.dumps(self.dict, cls=JSONEncoder)
 
     @property
     def pretty_json(self) -> str:
         """
-        Remember the transaction.
+        Convert the Serializable object to a pretty JSON string.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            str: The pretty JSON string representation of the Serializable object.
         """
         return json.dumps(self.dict, cls=JSONEncoder, indent=4)
 
     @classmethod
     def from_json(cls, string: str):
         """
-        Remember the transaction.
+        Create a Serializable object from a JSON string.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            string (str): The JSON string to create the Serializable object from.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            Serializable: The Serializable object created from the JSON string.
         """
         return cls.from_dict(json.loads(string))
 
     @property
     def bytes(self) -> bytes:
         """
-        Remember the transaction.
+        Convert the Serializable object to bytes.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            bytes: The bytes representation of the Serializable object.
         """
         return pickle.dumps(self)
 
     @classmethod
     def from_bytes(cls, value: bytes):
         """
-        Remember the transaction.
+        Create a Serializable object from bytes.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            value (bytes): The bytes to create the Serializable object from.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            Serializable: The Serializable object created from the bytes.
         """
         if value is None:
             return None
@@ -167,23 +178,19 @@ class Serializable(object):
     @property
     def snake(self):
         """
-        Remember the transaction.
+        Convert the Serializable object to a dictionary with snake case keys.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            dict: The dictionary representation of the Serializable object with snake case keys.
         """
         return to_case('snake', self.__dict__)
 
     @property
     def pascal(self):
         """
-        Remember the transaction.
+        Convert the Serializable object to a dictionary with Pascal case keys.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            dict: The dictionary representation of the Serializable object with Pascal case keys.
         """
         return to_case('pascal', self.__dict__)

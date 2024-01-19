@@ -3,17 +3,12 @@ import functools
 
 class Event:
     """
-    Deep Deterministic Policy Gradient
+    Event class for managing event subscribers and firing events.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    This class provides a way to manage event subscribers and fire events.
+
+    Attributes:
+        _subscribers (dict): The subscribers of the event.
     """
 
     def __init__(self):
@@ -23,6 +18,12 @@ class Event:
         return bool(self._subscribers)
 
     def __iadd__(self, fn):
+        """
+        Add a function to the event subscribers.
+
+        Args:
+            fn (function): The function to add to the event subscribers.
+        """
         func = fn
         runnable = fn
 
@@ -38,6 +39,12 @@ class Event:
         return self
 
     def __isub__(self, fn):
+        """
+        Remove a function from the event subscribers.
+
+        Args:
+            fn (function): The function to remove from the event subscribers.
+        """
         if isinstance(fn, functools.partial):
             fn = fn.func
 
@@ -51,12 +58,11 @@ class Event:
 
     def fire(self, *args, **kwargs):
         """
-        Remember the transaction.
+        Fire the event to all subscribers.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
         """
         ret = None
         for name, fn in self._subscribers.items():
@@ -66,17 +72,12 @@ class Event:
 
 class AsyncEvent:
     """
-    Deep Deterministic Policy Gradient
+    AsyncEvent class for managing asynchronous event subscribers and firing events.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    This class provides a way to manage asynchronous event subscribers and fire events.
+
+    Attributes:
+        _subscribers (dict): The subscribers of the event.
     """
 
     def __init__(self):
@@ -86,6 +87,12 @@ class AsyncEvent:
         return bool(self._subscribers)
 
     def __iadd__(self, fn):
+        """
+        Add a function to the event subscribers.
+
+        Args:
+            fn (function): The function to add to the event subscribers.
+        """
         if fn.__qualname__ not in self._subscribers:
             self._subscribers[fn.__qualname__] = fn
         else:
@@ -95,6 +102,12 @@ class AsyncEvent:
         return self
 
     def __isub__(self, fn):
+        """
+        Remove a function from the event subscribers.
+
+        Args:
+            fn (function): The function to remove from the event subscribers.
+        """
         if fn.__qualname__ in self._subscribers:
             del self._subscribers[fn.__qualname__]
         else:
@@ -105,12 +118,11 @@ class AsyncEvent:
 
     async def fire(self, *args, **kwargs):
         """
-        Remember the transaction.
+        Fire the event to all subscribers asynchronously.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
         """
         ret = None
         for name, fn in self._subscribers.items():

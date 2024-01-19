@@ -2,7 +2,11 @@ __all__ = ['get_ctx', 'set_ctx', 'get_value', 'set_value']
 
 
 class CTX:
-    ...
+    """
+    CTX class for managing context.
+
+    This class provides a way to manage context in a global scope.
+    """
 
 
 context = CTX()
@@ -10,12 +14,12 @@ context = CTX()
 
 def get_ctx():
     """
-    Remember the transaction.
+    Get the current context.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    This function returns the current context.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        CTX: The current context.
     """
     global context
     return context
@@ -23,12 +27,12 @@ def get_ctx():
 
 def set_ctx(ctx):
     """
-    Remember the transaction.
+    Set the current context.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    This function sets the current context to the provided context.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Args:
+        ctx (CTX): The context to set.
     """
     global context
     context = ctx
@@ -36,12 +40,15 @@ def set_ctx(ctx):
 
 def get_value(name):
     """
-    Remember the transaction.
+    Get a value from the current context.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    This function returns a value from the current context based on the provided name.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Args:
+        name (str): The name of the value to get.
+
+    Returns:
+        Any: The value from the current context, or None if the value does not exist.
     """
     current = getattr(get_ctx(), 'current', {})
     return current.get(name, None)
@@ -49,12 +56,13 @@ def get_value(name):
 
 def set_value(name, value):
     """
-    Remember the transaction.
+    Set a value in the current context.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    This function sets a value in the current context based on the provided name and value.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Args:
+        name (str): The name of the value to set.
+        value (Any): The value to set.
     """
     current = getattr(get_ctx(), 'current', {})
     if name not in current:
