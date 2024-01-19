@@ -3,17 +3,15 @@ import numpy as np
 
 class CoreRandom(object):
     """
-    Abstract base class for all implemented random processes.
+    Process a state.
 
-    Do not use this abstract base class directly but instead
-    use one of the concrete random processes implemented.
+    This method accepts a state and processes it for use in reinforcement learning. The state is resized to 84x84 and the color channels are moved to the second dimension.
 
-    To implement your own random processes,
-    you have to implement the following methods:
+    Args:
+        state (numpy array): The input state as a numpy array.
 
-    - `decay`
-    - `sample`
-    - `reset`
+    Returns:
+        numpy array: The processed state as a numpy array.
     """
 
     def __init__(self):
@@ -21,22 +19,28 @@ class CoreRandom(object):
 
     def reset(self):
         """
-        Reset random state.
+        Reset the random state.
+
+        This method should be overridden by any subclass.
         """
         raise NotImplementedError
 
     def decay(self):
         """
-        decay
+        Decay the random state.
+
+        This method should be overridden by any subclass.
         """
         raise NotImplementedError
 
     def sample(self):
         """
-        Sample random state.
+        Sample from the random state.
 
-        # Returns
-            sample (abstract): Random state.
+        This method should be overridden by any subclass.
+
+        Returns:
+            sample (abstract): The sampled random state.
         """
         raise NotImplementedError
 
@@ -46,12 +50,15 @@ class GaussianRandom(CoreRandom):
     """
     Gaussian Noise
 
-    # Arguments
-        mu (float): .
-        size (int): .
-        sigma (float): .
-        sigma_min (float): .
-        decay_steps (int): .
+    This class generates a Gaussian noise process.
+
+    Attributes:
+        mu (float): The mean of the Gaussian distribution.
+        size (int): The size of the output sample.
+        sigma (float): The standard deviation of the Gaussian distribution.
+        sigma_min (float): The minimum standard deviation.
+        decay_steps (int): The number of steps over which the standard deviation decays from sigma to sigma_min.
+
     """
 
     def __init__(self, mu=0.0, size=2, sigma=0.1, sigma_min=0.01, decay_steps=200000):
@@ -71,36 +78,30 @@ class GaussianRandom(CoreRandom):
 
     def reset(self):
         """
-        Remember the transaction.
+        Reset the random state.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method resets the number of steps and the current standard deviation.
         """
         self.n_steps = 0
         self.current_sigma = max(self.sigma_min, self.m * float(self.n_steps) + self.c)
 
     def decay(self):
         """
-        Remember the transaction.
+        Decay the random state.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method increments the number of steps and updates the current standard deviation.
         """
         self.n_steps += 1
         self.current_sigma = max(self.sigma_min, self.m * float(self.n_steps) + self.c)
 
     def sample(self):
         """
-        Remember the transaction.
+        Sample from the random state.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        This method generates a sample from a Gaussian distribution with the current mean and standard deviation.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            x (numpy array): The sampled random state.
         """
         x = np.random.normal(loc=self.mu, scale=self.current_sigma, size=self.size)
         return x
@@ -110,14 +111,17 @@ class OrnsteinUhlenbeck(CoreRandom):
     """
     Ornstein Uhlenbeck Process
 
-    # Arguments
-        dt (float): .
-        mu (float): .
-        size (int): .
-        sigma (float): .
-        theta (float): .
-        sigma_min (float): .
-        decay_steps (int): .
+    This class generates an Ornstein Uhlenbeck noise process.
+
+    Attributes:
+        dt (float): The time increment.
+        mu (float): The mean of the distribution.
+        size (int): The size of the output sample.
+        sigma (float): The standard deviation of the distribution.
+        theta (float): The rate of mean reversion.
+        sigma_min (float): The minimum standard deviation.
+        decay_steps (int): The number of steps over which the standard deviation decays from sigma to sigma_min.
+
     """
 
     def __init__(self, dt=1.0, mu=0.0, size=2, sigma=0.1, theta=0.15, sigma_min=0.01, decay_steps=200000):
@@ -140,12 +144,9 @@ class OrnsteinUhlenbeck(CoreRandom):
 
     def reset(self):
         """
-        Remember the transaction.
+        Reset the random state.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method resets the number of steps, the current standard deviation, and the previous state.
         """
         self.n_steps = 0
         self.x_prev = np.ones(self.size) * self.mu
@@ -153,24 +154,21 @@ class OrnsteinUhlenbeck(CoreRandom):
 
     def decay(self):
         """
-        Remember the transaction.
+        Decay the random state.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method increments the number of steps and updates the current standard deviation.
         """
         self.n_steps += 1
         self.current_sigma = max(self.sigma_min, self.m * float(self.n_steps) + self.c)
 
     def sample(self):
         """
-        Remember the transaction.
+        Sample from the random state.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        This method generates a sample from an Ornstein Uhlenbeck process with the current parameters.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            x (numpy array): The sampled random state.
         """
         x = (
                 self.x_prev

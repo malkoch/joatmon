@@ -41,22 +41,19 @@ class CoreMemory(object):
 
     def remember(self, element):
         """
-        Remember the transaction.
+        Adds an experience to the memory buffer.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            element (tuple): A tuple representing an experience. It includes the state, action, reward, next_state, and terminal flag.
         """
         self.buffer.add(element)
 
     def sample(self):
         """
-        Sample an experience replay batch with size.
+        Samples a batch of experiences from the memory buffer.
 
-        # Returns
-            batch (abstract): Randomly selected batch
-            from experience replay memory.
+        Returns:
+            list: A list of experiences.
         """
         return self.buffer.sample()
 
@@ -66,8 +63,12 @@ class RingMemory(CoreMemory):
     """
     Ring Memory
 
-    # Arguments
-        size (int): .
+    This class is used to create a ring buffer memory for storing and sampling experiences in reinforcement learning.
+    It inherits from the CoreMemory class and overrides its buffer with a RingBuffer.
+
+    Args:
+        batch_size (int): The size of the batch to be sampled from the buffer.
+        size (int): The maximum size of the ring buffer.
     """
 
     def __init__(self, batch_size=32, size=960000):

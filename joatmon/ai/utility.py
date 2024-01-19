@@ -8,12 +8,11 @@ from joatmon.nn import functional
 
 def load(network, path):
     """
-    Remember the transaction.
+    Load the weights of a network from a file.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Args:
+        network (nn.Module): The PyTorch network for which the weights are loaded.
+        path (str): The path to the directory containing the weights file.
     """
     if path is None or path == '':
         path = os.getcwd()
@@ -44,12 +43,11 @@ def load(network, path):
 
 def save(network, path):
     """
-    Remember the transaction.
+    Save the weights of a network to a file.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Args:
+        network (nn.Module): The PyTorch network for which the weights are saved.
+        path (str): The path to the directory where the weights file will be saved.
     """
     if path is None or path == '':
         path = os.getcwd()
@@ -77,12 +75,11 @@ def save(network, path):
 
 def display(values, positions):
     """
-    Remember the transaction.
+    Display a list of values in a formatted string.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Args:
+        values (list): The list of values to be displayed.
+        positions (list): The list of positions where each value should be displayed in the string.
     """
     line = ''
     for i in range(len(values)):
@@ -96,12 +93,15 @@ def display(values, positions):
 
 def easy_range(begin=0, end=None, increment=1):
     """
-    Remember the transaction.
+    Generate a range of numbers.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        begin (int): The number at which the range begins.
+        end (int): The number at which the range ends.
+        increment (int): The increment between each number in the range.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        generator: A generator that yields the numbers in the range.
     """
     counter = begin
     while True:
@@ -114,17 +114,19 @@ def easy_range(begin=0, end=None, increment=1):
 
 def normalize(array, minimum=0.0, maximum=255.0, dtype='float32'):
     """
-    Remember the transaction.
+    Normalize an array to a specified range.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        array (numpy array): The array to be normalized.
+        minimum (float): The minimum value of the range.
+        maximum (float): The maximum value of the range.
+        dtype (str): The data type of the normalized array.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        numpy array: The normalized array.
     """
-    # nanmin and nanmax could be used
     array_minimum = float(np.amin(array))
     array_maximum = float(np.amax(array))
-    # print(array_minimum, array_maximum, minimum, maximum)
 
     return np.asarray(
         (array - array_minimum) * (maximum - minimum) / (array_maximum - array_minimum) + minimum, dtype=dtype
@@ -133,36 +135,39 @@ def normalize(array, minimum=0.0, maximum=255.0, dtype='float32'):
 
 def range_tensor(end):
     """
-    Remember the transaction.
+    Create a tensor with a range of numbers.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        end (int): The number at which the range ends.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        Tensor: A tensor containing the numbers in the range.
     """
     return functional.arange(end).long()
 
 
 def to_numpy(t):
     """
-    Remember the transaction.
+    Convert a tensor to a numpy array.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        t (Tensor): The tensor to be converted.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        numpy array: The converted numpy array.
     """
     return t.cpu().detach().numpy()
 
 
 def to_tensor(x):
     """
-    Remember the transaction.
+    Convert a value to a tensor.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        x (various types): The value to be converted.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        Tensor: The converted tensor.
     """
     if isinstance(x, functional.Tensor):
         return x
