@@ -11,50 +11,52 @@ from joatmon.core.utility import (
 
 def get(func):
     """
-    Remember the transaction.
+    Decorator for HTTP GET method.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    This decorator marks the function as a handler for HTTP GET requests.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Args:
+        func (function): The function to be decorated.
+
+    Returns:
+        function: The decorated function.
     """
     func.__method__ = 'get'
-
-    # short description
-    # long description
-    # parameters
-    # return
 
     return func
 
 
 def post(func):
     """
-    Remember the transaction.
+    Decorator for HTTP POST method.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    This decorator marks the function as a handler for HTTP POST requests.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Args:
+        func (function): The function to be decorated.
+
+    Returns:
+        function: The decorated function.
     """
     func.__method__ = 'post'
-
-    # short description
-    # long description
-    # parameters
-    # return
 
     return func
 
 
 def incoming(case, json, arg, form):
     """
-    Remember the transaction.
+    Decorator for handling incoming requests.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    This decorator retrieves the request data from the context and updates the function's keyword arguments with it.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Args:
+        case (str): The name of the case in the context.
+        json (str): The name of the JSON data in the context.
+        arg (str): The name of the arguments in the context.
+        form (str): The name of the form data in the context.
+
+    Returns:
+        function: The decorated function.
     """
 
     def _decorator(func):
@@ -91,12 +93,15 @@ def incoming(case, json, arg, form):
 
 def wrap(func):
     """
-    Remember the transaction.
+    Decorator for wrapping function calls.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    This decorator wraps the function call in a try-except block. If the function call is successful, it returns a dictionary with the result and a success status. If the function call raises a CoreException, it returns a dictionary with an error message and a failure status.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Args:
+        func (function): The function to be decorated.
+
+    Returns:
+        function: The decorated function.
     """
 
     @functools.wraps(func)
@@ -113,12 +118,15 @@ def wrap(func):
 
 def outgoing(case):
     """
-    Remember the transaction.
+    Decorator for handling outgoing responses.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    This decorator retrieves the case from the context and converts the function's return value to that case.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Args:
+        case (str): The name of the case in the context.
+
+    Returns:
+        function: The decorated function.
     """
 
     def _decorator(func):
@@ -139,12 +147,17 @@ def outgoing(case):
 
 def ip_limit(interval, cache, ip):
     """
-    Remember the transaction.
+    Decorator for limiting requests per IP.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    This decorator retrieves the cache and the IP from the context. It limits the number of requests from the IP to one per specified interval.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Args:
+        interval (int): The interval in seconds between requests.
+        cache (str): The name of the cache in the context.
+        ip (str): The name of the IP in the context.
+
+    Returns:
+        function: The decorated function.
     """
 
     def _decorator(func):
@@ -170,12 +183,16 @@ def ip_limit(interval, cache, ip):
 
 def limit(interval, cache):
     """
-    Remember the transaction.
+    Decorator for limiting requests.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    This decorator retrieves the cache from the context. It limits the number of requests to one per specified interval.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Args:
+        interval (int): The interval in seconds between requests.
+        cache (str): The name of the cache in the context.
+
+    Returns:
+        function: The decorated function.
     """
 
     def _decorator(func):

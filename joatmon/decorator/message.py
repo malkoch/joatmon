@@ -12,12 +12,15 @@ __all__ = ['producer', 'consumer']
 
 def producer(plugin, topic):
     """
-    Remember the transaction.
+    Decorator for handling exceptions in a function.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    This decorator wraps the function in a try-except block. If the function raises an exception of type `ex`, the exception is caught and its message is printed. The function then returns None.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Args:
+        ex (Exception, optional): The type of exception to catch. If None, all exceptions are caught. Defaults to None.
+
+    Returns:
+        function: The decorated function.
     """
 
     def _decorator(func):
@@ -40,12 +43,13 @@ consumer_events = {}
 
 def loop(topic, cons):
     """
-    Remember the transaction.
+    Function for consuming messages from a topic in a loop.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    This function retrieves a consumer from the context and uses it to consume messages from a specified topic in a loop. When a message is consumed, it is printed and an event is fired with the arguments and keyword arguments from the message.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Args:
+        topic (str): The topic to consume messages from.
+        cons (Consumer): The consumer to use.
     """
 
     while threading.main_thread().is_alive():
@@ -67,12 +71,9 @@ def loop(topic, cons):
 
 def consumer_loop_creator():
     """
-    Remember the transaction.
+    Function for creating consumer loops.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    This function creates a consumer loop for each consumer in the context. If a consumer loop for a consumer already exists, it is not created again.
     """
     global consumer_threads
     while threading.main_thread().is_alive():
@@ -88,29 +89,31 @@ def consumer_loop_creator():
 
 def add_consumer(topic, c):
     """
-    Remember the transaction.
+    Function for adding a consumer to the context.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    This function adds a consumer to the context and creates an event for it.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Args:
+        topic (str): The topic the consumer consumes messages from.
+        c (Consumer): The consumer to add.
     """
     if topic not in consumers:
         consumers[topic] = c
         consumer_events[topic] = Event()
 
 
-# need to have another parameter called is_batch or batch_size
-# if False or None consumer will be working with one message at a time
-# if not False and None consumer will be working in batch mode
 def consumer(plugin, topic):
     """
-    Remember the transaction.
+    Decorator for consuming messages from a topic.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    This decorator retrieves a consumer from the context and uses it to consume messages from a specified topic. When a message is consumed, an event is fired with the arguments and keyword arguments from the message.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Args:
+        plugin (str): The name of the plugin in the context.
+        topic (str): The topic to consume messages from.
+
+    Returns:
+        function: The decorated function.
     """
 
     def _decorator(func):

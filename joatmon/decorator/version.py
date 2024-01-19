@@ -6,9 +6,15 @@ from typing import Callable
 
 def deprecated(reason: str) -> Callable:
     """
-    This is a decorator which can be used to mark functions
-    as deprecated. It will result in a warning being emitted
-    when the function is used.
+    Decorator for marking functions as deprecated.
+
+    This decorator emits a warning when the decorated function is called. The warning includes the name of the function and the reason for its deprecation.
+
+    Args:
+        reason (str): The reason for the function's deprecation.
+
+    Returns:
+        Callable: The decorated function.
     """
 
     def _decorator(func):
