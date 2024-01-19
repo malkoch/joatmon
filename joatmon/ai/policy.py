@@ -3,15 +3,10 @@ import numpy as np
 
 class CorePolicy(object):
     """
-    Abstract base class for all implemented policy.
+    Abstract base class for all implemented policies.
 
-    Do not use this abstract base class directly but
-    instead use one of the concrete policy implemented.
-
-    To implement your own policy, you have to implement the following methods:
-
-    - `decay`
-    - `use_network`
+    This class should not be used directly. Instead, use one of the concrete policies implemented.
+    To implement your own policy, you have to implement the following methods: `decay`, `reset`, `use_network`.
     """
 
     def __init__(self):
@@ -19,70 +14,83 @@ class CorePolicy(object):
 
     def reset(self):
         """
-        reset
+        Reset the policy.
+
+        This method should be overridden by any subclass.
         """
         raise NotImplementedError
 
     def decay(self):
         """
-        Decaying the epsilon / sigma value of the policy.
+        Decay the policy.
+
+        This method should be overridden by any subclass.
         """
         raise NotImplementedError
 
     def use_network(self):
         """
-        Sample an experience replay batch with size.
+        Determine whether to use the network for decision making.
 
-        # Returns
-            use (bool): Boolean value for using the nn.
+        This method should be overridden by any subclass.
+
+        Returns:
+            use (bool): Boolean value for using the network.
         """
         raise NotImplementedError
 
 
 class GreedyQPolicy(CorePolicy):
+    """
+    Greedy Q Policy
+
+    This class implements a policy that always selects the action with the highest expected reward.
+    """
+
     def __init__(self):
         super().__init__()
 
     def reset(self):
         """
-        Remember the transaction.
+        Reset the policy.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method is currently a placeholder and does nothing.
         """
 
     def decay(self):
         """
-        Remember the transaction.
+        Decay the policy.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method is currently a placeholder and does nothing.
         """
 
     def use_network(self):
         """
-        Remember the transaction.
+        Determine whether to use the network for decision making.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        For a GreedyQPolicy, this always returns True.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            use (bool): Boolean value for using the network.
         """
         return True
 
 
 class EpsilonGreedyPolicy(CorePolicy):
     """
-    Epsilon Greedy
+    Epsilon Greedy Policy
 
-    # Arguments
-        max_value (float): .
-        min_value (float): .
-        decay_steps (int): .
+    This class implements a policy that selects a random action with probability epsilon and the action with the highest expected reward with probability 1 - epsilon.
+
+    Attributes:
+        epsilon (float): The probability of selecting a random action.
+        min_value (float): The minimum value that epsilon can decay to.
+        epsilon_decay (float): The amount by which epsilon is reduced at each step.
+
+    Args:
+        max_value (float): The initial value of epsilon.
+        min_value (float): The minimum value that epsilon can decay to.
+        decay_steps (int): The number of steps over which epsilon decays from max_value to min_value.
     """
 
     def __init__(self, max_value=1.0, min_value=0.0, decay_steps=1):
@@ -94,33 +102,27 @@ class EpsilonGreedyPolicy(CorePolicy):
 
     def reset(self):
         """
-        Remember the transaction.
+        Reset the policy.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method is currently a placeholder and does nothing.
         """
 
     def decay(self):
         """
-        Remember the transaction.
+        Decay the policy.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method reduces the value of epsilon by epsilon_decay, down to a minimum of min_value.
         """
         self.epsilon -= self.epsilon_decay
         self.epsilon = max(self.epsilon, self.min_value)
 
     def use_network(self):
         """
-        Remember the transaction.
+        Determine whether to use the network for decision making.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        For an EpsilonGreedyPolicy, this returns True with probability 1 - epsilon and False with probability epsilon.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            use (bool): Boolean value for using the network.
         """
         return np.random.uniform() >= self.epsilon
