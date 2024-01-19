@@ -5,17 +5,17 @@ __all__ = ['MaxPool']
 
 class MaxPool:
     """
-    Deep Deterministic Policy Gradient
+    Applies max pooling to the input.
 
     # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+        kernel_size (int or tuple): Size of the window to take max over.
+        stride (int or tuple): Stride of the window. Default value is `kernel_size`.
+        padding (int or tuple): Implicit zero padding to be added on both sides.
+
+    # Attributes
+        _kernel_size (int or tuple): Size of the window to take max over.
+        _stride (int or tuple): Stride of the window.
+        _padding (int or tuple): Implicit zero padding to be added on both sides.
     """
 
     def __init__(self, kernel_size, stride=None, padding=0):
@@ -25,12 +25,13 @@ class MaxPool:
 
     def forward(self, inp):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Applies max pooling to the input.
 
         # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+            inp (Tensor): The input tensor.
+
+        # Returns
+            Tensor: The output tensor after applying max pooling.
         """
         return f.max_pool(
             inp=inp,
