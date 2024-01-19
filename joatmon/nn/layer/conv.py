@@ -12,17 +12,18 @@ __all__ = ['Conv', 'ConvTranspose']
 
 class Conv(Module):
     """
-    Deep Deterministic Policy Gradient
+    Applies a 2D convolution over an input signal composed of several input planes.
 
     # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+        in_features (int): Number of channels in the input image.
+        out_features (int): Number of channels produced by the convolution.
+        kernel_size (int or tuple): Size of the convolving kernel.
+        stride (int or tuple, optional): Stride of the convolution. Default: 1
+        padding (int or tuple, optional): Zero-padding added to both sides of the input. Default: 0
+
+    # Attributes
+        weight (Tensor): The learnable weights of the module of shape (out_features, in_features, kernel_size).
+        bias (Tensor): The learnable bias of the module of shape (out_features).
     """
 
     def __init__(self, in_features, out_features, kernel_size, stride=1, padding=0):
@@ -39,12 +40,13 @@ class Conv(Module):
 
     def forward(self, inp):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Defines the computation performed at every call.
 
         # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+            inp (Tensor): The input tensor.
+
+        # Returns
+            Tensor: The output tensor after applying 2D convolution.
         """
         return f.conv(
             inp=inp,
@@ -57,17 +59,18 @@ class Conv(Module):
 
 class ConvTranspose(Module):
     """
-    Deep Deterministic Policy Gradient
+    Applies a 2D transposed convolution operator over an input image composed of several input planes.
 
     # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+        in_features (int): Number of channels in the input image.
+        out_features (int): Number of channels produced by the convolution.
+        kernel_size (int or tuple): Size of the convolving kernel.
+        stride (int or tuple, optional): Stride of the convolution. Default: 1
+        padding (int or tuple, optional): Zero-padding added to both sides of the input. Default: 0
+
+    # Attributes
+        weight (Tensor): The learnable weights of the module of shape (in_features, out_features, kernel_size).
+        bias (Tensor): The learnable bias of the module of shape (out_features).
     """
 
     def __init__(self, in_features, out_features, kernel_size, stride=1, padding=0):
@@ -84,12 +87,13 @@ class ConvTranspose(Module):
 
     def forward(self, inp):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Defines the computation performed at every call.
 
         # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+            inp (Tensor): The input tensor.
+
+        # Returns
+            Tensor: The output tensor after applying 2D transposed convolution.
         """
         return f.conv_transpose(
             inp=inp,

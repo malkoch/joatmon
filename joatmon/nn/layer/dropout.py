@@ -8,17 +8,18 @@ __all__ = ['Dropout']
 
 class Dropout(Module):
     """
-    Deep Deterministic Policy Gradient
+    Applies Dropout to the input.
+
+    The Dropout layer randomly sets input units to 0 with a frequency of `keep_prob`
+    at each step during training time, which helps prevent overfitting.
+    Inputs not set to 0 are scaled up by 1/(1 - keep_prob) such that the sum over
+    all inputs is unchanged.
 
     # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+        keep_prob (float): float between 0 and 1. Fraction of the input units to drop.
+
+    # Attributes
+        _keep_prob (float): Fraction of the input units to drop.
     """
 
     def __init__(self, keep_prob=.5):
@@ -28,12 +29,13 @@ class Dropout(Module):
 
     def forward(self, inp):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Applies Dropout to the input.
 
         # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+            inp (Tensor): The input tensor.
+
+        # Returns
+            Tensor: The output tensor after applying dropout.
         """
         if self.training:
             return f.dropout(inp=inp, keep_prob=self._keep_prob)

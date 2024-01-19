@@ -12,17 +12,21 @@ __all__ = ['BatchNorm']
 
 class BatchNorm(Module):
     """
-    Deep Deterministic Policy Gradient
+    Applies Batch Normalization over a mini-batch of inputs.
 
     # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+        features (int): Number of features in the input.
+        eps (float, optional): A value added to the denominator for numerical stability. Default: 1e-5
+        momentum (float, optional): The value used for the running_mean and running_var computation. Default: 0.1
+        affine (bool, optional): A boolean value that when set to True, gives the layer learnable affine parameters. Default: True
+        track_running_stats (bool, optional): A boolean value that when set to True, this module tracks the running mean and variance, and when set to False, this module does not track such statistics and always uses batch statistics in both training and eval modes. Default: True
+
+    # Attributes
+        weight (Tensor): The learnable weights of the module of shape (features).
+        bias (Tensor): The learnable bias of the module of shape (features).
+        running_mean (Tensor): The running mean. Default: None
+        running_var (Tensor): The running variance. Default: None
+        num_batches_tracked (int): The number of batches tracked. Default: None
     """
 
     def __init__(
@@ -62,12 +66,7 @@ class BatchNorm(Module):
 
     def reset_running_stats(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Resets the running stats (running_mean, running_var, num_batches_tracked) to their initial values.
         """
         if self._track_running_stats:
             self.running_mean = Parameter(Tensor.from_array(np.zeros((self._features,))))
@@ -76,12 +75,7 @@ class BatchNorm(Module):
 
     def reset_parameters(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Resets the parameters (weight, bias) to their initial values and resets the running stats.
         """
         self.reset_running_stats()
         if self._affine:
@@ -90,12 +84,13 @@ class BatchNorm(Module):
 
     def forward(self, inp):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Defines the computation performed at every call.
 
         # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+            inp (Tensor): The input tensor.
+
+        # Returns
+            Tensor: The output tensor after applying batch normalization.
         """
         if self._momentum is None:
             exponential_average_factor = 0.0
