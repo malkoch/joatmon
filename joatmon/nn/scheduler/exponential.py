@@ -6,29 +6,37 @@ __all__ = ['ExponentialLR']
 
 
 class ExponentialLR(LRScheduler):
-    """Decays the learning rate of each parameter group by gamma every epoch.
-    When last_epoch=-1, sets initial lr as lr.
+    """
+    Implements the Exponential Learning Rate Scheduler.
 
-    Args:
-        optimizer (Optimizer): Wrapped optimizer.
-        gamma (float): Multiplicative factor of learning rate decay.
-        last_epoch (int): The index of last epoch. Default: -1.
-        verbose (bool): If ``True``, prints a message to stdout for
-            each update. Default: ``False``.
+    This scheduler decays the learning rate of each parameter group by a specified gamma every epoch.
+
+    # Attributes
+        optimizer (Optimizer): The optimizer for which the learning rate will be scheduled.
+        gamma (float): The multiplicative factor of learning rate decay.
+        last_epoch (int, optional): The index of the last epoch. Default is -1.
+        verbose (bool, optional): If True, prints a message to stdout for each update. Default is False.
     """
 
     def __init__(self, optimizer, gamma, last_epoch=-1, verbose=False):
+        """
+        Initializes the ExponentialLR class.
+
+        # Arguments
+            optimizer (Optimizer): The optimizer for which the learning rate will be scheduled.
+            gamma (float): The multiplicative factor of learning rate decay.
+            last_epoch (int, optional): The index of the last epoch. Default is -1.
+            verbose (bool, optional): If True, prints a message to stdout for each update. Default is False.
+        """
         self.gamma = gamma
         super(ExponentialLR, self).__init__(optimizer, last_epoch, verbose)
 
     def get_lr(self):
         """
-        Remember the transaction.
+        Computes the learning rate for the current epoch.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        # Returns
+            list: The learning rates for each parameter group.
         """
         if not self._get_lr_called_within_step:
             warnings.warn(
@@ -41,11 +49,9 @@ class ExponentialLR(LRScheduler):
 
     def _get_closed_form_lr(self):
         """
-        Remember the transaction.
+        Computes the learning rate for the current epoch in closed form.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        # Returns
+            list: The learning rates for each parameter group.
         """
         return [base_lr * self.gamma ** self.last_epoch for base_lr in self.base_lrs]
