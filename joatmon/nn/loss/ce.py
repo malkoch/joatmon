@@ -7,17 +7,13 @@ __all__ = ['CELoss']
 
 class CELoss(Loss):
     """
-    Deep Deterministic Policy Gradient
+    Implements the Cross-Entropy (CE) loss function.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    CE is a loss function that is used in binary classification tasks.
+    It is a measure of the dissimilarity between the predicted probability and the true label.
+
+    # Attributes
+        _loss (np.array): The computed loss value.
     """
 
     def __init__(self):
@@ -27,12 +23,14 @@ class CELoss(Loss):
 
     def forward(self, prediction, target) -> np.array:
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Computes the CE loss between the prediction and target.
 
         # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+            prediction (np.array): The predicted probability.
+            target (np.array): The true label.
+
+        # Returns
+            np.array: The computed CE loss.
         """
         self._loss = -(target * np.log(prediction.data) + (1 - target) * np.log(1 - prediction.data)).summation()
         return self._loss

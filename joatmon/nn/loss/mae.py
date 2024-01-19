@@ -7,32 +7,32 @@ __all__ = ['MAELoss']
 
 class MAELoss(Loss):
     """
-    Deep Deterministic Policy Gradient
+    Implements the Mean Absolute Error (MAE) loss function.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    MAE is a loss function used for regression models. It is the sum of the absolute differences between the true and predicted values.
+
+    # Attributes
+        _loss (np.array): The computed loss value.
     """
 
     def __init__(self):
+        """
+        Initializes the MAELoss class.
+        """
         super(MAELoss, self).__init__()
 
         self._loss = None
 
     def forward(self, prediction, target) -> np.array:
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Computes the MAE loss between the prediction and target.
 
         # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+            prediction (np.array): The predicted values.
+            target (np.array): The true values.
+
+        # Returns
+            np.array: The computed MAE loss.
         """
         self._loss = ((prediction - target).absolute() / np.prod(target.shape)).summation()
         return self._loss
