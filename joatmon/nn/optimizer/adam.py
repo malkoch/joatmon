@@ -6,20 +6,32 @@ __all__ = ['Adam']
 
 class Adam(Optimizer):
     """
-    Deep Deterministic Policy Gradient
+    Implements the Adam optimization algorithm.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Adam is an optimization algorithm that can be used instead of the classical stochastic gradient descent procedure
+    to update network weights iterative based on training data.
+
+    # Attributes
+        params (iterable): An iterable of parameters to optimize or dicts defining parameter groups.
+        lr (float, optional): The learning rate. Default is 1e-3.
+        betas (Tuple[float, float], optional): Coefficients used for computing running averages of gradient and its square. Default is (0.9, 0.999).
+        eps (float, optional): Term added to the denominator to improve numerical stability. Default is 1e-8.
+        weight_decay (float, optional): Weight decay (L2 penalty). Default is 0.
+        amsgrad (bool, optional): Whether to use the AMSGrad variant of this algorithm. Default is False.
     """
 
     def __init__(self, params, lr=1e-3, betas=(0.9, 0.999), eps=1e-8, weight_decay=0, amsgrad=False):
+        """
+        Initializes the Adam class.
+
+        # Arguments
+            params (iterable): An iterable of parameters to optimize or dicts defining parameter groups.
+            lr (float, optional): The learning rate. Default is 1e-3.
+            betas (Tuple[float, float], optional): Coefficients used for computing running averages of gradient and its square. Default is (0.9, 0.999).
+            eps (float, optional): Term added to the denominator to improve numerical stability. Default is 1e-8.
+            weight_decay (float, optional): Weight decay (L2 penalty). Default is 0.
+            amsgrad (bool, optional): Whether to use the AMSGrad variant of this algorithm. Default is False.
+        """
         if not 0.0 <= lr:
             raise ValueError('Invalid learning rate: {}'.format(lr))
         if not 0.0 <= eps:
@@ -34,18 +46,21 @@ class Adam(Optimizer):
         super(Adam, self).__init__(params, defaults)
 
     def __setstate__(self, state):
+        """
+        Sets the state of the optimizer.
+
+        # Arguments
+            state (dict): The state of the optimizer.
+        """
         super(Adam, self).__setstate__(state)
         for group in self.param_groups:
             group.setdefault('amsgrad', False)
 
     def step(self):
         """
-        Remember the transaction.
+        Performs a single optimization step.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This function is called once per optimization step to update the parameters.
         """
         for group in self.param_groups:
             params_with_grad = []
