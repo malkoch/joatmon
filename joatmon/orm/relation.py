@@ -5,17 +5,19 @@ from joatmon.core.serializable import Serializable
 
 class Relation(Serializable):
     """
-    Deep Deterministic Policy Gradient
+    Class representing a relation in the ORM system.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    A relation represents a connection between two collections in the database.
+    It is defined by a string in the format "collection1.field1(n1)->collection2.field2(n2)",
+    where "n1" and "n2" are the cardinalities of the relation.
+
+    Attributes:
+        local_collection (str): The name of the local collection.
+        local_field (str): The name of the local field.
+        local_relation (str): The cardinality of the local relation.
+        foreign_collection (str): The name of the foreign collection.
+        foreign_field (str): The name of the foreign field.
+        foreign_relation (str): The cardinality of the foreign relation.
     """
 
     pattern = re.compile(
@@ -32,6 +34,12 @@ class Relation(Serializable):
     )
 
     def __init__(self, relation=''):
+        """
+        Initializes a new instance of the Relation class.
+
+        Args:
+            relation (str): The string defining the relation.
+        """
         super(Relation, self).__init__()
 
         (
