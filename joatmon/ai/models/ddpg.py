@@ -24,20 +24,26 @@ __all__ = ['DDPGModel']
 
 class DDPGModel(CoreModel):
     """
-    Deep Deterministic Policy Gradient
+    Deep Deterministic Policy Gradient Model.
+
+    This class implements the DDPG model, which is a type of reinforcement learning model.
+    It inherits from the CoreModel class and overrides its abstract methods.
 
     # Arguments
-        actor_model (`nn.Model` instance): See [Model](#) for details.
-        critic_model (`nn.Model` instance): See [Model](#) for details.
-        optimizer (`optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`layers.Input` / `layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+        lr (float): The learning rate for the Adam optimizer.
+        tau (float): The factor for soft update of target parameters.
+        gamma (float): The discount factor.
+        in_features (int): The number of input features.
+        out_features (int): The number of output features.
     """
 
     def __init__(self, lr=1e-3, tau=1e-4, gamma=0.99, in_features=1, out_features=1):
+        """
+        Constructor for the DDPGModel class.
+
+        Initializes the actor and critic networks, both local and target.
+        Also initializes the optimizers and loss function for the networks.
+        """
         super(DDPGModel, self).__init__()
 
         self.actor_local = DDPGActor(in_features, out_features)
@@ -53,18 +59,16 @@ class DDPGModel(CoreModel):
         self.gamma = gamma
 
         self.actor_optimizer = Adam(list(self.actor_local.parameters()), lr=self.lr)
-
         self.critic_optimizer = Adam(list(self.critic_local.parameters()), lr=self.lr)
+
         self.critic_loss = HuberLoss()
 
     def load(self, path=''):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Load the actor and critic networks from the specified path.
 
         # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+            path (str): The path to the directory where the networks are stored.
         """
         load(self.actor_local, os.path.join(path, 'actor_local'))
         load(self.actor_target, os.path.join(path, 'actor_target'))
@@ -73,12 +77,10 @@ class DDPGModel(CoreModel):
 
     def save(self, path=''):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Save the actor and critic networks to the specified path.
 
         # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+            path (str): The path to the directory where the networks should be saved.
         """
         save(self.actor_local, os.path.join(path, 'actor_local'))
         save(self.actor_target, os.path.join(path, 'actor_target'))
@@ -87,12 +89,11 @@ class DDPGModel(CoreModel):
 
     def initialize(self, w_init=None, b_init=None):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Initialize the weights and biases of the actor and critic networks.
 
         # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+            w_init (callable, optional): The function to use for initializing the weights.
+            b_init (callable, optional): The function to use for initializing the biases.
         """
         for module in self.actor_local.modules():
             if isinstance(
@@ -129,12 +130,10 @@ class DDPGModel(CoreModel):
 
     def softupdate(self, network: str):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Perform a soft update of the target network parameters.
 
         # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+            network (str): The name of the network to update ('actor' or 'critic').
         """
         if network == 'actor':
             for target_param, param in zip(self.actor_target.parameters(), self.actor_local.parameters()):
@@ -147,12 +146,10 @@ class DDPGModel(CoreModel):
 
     def hardupdate(self, network: str):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Perform a hard update of the target network parameters.
 
         # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+            network (str): The name of the network to update ('actor' or 'critic').
         """
         if network == 'actor':
             for target_param, param in zip(self.actor_target.parameters(), self.actor_local.parameters()):
@@ -165,24 +162,27 @@ class DDPGModel(CoreModel):
 
     def predict(self, state=None):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Get the action for a given state.
 
         # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+            state (array-like, optional): The current state.
+
+        # Returns
+            action (array-like): The predicted action for the given state.
         """
         self.actor_local.eval()
         return to_numpy(self.actor_local(to_tensor(state))).flatten()
 
     def train(self, batch=None, update_target=True):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Train the actor and critic networks with a given batch.
 
         # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+            batch (tuple of array-like, optional): The batch of experiences to train on.
+            update_target (bool, optional): Whether to perform a soft update of the target networks.
+
+        # Returns
+            losses (list of float): The actor and critic losses.
         """
         self.actor_local.train()
 
@@ -223,10 +223,7 @@ class DDPGModel(CoreModel):
 
     def evaluate(self):
         """
-        Remember the transaction.
+        Evaluate the actor and critic networks.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method should be overridden in a subclass.
         """
