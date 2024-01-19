@@ -13,12 +13,16 @@ SAVE_STATE_WARNING = 'Please also save or load the state of the optimizer when s
 
 def _calculate_input_dims(output_shape, kernel_shape, padding, stride):  # instead of this, use is_transpose parameter and use function below
     """
-    Remember the transaction.
+    Calculates the dimensions of the input tensor given the output shape, kernel shape, padding, and stride.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        output_shape (tuple): The shape of the output tensor.
+        kernel_shape (tuple): The shape of the kernel tensor.
+        padding (tuple): The padding applied to the input tensor.
+        stride (int): The stride applied to the input tensor.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        tuple: The dimensions of the input tensor.
     """
     batch_size, _, output_height, output_width = output_shape
     _, out_filter_number, filter_height, filter_width = kernel_shape  # need to check
@@ -30,12 +34,16 @@ def _calculate_input_dims(output_shape, kernel_shape, padding, stride):  # inste
 
 def _calculate_output_dims(input_shape, kernel_shape, padding, stride):
     """
-    Remember the transaction.
+    Calculates the dimensions of the output tensor given the input shape, kernel shape, padding, and stride.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        input_shape (tuple): The shape of the input tensor.
+        kernel_shape (tuple): The shape of the kernel tensor.
+        padding (tuple): The padding applied to the input tensor.
+        stride (int): The stride applied to the input tensor.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        tuple: The dimensions of the output tensor.
     """
     batch_size, _, input_height, input_width = input_shape
     out_filter_number, _, filter_height, filter_width = kernel_shape
@@ -46,27 +54,27 @@ def _calculate_output_dims(input_shape, kernel_shape, padding, stride):
 
 
 def _forward_unimplemented(self, *inp: Any) -> None:
-    r"""Defines the computation performed at every call.
+    """
+    Raises a NotImplementedError indicating that the forward method needs to be implemented in subclasses.
 
-    Should be overridden by all subclasses.
+    Args:
+        *inp (Any): Variable length argument list.
 
-    .. note::
-        Although the recipe for forward pass needs to be defined within
-        this function, one should call the :class:`Module` instance afterwards
-        instead of this since the former takes care of running the
-        registered hooks while the latter silently ignores them.
+    Raises:
+        NotImplementedError: This method needs to be implemented in subclasses.
     """
     raise NotImplementedError
 
 
 def typename(o):
     """
-    Remember the transaction.
+    Returns the type name of the object.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        o (object): The object to get the type name of.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        str: The type name of the object.
     """
     if type(o) == 'Tensor':
         return o.dtype
@@ -92,12 +100,14 @@ def typename(o):
 
 def indent(string, spaces):
     """
-    Remember the transaction.
+    Indents a string by a given number of spaces.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        string (str): The string to indent.
+        spaces (int): The number of spaces to indent the string by.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        str: The indented string.
     """
     s = string.split('\n')
     if len(s) == 1:
@@ -111,12 +121,16 @@ def indent(string, spaces):
 
 def get_enum(reduction):
     """
-    Remember the transaction.
+    Returns the enum value for a given reduction type.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        reduction (str): The reduction type.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        int: The enum value for the reduction type.
+
+    Raises:
+        ValueError: If the reduction type is not valid.
     """
     if reduction == 'none':
         ret = 0
@@ -135,12 +149,15 @@ def get_enum(reduction):
 
 def legacy_get_string(size_average, reduce, emit_warning=True):
     """
-    Remember the transaction.
+    Returns the string value for a given size_average and reduce type.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        size_average (bool): The size_average type.
+        reduce (bool): The reduce type.
+        emit_warning (bool, optional): Whether to emit a warning. Defaults to True.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        str: The string value for the size_average and reduce type.
     """
     warning = "size_average and reduce args will be deprecated, please use reduction='{}' instead."
 
@@ -162,20 +179,30 @@ def legacy_get_string(size_average, reduce, emit_warning=True):
 
 def legacy_get_enum(size_average, reduce, emit_warning=True):
     """
-    Remember the transaction.
+    Returns the enum value for a given size_average and reduce type.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        size_average (bool): The size_average type.
+        reduce (bool): The reduce type.
+        emit_warning (bool, optional): Whether to emit a warning. Defaults to True.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        int: The enum value for the size_average and reduce type.
     """
     return get_enum(legacy_get_string(size_average, reduce, emit_warning))
 
 
 class _RequiredParameter(object):
-    """Singleton class representing a required parameter for an Optimizer."""
-
+    """
+    Singleton class representing a required parameter for an Optimizer.
+    """
     def __repr__(self):
+        """
+        Returns a string representation of the required parameter.
+
+        Returns:
+            str: A string representation of the required parameter.
+        """
         return '<required parameter>'
 
 
