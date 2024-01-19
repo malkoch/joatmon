@@ -8,17 +8,14 @@ __all__ = ['HuberLoss']
 
 class HuberLoss(Loss):
     """
-    Deep Deterministic Policy Gradient
+    Implements the Huber loss function.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Huber loss is less sensitive to outliers in data than mean squared error.
+    It's quadratic for small values of the input and linear for large values.
+
+    # Attributes
+        delta (float): The point where the Huber loss function changes from a quadratic to linear.
+        _loss (np.array): The computed loss value.
     """
 
     def __init__(self, delta=1.0):
@@ -30,12 +27,10 @@ class HuberLoss(Loss):
 
     def forward(self, prediction, target) -> np.array:
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Initializes the HuberLoss class.
 
         # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+            delta (float, optional): The point where the Huber loss function changes from a quadratic to linear. Default is 1.0.
         """
 
         abs_diff = functional.absolute(target - prediction)

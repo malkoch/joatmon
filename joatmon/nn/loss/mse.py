@@ -7,32 +7,32 @@ __all__ = ['MSELoss']
 
 class MSELoss(Loss):
     """
-    Deep Deterministic Policy Gradient
+    Implements the Mean Squared Error (MSE) loss function.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    MSE is a loss function used for regression models. It is the sum of the squared differences between the true and predicted values.
+
+    # Attributes
+        _loss (np.array): The computed loss value.
     """
 
     def __init__(self):
+        """
+        Initializes the MSELoss class.
+        """
         super(MSELoss, self).__init__()
 
         self._loss = None
 
     def forward(self, prediction, target) -> np.array:
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Computes the MSE loss between the prediction and target.
 
         # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+            prediction (np.array): The predicted values.
+            target (np.array): The true values.
+
+        # Returns
+            np.array: The computed MSE loss.
         """
         self._loss = (((prediction - target) ** 2) / np.prod(target.shape)).summation()
         return self._loss
