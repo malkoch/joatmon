@@ -31,156 +31,155 @@ ip_address_pattern = re.compile(
 
 def empty_object_id():
     """
-    Remember the transaction.
+    Convert the Serializable object to a dictionary with Pascal case keys.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        dict: The dictionary representation of the Serializable object with Pascal case keys.
     """
     return uuid.UUID('00000000-0000-0000-0000-000000000000')
 
 
 def new_object_id():
     """
-    Remember the transaction.
+    Generate a new UUID.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        UUID: A new UUID.
     """
     return uuid.uuid4()
 
 
 def current_time():
     """
-    Remember the transaction.
+    Get the current datetime.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        datetime: The current datetime.
     """
     return datetime.now()
 
 
 def new_nickname():
     """
-    Remember the transaction.
+    Generate a new random nickname.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        str: A new random nickname.
     """
     return f'random_nickname_{uuid.uuid4()}'
 
 
 def new_password():
     """
-    Remember the transaction.
+    Generate a new random password.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        str: A new random password.
     """
     return f'random_password_{uuid.uuid4()}'
 
 
 def mail_validator(email):
     """
-    Remember the transaction.
+    Validate an email address.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        email (str): The email address to validate.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        bool: True if the email address is valid, False otherwise.
     """
     return email_pattern.match(email) is not None
 
 
 def ip_validator(ip):
     """
-    Remember the transaction.
+    Validate an IP address.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        ip (str): The IP address to validate.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        bool: True if the IP address is valid, False otherwise.
     """
     return ip_address_pattern.match(ip) is not None
 
 
 def to_snake_string(string: str):
     """
-    Remember the transaction.
+    Convert a string to snake case.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        string (str): The string to convert.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        str: The string in snake case.
     """
     return pascal_case_pattern.sub('_', string).lower()
 
 
 def to_pascal_string(string: str):
     """
-    Remember the transaction.
+    Convert a string to Pascal case.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        string (str): The string to convert.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        str: The string in Pascal case.
     """
     return ''.join(word.title() for word in string.split('_'))
 
 
 def to_upper_string(string: str):
     """
-    Remember the transaction.
+    Convert a string to upper case.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        string (str): The string to convert.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        str: The string in upper case.
     """
     return string.upper()
 
 
 def to_lower_string(string: str):
     """
-    Remember the transaction.
+    Convert a string to lower case.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        string (str): The string to convert.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        str: The string in lower case.
     """
     return string.lower()
 
 
 def to_title(string: str):
     """
-    Remember the transaction.
+    Convert a string to title case.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        string (str): The string to convert.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        str: The string in title case.
     """
     return string.title()
 
 
 def to_enumerable(value, string=False):
     """
-    Remember the transaction.
+    Convert a value to an enumerable.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        value (Any): The value to convert.
+        string (bool): If True, convert the value to a string.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        Any: The value as an enumerable.
     """
     if value is None:
         return None
@@ -207,12 +206,16 @@ def to_enumerable(value, string=False):
 
 def to_case(case, value, key=None, convert_value=False):
     """
-    Remember the transaction.
+    Convert a value to a specific case.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        case (str): The case to convert to.
+        value (Any): The value to convert.
+        key (str, optional): The key to convert. Defaults to None.
+        convert_value (bool, optional): If True, convert the value to a string. Defaults to False.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        Any: The value converted to the specified case.
     """
     from joatmon.core.serializable import Serializable
 
@@ -249,12 +252,14 @@ def to_case(case, value, key=None, convert_value=False):
 
 def get_function_args(func, *args):
     """
-    Remember the transaction.
+    Get the arguments of a function.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        func (function): The function to get the arguments of.
+        *args: The arguments of the function.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        tuple: The arguments of the function.
     """
     if get_class_that_defined_method(func) is None:
         return args
@@ -266,24 +271,29 @@ def get_function_args(func, *args):
 
 def get_function_kwargs(func, **kwargs):
     """
-    Remember the transaction.
+    Get the keyword arguments of a function.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        func (function): The function to get the keyword arguments of.
+        **kwargs: The keyword arguments of the function.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        dict: The keyword arguments of the function.
     """
     return kwargs
 
 
 def to_hash(func, *args, **kwargs):
     """
-    Remember the transaction.
+    Generate a hash for a function and its arguments.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        func (function): The function to generate a hash for.
+        *args: The arguments of the function.
+        **kwargs: The keyword arguments of the function.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        str: The hash of the function and its arguments.
     """
     args_str = ', '.join([f'{arg}' for arg in get_function_args(func, *args)])
     kwargs_str = ', '.join([f'{k}={v}' for k, v in get_function_kwargs(func, **kwargs).items()])
@@ -293,12 +303,13 @@ def to_hash(func, *args, **kwargs):
 
 def get_converter(kind: type):
     """
-    Remember the transaction.
+    Get a converter for a specific type.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        kind (type): The type to get a converter for.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        function: The converter for the specified type.
     """
 
     def _datetime_converter(value: object) -> typing.Optional[datetime]:
@@ -491,12 +502,13 @@ def get_converter(kind: type):
 
 def to_list(items):
     """
-    Remember the transaction.
+    Convert an iterable to a list.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        items (iterable): The iterable to convert.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        list: The list representation of the iterable.
     """
     ret = []
     for item in iter(items):
@@ -506,12 +518,13 @@ def to_list(items):
 
 async def to_list_async(items):
     """
-    Remember the transaction.
+    Asynchronously convert an iterable to a list.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        items (iterable): The iterable to convert.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        list: The list representation of the iterable.
     """
     ret = []
     async for item in aiter(items):
@@ -521,12 +534,13 @@ async def to_list_async(items):
 
 def first(items):
     """
-    Remember the transaction.
+    Get the first item of an iterable.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        items (iterable): The iterable to get the first item from.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        Any: The first item of the iterable, or None if the iterable is empty.
     """
     try:
         iterable = iter(items)
@@ -538,12 +552,13 @@ def first(items):
 
 async def first_async(items):
     """
-    Remember the transaction.
+    Asynchronously get the first item of an iterable.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        items (iterable): The iterable to get the first item from.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        Any: The first item of the iterable, or None if the iterable is empty.
     """
     try:
         iterable = aiter(items)
@@ -555,12 +570,13 @@ async def first_async(items):
 
 def single(items):
     """
-    Remember the transaction.
+    Get the single item of an iterable.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        items (iterable): The iterable to get the single item from.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        Any: The single item of the iterable, or None if the iterable is empty or contains more than one item.
     """
     try:
         iterable = iter(items)
@@ -577,12 +593,13 @@ def single(items):
 
 async def single_async(items):
     """
-    Remember the transaction.
+    Asynchronously get the single item of an iterable.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        items (iterable): The iterable to get the single item from.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        Any: The single item of the iterable, or None if the iterable is empty or contains more than one item.
     """
     try:
         iterable = aiter(items)
@@ -599,12 +616,14 @@ async def single_async(items):
 
 def pretty_printer(headers, m=None):
     """
-    Remember the transaction.
+    Create a pretty printer for a list of headers.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        headers (list): The headers to pretty print.
+        m (int, optional): The maximum size of the pretty printer. Defaults to the terminal size.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        function: A function that pretty prints values according to the headers.
     """
 
     def get_max_size(idx):
@@ -644,12 +663,13 @@ def pretty_printer(headers, m=None):
 
 def convert_size(size_bytes):
     """
-    Remember the transaction.
+    Convert a size in bytes to a human-readable string.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        size_bytes (int): The size in bytes.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        str: The human-readable string representation of the size.
     """
     import math
 
@@ -664,12 +684,13 @@ def convert_size(size_bytes):
 
 def get_class_that_defined_method(meth):
     """
-    Remember the transaction.
+    Get the class that defined a method.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        meth (function): The method to get the defining class of.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        type: The class that defined the method, or None if the method is not a method of a class.
     """
     if isinstance(meth, functools.partial):
         return get_class_that_defined_method(meth.func)
@@ -691,51 +712,46 @@ def get_class_that_defined_method(meth):
 
 def get_module_functions(module):
     """
-    Remember the transaction.
+    Get the functions of a module.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        module (module): The module to get the functions of.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        list: A list of tuples, where each tuple contains the name of a function and the function itself.
     """
     return inspect.getmembers(module, inspect.isfunction)
 
 
 def get_module_classes(module):
     """
-    Remember the transaction.
+    Get the classes of a module.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        module (module): The module to get the classes of.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        list: A list of tuples, where each tuple contains the name of a class and the class itself.
     """
     return inspect.getmembers(module, inspect.isclass)
 
 
 class JSONEncoder(json.JSONEncoder):
     """
-    Deep Deterministic Policy Gradient
+    A JSON encoder that can handle more Python data types than the standard json.JSONEncoder.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    This encoder can handle datetime, date, time, timedelta, uuid.UUID, bytes, and callable objects in addition to the types that json.JSONEncoder can handle.
     """
 
     def default(self, obj):
         """
-        Remember the transaction.
+        Implement this method in a subclass such that it returns a serializable object for `obj`, or calls the base implementation (to raise a TypeError).
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            obj (Any): The object to convert to a serializable object.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            Any: A serializable object.
         """
         if isinstance(obj, (datetime, date, time)):
             return obj.isoformat()
@@ -752,17 +768,9 @@ class JSONEncoder(json.JSONEncoder):
 
 class JSONDecoder(json.JSONDecoder):
     """
-    Deep Deterministic Policy Gradient
+    A JSON decoder that uses a custom object hook.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    This decoder uses an object hook that simply returns the input dictionary without any modifications.
     """
 
     def __init__(self, *args, **kwargs):
@@ -771,26 +779,12 @@ class JSONDecoder(json.JSONDecoder):
     @staticmethod
     def object_hook(d):
         """
-        Remember the transaction.
+        Implement this method in a subclass such that it returns a Python object for `d`.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            d (dict): The dictionary to convert to a Python object.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            Any: A Python object.
         """
         return d
-        # ret = {}
-        # for key, value in d.items():
-        #     print('__type__' in value, key)
-        #     if '__type__' not in value:
-        #         ret[key] = value
-        #         continue
-        #
-        #     t = value.pop('__type__')
-        #     try:
-        #         if t == 'datetime':
-        #             ret[key] = datetime(**value)
-        #     except:
-        #         value['__type___'] = t
-        #         ret[key] = value
-        # return ret
