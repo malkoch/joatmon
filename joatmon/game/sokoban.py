@@ -32,15 +32,33 @@ CHANGE_COORDINATES = {0: (-1, 0), 1: (1, 0), 2: (0, -1), 3: (0, 1)}
 
 def generate_room(dim=(7, 7), wall_prob=0.3, p_change_directions=0.35, num_steps=5, num_boxes=1, tries=4):
     """
-    Remember the transaction.
+    Generates a room for the Sokoban game.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        dim (tuple): The dimensions of the room. Default is (7, 7).
+        wall_prob (float): The probability of a wall being placed in a cell. Default is 0.3.
+        p_change_directions (float): The probability of changing directions while generating the room. Default is 0.35.
+        num_steps (int): The number of steps to take while generating the room. Default is 5.
+        num_boxes (int): The number of boxes to place in the room. Default is 1.
+        tries (int): The number of attempts to generate a valid room. Default is 4.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        tuple: The room structure, room state, and box mapping.
     """
 
     def room_topology_generation(_dim=(10, 10), _wall_prob=0.1, _p_change_directions=0.35, _num_steps=15):
+        """
+        Generates the topology of the room.
+
+        Args:
+            _dim (tuple): The dimensions of the room. Default is (10, 10).
+            _wall_prob (float): The probability of a wall being placed in a cell. Default is 0.1.
+            _p_change_directions (float): The probability of changing directions while generating the room. Default is 0.35.
+            _num_steps (int): The number of steps to take while generating the room. Default is 15.
+
+        Returns:
+            numpy.ndarray: The generated room topology.
+        """
         dim_x, dim_y = _dim
 
         masks = [
@@ -82,12 +100,14 @@ def generate_room(dim=(7, 7), wall_prob=0.3, p_change_directions=0.35, num_steps
 
     def place_boxes_and_player(_room, _num_boxes):
         """
-        Remember the transaction.
+        Places boxes and the player in the room.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            _room (numpy.ndarray): The room where the boxes and player will be placed.
+            _num_boxes (int): The number of boxes to place in the room.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            numpy.ndarray: The room with the boxes and player placed.
         """
         possible_positions = np.where(_room == 1)
         num_possible_positions = possible_positions[0].shape[0]
@@ -122,12 +142,14 @@ def generate_room(dim=(7, 7), wall_prob=0.3, p_change_directions=0.35, num_steps
 
     def reverse_playing(_room_state, _room_structure):
         """
-        Remember the transaction.
+        Reverses the playing of the game.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            _room_state (numpy.ndarray): The current state of the room.
+            _room_structure (numpy.ndarray): The structure of the room.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            tuple: The best room state, best room score, and best box mapping.
         """
         global global_explored_states, global_num_boxes, global_best_room_score, global_best_room, global_best_box_mapping
 
@@ -147,12 +169,15 @@ def generate_room(dim=(7, 7), wall_prob=0.3, p_change_directions=0.35, num_steps
 
     def depth_first_search(_room_state, _room_structure, _box_mapping, box_swaps=0, last_pull=(-1, -1), ttl=300):
         """
-        Remember the transaction.
+        Performs a depth-first search to find the best room state.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            _room_state (numpy.ndarray): The current state of the room.
+            _room_structure (numpy.ndarray): The structure of the room.
+            _box_mapping (dict): The current mapping of the boxes.
+            box_swaps (int): The number of box swaps made. Default is 0.
+            last_pull (tuple): The last pull made. Default is (-1, -1).
+            ttl (int): The time to live for the search. Default is 300.
         """
         global global_explored_states, global_num_boxes, global_best_room_score, global_best_room, global_best_box_mapping
 
@@ -190,12 +215,17 @@ def generate_room(dim=(7, 7), wall_prob=0.3, p_change_directions=0.35, num_steps
 
     def reverse_move(_room_state, _room_structure, _box_mapping, last_pull, action):
         """
-        Remember the transaction.
+        Reverses a move in the game.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            _room_state (numpy.ndarray): The current state of the room.
+            _room_structure (numpy.ndarray): The structure of the room.
+            _box_mapping (dict): The current mapping of the boxes.
+            last_pull (tuple): The last pull made.
+            action (int): The action to reverse.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            tuple: The new room state, box mapping, and last pull.
         """
         player_position = np.where(_room_state == 5)
         player_position = np.array([player_position[0][0], player_position[1][0]])
@@ -228,12 +258,13 @@ def generate_room(dim=(7, 7), wall_prob=0.3, p_change_directions=0.35, num_steps
 
     def box_displacement_score(_box_mapping):
         """
-        Remember the transaction.
+        Calculates the box displacement score.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            _box_mapping (dict): The current mapping of the boxes.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            int: The box displacement score.
         """
         score = 0
 
@@ -274,12 +305,15 @@ def generate_room(dim=(7, 7), wall_prob=0.3, p_change_directions=0.35, num_steps
 
 def create_circle_body(mass, body_type, radius):
     """
-    Remember the transaction.
+    Creates a circular body for the physics engine.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        mass (float): The mass of the body.
+        body_type (pymunk.Body.body_type): The type of the body (static, dynamic, or kinematic).
+        radius (float): The radius of the body.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        pymunk.Body: The created body.
     """
     moment = pymunk.moment_for_circle(mass, 0.0, radius)
     body = pymunk.Body(mass, moment, body_type)
@@ -288,12 +322,18 @@ def create_circle_body(mass, body_type, radius):
 
 def create_circle_shape(body, radius, friction, elasticity, collision_type, sensor):
     """
-    Remember the transaction.
+    Creates a circular shape for the physics engine.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        body (pymunk.Body): The body to which the shape is attached.
+        radius (float): The radius of the shape.
+        friction (float): The friction coefficient of the shape.
+        elasticity (float): The elasticity of the shape.
+        collision_type (int): The collision type of the shape.
+        sensor (bool): Whether the shape is a sensor.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        pymunk.Circle: The created shape.
     """
     shape = pymunk.Circle(body, radius)
     shape.friction = friction
@@ -305,12 +345,15 @@ def create_circle_shape(body, radius, friction, elasticity, collision_type, sens
 
 def create_rectangle_body(mass, body_type, half_size):
     """
-    Remember the transaction.
+    Creates a rectangular body for the physics engine.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        mass (float): The mass of the body.
+        body_type (pymunk.Body.body_type): The type of the body (static, dynamic, or kinematic).
+        half_size (float): Half the size of the body.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        tuple: The created body and the points defining the rectangle.
     """
     points = [(-half_size, -half_size), (-half_size, half_size), (half_size, half_size), (half_size, -half_size)]
     moment = pymunk.moment_for_poly(mass, points)
@@ -320,12 +363,18 @@ def create_rectangle_body(mass, body_type, half_size):
 
 def create_rectangle_shape(body, points, friction, elasticity, collision_type, sensor):
     """
-    Remember the transaction.
+    Creates a rectangular shape for the physics engine.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        body (pymunk.Body): The body to which the shape is attached.
+        points (list): The points defining the rectangle.
+        friction (float): The friction coefficient of the shape.
+        elasticity (float): The elasticity of the shape.
+        collision_type (int): The collision type of the shape.
+        sensor (bool): Whether the shape is a sensor.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        pymunk.Poly: The created shape.
     """
     shape = pymunk.Poly(body, points)
     shape.friction = friction
@@ -337,12 +386,13 @@ def create_rectangle_shape(body, points, friction, elasticity, collision_type, s
 
 def draw_circle(screen, color, position, radius):
     """
-    Remember the transaction.
+    Draws a circle on the screen.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Args:
+        screen (pygame.Surface): The surface on which to draw the circle.
+        color (tuple): The color of the circle.
+        position (tuple): The position of the center of the circle.
+        radius (int): The radius of the circle.
     """
     position = flip_y(position, screen.get_size()[1])
     pygame.draw.circle(screen, color, position.int_tuple, int(radius))
@@ -350,12 +400,13 @@ def draw_circle(screen, color, position, radius):
 
 def draw_rectangle(screen, color, position, half_size):
     """
-    Remember the transaction.
+    Draws a rectangle on the screen.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Args:
+        screen (pygame.Surface): The surface on which to draw the rectangle.
+        color (tuple): The color of the rectangle.
+        position (tuple): The position of the center of the rectangle.
+        half_size (int): Half the size of the rectangle.
     """
     position = flip_y(position, screen.get_size()[1])
     points = [
@@ -369,36 +420,40 @@ def draw_rectangle(screen, color, position, half_size):
 
 def draw_sprite(screen, image, position, half_size):
     """
-    Remember the transaction.
+    Draws a sprite on the screen.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Args:
+        screen (pygame.Surface): The surface on which to draw the sprite.
+        image (pygame.Surface): The image to draw.
+        position (tuple): The position at which to draw the sprite.
+        half_size (int): Half the size of the sprite.
     """
     screen.blit(image, flip_y(position, screen.get_size()[1]) - Vec2d(half_size, half_size))
 
 
 def flip_y(vector, y):
     """
-    Remember the transaction.
+    Flips the y-coordinate of a vector.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        vector (Vec2d): The vector to flip.
+        y (int): The height of the screen.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        Vec2d: The vector with the y-coordinate flipped.
     """
     return Vec2d(int(vector.x), int(-vector.y + y))
 
 
 def layout_getter(layout_specs):
     """
-    Remember the transaction.
+    Returns a function that generates a room layout based on the given specifications.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        layout_specs (dict): The specifications for the room layout.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        function: A function that generates a room layout.
     """
 
     def _get_layout():
@@ -416,12 +471,15 @@ def layout_getter(layout_specs):
 
 def load_sprite(path, color, size=None):
     """
-    Remember the transaction.
+    Loads a sprite from a file, or creates a new sprite if the file does not exist.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        path (str): The path to the sprite file.
+        color (tuple): The color to use if the sprite file does not exist.
+        size (tuple or int, optional): The size of the sprite. If not specified, the original size of the sprite is used.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        pygame.Surface: The loaded or created sprite.
     """
     # if not existing use color, get color as parameter
     try:
@@ -446,12 +504,13 @@ def load_sprite(path, color, size=None):
 
 def load_xml(element):
     """
-    Remember the transaction.
+    Loads an XML file or parses an XML string.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        element (str or xml.etree.ElementTree.Element): The XML file path or XML string.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        dict: A dictionary representation of the XML.
     """
     # can be common utility
     try:
@@ -473,36 +532,45 @@ def load_xml(element):
 
 def euclidean_distance(position1, position2):
     """
-    Remember the transaction.
+    Calculates the Euclidean distance between two positions.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        position1 (Vec2d): The first position, represented as a vector.
+        position2 (Vec2d): The second position, represented as a vector.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        float: The Euclidean distance between the two positions.
     """
     return ((position1.x - position2.x) ** 2 + (position1.y - position2.y) ** 2) ** 0.5
 
 
 def manhattan_distance(position1, position2):
     """
-    Remember the transaction.
+    Calculates the Manhattan distance between two positions.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        position1 (Vec2d): The first position, represented as a vector.
+        position2 (Vec2d): The second position, represented as a vector.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        float: The Manhattan distance between the two positions.
     """
     return abs(position1.x - position2.x) + abs(position1.y - position2.y)
 
 
 def convert_to(value, type_):
     """
-    Remember the transaction.
+    Converts a value to a specified type.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        value (any): The value to convert.
+        type_ (type): The type to convert the value to.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        any: The converted value.
+
+    Raises:
+        ValueError: If the value cannot be converted to the specified type.
     """
     try:
         if isinstance(value, str):
@@ -515,20 +583,24 @@ def convert_to(value, type_):
 
 class SokobanEnv(CoreEnv):
     """
-    Deep Deterministic Policy Gradient
+    The SokobanEnv class is a subclass of the CoreEnv class. It represents the environment for the Sokoban game.
+    This class is responsible for initializing the game environment, handling game logic, and rendering the game state.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes:
+        xml (str): The name of the XML file containing the environment specifications.
+        xmls (str): The path to the directory containing the XML files.
+        sprites (str): The path to the directory containing the sprite images.
     """
 
     def __init__(self, xml, xmls, sprites):
+        """
+        The constructor for the SokobanEnv class.
+
+        Args:
+            xml (str): The name of the XML file containing the environment specifications.
+            xmls (str): The path to the directory containing the XML files.
+            sprites (str): The path to the directory containing the sprite images.
+        """
         super().__init__()
 
         env_specs = load_xml(xmls + xml)
@@ -619,12 +691,14 @@ class SokobanEnv(CoreEnv):
 
     def _begin(self, arbiter, _, __):
         """
-        Remember the transaction.
+        This method is called when a collision between a block and a goal begins.
+        It adds the collision to the overlaps dictionary if it is not already present.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            arbiter (pymunk.Arbiter): The arbiter for the collision.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            bool: Always returns True to allow the collision to be processed.
         """
         if arbiter.shapes[0].collision_type == self.goal_collision:
             goal = arbiter.shapes[0]
@@ -639,12 +713,7 @@ class SokobanEnv(CoreEnv):
 
     def _clear(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method clears the game state. It removes all objects and resets the game variables.
         """
         self.obstacles = []
         self.players = []
@@ -659,23 +728,16 @@ class SokobanEnv(CoreEnv):
 
     def _check_complete(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method checks if the level is complete. The level is complete if all goals have a block on them.
         """
         self.level_complete = self.successes == len(self.goals)
 
     def _create_objects(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method creates the game objects (obstacles, goals, blocks, and player) based on the layout of the game.
+        The layout is a 2D array where each cell represents a type of object.
+        The method iterates over each cell in the layout and creates the corresponding object.
+        The created objects are added to the physics space.
         """
         for y, row in enumerate(self.layout.tolist()):
             for x, object_type in enumerate(row):
@@ -739,12 +801,8 @@ class SokobanEnv(CoreEnv):
 
     def _draw(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method draws the game state on the screen.
+        It first clears the screen and then calls the _draw_shapes method to draw the game objects.
         """
         # clear the screen
         self.screen.fill(self.ground_color)
@@ -752,12 +810,8 @@ class SokobanEnv(CoreEnv):
 
     def _draw_shapes(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method draws the game objects (obstacles, goals, blocks, and player) on the screen.
+        It iterates over each type of object and draws it using the corresponding sprite or shape.
         """
         for obstacle in self.obstacles:
             if self.obstacle_sprite is not None:
@@ -805,12 +859,8 @@ class SokobanEnv(CoreEnv):
     @staticmethod
     def _get_distance(shape, shapes, method='e'):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method calculates the minimum distance between a shape and a list of shapes.
+        The distance can be calculated using either the Euclidean distance or the Manhattan distance.
         """
         min_distance = 1000000
         for other_shape in shapes:
@@ -826,23 +876,14 @@ class SokobanEnv(CoreEnv):
 
     def _get_info(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method returns the overlaps dictionary which contains the percentage of overlap between each block and goal.
         """
         return self.overlaps
 
     def _get_observation(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method returns the current game state as an image.
+        The game state is drawn on the screen and then converted to an image.
         """
         self._draw()
         image = pygame.surfarray.array3d(self.screen)
@@ -851,12 +892,8 @@ class SokobanEnv(CoreEnv):
 
     def _get_reward(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method calculates the reward for the current game state.
+        The reward is calculated based on the score, the number of successes, and whether the level is complete.
         """
         # remove movement penalty to agent
         total_reward = 0
@@ -883,12 +920,8 @@ class SokobanEnv(CoreEnv):
 
     def _get_score(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method calculates the score for the current game state.
+        The score is the sum of the minimum distances between each block and the goals.
         """
         total = 0
         for block in self.blocks:
@@ -898,23 +931,15 @@ class SokobanEnv(CoreEnv):
 
     def _get_terminal(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method checks if the level is complete.
+        The level is complete if all goals have a block on them.
         """
         return self.level_complete
 
     def _init_space(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method checks if the level is complete.
+        The level is complete if all goals have a block on them.
         """
         self.space = pymunk.Space()
         self.space.gravity = self.gravity
@@ -928,12 +953,8 @@ class SokobanEnv(CoreEnv):
 
     def _init_window(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method initializes the game window.
+        It creates a new surface for the screen and fills it with the ground color.
         """
         pygame.init()
         self.screen = pygame.Surface(self.world_metrics)
@@ -941,12 +962,8 @@ class SokobanEnv(CoreEnv):
 
     def _play_step(self, force=None):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method simulates a step in the game.
+        It applies a force to the player and steps the physics space.
         """
         if force is None:
             force = Vec2d(0.0, 0.0)
@@ -964,12 +981,11 @@ class SokobanEnv(CoreEnv):
 
     def _post_solve(self, arbiter, _, __):
         """
-        Remember the transaction.
+        This method is called after the physics engine has processed a collision between a block and a goal.
+        It calculates the percentage of the goal area that is filled by the block and stores it in the overlaps dictionary.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            arbiter (pymunk.Arbiter): The arbiter object that handled the collision.
         """
         if arbiter.shapes[0].collision_type == self.goal_collision:
             goal = arbiter.shapes[0]
@@ -991,24 +1007,26 @@ class SokobanEnv(CoreEnv):
     @staticmethod
     def _post_step_callback(space, key):
         """
-        Remember the transaction.
+        This method is called after the physics engine has processed a step.
+        It sets the angle of the body to 0 and reindexes the shapes for the body in the space.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            space (pymunk.Space): The physics space.
+            key (pymunk.Shape): The shape that was processed in the step.
         """
         key.body.angle = 0
         space.reindex_shapes_for_body(key.body)
 
     def _pre_solve(self, arbiter, _, __):
         """
-        Remember the transaction.
+        This method is called before the physics engine processes a collision between a block and a goal.
+        It calculates the percentage of the goal area that would be filled by the block if the collision were processed and stores it in the overlaps dictionary.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            arbiter (pymunk.Arbiter): The arbiter object that will handle the collision.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            bool: Always returns True to allow the collision to be processed.
         """
         if arbiter.shapes[0].collision_type == self.goal_collision:
             goal = arbiter.shapes[0]
@@ -1030,12 +1048,8 @@ class SokobanEnv(CoreEnv):
 
     def _recreate(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method recreates the game objects based on the current layout.
+        It also resets the score and the number of successes.
         """
         self._create_objects()
 
@@ -1051,12 +1065,11 @@ class SokobanEnv(CoreEnv):
 
     def _separate(self, arbiter, _, __):
         """
-        Remember the transaction.
+        This method is called when a collision between a block and a goal ends.
+        It removes the collision from the overlaps dictionary.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            arbiter (pymunk.Arbiter): The arbiter object that handled the collision.
         """
         if arbiter.shapes[0].collision_type == self.goal_collision:
             goal = arbiter.shapes[0]
@@ -1070,12 +1083,7 @@ class SokobanEnv(CoreEnv):
 
     def close(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method closes the game window and quits pygame.
         """
         self._clear()
         cv2.destroyAllWindows()
@@ -1083,12 +1091,10 @@ class SokobanEnv(CoreEnv):
 
     def render(self, mode='human'):
         """
-        Remember the transaction.
+        This method renders the current game state on the screen.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            mode (str, optional): The mode in which to render the game. Default is 'human'.
         """
         image = pygame.surfarray.array3d(self.screen)
         image = np.swapaxes(image, 0, 1)
@@ -1097,12 +1103,11 @@ class SokobanEnv(CoreEnv):
 
     def reset(self):
         """
-        Remember the transaction.
+        This method resets the game state.
+        It clears the current game objects, generates a new layout, recreates the game objects, and plays a step.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            numpy.ndarray: The observation of the new game state.
         """
         self._clear()
         self.layout = self.new_layout()
@@ -1112,22 +1117,22 @@ class SokobanEnv(CoreEnv):
 
     def seed(self, seed=None):
         """
-        Remember the transaction.
+        This method sets the seed for the random number generator.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            seed (int, optional): The seed to set. If not specified, the random number generator is not seeded.
         """
 
     def step(self, action):
         """
-        Remember the transaction.
+        This method simulates a step in the game based on the given action.
+        It applies a force to the player in the direction of the action, steps the physics space, and returns the new game state.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            action (tuple): The action to take, represented as a vector.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            tuple: The observation of the new game state, the reward for the step, whether the game is over, and additional info.
         """
         try:
             x, y = action
@@ -1141,12 +1146,11 @@ class SokobanEnv(CoreEnv):
 
     def goal(self):
         """
-        Remember the transaction.
+        This method generates an image of the goal state of the game.
+        The goal state is where all blocks are on the goals.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            numpy.ndarray: The image of the goal state.
         """
         screen = pygame.Surface(self.world_metrics)
         screen.fill(self.ground_color)

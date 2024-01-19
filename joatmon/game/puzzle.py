@@ -10,20 +10,22 @@ from joatmon.game.core import CoreEnv
 
 class Puzzle2048(CoreEnv):
     """
-    Deep Deterministic Policy Gradient
+    Puzzle2048 class for creating a 2048 game environment.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    This class inherits from CoreEnv and provides methods for game operations such as resetting the game, rendering the game state, and performing a step in the game.
+
+    Attributes:
+        size (int): The size of the game grid.
+        matrix (list): The game grid represented as a 2D list.
     """
 
     def __init__(self, size):
+        """
+        Initialize a new Puzzle2048 instance.
+
+        Args:
+            size (int): The size of the game grid.
+        """
         super().__init__()
 
         self.size = size
@@ -40,6 +42,9 @@ class Puzzle2048(CoreEnv):
         return str(self)
 
     def __str__(self):
+        """
+        Returns a string representation of the game grid.
+        """
         ret = '-' * 33 + '\n'
         for row in self.matrix:
             ret += '|'
@@ -57,12 +62,10 @@ class Puzzle2048(CoreEnv):
 
     def _check(self):
         """
-        Remember the transaction.
+        Checks if there are any valid moves left in the game.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            bool: True if there are valid moves left, False otherwise.
         """
         for row in range(self.size):
             for col in range(self.size):
@@ -102,12 +105,13 @@ class Puzzle2048(CoreEnv):
 
     def _fill(self, action):
         """
-        Remember the transaction.
+        Moves the tiles in the game grid in the specified direction.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            action (int): The direction to move the tiles.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            bool: True if any tiles were moved, False otherwise.
         """
         ret = False
         if action == 0:
@@ -144,12 +148,13 @@ class Puzzle2048(CoreEnv):
 
     def _merge(self, action):
         """
-        Remember the transaction.
+        Merges the tiles in the game grid in the specified direction.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            action (int): The direction to merge the tiles.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            float: The reward obtained from merging the tiles.
         """
         reward = 9e-1
         if action == 0:
@@ -194,12 +199,7 @@ class Puzzle2048(CoreEnv):
 
     def _randomize(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Adds a new tile to a random empty spot in the game grid.
         """
         indexes = []
         for row in range(self.size):
@@ -212,22 +212,15 @@ class Puzzle2048(CoreEnv):
 
     def close(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Closes the game environment.
         """
 
     def render(self, mode='human'):
         """
-        Remember the transaction.
+        Renders the game state.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            mode (str, optional): The mode to use for rendering. Defaults to 'human'.
         """
         # print(self)
         rect_size = 75
@@ -260,12 +253,10 @@ class Puzzle2048(CoreEnv):
 
     def reset(self):
         """
-        Remember the transaction.
+        Resets the game state.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            list: The reset game grid.
         """
         self.matrix = [[0 for _ in range(self.size)] for _ in range(self.size)]
         self._randomize()
@@ -275,22 +266,21 @@ class Puzzle2048(CoreEnv):
 
     def seed(self, seed=None):
         """
-        Remember the transaction.
+        Sets the seed for the game's random number generator.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            seed (int, optional): The seed to use. Defaults to None.
         """
 
     def step(self, action):
         """
-        Remember the transaction.
+        Performs a step in the game.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            action (int): The action to perform.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            tuple: The new game state, the reward obtained, whether the game is over, and additional info.
         """
         # 0 -> right
         # 1 -> down
