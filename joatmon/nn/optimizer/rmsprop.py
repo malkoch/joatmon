@@ -6,20 +6,33 @@ __all__ = ['RMSprop']
 
 class RMSprop(Optimizer):
     """
-    Deep Deterministic Policy Gradient
+    Implements the RMSprop optimization algorithm.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    RMSprop is an optimization algorithm designed to speed up training in deep neural networks. It adjusts the Adagrad method in a very simple way in an attempt to reduce its aggressive, monotonically decreasing learning rate.
+
+    # Attributes
+        params (iterable): An iterable of parameters to optimize or dicts defining parameter groups.
+        lr (float, optional): The learning rate. Default is 1e-2.
+        alpha (float, optional): Smoothing constant. Default is 0.99.
+        eps (float, optional): Term added to the denominator to improve numerical stability. Default is 1e-8.
+        weight_decay (float, optional): Weight decay (L2 penalty). Default is 0.
+        momentum (float, optional): Momentum factor. Default is 0.
+        centered (bool, optional): If True, compute the centered RMSProp, the gradient is normalized by an estimation of its variance. Default is False.
     """
 
     def __init__(self, params, lr=1e-2, alpha=0.99, eps=1e-8, weight_decay=0, momentum=0, centered=False):
+        """
+        Initializes the RMSprop class.
+
+        # Arguments
+            params (iterable): An iterable of parameters to optimize or dicts defining parameter groups.
+            lr (float, optional): The learning rate. Default is 1e-2.
+            alpha (float, optional): Smoothing constant. Default is 0.99.
+            eps (float, optional): Term added to the denominator to improve numerical stability. Default is 1e-8.
+            weight_decay (float, optional): Weight decay (L2 penalty). Default is 0.
+            momentum (float, optional): Momentum factor. Default is 0.
+            centered (bool, optional): If True, compute the centered RMSProp, the gradient is normalized by an estimation of its variance. Default is False.
+        """
         if not 0.0 <= lr:
             raise ValueError('Invalid learning rate: {}'.format(lr))
         if not 0.0 <= eps:
@@ -35,6 +48,12 @@ class RMSprop(Optimizer):
         super(RMSprop, self).__init__(params, defaults)
 
     def __setstate__(self, state):
+        """
+        Sets the state of the optimizer.
+
+        # Arguments
+            state (dict): The state of the optimizer.
+        """
         super(RMSprop, self).__setstate__(state)
         for group in self.param_groups:
             group.setdefault('momentum', 0)
@@ -42,12 +61,9 @@ class RMSprop(Optimizer):
 
     def step(self):
         """
-        Remember the transaction.
+        Performs a single optimization step.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This function is called once per optimization step to update the parameters.
         """
         for group in self.param_groups:
             params_with_grad = []
