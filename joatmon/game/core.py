@@ -1,59 +1,6 @@
 import gym
 
 
-class CoreSpace(gym.Space):
-    """
-    Deep Deterministic Policy Gradient
-
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
-    """
-
-    def __init__(self, shape=None, dtype=None):
-        super(CoreSpace, self).__init__(shape, dtype)
-
-    @property
-    def is_np_flattenable(self):
-        """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
-        """
-        raise NotImplementedError
-
-    def sample(self, mask=None):
-        """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
-        """
-        raise NotImplementedError
-
-    def contains(self, x) -> bool:
-        """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
-        """
-        raise NotImplementedError
-
-
 class CoreEnv(gym.Env):
     """
     The abstract game class that is used by all agents. This class has the exact same API that OpenAI Gym uses so that integrating
@@ -70,72 +17,80 @@ class CoreEnv(gym.Env):
     Refer to the [Gym documentation](https://gym.openai.com/docs/#environment).
     """
 
-    reward_range = (-float('inf'), float('inf'))
-    action_space: CoreSpace
-    observation_space: CoreSpace
-
     def __init__(self):
+        """
+        Initialize a new CoreEnv instance.
+        """
         super(CoreEnv, self).__init__()
 
     def close(self):
         """
-        Override in your subclass to perform any necessary cleanup.
+        Clean up the environment's resources.
 
-        Environments will automatically close() themselves when
-        garbage collected or when the program exits.
+        Raises:
+            NotImplementedError: This method needs to be implemented in the subclasses.
         """
         raise NotImplementedError
 
     def render(self, mode: str = 'human'):
         """
-        Renders the game.
+        Render the environment.
 
-        The set of supported modes varies per game. (And some game do not support rendering at all.)
+        Args:
+            mode (str, optional): The mode to use for rendering. Defaults to 'human'.
 
-        # Arguments
-            mode (str): The mode to render with. (default is 'human')
+        Raises:
+            NotImplementedError: This method needs to be implemented in the subclasses.
         """
         raise NotImplementedError
 
     def reset(self, *args):
         """
-        Resets the state of the game and returns an initial observation.
+        Reset the environment to its initial state and return the initial observation.
 
-        # Returns
-            observation (abstract): The initial observation of the space. Initial reward is assumed to be 0.
+        Args:
+            *args: Variable length argument list.
+
+        Raises:
+            NotImplementedError: This method needs to be implemented in the subclasses.
         """
         raise NotImplementedError
 
     def seed(self, seed=None):
         """
-        set the seed
+        Set the seed for the environment's random number generator.
+
+        Args:
+            seed (int, optional): The seed to use. Defaults to None.
+
+        Raises:
+            NotImplementedError: This method needs to be implemented in the subclasses.
         """
         raise NotImplementedError
 
     def step(self, action):
         """
-        Run one timestep of the game's dynamics.
+        Run one timestep of the environment's dynamics.
 
-        Accepts an action and returns a tuple (observation, reward, done, info).
+        Args:
+            action: An action to take in the environment.
 
-        # Arguments
-            action (abstract): An action provided by the game.
+        Returns:
+            observation: The agent's observation of the current environment.
+            reward (float): The amount of reward returned after previous action.
+            done (bool): Whether the episode has ended.
+            info (dict): Contains auxiliary diagnostic information.
 
-        # Returns
-            observation (abstract): Agent's observation of the current game.
-            reward (float) : Amount of reward returned after previous action.
-            done (boolean): Whether the episode has ended, in which case further step() calls will return undefined results.
-            info (dict): Contains auxiliary diagnostic information (helpful for debugging, and sometimes learning).
+        Raises:
+            NotImplementedError: This method needs to be implemented in the subclasses.
         """
         raise NotImplementedError
 
     def goal(self):
         """
-        Remember the transaction.
+        Get the goal state of the environment.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method needs to be implemented in the subclasses.
         """
         raise NotImplementedError

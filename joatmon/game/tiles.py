@@ -7,20 +7,22 @@ from joatmon.game.core import CoreEnv
 
 class TilesEnv(CoreEnv):
     """
-    Deep Deterministic Policy Gradient
+    TilesEnv class for creating a 2048 game environment.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    This class inherits from CoreEnv and provides methods for game operations such as resetting the game, rendering the game state, and performing a step in the game.
+
+    Attributes:
+        size (int): The size of the game grid.
+        tiles (list): The game grid represented as a 2D list.
     """
 
     def __init__(self, size):
+        """
+        Initialize a new TilesEnv instance.
+
+        Args:
+            size (int): The size of the game grid.
+        """
         super().__init__()
 
         self.size = size
@@ -37,12 +39,10 @@ class TilesEnv(CoreEnv):
 
     def _find_empty(self):
         """
-        Remember the transaction.
+        Find the position of the empty tile in the game grid.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            tuple: The position of the empty tile.
         """
         for y in range(self.size):
             for x in range(self.size):
@@ -52,12 +52,11 @@ class TilesEnv(CoreEnv):
 
     def _swap(self, pos1, pos2):
         """
-        Remember the transaction.
+        Swap the tiles at the specified positions.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            pos1 (tuple): The position of the first tile.
+            pos2 (tuple): The position of the second tile.
         """
         temp = self.tiles[pos2[0]][pos2[1]]
         self.tiles[pos2[0]][pos2[1]] = self.tiles[pos1[0]][pos1[1]]
@@ -65,22 +64,15 @@ class TilesEnv(CoreEnv):
 
     def close(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Close the game environment.
         """
 
     def render(self, mode='human'):
         """
-        Remember the transaction.
+        Render the game state.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            mode (str, optional): The mode to use for rendering. Defaults to 'human'.
         """
         to_print = ''
         for y in range(self.size):
@@ -92,12 +84,10 @@ class TilesEnv(CoreEnv):
 
     def reset(self):
         """
-        Remember the transaction.
+        Reset the game state.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            list: The reset game grid.
         """
         r = [i + 1 for i in range(self.size ** 2)]
         random.shuffle(r)
@@ -111,22 +101,21 @@ class TilesEnv(CoreEnv):
 
     def seed(self, seed=None):
         """
-        Remember the transaction.
+        Set the seed for the game's random number generator.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            seed (int, optional): The seed to use. Defaults to None.
         """
 
     def step(self, action):
         """
-        Remember the transaction.
+        Perform a step in the game.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            action (int): The action to perform.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            tuple: The new game state, the reward obtained, whether the game is over, and additional info.
         """
         empty_y, empty_x = self._find_empty()
 

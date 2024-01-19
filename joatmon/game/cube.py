@@ -14,24 +14,33 @@ screen_size = 400
 
 def flip(pos):
     """
-    Remember the transaction.
+    Flip the position coordinates.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    This function flips the y-coordinate of the position and adds the screen size to it.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Args:
+        pos (tuple): The position coordinates.
+
+    Returns:
+        tuple: The flipped position coordinates.
     """
     return pos[0], -pos[1] + screen_size
 
 
 def project_points(points, q, view, vertical=(0, 1, 0)):
     """
-    Remember the transaction.
+    Project points in 3D space to 2D space.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    This function projects points in 3D space to 2D space using a quaternion for rotation, a view vector, and a vertical vector.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Args:
+        points (array_like): The points in 3D space.
+        q (Quaternion): The quaternion for rotation.
+        view (array_like): The view vector.
+        vertical (array_like, optional): The vertical vector. Defaults to (0, 1, 0).
+
+    Returns:
+        ndarray: The projected points in 2D space.
     """
     points = np.asarray(points)
     view = np.asarray(view)
@@ -62,35 +71,48 @@ def project_points(points, q, view, vertical=(0, 1, 0)):
 
 def resize(pos):
     """
-    Remember the transaction.
+    Resize the position coordinates.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    This function resizes the position coordinates by multiplying them with the screen size divided by 4 and adding the screen size divided by 2.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Args:
+        pos (tuple): The position coordinates.
+
+    Returns:
+        tuple: The resized position coordinates.
     """
     return pos * (screen_size // 4) + (screen_size // 2)
 
 
 class Quaternion:
     """
-    Deep Deterministic Policy Gradient
+    Quaternion class for representing and manipulating quaternions.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Quaternions are a number system that extends the complex numbers. They are used for calculations involving three-dimensional rotations.
+
+    Attributes:
+        x (ndarray): The quaternion's components.
     """
 
     def __init__(self, x):
+        """
+        Initialize a new Quaternion instance.
+
+        Args:
+            x (ndarray): The quaternion's components.
+        """
         self.x = np.asarray(x, dtype=float)
 
     def __mul__(self, other):
+        """
+        Multiply the quaternion with another quaternion.
+
+        Args:
+            other (Quaternion): The other quaternion.
+
+        Returns:
+            Quaternion: The product of the two quaternions.
+        """
         sxr = self.x.reshape(self.x.shape[:-1] + (4, 1))
         oxr = other.x.reshape(other.x.shape[:-1] + (1, 4))
 
@@ -115,12 +137,10 @@ class Quaternion:
 
     def as_rotation_matrix(self):
         """
-        Remember the transaction.
+        Convert the quaternion to a rotation matrix.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            ndarray: The rotation matrix.
         """
         v, theta = self.as_v_theta()
 
@@ -142,12 +162,10 @@ class Quaternion:
 
     def as_v_theta(self):
         """
-        Remember the transaction.
+        Convert the quaternion to a vector and an angle.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            tuple: The vector and the angle.
         """
         x = self.x.reshape((-1, 4)).T
 
@@ -165,12 +183,14 @@ class Quaternion:
     @classmethod
     def from_v_theta(cls, v, theta):
         """
-        Remember the transaction.
+        Create a quaternion from a vector and an angle.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            v (array_like): The vector.
+            theta (array_like): The angle.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            Quaternion: The created quaternion.
         """
         theta = np.asarray(theta)
         v = np.asarray(v)
@@ -189,12 +209,13 @@ class Quaternion:
 
     def rotate(self, points):
         """
-        Remember the transaction.
+        Rotate points in 3D space using the quaternion.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            points (array_like): The points in 3D space.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            ndarray: The rotated points.
         """
         m = self.as_rotation_matrix()
         return np.dot(points, m.T)
@@ -202,30 +223,31 @@ class Quaternion:
 
 class Sticker:
     """
-    Deep Deterministic Policy Gradient
+    Sticker class for representing and manipulating stickers on a Rubik's cube.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes:
+        color (int): The color of the sticker.
     """
 
     def __init__(self, color):
+        """
+        Initialize a new Sticker instance.
+
+        Args:
+            color (int): The color of the sticker.
+        """
         self.color = color
 
     def draw(self, screen, points, view, rotation, vertical):
         """
-        Remember the transaction.
+        Draw the sticker on the screen.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            screen (Surface): The Pygame surface to draw on.
+            points (array_like): The points defining the sticker's shape.
+            view (array_like): The view vector.
+            rotation (Quaternion): The rotation quaternion.
+            vertical (array_like): The vertical vector.
         """
         points = project_points(points, rotation, view, vertical)[:, :2]
         points = list(map(resize, points))
@@ -236,20 +258,25 @@ class Sticker:
 
 class Face:
     """
-    Deep Deterministic Policy Gradient
+    Face class for representing and manipulating faces of a Rubik's cube.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes:
+        n (int): The size of the face.
+        top_left (ndarray): The top left corner of the face.
+        increment (tuple): The increment for each sticker on the face.
+        stickers (list): The stickers on the face.
     """
 
     def __init__(self, n, color, top_left, increment):
+        """
+        Initialize a new Face instance.
+
+        Args:
+            n (int): The size of the face.
+            color (int): The color of the stickers on the face.
+            top_left (ndarray): The top left corner of the face.
+            increment (tuple): The increment for each sticker on the face.
+        """
         self.n = n
         self.top_left = top_left
         self.increment = increment
@@ -258,12 +285,13 @@ class Face:
 
     def draw(self, screen, view, rotation, vertical):
         """
-        Remember the transaction.
+        Draw the face on the screen.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            screen (Surface): The Pygame surface to draw on.
+            view (array_like): The view vector.
+            rotation (Quaternion): The rotation quaternion.
+            vertical (array_like): The vertical vector.
         """
         for i, row in enumerate(self.stickers):
             for j, sticker in enumerate(row):
@@ -283,24 +311,20 @@ class Face:
 
     def rotate(self, times):
         """
-        Remember the transaction.
+        Rotate the face a certain number of times.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            times (int): The number of times to rotate the face.
         """
         for _ in range(times):
             self.rot90()
 
     def rotate_layer(self, layer):
         """
-        Remember the transaction.
+        Rotate a layer of the face.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            layer (int): The layer of the face to rotate.
         """
         for ind in range(layer, self.n - layer - 1):
             tmp = self.stickers[layer][ind].color
@@ -315,12 +339,7 @@ class Face:
 
     def rot90(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Rotate the face 90 degrees.
         """
         for layer in range(self.n // 2):
             self.rotate_layer(layer)
@@ -328,22 +347,29 @@ class Face:
 
 class Cube:
     """
-    Deep Deterministic Policy Gradient
+    Cube class for representing and manipulating a Rubik's cube.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes:
+        n (int): The size of the cube.
+        faces (dict): The faces of the cube.
+        order (list): The order of the faces.
+        front (Surface): The Pygame surface for the front of the cube.
+        back (Surface): The Pygame surface for the back of the cube.
+        screen (Surface): The Pygame surface for the screen.
+        view (tuple): The view vector.
+        rotation (Quaternion): The rotation quaternion.
+        vertical (list): The vertical vector.
     """
 
     # blue left, red front, yellow top
     # green right, orange back, white bottom
     def __init__(self, n=3):
+        """
+         Initialize a new Cube instance.
+
+         Args:
+             n (int, optional): The size of the cube. Defaults to 3.
+         """
         self.n = n
         self.faces = {
             'L': Face(
@@ -414,12 +440,7 @@ class Cube:
 
     def draw(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Draw the cube on the screen.
         """
         self.back.fill(pygame.color.THECOLORS['black'])
         for face_name in self.order[:3]:
@@ -437,12 +458,10 @@ class Cube:
 
     def swap_faces(self, faces):
         """
-        Remember the transaction.
+        Swap the colors of the stickers on the specified faces.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            faces (list): The faces to swap.
         """
         for row in range(self.n):
             for col in range(self.n):
@@ -454,22 +473,16 @@ class Cube:
 
     def swap_layers(self, faces, layer):
         """
-        Remember the transaction.
+        Swap the colors of the stickers on the specified layers of the faces.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            faces (list): The faces whose layers to swap.
+            layer (int): The layer to swap.
         """
 
     def u(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Rotate the 'U' face of the cube and adjust the colors of the stickers accordingly.
         """
         self.faces['U'].rotate(1)
         for ind in range(self.n):
@@ -481,12 +494,7 @@ class Cube:
 
     def x(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Rotate the cube around the x-axis and adjust the colors of the stickers accordingly.
         """
         self.swap_faces(['F', 'D', 'B', 'U'])
         self.faces['L'].rotate(1)
@@ -494,12 +502,7 @@ class Cube:
 
     def y(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Rotate the cube around the y-axis and adjust the colors of the stickers accordingly.
         """
         self.swap_faces(['F', 'R', 'B', 'L'])
         self.faces['U'].rotate(1)
@@ -507,12 +510,7 @@ class Cube:
 
     def z(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Rotate the cube around the z-axis and adjust the colors of the stickers accordingly.
         """
         self.swap_faces(['R', 'U', 'L', 'D'])
         self.faces['F'].rotate(1)
@@ -520,57 +518,65 @@ class Cube:
 
 
 class CubeEnv(CoreEnv):
+    """
+    CubeEnv class for creating a Rubik's cube environment.
+
+    This class inherits from CoreEnv and provides a skeleton for the methods that need to be implemented in the subclasses.
+    """
+
     def __init__(self):
+        """
+        Initialize a new CubeEnv instance.
+        """
         super(CubeEnv, self).__init__()
 
     def close(self):
         """
-        Remember the transaction.
+        Clean up the environment's resources.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method needs to be implemented in the subclasses.
         """
 
     def render(self, mode: str = 'human'):
         """
-        Remember the transaction.
+        Render the environment.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            mode (str, optional): The mode to use for rendering. Defaults to 'human'.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method needs to be implemented in the subclasses.
         """
 
     def reset(self):
         """
-        Remember the transaction.
+        Reset the environment to its initial state and return the initial observation.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method needs to be implemented in the subclasses.
         """
 
     def seed(self, seed=None):
         """
-        Remember the transaction.
+        Set the seed for the environment's random number generator.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            seed (int, optional): The seed to use. Defaults to None.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method needs to be implemented in the subclasses.
         """
 
     def step(self, action):
         """
-        Remember the transaction.
+        Run one timestep of the environment's dynamics.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            action: An action to take in the environment.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method needs to be implemented in the subclasses.
         """
 
 
