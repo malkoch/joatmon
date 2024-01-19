@@ -8,31 +8,39 @@ from joatmon.core.utility import JSONEncoder, get_module_classes
 
 class Task(BaseTask):
     """
-    Deep Deterministic Policy Gradient
+    Task class for providing help about a function.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    This class provides a way to learn about a function by returning its name, description, and parameters.
+
+    Attributes:
+        task (str): The task name.
+        api (object): The API object.
+        kwargs (dict): Additional keyword arguments.
+
+    Args:
+        task (str): The task name.
+        api (object): The API object.
+        kwargs (dict): Additional keyword arguments.
     """
 
     def __init__(self, task, api, **kwargs):
+        """
+        Initialize the Task.
+
+        Args:
+            task (str): The task name.
+            api (object): The API object.
+            kwargs (dict): Additional keyword arguments.
+        """
         super(Task, self).__init__(task, api, **kwargs)
 
     @staticmethod
     def help():
         """
-        Remember the transaction.
+        Provide help about the 'help' function.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            dict: A dictionary containing the name, description, and parameters of the 'help' function.
         """
         return {
             'name': 'help',
@@ -51,12 +59,9 @@ class Task(BaseTask):
 
     async def run(self):
         """
-        Remember the transaction.
+        Run the task.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method runs the task by loading the scripts from the API folders, importing the modules, and getting the help about the functions in the modules.
         """
         script = self.kwargs.get('script', None)
 

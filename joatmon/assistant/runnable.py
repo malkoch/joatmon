@@ -8,20 +8,37 @@ from joatmon.core.event import Event
 
 class Runnable:
     """
-    Deep Deterministic Policy Gradient
+    Runnable class for managing asynchronous tasks.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    This class provides a way to manage asynchronous tasks, including starting, stopping, and checking the running status of the tasks.
+
+    Attributes:
+        machine (Machine): The state machine for managing the state of the task.
+        process_id (uuid.UUID): The unique identifier for the task.
+        info (str): The information about the task.
+        api (object): The API object.
+        type (str): The type of the task.
+        kwargs (dict): Additional keyword arguments.
+        event (asyncio.Event): An event for signaling the termination of the task.
+        task (asyncio.Task): The task that is being run.
+
+    Args:
+        info (str): The information about the task.
+        api (object): The API object.
+        type (str): The type of the task.
+        kwargs (dict): Additional keyword arguments.
     """
 
     def __init__(self, info, api, type, **kwargs):  # another parameter called cache output
+        """
+        Initialize the Runnable.
+
+        Args:
+            info (str): The information about the task.
+            api (object): The API object.
+            type (str): The type of the task.
+            kwargs (dict): Additional keyword arguments.
+        """
         states = ['none', 'started', 'stopped', 'running', 'exception', 'starting', 'stopping']
         self.machine = Machine(model=self, states=states, initial='none')
 
@@ -36,45 +53,35 @@ class Runnable:
     @staticmethod
     def help():
         """
-        Remember the transaction.
+        Provide help about the Runnable.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            dict: An empty dictionary as this method needs to be implemented in subclasses.
         """
         return {}
 
     async def run(self):
         """
-        Remember the transaction.
+        Run the task.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method needs to be implemented in subclasses.
         """
         raise NotImplementedError
 
     def running(self):
         """
-        Remember the transaction.
+        Check if the task is running.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            bool: True if the task is running, False otherwise.
         """
         return not self.task.done()
 
     def start(self):
         """
-        Remember the transaction.
+        Start the task.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method starts the task by setting the state to 'starting', firing the 'begin' event, and then setting the state to 'started'.
         """
         self.machine.set_state('starting')
         events['begin'].fire()
@@ -82,12 +89,9 @@ class Runnable:
 
     def stop(self):
         """
-        Remember the transaction.
+        Stop the task.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method stops the task by setting the state to 'stopping', firing the 'end' event, setting the event, setting the state to 'stopped', and then cancelling the task.
         """
         self.machine.set_state('stopping')
         events['end'].fire()

@@ -8,31 +8,39 @@ from joatmon.assistant.task import BaseTask
 
 class Task(BaseTask):
     """
-    Deep Deterministic Policy Gradient
+    Task class for running an executable.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    This class provides a way to run an executable with specified arguments.
+
+    Attributes:
+        task (str): The task name.
+        api (object): The API object.
+        kwargs (dict): Additional keyword arguments.
+
+    Args:
+        task (str): The task name.
+        api (object): The API object.
+        kwargs (dict): Additional keyword arguments.
     """
 
     def __init__(self, task, api, **kwargs):
+        """
+        Initialize the Task.
+
+        Args:
+            task (str): The task name.
+            api (object): The API object.
+            kwargs (dict): Additional keyword arguments.
+        """
         super(Task, self).__init__(task, api, **kwargs)
 
     @staticmethod
     def help():
         """
-        Remember the transaction.
+        Provide help about the 'run' function.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            dict: A dictionary containing the name, description, and parameters of the 'run' function.
         """
         return {
             'name': 'run',
@@ -46,12 +54,13 @@ class Task(BaseTask):
 
     def run(self):
         """
-        Remember the transaction.
+        Run the task.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        This method runs the task by executing the specified executable with the provided arguments.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            executable (str): The executable to run.
+            args (str): The arguments to pass to the executable.
         """
         executable = self.kwargs.get('executable', '')
         args = self.kwargs.get('args', '')
