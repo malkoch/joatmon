@@ -6,17 +6,9 @@ __all__ = ['Sigmoid']
 
 class Sigmoid(Module):
     """
-    Deep Deterministic Policy Gradient
+    Applies the Sigmoid activation function to the input.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    This class does not require any arguments during initialization.
     """
 
     def __init__(self):
@@ -24,11 +16,12 @@ class Sigmoid(Module):
 
     def forward(self, inp):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Applies the Sigmoid activation function to the input.
 
         # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+            inp (Tensor): The input tensor.
+
+        # Returns
+            Tensor: The output tensor with the same shape as the input.
         """
         return f.sigmoid(inp=inp)
