@@ -17,17 +17,16 @@ __all__ = ['Linear']
 
 class Linear(Module):
     """
-    Deep Deterministic Policy Gradient
+    Applies a linear transformation to the incoming data: y = xA^T + b
 
     # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+        in_features (int): size of each input sample
+        out_features (int): size of each output sample
+        bias (bool, optional): If set to False, the layer will not learn an additive bias. Default: True
+
+    # Attributes
+        weight (Tensor): the learnable weights of the module of shape (out_features x in_features)
+        bias (Tensor):   the learnable bias of the module of shape (out_features)
     """
 
     __constants__ = ['in_features', 'out_features']
@@ -49,12 +48,7 @@ class Linear(Module):
 
     def reset_parameters(self) -> None:
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Resets the parameters (weight, bias) to their initial values.
         """
         init.kaiming_uniform(self.weight, a=math.sqrt(5))
         if self.bias is not None:
@@ -64,24 +58,23 @@ class Linear(Module):
 
     def forward(self, inp):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Defines the computation performed at every call.
 
         # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+            inp (Tensor): The input tensor.
+
+        # Returns
+            Tensor: The output tensor after applying linear transformation.
         """
         x = f.dense(inp=inp, weight=self.weight, bias=self.bias)
         return x
 
     def extra_repr(self) -> str:
         """
-        Remember the transaction.
+        Returns a string containing a brief description of the module.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        # Returns
+            str: A string containing a brief description of the module.
         """
         return 'in_features={}, out_features={}, bias={}'.format(
             self.in_features, self.out_features, self.bias is not None

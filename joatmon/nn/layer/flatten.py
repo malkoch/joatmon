@@ -6,17 +6,14 @@ __all__ = ['Flatten']
 
 class Flatten(Module):
     """
-    Deep Deterministic Policy Gradient
+    Flattens the input. Does not affect the batch size.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    This layer is often used to flatten the output of a convolutional layer,
+    which is multi-dimensional, into a one-dimensional tensor (or 'vector'),
+    so that all the output units can be connected to all the input units in the next layer.
+
+    # Attributes
+        None
     """
 
     def __init__(self):
@@ -24,11 +21,12 @@ class Flatten(Module):
 
     def forward(self, inp):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Defines the computation performed at every call.
 
         # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+            inp (Tensor): The input tensor.
+
+        # Returns
+            Tensor: The output tensor after flattening the input.
         """
         return f.view(inp=inp)

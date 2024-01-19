@@ -8,17 +8,18 @@ __all__ = ['Upsample']
 
 class Upsample(Module):
     """
-    Deep Deterministic Policy Gradient
+    Upsamples an input.
+
+    The input data is assumed to be of the form `minibatch x channels x [optional depth] x [optional height] x width`.
+    The modes available for upsampling are: `nearest`.
 
     # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+        scale_factor (int or tuple, optional): multiplier for spatial size. Has to match input size if it is a tuple.
+        mode (str, optional): the upsampling algorithm: one of `nearest`. Default: `nearest`
+
+    # Attributes
+        _scale_factor (int or tuple): multiplier for spatial size. Has to match input size if it is a tuple.
+        _mode (str): the upsampling algorithm: one of `nearest`.
     """
 
     def __init__(self, scale_factor=None, mode='nearest'):
@@ -29,12 +30,13 @@ class Upsample(Module):
 
     def forward(self, inp):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Defines the computation performed at every call.
 
         # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+            inp (Tensor): The input tensor.
+
+        # Returns
+            Tensor: The output tensor after applying upsampling.
         """
         if self._mode not in ('bilinear',):
             raise ValueError(f'{self._mode} is not supported')
