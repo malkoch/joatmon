@@ -53,48 +53,65 @@ warnings.filterwarnings(
 
 class ModuleAttributeException(AttributeError):
     """
-    Deep Deterministic Policy Gradient
+    Exception raised for errors in the module attribute.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    This class inherits from the built-in `AttributeError` class and does not introduce new methods or attributes.
+
+    It is used when an attribute reference or assignment fails in the context of a module.
     """
 
 
 class RemovableHandle(object):
-    """A handle which provides the capability to remove a hook."""
+    """
+    A handle which provides the capability to remove a hook.
 
+    This class is used to manage hooks which are added to modules. It provides a mechanism to remove a hook by its ID.
+
+    # Attributes
+        id (int): The unique identifier for the hook.
+        next_id (int): The identifier to be assigned to the next hook.
+        hooks_dict_ref (weakref): A weak reference to the dictionary storing the hooks.
+    """
     id: int
     next_id: int = 0
 
     def __init__(self, hooks_dict: Any) -> None:
+        """
+        Initializes the RemovableHandle class.
+
+        # Arguments
+            hooks_dict (Any): The dictionary storing the hooks.
+        """
         self.hooks_dict_ref = weakref.ref(hooks_dict)
         self.id = RemovableHandle.next_id
         RemovableHandle.next_id += 1
 
     def remove(self) -> None:
         """
-        Remember the transaction.
+        Removes the hook associated with this handle from the hooks dictionary.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        If the hooks dictionary still exists and contains the hook associated with this handle, the hook is removed.
         """
         hooks_dict = self.hooks_dict_ref()
         if hooks_dict is not None and self.id in hooks_dict:
             del hooks_dict[self.id]
 
     def __getstate__(self):
+        """
+        Returns the current state of the RemovableHandle instance for serialization.
+
+        # Returns
+            tuple: The weak reference to the hooks dictionary and the ID of the handle.
+        """
         return self.hooks_dict_ref(), self.id
 
     def __setstate__(self, state) -> None:
+        """
+        Sets the state of the RemovableHandle instance during deserialization.
+
+        # Arguments
+            state (tuple): The weak reference to the hooks dictionary and the ID of the handle.
+        """
         if state[0] is None:
             # create a dead reference
             self.hooks_dict_ref = weakref.ref(OrderedDict())
@@ -104,28 +121,123 @@ class RemovableHandle(object):
         RemovableHandle.next_id = max(RemovableHandle.next_id, self.id + 1)
 
     def __enter__(self) -> 'RemovableHandle':
+        """
+        Implements the context management protocol.
+
+        # Returns
+            RemovableHandle: The instance of the RemovableHandle.
+        """
         return self
 
     def __exit__(self, type: Any, value: Any, tb: Any) -> None:
+        """
+        Implements the context management protocol.
+
+        This method is called when the `with` statement is exited. It ensures that the hook is removed when the handle is no longer in use.
+
+        # Arguments
+            type (Any): The type of the exception that caused the context to be exited. If the context was exited without an exception, this will be None.
+            value (Any): The instance of the exception that caused the context to be exited. If the context was exited without an exception, this will be None.
+            tb (Any): The traceback of the exception that caused the context to be exited. If the context was exited without an exception, this will be None.
+        """
         self.remove()
 
 
 class Tensor:
     """
-    Deep Deterministic Policy Gradient
+    This class represents a Tensor, a multi-dimensional array used in deep learning computations.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes:
+        _data: The actual data of the tensor.
+        _requires_grad: A boolean indicating whether the tensor requires gradients.
+        _grad_fn: The gradient function associated with the tensor.
+        _grad: The gradient of the tensor.
+        _name: The name of the tensor.
+        _backward_hooks: A dictionary of backward hooks.
+        _device: The device where the tensor is located ('cpu' or 'gpu').
+
+    Methods:
+        __repr__: Returns a string representation of the tensor.
+        __str__: Returns a string representation of the tensor.
+        __hash__: Returns the hash of the tensor.
+        __getitem__: Returns a tensor for a given index.
+        __setitem__: Sets the value of the tensor at a given index.
+        __ge__: Checks if the tensor is greater than or equal to another tensor.
+        __gt__: Checks if the tensor is greater than another tensor.
+        __le__: Checks if the tensor is less than or equal to another tensor.
+        __lt__: Checks if the tensor is less than another tensor.
+        __eq__: Checks if the tensor is equal to another tensor.
+        __ne__: Checks if the tensor is not equal to another tensor.
+        __add__: Adds another tensor to the current tensor.
+        __radd__: Adds another tensor to the current tensor.
+        __sub__: Subtracts another tensor from the current tensor.
+        __rsub__: Subtracts the current tensor from another tensor.
+        __mul__: Multiplies the current tensor with another tensor.
+        __rmul__: Multiplies the current tensor with another tensor.
+        __truediv__: Divides the current tensor by another tensor.
+        __pow__: Raises the current tensor to the power of another tensor.
+        __abs__: Returns the absolute value of the tensor.
+        __neg__: Returns the negative of the tensor.
+        chunk: Splits the tensor into a specific number of chunks.
+        view: Returns a new tensor with the same data but different size.
+        index_select: Returns a new tensor which indexes the input tensor along dimension dim using the entries in index.
+        zero: Fills the tensor with zeros.
+        one: Fills the tensor with ones.
+        fill: Fills the tensor with a scalar value.
+        squeeze: Returns a tensor with all the dimensions of input of size 1 removed.
+        expand_dim: Expands the shape of the tensor.
+        transpose: Transposes the tensor.
+        absolute: Returns the absolute value of the tensor.
+        around: Evenly round to the given number of decimals.
+        floor: Returns the largest integer less than or equal to each element.
+        ceil: Returns the smallest integer greater than or equal to each element.
+        clip: Clips (limits) the values in an array.
+        negative: Returns the negative of the tensor.
+        log: Returns the natural logarithm of the tensor.
+        summation: Returns the sum of all elements in the input tensor.
+        mean: Returns the mean of all elements in the input tensor.
+        std: Returns the standard deviation of all elements in the input tensor.
+        var: Returns the variance of all elements in the input tensor.
+        add: Adds another tensor to the current tensor.
+        sub: Subtracts another tensor from the current tensor.
+        mul: Multiplies the current tensor with another tensor.
+        div: Divides the current tensor by another tensor.
+        power: Raises the current tensor to the power of another tensor.
+        clone: Returns a copy of the tensor.
+        detach: Detaches the tensor from the computation graph.
+        from_array: Creates a tensor from a numpy array.
+        to_array: Converts the tensor to a numpy array.
+        half: Converts the tensor to half precision.
+        single: Converts the tensor to single precision.
+        double: Converts the tensor to double precision.
+        cpu: Moves the tensor to the CPU.
+        gpu: Moves the tensor to the GPU.
+        size: Returns the size of the tensor.
+        dim: Returns the number of dimensions of the tensor.
+        shape: Returns the shape of the tensor.
+        ndim: Returns the number of dimensions of the tensor.
+        dtype: Returns the data type of the tensor.
+        device: Returns the device of the tensor.
+        data: Returns the data of the tensor.
+        is_leaf: Checks if the tensor is a leaf node.
+        grad: Returns the gradient of the tensor.
+        requires_grad: Checks if the tensor requires gradients.
+        retain_grad: Retains the gradient of the tensor.
+        register_hook: Registers a backward hook.
+        _can_read_grad: Checks if the gradient can be read.
+        _can_write_grad: Checks if the gradient can be written.
+        forward: Forward pass of the tensor.
+        backward: Backward pass of the tensor.
     """
 
     def __init__(self, data=None, requires_grad=None):
+        """
+        Initializes the Tensor with the given data and requires_grad flag.
+
+        Args:
+            data: The actual data of the tensor.
+            requires_grad: A boolean indicating whether the tensor requires gradients.
+        """
         self._data = data
         self._requires_grad = requires_grad
         self._grad_fn = None
@@ -135,9 +247,21 @@ class Tensor:
         self._device = 'cpu'
 
     def __repr__(self):
+        """
+        Returns a string representation of the tensor.
+
+        Returns:
+            str: A string representation of the tensor.
+        """
         return str(self)
 
     def __str__(self):
+        """
+        Returns a string representation of the tensor.
+
+        Returns:
+            str: A string representation of the tensor.
+        """
         name = f'name={self._name}' if self._name is not None else ''
         data = f'data={self._data}'
         require_grad = f'requires_grad={self._requires_grad}' if self._requires_grad is not None else ''
@@ -151,9 +275,24 @@ class Tensor:
         return f'Tensor({string})'
 
     def __hash__(self):
+        """
+        Returns the hash of the tensor.
+
+        Returns:
+            int: The hash of the tensor.
+        """
         return id(self)
 
     def __getitem__(self, item):
+        """
+        Returns a tensor for a given index.
+
+        Args:
+            item: The index.
+
+        Returns:
+            Tensor: The tensor at the given index.
+        """
         data = self.data[item]
         tensor = Tensor.from_array(data, requires_grad=self.requires_grad)
         tensor._grad_fn = self._grad_fn
@@ -162,11 +301,27 @@ class Tensor:
         return tensor
 
     def __setitem__(self, key, value):
+        """
+        Sets the value of the tensor at a given index.
+
+        Args:
+            key: The index.
+            value: The value to set.
+        """
         # self._grad_fn = value._grad_fn
         # self._requires_grad = value.requires_grad
         self._data[key] = value.data
 
     def __ge__(self, other):
+        """
+        Checks if the tensor is greater than or equal to another tensor.
+
+        Args:
+            other: The other tensor.
+
+        Returns:
+            bool: True if the tensor is greater than or equal to the other tensor, False otherwise.
+        """
         # return self.greater_or_equal(other)
         if isinstance(other, Tensor):
             return Tensor(data=self.data >= other.data)
@@ -174,6 +329,15 @@ class Tensor:
             return Tensor(data=self.data >= other)
 
     def __gt__(self, other):
+        """
+        Checks if the tensor is greater than another tensor.
+
+        Args:
+            other: The other tensor.
+
+        Returns:
+            bool: True if the tensor is greater than the other tensor, False otherwise.
+        """
         # return self.greater(other)
         if isinstance(other, Tensor):
             return Tensor(data=self.data > other.data)
@@ -181,6 +345,15 @@ class Tensor:
             return Tensor(data=self.data > other)
 
     def __le__(self, other):
+        """
+        Checks if the tensor is less than or equal to another tensor.
+
+        Args:
+            other: The other tensor.
+
+        Returns:
+            bool: True if the tensor is less than or equal to the other tensor, False otherwise.
+        """
         # return self.lesser_or_equal(other)
         if isinstance(other, Tensor):
             return Tensor(data=self.data <= other.data)
@@ -188,6 +361,15 @@ class Tensor:
             return Tensor(data=self.data <= other)
 
     def __lt__(self, other):
+        """
+        Checks if the tensor is less than another tensor.
+
+        Args:
+            other: The other tensor.
+
+        Returns:
+            bool: True if the tensor is less than the other tensor, False otherwise.
+        """
         # return self.lesser(other)
         if isinstance(other, Tensor):
             return Tensor(data=self.data < other.data)
@@ -195,6 +377,15 @@ class Tensor:
             return Tensor(data=self.data < other)
 
     def __eq__(self, other):
+        """
+        Checks if the tensor is equal to another tensor.
+
+        Args:
+            other: The other tensor.
+
+        Returns:
+            bool: True if the tensor is equal to the other tensor, False otherwise.
+        """
         # return self.equal(other)
         if isinstance(other, Tensor):
             return Tensor(data=self.data == other.data)
@@ -202,6 +393,15 @@ class Tensor:
             return Tensor(data=self.data == other)
 
     def __ne__(self, other):
+        """
+        Checks if the tensor is not equal to another tensor.
+
+        Args:
+            other: The other tensor.
+
+        Returns:
+            bool: True if the tensor is not equal to the other tensor, False otherwise.
+        """
         # return self.not_equal(other)
         if isinstance(other, Tensor):
             return Tensor(data=self.data != other.data)
@@ -209,484 +409,451 @@ class Tensor:
             return Tensor(data=self.data != other)
 
     def __add__(self, other) -> 'Tensor':
+        """
+        Adds another tensor to the current tensor.
+
+        Args:
+            other: The other tensor.
+
+        Returns:
+            Tensor: The result of the addition.
+        """
         return self.add(other)
 
     def __radd__(self, other):
+        """
+        Adds another tensor to the current tensor.
+
+        Args:
+            other: The other tensor.
+
+        Returns:
+            Tensor: The result of the addition.
+        """
         return self.add(other)
 
     def __sub__(self, other) -> 'Tensor':
+        """
+        Subtracts another tensor from the current tensor.
+
+        Args:
+            other: The other tensor.
+
+        Returns:
+            Tensor: The result of the subtraction.
+        """
         return self.sub(other)
 
     def __rsub__(self, other):
+        """
+        Subtracts the current tensor from another tensor.
+
+        Args:
+            other: The other tensor.
+
+        Returns:
+            Tensor: The result of the subtraction.
+        """
         return -self + other
 
     def __mul__(self, other) -> 'Tensor':
+        """
+        Implements the multiplication operation for the Tensor object.
+
+        Args:
+            other: The other operand involved in the multiplication operation.
+
+        Returns:
+            A new Tensor object that is the result of the multiplication operation.
+        """
         return self.mul(other)
 
     def __rmul__(self, other):
+        """
+        Implements the right multiplication operation for the Tensor object.
+
+        Args:
+            other: The other operand involved in the multiplication operation.
+
+        Returns:
+            A new Tensor object that is the result of the multiplication operation.
+        """
         return self.mul(other)
 
     def __truediv__(self, other) -> 'Tensor':
+        """
+        Implements the true division operation for the Tensor object.
+
+        Args:
+            other: The other operand involved in the division operation.
+
+        Returns:
+            A new Tensor object that is the result of the division operation.
+        """
         return self.div(other)
 
     def __pow__(self, power, modulo=None) -> 'Tensor':
+        """
+        Implements the power operation for the Tensor object.
+
+        Args:
+            power: The power to which the Tensor object is to be raised.
+            modulo: Not used in this method, present for compatibility with Python's dunder method requirements.
+
+        Returns:
+            A new Tensor object that is the result of the power operation.
+        """
         return self.power(power)
 
     def __abs__(self) -> 'Tensor':
+        """
+        Implements the absolute operation for the Tensor object.
+
+        Returns:
+            A new Tensor object that is the absolute value of the original Tensor object.
+        """
         return self.absolute()
 
     def __neg__(self):
+        """
+        Implements the negation operation for the Tensor object.
+
+        Returns:
+            A new Tensor object that is the negation of the original Tensor object.
+        """
         return self.negative()
 
     def chunk(self, chunks, dim=0):
         """
-        Remember the transaction.
+        Splits the Tensor into a specific number of chunks.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            chunks (int): The number of chunks to split the Tensor into.
+            dim (int, optional): The dimension along which to split the Tensor. Defaults to 0.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            A list of Tensor objects which are chunks of the original Tensor.
         """
-        ...
 
     def view(self, size) -> 'Tensor':
         """
-        Remember the transaction.
+        Returns a new tensor with the same data but different size.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            size (tuple): The desired size.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            A new Tensor object with the desired size.
         """
-        ...
 
     def index_select(self, dim, index) -> 'Tensor':
         """
-        Remember the transaction.
+        Returns a new tensor which indexes the input tensor along dimension dim using the entries in index.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            dim (int): The dimension in which to index.
+            index (Tensor): A tensor containing the indices to select.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            A new Tensor which indexes the original Tensor along dimension dim using the entries in index.
         """
-        ...
 
     def zero(self) -> 'Tensor':
         """
-        Remember the transaction.
+        Fills the Tensor with zeros.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            The original Tensor filled with zeros.
         """
-        ...
 
     def one(self) -> 'Tensor':
         """
-        Remember the transaction.
+        Fills the Tensor with ones.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            The original Tensor filled with ones.
         """
-        ...
 
     def fill(self, value) -> 'Tensor':
         """
-        Remember the transaction.
+        Fills the Tensor with the specified value.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            value: The value to fill the Tensor with.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            The original Tensor filled with the specified value.
         """
-        ...
 
     def squeeze(self, axis=None) -> 'Tensor':
         """
-        Remember the transaction.
+        Removes dimensions of size one from the Tensor.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            axis (int, optional): The specific dimension to remove. If None, all dimensions of size one will be removed.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            A new Tensor with the dimensions of size one removed.
         """
-        ...
 
     def expand_dim(self, axis=None) -> 'Tensor':
         """
-        Remember the transaction.
+        Expands the dimensions of the Tensor.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            axis (int, optional): The dimension to expand. If None, all dimensions will be expanded.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            A new Tensor with the dimensions expanded.
         """
-        ...
 
     def transpose(self, axes) -> 'Tensor':
         """
-        Remember the transaction.
+        Transposes the Tensor.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            axes (tuple): The axes along which to transpose the Tensor.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            A new Tensor that is the transpose of the original Tensor.
         """
-        ...
 
     def absolute(self) -> 'Tensor':
         """
-        Remember the transaction.
+        Computes the absolute values of the Tensor.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            A new Tensor that is the absolute value of the original Tensor.
         """
-        ...
 
     def around(self) -> 'Tensor':
         """
-        Remember the transaction.
+        Rounds the Tensor to the nearest integer.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            A new Tensor that is the rounded version of the original Tensor.
         """
-        ...
 
     def floor(self) -> 'Tensor':
         """
-        Remember the transaction.
+        Rounds the Tensor down to the nearest integer.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            A new Tensor that is the floor of the original Tensor.
         """
-        ...
 
     def ceil(self) -> 'Tensor':
         """
-        Remember the transaction.
+        Rounds the Tensor up to the nearest integer.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            A new Tensor that is the ceiling of the original Tensor.
         """
-        ...
 
     def clip(self, min_val, max_val) -> 'Tensor':
         """
-        Remember the transaction.
+        Clips the Tensor to be within a specified range.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            min_val: The minimum value for the Tensor.
+            max_val: The maximum value for the Tensor.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            A new Tensor that is the original Tensor clipped to be within the specified range.
         """
-        ...
 
     def negative(self) -> 'Tensor':
         """
-        Remember the transaction.
+        Computes the negative of the Tensor.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            A new Tensor that is the negative of the original Tensor.
         """
-        ...
 
     def log(self) -> 'Tensor':
         """
-        Remember the transaction.
+        Computes the natural logarithm of the Tensor.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            A new Tensor that is the natural logarithm of the original Tensor.
         """
-        ...
 
     def summation(self) -> 'Tensor':
         """
-        Remember the transaction.
+        Computes the sum of all elements in the Tensor.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            A new Tensor that is the sum of all elements in the original Tensor.
         """
-        ...
 
     def mean(self) -> 'Tensor':
         """
-        Remember the transaction.
+        Computes the mean of all elements in the Tensor.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            A new Tensor that is the mean of all elements in the original Tensor.
         """
-        ...
 
     def std(self) -> 'Tensor':
         """
-        Remember the transaction.
+        Computes the standard deviation of all elements in the Tensor.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            A new Tensor that is the standard deviation of all elements in the original Tensor.
         """
-        ...
 
     def var(self) -> 'Tensor':
         """
-        Remember the transaction.
+        Computes the variance of all elements in the Tensor.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            A new Tensor that is the variance of all elements in the original Tensor.
         """
-        ...
-
-    # def greater_or_equal(self, other) -> 'Tensor':
-    #     """
-    #     Remember the transaction.
-    #
-    #     Accepts a state, action, reward, next_state, terminal transaction.
-    #
-    #     # Arguments
-    #         transaction (abstract): state, action, reward, next_state, terminal transaction.
-    #     """
-    #     ...
-    #
-    # def greater(self, other) -> 'Tensor':
-    #     """
-    #     Remember the transaction.
-    #
-    #     Accepts a state, action, reward, next_state, terminal transaction.
-    #
-    #     # Arguments
-    #         transaction (abstract): state, action, reward, next_state, terminal transaction.
-    #     """
-    #     ...
-    #
-    # def lesser_or_equal(self, other) -> 'Tensor':
-    #     """
-    #     Remember the transaction.
-    #
-    #     Accepts a state, action, reward, next_state, terminal transaction.
-    #
-    #     # Arguments
-    #         transaction (abstract): state, action, reward, next_state, terminal transaction.
-    #     """
-    #     ...
-    #
-    # def lesser(self, other) -> 'Tensor':
-    #     """
-    #     Remember the transaction.
-    #
-    #     Accepts a state, action, reward, next_state, terminal transaction.
-    #
-    #     # Arguments
-    #         transaction (abstract): state, action, reward, next_state, terminal transaction.
-    #     """
-    #     ...
-    #
-    # def equal(self, other) -> 'Tensor':
-    #     """
-    #     Remember the transaction.
-    #
-    #     Accepts a state, action, reward, next_state, terminal transaction.
-    #
-    #     # Arguments
-    #         transaction (abstract): state, action, reward, next_state, terminal transaction.
-    #     """
-    #     ...
-    #
-    # def not_equal(self, other) -> 'Tensor':
-    #     """
-    #     Remember the transaction.
-    #
-    #     Accepts a state, action, reward, next_state, terminal transaction.
-    #
-    #     # Arguments
-    #         transaction (abstract): state, action, reward, next_state, terminal transaction.
-    #     """
-    #     ...
 
     def add(self, other) -> 'Tensor':
         """
-        Remember the transaction.
+        Adds another Tensor to the current Tensor.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            other: The other Tensor to add.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            A new Tensor that is the result of the addition operation.
         """
-        ...
 
     def sub(self, other) -> 'Tensor':
         """
-        Remember the transaction.
+        Subtracts another Tensor from the current Tensor.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            other: The other Tensor to subtract.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            A new Tensor that is the result of the subtraction operation.
         """
-        ...
 
     def mul(self, other) -> 'Tensor':
         """
-        Remember the transaction.
+        Multiplies the current Tensor by another Tensor.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            other: The other Tensor to multiply.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            A new Tensor that is the result of the multiplication operation.
         """
-        ...
 
     def div(self, other) -> 'Tensor':
         """
-        Remember the transaction.
+        Divides the current Tensor by another Tensor.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            other: The other Tensor to divide.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            A new Tensor that is the result of the division operation.
         """
-        ...
 
     def power(self, p) -> 'Tensor':
         """
-        Remember the transaction.
+        Raises the current Tensor to the power of p.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            p: The power to raise the Tensor to.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            A new Tensor that is the result of the power operation.
         """
-        ...
 
     def clone(self) -> 'Tensor':
         """
-        Remember the transaction.
+        Creates a copy of the current Tensor.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            A new Tensor that is a copy of the current Tensor.
         """
-        ...
 
     def detach(self, inplace=False) -> 'Tensor':
         """
-        Remember the transaction.
+        Detaches the Tensor from the computation graph.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            inplace (bool, optional): If True, the operation is performed in-place. Defaults to False.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            The detached Tensor.
         """
-        ...
 
     @staticmethod
     def from_array(data, requires_grad=False) -> 'Tensor':
         """
-        Remember the transaction.
+        Creates a Tensor from a numpy array.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            data: The numpy array to convert into a Tensor.
+            requires_grad (bool, optional): If True, the Tensor will require gradient computation. Defaults to False.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            A new Tensor created from the numpy array.
         """
-        ...
 
     def to_array(self):
         """
-        Remember the transaction.
+        Converts the Tensor into a numpy array.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            A numpy array that is a copy of the Tensor data.
         """
-        ...
 
     def half(self) -> 'Tensor':
         """
-        Remember the transaction.
+        Converts the Tensor to half precision.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            A new Tensor that is the half precision version of the original Tensor.
         """
-        ...
 
     def single(self) -> 'Tensor':
         """
-        Remember the transaction.
+        Converts the Tensor to single precision.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            A new Tensor that is the single precision version of the original Tensor.
         """
-        ...
 
     def double(self) -> 'Tensor':
         """
-        Remember the transaction.
+        Converts the Tensor to double precision.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            A new Tensor that is the double precision version of the original Tensor.
         """
-        ...
 
     def cpu(self) -> 'Tensor':
         """
-        Remember the transaction.
+        Moves the Tensor to the CPU.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            The Tensor after it has been moved to the CPU.
         """
-        ...
 
     def gpu(self) -> 'Tensor':
         """
-        Remember the transaction.
+        Moves the Tensor to the GPU.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            The Tensor after it has been moved to the GPU.
         """
-        ...
 
     def size(self, dim=None) -> Union[tuple, int]:
         """
-        Remember the transaction.
+        Returns the size of the Tensor.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            dim (int, optional): If specified, the size of the specific dimension is returned. Otherwise, the size of all dimensions is returned.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            The size of the Tensor.
         """
         if dim is None:
             return self._data.shape
@@ -694,84 +861,73 @@ class Tensor:
 
     def dim(self) -> int:
         """
-        Remember the transaction.
+        Returns the number of dimensions of the Tensor.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            The number of dimensions of the Tensor.
         """
         return len(self._data.shape)
 
     @property
     def shape(self) -> tuple:
         """
-        Remember the transaction.
+        Returns the shape of the Tensor.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            The shape of the Tensor.
         """
         return self._data.shape
 
     @property
     def ndim(self) -> int:
         """
-        Remember the transaction.
+        Returns the number of dimensions of the Tensor.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            The number of dimensions of the Tensor.
         """
         return len(self._data.shape)
 
     @property
     def dtype(self):
         """
-        Remember the transaction.
+        Returns the data type of the Tensor's underlying data.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        # Returns
+            The data type of the Tensor's underlying data.
         """
         return self._data.dtype
 
     @property
     def device(self) -> str:
         """
-        Remember the transaction.
+        Returns the device where the Tensor is located.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        # Returns
+            A string representing the device where the Tensor is located. It could be 'cpu' or 'gpu'.
         """
         return self._device
 
     @property
     def data(self):
         """
-        Remember the transaction.
+        Returns the underlying data of the Tensor.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        # Returns
+            The underlying data of the Tensor.
         """
         return self._data
 
     @property
     def is_leaf(self) -> bool:
         """
-        Remember the transaction.
+        Checks if the Tensor is a leaf node.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        A Tensor is considered a leaf if it was not the result of an operation.
+        That is, if it was read from data or if it is a constant.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        # Returns
+            True if the Tensor is a leaf node, False otherwise.
         """
         if not self._requires_grad:
             return True
@@ -780,12 +936,12 @@ class Tensor:
     @property
     def grad(self) -> 'Tensor':
         """
-        Remember the transaction.
+        Returns the gradient of the Tensor.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        The gradient is computed with respect to some scalar value.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        # Returns
+            The gradient of the Tensor.
         """
         if not self._can_read_grad():
             warnings.warn(
@@ -801,36 +957,30 @@ class Tensor:
     @grad.setter
     def grad(self, grad: 'Tensor'):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Sets the gradient of the Tensor.
 
         # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+            grad (Tensor): The gradient to be set.
         """
         self._grad = grad
 
     @property
     def requires_grad(self):
         """
-        Remember the transaction.
+        Checks if the Tensor requires gradient computation.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        # Returns
+            True if the Tensor requires gradient computation, False otherwise.
         """
         return self._requires_grad
 
     @requires_grad.setter
     def requires_grad(self, requires_grad):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Sets the Tensor's requirement for gradient computation.
 
         # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+            requires_grad (bool): Whether the Tensor should require gradient computation.
         """
         if not requires_grad and not self.is_leaf:
             raise RuntimeError(
@@ -842,12 +992,10 @@ class Tensor:
 
     def retain_grad(self):
         """
-        Remember the transaction.
+        Allows a non-leaf Tensor to retain its gradient.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Normally, only leaf Tensors (those not resulting from an operation) will have their gradients retained.
+        This method allows non-leaf Tensors to retain their gradients.
         """
         if not self.requires_grad:
             raise RuntimeError("can't retain_grad on Tensor that has requires_grad=False")
@@ -879,12 +1027,12 @@ class Tensor:
 
     def register_hook(self, hook):
         """
-        Remember the transaction.
+        Registers a backward hook.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Backward hooks are functions that are executed every time a backward operation is performed.
 
         # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+            hook (function): The backward hook function to register.
         """
         if not self.requires_grad:
             raise RuntimeError("cannot register a hook on a tensor that doesn't require gradient")
@@ -898,12 +1046,10 @@ class Tensor:
 
     def _can_read_grad(self):
         """
-        Remember the transaction.
+        Checks if the gradient of the Tensor can be read.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        # Returns
+            True if the gradient can be read, False otherwise.
         """
         return not (
                 self.requires_grad and not hasattr(self, 'retains_grad') and not self.is_leaf and self._grad is None
@@ -911,33 +1057,29 @@ class Tensor:
 
     def _can_write_grad(self):
         """
-        Remember the transaction.
+        Checks if the gradient of the Tensor can be written.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        # Returns
+            True if the gradient can be written, False otherwise.
         """
         return not (self.requires_grad and not hasattr(self, 'retains_grad') and not self.is_leaf)
 
     def forward(self):
         """
-        Remember the transaction.
+        Performs the forward pass of the Tensor.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method should be overridden by all subclasses.
         """
 
     def backward(self, gradient=None):
         """
-        Remember the transaction.
+        Performs the backward pass of the Tensor.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Computes the gradient of the Tensor with respect to some scalar value.
 
         # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+            gradient (Tensor, optional): The gradient of the subsequent layer in the computation graph.
+                                         If None, a Tensor of ones, with the same shape as the current Tensor, is used.
         """
         # if graph does not have any tensor that can have grad, RuntimeError: element 0 of tensors does not require grad and does not have a grad_fn
 
@@ -962,45 +1104,65 @@ class Tensor:
 
 class Parameter(Tensor):
     """
-    Deep Deterministic Policy Gradient
+    A Parameter is a kind of Tensor that is to be considered a module parameter.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Parameters are Tensor subclasses, that have a very special property when used with Module s - when they’re assigned as Module attributes they are automatically added to the list of its parameters, and will appear in parameters() iterator. Assigning a Tensor doesn’t have such effect. This is because one might want to cache some temporary state (more on this later) in the model. If there was no such class as Parameter, these temporaries would get registered too.
+
+    Another difference is that parameters can't be volatile and that they require gradient by default.
+
+    Args:
+        data (Tensor, optional): Parameter data. Default: None
+        requires_grad (bool, optional): If the parameter requires gradient. Default: `True`
     """
 
     def __init__(self, data=None, requires_grad=True):
+        """
+        Initializes the Parameter class.
+
+        Args:
+            data (Tensor, optional): Parameter data. Default: None
+            requires_grad (bool, optional): If the parameter requires gradient. Default: `True`
+        """
         if data is None:
             data = Tensor()
 
         super(Parameter, self).__init__(data=data.data, requires_grad=requires_grad)
 
     def __repr__(self):
+        """
+        Returns a string representation of the Parameter.
+
+        Returns:
+            str: a string representation of the Parameter
+        """
         return str(self)
 
     def __str__(self):
+        """
+        Returns a string representation of the Parameter.
+
+        Returns:
+            str: a string representation of the Parameter
+        """
         return 'Parameter containing:\n' + super(Parameter, self).__str__()
 
 
 class Module:
     """
-    Deep Deterministic Policy Gradient
+    Base class for all neural network modules.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Your models should also subclass this class.
+
+    Modules can also contain other Modules, allowing to nest them in
+    a tree structure. You can assign the submodules as regular attributes.
+
+    Subclassed Modules should initialize the parent class with the arguments
+    they receive.
+
+    Attributes:
+        dump_patches (bool): If True, the model will dump its state_dict() after each forward pass.
+        _version (int): The version of the model.
+        training (bool): If True, the model is in training mode. If False, the model is in evaluation mode.
     """
 
     dump_patches: bool = False
@@ -1008,18 +1170,24 @@ class Module:
     training: bool
 
     def __init__(self):
+        """
+        Initializes the Module class.
+
+        Sets the model to training mode and initializes the parameters and modules as empty OrderedDicts.
+        """
         self.training = True
         self._parameters = OrderedDict()
         self._modules = OrderedDict()
 
     def register_parameter(self, name: str, param: Optional[Parameter]) -> None:
         """
-        Remember the transaction.
+        Adds a parameter to the module.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        The parameter can be accessed as an attribute using the given name.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            name (str): name of the parameter. The string should be a valid attribute name.
+            param (Parameter, optional): parameter to be added to the module. The parameter should be an instance of the Parameter class.
         """
         if '_parameters' not in self.__dict__:
             raise AttributeError('cannot assign parameter before Module.__init__() call')
@@ -1050,12 +1218,13 @@ class Module:
 
     def add_module(self, name: str, module: Optional['Module']) -> None:
         """
-        Remember the transaction.
+        Adds a child module to the current module.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        The module can be accessed as an attribute using the given name.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            name (str): name of the child module. The string should be a valid attribute name.
+            module (Module, optional): child module to be added to the module. The module should be an instance of the Module class.
         """
         if not isinstance(module, Module) and module is not None:
             raise TypeError('{} is not a Module subclass'.format(typename(module)))
@@ -1070,13 +1239,41 @@ class Module:
         self._modules[name] = module
 
     def __getstate__(self):
+        """
+        Returns the state of the module.
+
+        This function is called when the module is being pickled.
+
+        Returns:
+            dict: a dictionary representing the state of the module.
+        """
         state = self.__dict__.copy()
         return state
 
     def __setstate__(self, state):
+        """
+        Sets the state of the module.
+
+        This function is called when the module is being unpickled.
+
+        Args:
+            state (dict): a dictionary representing the state of the module.
+        """
         self.__dict__.update(state)
 
     def __getattr__(self, name: str) -> Union[Parameter, 'Module']:
+        """
+        Returns the attribute of the module with the given name.
+
+        If the attribute is a Parameter or a Module, it is returned as is.
+        If the attribute does not exist, a ModuleAttributeException is raised.
+
+        Args:
+            name (str): name of the attribute.
+
+        Returns:
+            Parameter or Module: the attribute of the module.
+        """
         if '_parameters' in self.__dict__:
             _parameters = self.__dict__['_parameters']
             if name in _parameters:
@@ -1088,6 +1285,16 @@ class Module:
         raise ModuleAttributeException("'{}' object has no attribute '{}'".format(type(self).__name__, name))
 
     def __setattr__(self, name: str, value: Union[Parameter, 'Module']) -> None:
+        """
+        Sets the attribute of the module with the given name.
+
+        If the attribute is a Parameter or a Module, it is added to the respective dictionary of the module.
+
+        Args:
+            name (str): name of the attribute.
+            value (Parameter or Module): value of the attribute.
+        """
+
         def remove_from(*dicts_or_sets):
             for d in dicts_or_sets:
                 if name in d:
@@ -1131,18 +1338,28 @@ class Module:
 
     def _call_impl(self, *inp, **kwargs):
         """
-        Remember the transaction.
+        Calls the forward function of the module.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        This function is called when the module is called. It can be overridden in subclasses.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            *inp: the input that was passed to the module call.
+            **kwargs: the keyword arguments that were passed to the module call.
+
+        Returns:
+            The result of the forward function.
         """
         return self.forward(*inp, **kwargs)
 
     __call__: Callable[..., Any] = _call_impl
 
     def __delattr__(self, name):
+        """
+        Deletes the attribute of the module with the given name.
+
+        Args:
+            name (str): name of the attribute.
+        """
         if name in self._parameters:
             del self._parameters[name]
         elif name in self._modules:
@@ -1151,11 +1368,32 @@ class Module:
             object.__delattr__(self, name)
 
     def _save_to_state_dict(self, destination, prefix):
+        """
+        Saves the state of the module to the destination dictionary.
+
+        The state is saved under the key that is a combination of the prefix and the parameter name.
+
+        Args:
+            destination (dict): the dictionary to which the state should be saved.
+            prefix (str): the prefix to be used for the key.
+        """
         for name, param in self._parameters.items():
             if param is not None:
                 destination[prefix + name] = param.detach().to_array().tolist()
 
     def state_dict(self, *, destination=None, prefix=''):
+        """
+        Returns a dictionary representing the state of the module.
+
+        If a destination is provided, it is used. Otherwise, a new dictionary is created.
+
+        Args:
+            destination (dict, optional): the dictionary to which the state should be saved. If None, a new dictionary is created.
+            prefix (str, optional): the prefix to be used for the keys in the state dictionary.
+
+        Returns:
+            dict: a dictionary representing the state of the module.
+        """
         if destination is None:
             destination = OrderedDict()
 
@@ -1166,6 +1404,15 @@ class Module:
         return destination
 
     def _load_from_state_dict(self, state_dict, prefix):
+        """
+        Loads the state of the module from the state_dict.
+
+        The state is loaded from the keys that start with the prefix.
+
+        Args:
+            state_dict (dict): the dictionary from which the state should be loaded.
+            prefix (str): the prefix of the keys from which the state should be loaded.
+        """
         local_name_params = self._parameters.items()
         local_state = {k: v for k, v in local_name_params if v is not None}
 
@@ -1201,6 +1448,12 @@ class Module:
                     )
 
     def load_state_dict(self, state_dict: Mapping[str, Any]):
+        """
+        Loads the state of the module from the state_dict.
+
+        Args:
+            state_dict (dict): the dictionary from which the state should be loaded.
+        """
         if not isinstance(state_dict, Mapping):
             raise TypeError(f"Expected state_dict to be dict-like, got {type(state_dict)}.")
 
@@ -1217,12 +1470,18 @@ class Module:
 
     def _named_members(self, get_members_fn, prefix='', recurse=True):
         """
-        Remember the transaction.
+        Returns an iterator over module members.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        If recurse is True, then yields members of this module and all submodules.
+        Otherwise, yields only members that are direct children of this module.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            get_members_fn (callable): A callable that takes a module and returns an iterator over its members.
+            prefix (str): Prefix to prepend to all member names.
+            recurse (bool): If True, recurse over all submodules.
+
+        Yields:
+            (string, Module): Tuple containing a name and a module.
         """
         memo = set()
         modules = self.named_modules(prefix=prefix) if recurse else [(prefix, self)]
@@ -1237,24 +1496,33 @@ class Module:
 
     def parameters(self, recurse: bool = True) -> Iterator[Parameter]:
         """
-        Remember the transaction.
+        Returns an iterator over module parameters.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        This is typically passed to an optimizer.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            recurse (bool): If True, then yields parameters of this module and all submodules.
+                            Otherwise, yields only parameters that are direct children of this module.
+
+        Yields:
+            Parameter: Module parameter.
         """
         for name, param in self.named_parameters(recurse=recurse):
             yield param
 
     def named_parameters(self, prefix: str = '', recurse: bool = True) -> Iterator[Tuple[str, Parameter]]:
         """
-        Remember the transaction.
+        Returns an iterator over module parameters, yielding both the name of the parameter
+        as well as the parameter itself.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            prefix (str, optional): Prefix for each parameter name. Defaults to ''.
+            recurse (bool, optional): If True, includes parameters of this module and all submodules.
+                                      If False, includes only parameters that are direct members of this module.
+                                      Defaults to True.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Yields:
+            Iterator[Tuple[str, Parameter]]: An iterator over name, parameter pairs.
         """
         gen = self._named_members(lambda module: module._parameters.items(), prefix=prefix, recurse=recurse)
         for elem in gen:
@@ -1262,24 +1530,21 @@ class Module:
 
     def children(self) -> Iterator['Module']:
         """
-        Remember the transaction.
+        Returns an iterator over immediate child modules.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Yields:
+            Iterator['Module']: An iterator over child modules.
         """
         for name, module in self.named_children():
             yield module
 
     def named_children(self) -> Iterator[Tuple[str, 'Module']]:
         """
-        Remember the transaction.
+        Returns an iterator over immediate child modules, yielding both the name of the child module
+        as well as the module itself.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Yields:
+            Iterator[Tuple[str, 'Module']]: An iterator over name, module pairs.
         """
         memo = set()
         for name, module in self._modules.items():
@@ -1289,24 +1554,25 @@ class Module:
 
     def modules(self) -> Iterator['Module']:
         """
-        Remember the transaction.
+        Returns an iterator over all modules in the current module.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Yields:
+            Iterator['Module']: An iterator over all modules.
         """
         for name, module in self.named_modules():
             yield module
 
     def named_modules(self, memo: Optional[Set['Module']] = None, prefix: str = ''):
         """
-        Remember the transaction.
+        Returns an iterator over all modules in the current module, yielding both the name of the module
+        as well as the module itself.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            memo (Optional[Set['Module']], optional): Set of modules already processed. Defaults to None.
+            prefix (str, optional): Prefix for each module name. Defaults to ''.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Yields:
+            Iterator[Tuple[str, 'Module']]: An iterator over name, module pairs.
         """
         if memo is None:
             memo = set()
@@ -1324,12 +1590,10 @@ class Module:
 
     def train(self):
         """
-        Remember the transaction.
+        Sets the module in training mode.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            self: The current module.
         """
         self.training = True
         for module in self.children():
@@ -1338,12 +1602,10 @@ class Module:
 
     def eval(self):
         """
-        Remember the transaction.
+        Sets the module in evaluation mode.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            self: The current module.
         """
         self.training = False
         for module in self.children():
@@ -1352,12 +1614,10 @@ class Module:
 
     def zero_grad(self, set_to_none: bool = False):
         """
-        Remember the transaction.
+        Sets the gradients of all parameters to zero.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            set_to_none (bool, optional): If True, instead of setting to zero, sets the gradients to None. Defaults to False.
         """
         for p in self.parameters():
             if p.grad is not None:
@@ -1372,22 +1632,17 @@ class Module:
 
     def _apply(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Internal method to apply a function to the Module.
+        The function should modify the module in-place.
+        This method is meant to be overridden by subclasses.
         """
 
     def apply(self, func: Callable[['Module'], None]):
         """
-        Remember the transaction.
+        Applies a function on all modules (self and children).
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            func (Callable[['Module'], None]): A function that will be applied to all modules.
         """
         for module in self.children():
             module.apply(func)
@@ -1396,12 +1651,10 @@ class Module:
 
     def half(self):
         """
-        Remember the transaction.
+        Casts all parameters and buffers to half precision.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            self: The current module.
         """
         for param in self.parameters():
             param.half()
@@ -1409,12 +1662,10 @@ class Module:
 
     def single(self):
         """
-        Remember the transaction.
+        Casts all parameters and buffers to single precision.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            self: The current module.
         """
         for param in self.parameters():
             param.single()
@@ -1422,12 +1673,10 @@ class Module:
 
     def double(self):
         """
-        Remember the transaction.
+        Casts all parameters and buffers to double precision.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            self: The current module.
         """
         for param in self.parameters():
             param.double()
@@ -1435,12 +1684,10 @@ class Module:
 
     def cpu(self):
         """
-        Remember the transaction.
+        Moves all parameters and buffers to the CPU.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            self: The current module.
         """
         for param in self.parameters():
             param.cpu()
@@ -1448,12 +1695,10 @@ class Module:
 
     def gpu(self):
         """
-        Remember the transaction.
+        Moves all parameters and buffers to the GPU.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            self: The current module.
         """
         for param in self.parameters():
             param.gpu()
@@ -1461,25 +1706,31 @@ class Module:
 
     def _get_name(self):
         """
-        Remember the transaction.
+        Returns the name of the module.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            str: The name of the module.
         """
         return self.__class__.__name__
 
     def extra_repr(self) -> str:
-        r"""Set the extra representation of the module
+        """
+        Sets the extra representation of the module.
+        To print customized extra information, you should re-implement this method in your own modules.
+        Both single-line and multi-line strings are acceptable.
 
-        To print customized extra information, you should re-implement
-        this method in your own modules. Both single-line and multi-line
-        strings are acceptable.
+        Returns:
+            str: Extra representation string (empty by default).
         """
         return ''
 
     def __repr__(self):
+        """
+        Returns a string containing a brief representation of the module.
+
+        Returns:
+            str: Representation string of the module.
+        """
         extra_lines = []
         extra_repr = self.extra_repr()
         if extra_repr:
@@ -1502,6 +1753,13 @@ class Module:
         return main_str
 
     def __dir__(self):
+        """
+        Returns a list of attributes of this module.
+        This method controls the behavior of dir() invoked on a module object.
+
+        Returns:
+            List[str]: List of attributes.
+        """
         module_attrs = dir(self.__class__)
         attrs = list(self.__dict__.keys())
         parameters = list(self._parameters.keys())
@@ -1514,6 +1772,14 @@ class Module:
 
 
 class Sequential(Module):
+    """
+    A sequential container. Modules will be added to it in the order they are passed in the constructor.
+    Alternatively, an ordered dict of modules can also be passed in.
+
+    Args:
+        *args (optional): an ordered list of modules.
+    """
+
     def __init__(self, *args):
         super().__init__()
         if len(args) == 1 and isinstance(args[0], OrderedDict):
@@ -1524,7 +1790,16 @@ class Sequential(Module):
                 self.add_module(str(idx), module)
 
     def _get_item_by_idx(self, iterator, idx):
-        """Get the idx-th item of the iterator"""
+        """
+        Get the idx-th item of the iterator.
+
+        Args:
+            iterator: an iterator.
+            idx: the index of the item to get.
+
+        Returns:
+            The idx-th item of the iterator.
+        """
         size = len(self)
         idx = operator.index(idx)
         if not -size <= idx < size:
@@ -1533,16 +1808,38 @@ class Sequential(Module):
         return next(islice(iterator, idx, None))
 
     def __getitem__(self, idx: Union[slice, int]):
+        """
+        Get the item at a given index.
+
+        Args:
+            idx (Union[slice, int]): the index of the item to get.
+
+        Returns:
+            The item at the given index.
+        """
         if isinstance(idx, slice):
             return self.__class__(OrderedDict(list(self._modules.items())[idx]))
         else:
             return self._get_item_by_idx(self._modules.values(), idx)
 
     def __setitem__(self, idx: int, module: Module):
+        """
+        Set the module at a given index.
+
+        Args:
+            idx (int): the index to set the module at.
+            module (Module): the module to set.
+        """
         key: str = self._get_item_by_idx(self._modules.keys(), idx)
         return setattr(self, key, module)
 
     def __delitem__(self, idx: Union[slice, int]):
+        """
+        Delete the module at a given index.
+
+        Args:
+            idx (Union[slice, int]): the index of the module to delete.
+        """
         if isinstance(idx, slice):
             for key in list(self._modules.keys())[idx]:
                 delattr(self, key)
@@ -1554,9 +1851,21 @@ class Sequential(Module):
         self._modules = OrderedDict(list(zip(str_indices, self._modules.values())))
 
     def __len__(self):
+        """
+        Get the number of modules in the container.
+
+        Returns:
+            The number of modules in the container.
+        """
         return len(self._modules)
 
     def __iter__(self):
+        """
+        Get an iterator over the modules in the container.
+
+        Returns:
+            An iterator over the modules in the container.
+        """
         return iter(self._modules.values())
 
     # NB: We can't really type check this function as the type of input
@@ -1564,6 +1873,15 @@ class Sequential(Module):
     # TestScript.test_sequential_intermediary_types).  Cannot annotate
     # with Any as TorchScript expects a more precise type
     def forward(self, inp):
+        """
+        Defines the computation performed at every call.
+
+        Args:
+            inp: the input to the forward function.
+
+        Returns:
+            The output of the forward function.
+        """
         for module in self:
             inp = module(inp)
         return inp
@@ -1571,22 +1889,52 @@ class Sequential(Module):
 
 class Loss(Module):
     """
-    Deep Deterministic Policy Gradient
+    This class represents a Loss module which is a subclass of the Module class.
+    It is used to compute the loss value during the training of a neural network model.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    The class uses the concept of Deep Deterministic Policy Gradient for loss computation.
+
+    Attributes:
+        reduction (str): Specifies the reduction to apply to the output: 'none' | 'mean' | 'sum'.
+                         'none': no reduction will be applied.
+                         'mean': the sum of the output will be divided by the number of elements in the output.
+                         'sum': the output will be summed.
+
+    Args:
+        size_average (bool, optional): Deprecated (see reduction). By default, the losses are averaged over each loss element in the batch.
+                                        Note that for some losses, there are multiple elements per sample.
+                                        If the field size_average is set to False, the losses are instead summed for each minibatch.
+                                        Ignored when reduce is False. Default: True
+        reduce (bool, optional): Deprecated (see reduction). By default, the losses are averaged or summed over observations for each minibatch depending
+                                  on size_average. When reduce is False, returns a loss per batch element instead and ignores size_average.
+                                  Default: True
+        reduction (str, optional): Specifies the reduction to apply to the output: 'none' | 'mean' | 'sum'.
+                                    'none': no reduction will be applied.
+                                    'mean': the sum of the output will be divided by the number of elements in the output.
+                                    'sum': the output will be summed.
+                                    Default: 'mean'
     """
 
     reduction: str
 
     def __init__(self, size_average=None, reduce=None, reduction: str = 'mean') -> None:
+        """
+        Initializes the Loss class.
+
+        Args:
+            size_average (bool, optional): Deprecated (see reduction). By default, the losses are averaged over each loss element in the batch.
+                                            Note that for some losses, there are multiple elements per sample.
+                                            If the field size_average is set to False, the losses are instead summed for each minibatch.
+                                            Ignored when reduce is False. Default: True
+            reduce (bool, optional): Deprecated (see reduction). By default, the losses are averaged or summed over observations for each minibatch depending
+                                      on size_average. When reduce is False, returns a loss per batch element instead and ignores size_average.
+                                      Default: True
+            reduction (str, optional): Specifies the reduction to apply to the output: 'none' | 'mean' | 'sum'.
+                                        'none': no reduction will be applied.
+                                        'mean': the sum of the output will be divided by the number of elements in the output.
+                                        'sum': the output will be summed.
+                                        Default: 'mean'
+        """
         super(Loss, self).__init__()
         if size_average is not None or reduce is not None:
             self.reduction = legacy_get_string(size_average, reduce)
@@ -1594,98 +1942,32 @@ class Loss(Module):
             self.reduction = reduction
 
 
-class Sequential(Module):
-    """
-    Deep Deterministic Policy Gradient
-
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
-    """
-
-    def __init__(self, *args: Any):
-        super(Sequential, self).__init__()
-        if len(args) == 1 and isinstance(args[0], OrderedDict):
-            for key, module in args[0].items():
-                self.add_module(key, module)
-        else:
-            for idx, module in enumerate(args):
-                self.add_module(str(idx), module)
-
-    def _get_item_by_idx(self, iterator, idx):
-        """Get the idx-th item of the iterator"""
-        size = len(self)
-        idx = operator.index(idx)
-        if not -size <= idx < size:
-            raise IndexError('index {} is out of range'.format(idx))
-        idx %= size
-        return next(islice(iterator, idx, None))
-
-    def __getitem__(self, idx):
-        if isinstance(idx, slice):
-            return self.__class__(OrderedDict(list(self._modules.items())[idx]))
-        else:
-            return self._get_item_by_idx(self._modules.values(), idx)
-
-    def __setitem__(self, idx: int, module: Module) -> None:
-        key = self._get_item_by_idx(self._modules.keys(), idx)
-        return setattr(self, key, module)
-
-    def __delitem__(self, idx: Union[slice, int]) -> None:
-        if isinstance(idx, slice):
-            for key in list(self._modules.keys())[idx]:
-                delattr(self, key)
-        else:
-            key = self._get_item_by_idx(self._modules.keys(), idx)
-            delattr(self, key)
-
-    def __len__(self) -> int:
-        return len(self._modules)
-
-    def __dir__(self):
-        keys = super(Sequential, self).__dir__()
-        keys = [key for key in keys if not key.isdigit()]
-        return keys
-
-    def __iter__(self) -> Iterator[Module]:
-        return iter(self._modules.values())
-
-    def forward(self, inp):
-        """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
-        """
-        for module in self:
-            inp = module(inp)
-        return inp
-
-
 class Optimizer(object):
     """
-    Deep Deterministic Policy Gradient
+    Base class for all optimizers.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Optimizers are used to update the parameters of a model in order to minimize the loss function.
+
+    Args:
+        params (iterable): An iterable of Parameters that define what Tensors should be optimized.
+        defaults (dict): A dictionary containing default values of optimization options (like learning rate, weight decay, etc).
+
+    Attributes:
+        defaults (dict): The default optimization options.
+        state (dict): A dictionary that holds current optimization state. Its content
+            differs between optimizer classes.
+        param_groups (list): A list of parameter groups. Each group is a dictionary that
+            holds parameters and their corresponding optimization options.
     """
 
     def __init__(self, params, defaults):
+        """
+        Initializes the Optimizer class.
+
+        Args:
+            params (iterable): An iterable of Parameters that define what Tensors should be optimized.
+            defaults (dict): A dictionary containing default values of optimization options (like learning rate, weight decay, etc).
+        """
         self.defaults = defaults
 
         if isinstance(params, Parameter):
@@ -1707,6 +1989,12 @@ class Optimizer(object):
             self.add_param_group(param_group)
 
     def __getstate__(self):
+        """
+        Returns the state of the optimizer. Useful for serialization.
+
+        Returns:
+            dict: The state of the optimizer.
+        """
         return {
             'defaults': self.defaults,
             'state': self.state,
@@ -1714,9 +2002,21 @@ class Optimizer(object):
         }
 
     def __setstate__(self, state):
+        """
+        Sets the state of the optimizer. Useful for deserialization.
+
+        Args:
+            state (dict): The state of the optimizer.
+        """
         self.__dict__.update(state)
 
     def __repr__(self):
+        """
+        Returns a string representation of the optimizer.
+
+        Returns:
+            str: The string representation of the optimizer.
+        """
         format_string = self.__class__.__name__ + ' ('
         for i, group in enumerate(self.param_groups):
             format_string += '\n'
@@ -1729,12 +2029,11 @@ class Optimizer(object):
 
     def zero_grad(self, set_to_none: bool = False):
         """
-        Remember the transaction.
+        Clears the gradients of all optimized Tensors.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            set_to_none (bool, optional): Instead of filling with zero, sets the gradients to None.
+                This will in general have lower memory footprint. Defaults to False.
         """
         for group in self.param_groups:
             for p in group['params']:
@@ -1750,23 +2049,28 @@ class Optimizer(object):
 
     def step(self):
         """
-        Remember the transaction.
+        Performs a single optimization step (parameter update).
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Should be overridden by all subclasses.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Note:
+            It is recommended to use `torch.no_grad()` on the enclosing scope to disable
+            gradient computation for performance.
+
+        Raises:
+            NotImplementedError: This method needs to be implemented in subclasses.
         """
         raise NotImplementedError
 
     def add_param_group(self, param_group):
         """
-        Remember the transaction.
+        Adds a parameter group to the optimizer’s param_groups.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        This can be useful when fine tuning a pre-trained network as frozen layers can be made
+        trainable and added to the optimizer as training progresses.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            param_group (dict): Specifies what Tensors should be optimized along with group-specific optimization options.
         """
         assert isinstance(param_group, dict), 'param group must be a dict'
 
@@ -1813,20 +2117,27 @@ class Optimizer(object):
 
 class LRScheduler(object):
     """
-    Deep Deterministic Policy Gradient
+    Base class for learning rate schedulers.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    This class provides the basic structure for implementing different learning rate scheduling policies.
+    Learning rate schedulers dynamically adjust the learning rate of the optimizer during the training process,
+    which can lead to improved model performance and robustness.
+
+    Args:
+        optimizer (Optimizer): The optimizer for which the learning rate will be scheduled.
+        last_epoch (int, optional): The index of the last epoch. Default: -1.
+        verbose (bool, optional): If True, prints a message to stdout for each update. Default: False.
     """
 
     def __init__(self, optimizer, last_epoch=-1, verbose=False):
+        """
+        Initializes the LRScheduler class.
+
+        Args:
+            optimizer (Optimizer): The optimizer for which the learning rate will be scheduled.
+            last_epoch (int, optional): The index of the last epoch. Default: -1.
+            verbose (bool, optional): If True, prints a message to stdout for each update. Default: False.
+        """
         if not isinstance(optimizer, Optimizer):
             raise TypeError('{} is not an Optimizer'.format(type(optimizer).__name__))
         self.optimizer = optimizer
@@ -1871,57 +2182,53 @@ class LRScheduler(object):
 
     def state_dict(self):
         """
-        Remember the transaction.
+        Returns the state of the scheduler as a dictionary.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        It contains all items necessary to keep track of the scheduler's state.
+        Note that it does not contain the state of the optimizer.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            dict: The state of the scheduler.
         """
         return {key: value for key, value in self.__dict__.items() if key != 'optimizer'}
 
     def load_state_dict(self, state_dict):
         """
-        Remember the transaction.
+        Loads the schedulers state.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            state_dict (dict): Scheduler state. Should be an object returned from a call to `state_dict`.
         """
         self.__dict__.update(state_dict)
 
     def get_last_lr(self):
         """
-        Remember the transaction.
+        Returns last computed learning rate by scheduler.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            list: Last computed learning rate by scheduler.
         """
         return self._last_lr
 
     def get_lr(self):
         """
-        Remember the transaction.
+        Computes the learning rate at each step. Needs to be implemented by subclasses.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method needs to be implemented in subclasses.
         """
         # Compute learning rate using chainable form of the scheduler
         raise NotImplementedError
 
     def print_lr(self, is_verbose, group, lr, epoch=None):
         """
-        Remember the transaction.
+        Prints the learning rate of a specific parameter group.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            is_verbose (bool): If True, prints a message to stdout for each update.
+            group (int): Index of the parameter group.
+            lr (float): Learning rate of the parameter group.
+            epoch (int, optional): Current epoch number.
         """
         if is_verbose:
             if epoch is None:
@@ -1931,12 +2238,10 @@ class LRScheduler(object):
 
     def step(self, epoch=None):
         """
-        Remember the transaction.
+        Updates the learning rate of the optimizer.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            epoch (int, optional): Current epoch number. Default: None.
         """
         # Raise a warning if old pattern is detected
         if self._step_count == 1:
