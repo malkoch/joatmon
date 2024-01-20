@@ -3,37 +3,37 @@ from joatmon.plugin.core import Plugin
 
 class Auth(Plugin):
     """
-    Deep Deterministic Policy Gradient
-
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    This is the Auth class that inherits from the Plugin class. It is an abstract class that provides
+    the structure for authentication and authorization methods. The methods in this class should be
+    implemented in the child classes.
     """
 
     async def authenticate(self, issuer, audience, expire_at):
         """
-        Remember the transaction.
+        This is an abstract method that should be implemented in the child classes. It is used to
+        authenticate a user.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            issuer (str): The issuer of the authentication.
+            audience (str): The audience of the authentication.
+            expire_at (datetime): The expiration date of the authentication.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
         raise NotImplementedError
 
     async def authorize(self, token, issuer, audience):
         """
-        Remember the transaction.
+        This is an abstract method that should be implemented in the child classes. It is used to
+        authorize a user.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            token (str): The token used for authorization.
+            issuer (str): The issuer of the authorization.
+            audience (str): The audience of the authorization.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
         raise NotImplementedError
