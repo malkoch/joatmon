@@ -88,7 +88,8 @@ if __name__ == '__main__':
         #     ]
         # },
         install_requires=[
-            'bumpversion'
+            'bumpversion',
+            'mkgendocs'
         ],
         tests_require=[
             'pytest',

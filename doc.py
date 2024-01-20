@@ -369,7 +369,7 @@ def main():
     # docstring_from_type_hints(directory, overwrite_script=False, test=False)
 
     automate_mkdocs_from_docstring(
-        mkdocs_dir='joatmon/automate/generator',
+        mkdocs_dir='.',
         mkgendocs_f='mkgendocs.yml',
         repo_dir=directory,
         match_string='pages:\n',
