@@ -12,17 +12,14 @@ from joatmon.core.utility import get_converter
 
 class PostgreSQLDatabase(DatabasePlugin):
     """
-    Deep Deterministic Policy Gradient
+    PostgreSQLDatabase class that inherits from the DatabasePlugin class. It implements the abstract methods of the DatabasePlugin class
+    using PostgreSQL for database operations.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes:
+        DATABASES (set): A set to store the databases.
+        CREATED_COLLECTIONS (set): A set to store the created collections.
+        UPDATED_COLLECTIONS (set): A set to store the updated collections.
+        connection (`psycopg2.extensions.connection` instance): The connection to the PostgreSQL server.
     """
 
     DATABASES = set()
@@ -31,6 +28,16 @@ class PostgreSQLDatabase(DatabasePlugin):
 
     # on del method
     def __init__(self, host, port, user, password, database):
+        """
+        Initialize PostgreSQLDatabase with the given host, port, user, password, and database for the PostgreSQL server.
+
+        Args:
+            host (str): The host of the PostgreSQL server.
+            port (str): The port of the PostgreSQL server.
+            user (str): The user for the PostgreSQL server.
+            password (str): The password for the PostgreSQL server.
+            database (str): The database of the PostgreSQL server.
+        """
         self.connection = psycopg2.connect(
             user=user, password=password, host=host, port=port  # , async_=True
         )
@@ -45,12 +52,13 @@ class PostgreSQLDatabase(DatabasePlugin):
 
     async def _check_collection(self, collection):
         """
-        Remember the transaction.
+        Check if a collection exists in the PostgreSQL database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            collection (str): The collection to be checked.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            bool: True if the collection exists, False otherwise.
         """
         # for one time only need to check indexes, constraints, default values, table schema as well
         cursor = self.connection.cursor()
@@ -60,12 +68,10 @@ class PostgreSQLDatabase(DatabasePlugin):
 
     async def _create_collection(self, collection):
         """
-        Remember the transaction.
+        Create a collection in the PostgreSQL database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            collection (str): The collection to be created.
         """
 
         def get_type(dtype: type):
@@ -107,12 +113,10 @@ class PostgreSQLDatabase(DatabasePlugin):
 
     async def _create_view(self, collection):
         """
-        Remember the transaction.
+        Create a view for a collection in the PostgreSQL database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            collection (str): The collection for which the view is to be created.
         """
         cursor = self.connection.cursor()
 
@@ -124,46 +128,40 @@ class PostgreSQLDatabase(DatabasePlugin):
 
     async def _ensure_collection(self, collection):
         """
-        Remember the transaction.
+        Ensure that a collection exists in the PostgreSQL database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            collection (str): The collection to be ensured.
         """
         if not await self._check_collection(collection):
             await self._create_collection(collection)
 
     async def create(self, document):
         """
-        Remember the transaction.
+        Create a new document in the PostgreSQL database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            document (dict): The document to be created.
         """
         await self._ensure_collection(document.__metaclass__)
 
     async def alter(self, document):
         """
-        Remember the transaction.
+        Alter an existing document in the PostgreSQL database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            document (dict): The document to be altered.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
-        ...
 
     async def drop(self, document):
         """
-        Remember the transaction.
+        Drop a collection from the PostgreSQL database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            document (dict): The document whose collection is to be dropped.
         """
         cursor = self.connection.cursor()
         sql = f'drop table if exists {document.__metaclass__.__collection__} cascade'
@@ -172,12 +170,11 @@ class PostgreSQLDatabase(DatabasePlugin):
     # @debug.timeit()
     async def insert(self, document, *docs):
         """
-        Remember the transaction.
+        Insert one or more documents into the PostgreSQL database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            document (dict): The first document to be inserted.
+            *docs (dict): Additional documents to be inserted.
         """
         cursor = self.connection.cursor()
 
@@ -218,12 +215,14 @@ class PostgreSQLDatabase(DatabasePlugin):
 
     async def read(self, document, query):
         """
-        Remember the transaction.
+        Read a document from the PostgreSQL database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            document (dict): The document to be read.
+            query (dict): The query to be used for reading the document.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Yields:
+            dict: The read document.
         """
         cursor = self.connection.cursor()
 
@@ -272,12 +271,12 @@ class PostgreSQLDatabase(DatabasePlugin):
 
     async def update(self, document, query, update):
         """
-        Remember the transaction.
+        Update a document in the PostgreSQL database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            document (dict): The document to be updated.
+            query (dict): The query to be used for updating the document.
+            update (dict): The update to be applied to the document.
         """
         cursor = self.connection.cursor()
 
@@ -338,12 +337,11 @@ class PostgreSQLDatabase(DatabasePlugin):
 
     async def delete(self, document, query):
         """
-        Remember the transaction.
+        Delete a document from the PostgreSQL database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            document (dict): The document to be deleted.
+            query (dict): The query to be used for deleting the document.
         """
         cursor = self.connection.cursor()
 
@@ -381,12 +379,14 @@ class PostgreSQLDatabase(DatabasePlugin):
 
     async def view(self, document, query):
         """
-        Remember the transaction.
+        View a document in the PostgreSQL database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            document (dict): The document to be viewed.
+            query (dict): The query to be used for viewing the document.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Yields:
+            dict: The viewed document.
         """
         await self._create_view(document.__metaclass__)
 
@@ -430,51 +430,60 @@ class PostgreSQLDatabase(DatabasePlugin):
             yield document(**dict(zip(keys, doc)))
 
     async def execute(self, document, query):
-        ...
+        """
+        This is an abstract method that should be implemented in the child classes. It is used to
+        execute a query on a document in the database.
+
+        Args:
+            document (dict): The document to be queried.
+            query (dict): The query to be executed.
+
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
+        """
 
     async def count(self, query):
-        ...
+        """
+        This is an abstract method that should be implemented in the child classes. It is used to
+        count the number of documents that match a query in the database.
+
+        Args:
+            query (dict): The query to be counted.
+
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
+        """
 
     async def start(self):
         """
-        Remember the transaction.
+        Start a database transaction in the PostgreSQL database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method sets the autocommit mode of the connection to False, which means that changes made to the database
+        are not saved until you call the commit method.
         """
         self.connection.autocommit = False
 
     async def commit(self):
         """
-        Remember the transaction.
+        Commit a database transaction in the PostgreSQL database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method saves the changes made to the database since the last call to the start method.
         """
         self.connection.commit()
 
     async def abort(self):
         """
-        Remember the transaction.
+        Abort a database transaction in the PostgreSQL database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method discards the changes made to the database since the last call to the start method.
         """
         self.connection.rollback()
 
     async def end(self):
         """
-        Remember the transaction.
+        End a database transaction in the PostgreSQL database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method closes the connection to the database. After calling this method, you cannot make any more
+        queries to the database using this connection.
         """
         self.connection.close()

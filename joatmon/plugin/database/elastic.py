@@ -7,17 +7,14 @@ from joatmon.plugin.database.core import DatabasePlugin
 
 class ElasticDatabase(DatabasePlugin):
     """
-    Deep Deterministic Policy Gradient
+    ElasticDatabase class that inherits from the DatabasePlugin class. It implements the abstract methods of the DatabasePlugin class
+    using Elasticsearch for database operations.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes:
+        DATABASES (set): A set to store the databases.
+        CREATED_COLLECTIONS (set): A set to store the created collections.
+        UPDATED_COLLECTIONS (set): A set to store the updated collections.
+        client (`elasticsearch.Elasticsearch` instance): The connection to the Elasticsearch server.
     """
 
     DATABASES = set()
@@ -25,16 +22,21 @@ class ElasticDatabase(DatabasePlugin):
     UPDATED_COLLECTIONS = set()
 
     def __init__(self, uri):
+        """
+        Initialize ElasticDatabase with the given uri for the Elasticsearch server.
+
+        Args:
+            uri (str): The uri of the Elasticsearch server.
+        """
         self.client = Elasticsearch(uri)
 
     async def insert(self, document, *docs):
         """
-        Remember the transaction.
+        Insert one or more documents into the Elasticsearch server.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            document (dict): The first document to be inserted.
+            *docs (dict): Additional documents to be inserted.
         """
         for doc in docs:
             if document.__metaclass__.structured:
@@ -44,77 +46,69 @@ class ElasticDatabase(DatabasePlugin):
 
     async def read(self, document, query):
         """
-        Remember the transaction.
+        Read a document from the Elasticsearch server.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            document (dict): The document to be read.
+            query (dict): The query to be used for reading the document.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
-        ...
 
     async def update(self, document, query, update):
         """
-        Remember the transaction.
+        Update a document in the Elasticsearch server.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            document (dict): The document to be updated.
+            query (dict): The query to be used for updating the document.
+            update (dict): The update to be applied to the document.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
-        ...
 
     async def delete(self, document, query):
         """
-        Remember the transaction.
+        Delete a document from the Elasticsearch server.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            document (dict): The document to be deleted.
+            query (dict): The query to be used for deleting the document.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
-        ...
 
     async def start(self):
         """
-        Remember the transaction.
+        Start a database transaction.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
-        ...
 
     async def commit(self):
         """
-        Remember the transaction.
+        Commit a database transaction.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
-        ...
 
     async def abort(self):
         """
-        Remember the transaction.
+        Abort a database transaction.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
-        ...
 
     async def end(self):
         """
-        Remember the transaction.
+        End a database transaction.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
-        ...

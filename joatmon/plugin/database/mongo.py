@@ -25,17 +25,17 @@ from joatmon.plugin.database.core import DatabasePlugin
 
 class MongoDatabase(DatabasePlugin):
     """
-    Deep Deterministic Policy Gradient
+    MongoDatabase class that inherits from the DatabasePlugin class. It implements the abstract methods of the DatabasePlugin class
+    using MongoDB for database operations.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes:
+        DATABASES (set): A set to store the databases.
+        CREATED_COLLECTIONS (set): A set to store the created collections.
+        UPDATED_COLLECTIONS (set): A set to store the updated collections.
+        database_name (str): The name of the MongoDB database.
+        client (`pymongo.MongoClient` instance): The connection to the MongoDB server.
+        database (`pymongo.database.Database` instance): The MongoDB database instance.
+        session (`pymongo.client_session.ClientSession` instance): The MongoDB client session instance.
     """
 
     DATABASES = set()
@@ -43,6 +43,13 @@ class MongoDatabase(DatabasePlugin):
     UPDATED_COLLECTIONS = set()
 
     def __init__(self, uri, database):
+        """
+        Initialize MongoDatabase with the given uri and database for the MongoDB server.
+
+        Args:
+            uri (str): The uri of the MongoDB server.
+            database (str): The name of the MongoDB database.
+        """
         self.database_name = database
         self.client = pymongo.MongoClient(host=uri)
         self.database = self.client[database]
@@ -51,23 +58,22 @@ class MongoDatabase(DatabasePlugin):
 
     async def _check_collection(self, collection):
         """
-        Remember the transaction.
+        Check if a collection exists in the MongoDB database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            collection (str): The collection to be checked.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            bool: True if the collection exists, False otherwise.
         """
         return collection.__collection__ in list(self.database.list_collection_names())
 
     async def _create_collection(self, collection):
         """
-        Remember the transaction.
+        Create a collection in the MongoDB database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            collection (str): The collection to be created.
         """
 
         # even if collection is not structured, need to create indexes
@@ -80,12 +86,10 @@ class MongoDatabase(DatabasePlugin):
 
     async def _create_schema(self, collection):
         """
-        Remember the transaction.
+        Create a schema for a collection in the MongoDB database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            collection (str): The collection for which the schema is to be created.
         """
         def get_type(dtype: typing.Union[type, typing.List, typing.Tuple]):
             type_mapper = {
@@ -136,12 +140,10 @@ class MongoDatabase(DatabasePlugin):
 
     async def _create_indexes(self, collection):
         """
-        Remember the transaction.
+        Create indexes for a collection in the MongoDB database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            collection (str): The collection for which the indexes are to be created.
         """
         index_names = set()
         for index_name, index in collection.constraints(collection, lambda x: isinstance(x, (PrimaryKeyConstraint, UniqueConstraint))).items():
@@ -173,12 +175,10 @@ class MongoDatabase(DatabasePlugin):
 
     async def _ensure_collection(self, collection):
         """
-        Remember the transaction.
+        Ensure that a collection exists in the MongoDB database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            collection (str): The collection to be ensured.
         """
         if not await self._check_collection(collection):
             await self._create_collection(collection)
@@ -189,12 +189,13 @@ class MongoDatabase(DatabasePlugin):
 
     async def _get_collection(self, collection):
         """
-        Remember the transaction.
+        Get a collection from the MongoDB database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            collection (str): The collection to be gotten.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            `pymongo.collection.Collection` instance: The gotten collection.
         """
         codec_options = DEFAULT_CODEC_OPTIONS.with_options(uuid_representation=UuidRepresentation.STANDARD)
         if self.session is None:
@@ -203,12 +204,36 @@ class MongoDatabase(DatabasePlugin):
             return self.session.client[self.database_name].get_collection(collection, codec_options=codec_options)
 
     async def create(self, document):
-        ...
+        """
+        This is an abstract method that should be implemented in the child classes. It is used to
+        create a new document in the database.
+
+        Args:
+            document (dict): The document to be created.
+
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
+        """
 
     async def alter(self, document):
-        ...
+        """
+        This is an abstract method that should be implemented in the child classes. It is used to
+        alter an existing document in the database.
+
+        Args:
+            document (dict): The document to be altered.
+
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
+        """
 
     async def drop(self, document):
+        """
+        Drop a collection from the MongoDB database.
+
+        Args:
+            document (dict): The document whose collection is to be dropped.
+        """
         if self.session is None:
             self.database.drop_collection(document.__metaclass__.__collection__)
         else:
@@ -216,12 +241,11 @@ class MongoDatabase(DatabasePlugin):
 
     async def insert(self, document, *docs):
         """
-        Remember the transaction.
+        Insert one or more documents into the MongoDB database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            document (dict): The first document to be inserted.
+            *docs (dict): Additional documents to be inserted.
         """
 
         to_insert = []
@@ -244,12 +268,14 @@ class MongoDatabase(DatabasePlugin):
 
     async def read(self, document, query):
         """
-        Remember the transaction.
+        Read a document from the MongoDB database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            document (dict): The document to be read.
+            query (dict): The query to be used for reading the document.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Yields:
+            dict: The read document.
         """
         if document.__metaclass__.structured and document.__metaclass__.force:
             query = normalize_kwargs(document.__metaclass__, **query)
@@ -263,12 +289,12 @@ class MongoDatabase(DatabasePlugin):
 
     async def update(self, document, query, update):
         """
-        Remember the transaction.
+        Update a document in the MongoDB database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            document (dict): The document to be updated.
+            query (dict): The query to be used for updating the document.
+            update (dict): The update to be applied to the document.
         """
         if document.__metaclass__.structured and document.__metaclass__.force:
             query = normalize_kwargs(document.__metaclass__, **query)
@@ -282,12 +308,11 @@ class MongoDatabase(DatabasePlugin):
 
     async def delete(self, document, query):
         """
-        Remember the transaction.
+        Delete a document from the MongoDB database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            document (dict): The document to be deleted.
+            query (dict): The query to be used for deleting the document.
         """
         if document.__metaclass__.structured and document.__metaclass__.force:
             query = normalize_kwargs(document.__metaclass__, **query)
@@ -297,55 +322,64 @@ class MongoDatabase(DatabasePlugin):
         collection.bulk_write([DeleteMany(dict(**query))], session=self.session)  # bulk write might be causing collection already in use error
 
     async def view(self, document, query):
-        ...
+        """
+        This is an abstract method that should be implemented in the child classes. It is used to
+        view a document in the database.
+
+        Args:
+            document (dict): The document to be viewed.
+            query (dict): The query to be used for viewing the document.
+
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
+        """
 
     async def execute(self, document, query):
-        ...
+        """
+        This is an abstract method that should be implemented in the child classes. It is used to
+        execute a query on a document in the database.
+
+        Args:
+            document (dict): The document to be queried.
+            query (dict): The query to be executed.
+
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
+        """
 
     async def count(self, query):
-        ...
+        """
+        This is an abstract method that should be implemented in the child classes. It is used to
+        count the number of documents that match a query in the database.
+
+        Args:
+            query (dict): The query to be counted.
+
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
+        """
 
     async def start(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Start a database transaction in the MongoDB database.
         """
         self.session = self.client.start_session()
         self.session.start_transaction(read_concern.ReadConcern('majority'), write_concern.WriteConcern('majority'))
 
     async def commit(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Commit a database transaction in the MongoDB database.
         """
         self.session.commit_transaction()
 
     async def abort(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Abort a database transaction in the MongoDB database.
         """
         self.session.abort_transaction()
 
     async def end(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        End a database transaction in the MongoDB database.
         """
         self.session.end_session()

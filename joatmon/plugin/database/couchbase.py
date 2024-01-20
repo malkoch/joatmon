@@ -13,17 +13,16 @@ from joatmon.plugin.database.core import DatabasePlugin
 
 class CouchBaseDatabase(DatabasePlugin):
     """
-    Deep Deterministic Policy Gradient
+    CouchBaseDatabase class that inherits from the DatabasePlugin class. It implements the abstract methods of the DatabasePlugin class
+    using Couchbase for database operations.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes:
+        DATABASES (set): A set to store the databases.
+        CREATED_COLLECTIONS (set): A set to store the created collections.
+        UPDATED_COLLECTIONS (set): A set to store the updated collections.
+        bucket (str): The bucket of the Couchbase server.
+        scope (str): The scope of the Couchbase server.
+        db (`couchbase.cluster.Cluster` instance): The connection to the Couchbase server.
     """
 
     DATABASES = set()
@@ -31,6 +30,16 @@ class CouchBaseDatabase(DatabasePlugin):
     UPDATED_COLLECTIONS = set()
 
     def __init__(self, uri, bucket, scope, username, password):
+        """
+        Initialize CouchBaseDatabase with the given uri, bucket, scope, username, and password for the Couchbase server.
+
+        Args:
+            uri (str): The uri of the Couchbase server.
+            bucket (str): The bucket of the Couchbase server.
+            scope (str): The scope of the Couchbase server.
+            username (str): The username for the Couchbase server.
+            password (str): The password for the Couchbase server.
+        """
         auth = PasswordAuthenticator(username, password)
 
         self.bucket = bucket
@@ -40,12 +49,10 @@ class CouchBaseDatabase(DatabasePlugin):
 
     async def _create_collection(self, collection):
         """
-        Remember the transaction.
+        Create a collection in the Couchbase server if it does not exist.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            collection (str): The collection to be created.
         """
         self.db.query(
             f'CREATE COLLECTION `{self.bucket}`.{self.scope}.{collection.__collection__} ' f'if not exists',
@@ -54,12 +61,11 @@ class CouchBaseDatabase(DatabasePlugin):
 
     async def insert(self, document, *docs):
         """
-        Remember the transaction.
+        Insert one or more documents into the Couchbase server.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            document (dict): The first document to be inserted.
+            *docs (dict): Additional documents to be inserted.
         """
         for doc in docs:
             await self._create_collection(document.__metaclass__)
@@ -79,12 +85,14 @@ class CouchBaseDatabase(DatabasePlugin):
 
     async def read(self, document, query):
         """
-        Remember the transaction.
+        Read a document from the Couchbase server.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            document (dict): The document to be read.
+            query (dict): The query to be used for reading the document.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Yields:
+            dict: The read document.
         """
         await self._create_collection(document.__metaclass__)
 
@@ -112,12 +120,12 @@ class CouchBaseDatabase(DatabasePlugin):
 
     async def update(self, document, query, update):
         """
-        Remember the transaction.
+        Update a document in the Couchbase server.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            document (dict): The document to be updated.
+            query (dict): The query to be used for updating the document.
+            update (dict): The update to be applied to the document.
         """
         await self._create_collection(document.__metaclass__)
 
@@ -136,12 +144,11 @@ class CouchBaseDatabase(DatabasePlugin):
 
     async def delete(self, document, query):
         """
-        Remember the transaction.
+        Delete a document from the Couchbase server.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            document (dict): The document to be deleted.
+            query (dict): The query to be used for deleting the document.
         """
         await self._create_collection(document.__metaclass__)
 
@@ -156,44 +163,32 @@ class CouchBaseDatabase(DatabasePlugin):
 
     async def start(self):
         """
-        Remember the transaction.
+        Start a database transaction.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
-        ...
 
     async def commit(self):
         """
-        Remember the transaction.
+        Commit a database transaction.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
-        ...
 
     async def abort(self):
         """
-        Remember the transaction.
+        Abort a database transaction.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
-        ...
 
     async def end(self):
         """
-        Remember the transaction.
+        End a database transaction.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
-        ...
