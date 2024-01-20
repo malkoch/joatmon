@@ -9,20 +9,49 @@ from setuptools import find_packages
 
 from joatmon import VERSION
 
+
 extras = {
-    'ai': [],
-    'analysis': [],
-    'array': [],
+    'ai': [
+        'numpy'
+    ],
+    'array': [
+        'transitions'
+    ],
     'assistant': [],
-    'automate': [],
-    'decorator': [],
-    'game': [],
-    'image': [],
-    'language': [],
-    'nn': [],
+    'decorator': [
+        'async_exit_stack'
+    ],
+    'game': [
+        'gym',
+        'opencv-python',
+        'pygame',
+        'pymunk'
+    ],
+    'image': [
+        'opencv-python'
+    ],
+    'nn': [
+        'numpy',
+        'six'
+    ],
     'orm': [],
+    'plugin': [
+        'pyjwt',
+        'redis',
+        'couchbase',
+        'elasticsearch',
+        'pymongo',
+        'psycopg2',
+        'confluent_kafka',
+        'pika',
+        'pyotp'
+    ],
     'structure': [],
-    'system': []
+    'system': [
+        'opencv-python',
+        'SpeechRecognition',
+        'numpy'
+    ]
 }  # plugin requirements
 if sys.platform == 'win32':
     extras['system'].extend(['pywin32'])

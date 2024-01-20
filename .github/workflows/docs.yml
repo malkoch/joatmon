@@ -27,7 +27,7 @@ jobs:
           pip install .[all]
       - name: Generate Docs
         run: |
-          python joatmon/automate/generator/doc.py
+          python doc.py
       - name: Commit changes
         run: |
           git config --global user.email "hamitcanmalkoc@gmail.com"
