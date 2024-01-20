@@ -7,32 +7,38 @@ from joatmon.plugin.logger.core import LoggerPlugin
 
 class FileLogger(LoggerPlugin):
     """
-    Deep Deterministic Policy Gradient
+    FileLogger class that inherits from the LoggerPlugin class. It implements the abstract methods of the LoggerPlugin class
+    using a file for logging operations.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes:
+        level (str): The level of logging.
+        folder (str): The base folder where the log files will be stored.
+        language (str): The language for logging.
+        ip (str): The IP address for logging.
     """
 
     def __init__(self, level: str, base_folder: str, language, ip):
+        """
+         Initialize FileLogger with the given level, base folder, language, and IP.
+
+         Args:
+             level (str): The level of logging.
+             base_folder (str): The base folder where the log files will be stored.
+             language (str): The language for logging.
+             ip (str): The IP address for logging.
+         """
         super(FileLogger, self).__init__(level, language, ip)
 
         self.folder = base_folder
 
     async def _write(self, log: dict):
         """
-        Remember the transaction.
+        Write a log to a file.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        This method writes the log to a file in the base folder. The file is named with the current date and the logs are appended to it.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            log (dict): The log to be written.
         """
         dt = datetime.datetime.now()
         folder = os.path.join(self.folder, dt.strftime(f'%Y{os.sep}%m{os.sep}'))

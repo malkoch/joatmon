@@ -5,29 +5,33 @@ from joatmon.plugin.logger.core import LoggerPlugin
 
 class TerminalLogger(LoggerPlugin):
     """
-    Deep Deterministic Policy Gradient
+    TerminalLogger class that inherits from the LoggerPlugin class. It implements the abstract methods of the LoggerPlugin class
+    using the terminal for logging operations.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes:
+        level (str): The level of logging.
+        language (str): The language for logging.
+        ip (str): The IP address for logging.
     """
 
     def __init__(self, level: str, language, ip):
+        """
+        Initialize TerminalLogger with the given level, language, and IP.
+
+        Args:
+            level (str): The level of logging.
+            language (str): The language for logging.
+            ip (str): The IP address for logging.
+        """
         super(TerminalLogger, self).__init__(level, language, ip)
 
     async def _write(self, log: dict):
         """
-        Remember the transaction.
+        Write a log to the terminal.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        This method prints the log to the terminal.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            log (dict): The log to be written.
         """
         print(json.dumps(log))

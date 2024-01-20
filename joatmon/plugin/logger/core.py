@@ -7,17 +7,15 @@ from joatmon.plugin.core import Plugin
 
 class LogLevel(Enum):
     """
-    Deep Deterministic Policy Gradient
+    LogLevel is an enumeration that defines the different levels of logging.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes:
+        NotSet (int): Level for not setting a logging level.
+        Debug (int): Level for debug logging.
+        Info (int): Level for information logging.
+        Warning (int): Level for warning logging.
+        Error (int): Level for error logging.
+        Critical (int): Level for critical logging.
     """
 
     NotSet = 1 << 0
@@ -30,20 +28,23 @@ class LogLevel(Enum):
 
 class LoggerPlugin(Plugin):
     """
-    Deep Deterministic Policy Gradient
+    LoggerPlugin is a class that provides logging functionality.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes:
+        _level (LogLevel): The level of logging.
+        language (str): The language for logging.
+        ip (str): The IP address for logging.
     """
 
     def __init__(self, level, language, ip):
+        """
+        Initialize LoggerPlugin with the given level, language, and IP.
+
+        Args:
+            level (LogLevel): The level of logging.
+            language (str): The language for logging.
+            ip (str): The IP address for logging.
+        """
         if isinstance(level, LogLevel):
             level = level.name
         self._level = LoggerPlugin._get_level(level)
@@ -54,12 +55,13 @@ class LoggerPlugin(Plugin):
     @staticmethod
     def _get_level(level_str):
         """
-        Remember the transaction.
+        Get the LogLevel from a string.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            level_str (str): The string representation of the LogLevel.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            LogLevel: The LogLevel corresponding to the given string.
         """
         _level_key = list(filter(lambda x: level_str.lower() == x.lower(), LogLevel.__dict__.keys()))
         if len(_level_key) == 1:
@@ -71,23 +73,23 @@ class LoggerPlugin(Plugin):
 
     async def _write(self, log: dict):
         """
-        Remember the transaction.
+        Write a log to the logger.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            log (dict): The log to be written.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
         raise NotImplementedError
 
     async def log(self, log: dict, level: Union[LogLevel, str] = LogLevel.Debug):
         """
-        Remember the transaction.
+        Log a message at a specified level.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            log (dict): The log to be written.
+            level (Union[LogLevel, str]): The level at which to log the message.
         """
         try:
             if isinstance(level, str):
@@ -103,55 +105,45 @@ class LoggerPlugin(Plugin):
 
     async def debug(self, log):
         """
-        Remember the transaction.
+        Log a debug message.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            log (dict): The log to be written.
         """
         await self.log(log=log, level=LogLevel.Debug)
 
     async def info(self, log):
         """
-        Remember the transaction.
+        Log an info message.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            log (dict): The log to be written.
         """
         await self.log(log=log, level=LogLevel.Info)
 
     async def warning(self, log):
         """
-        Remember the transaction.
+        Log a warning message.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            log (dict): The log to be written.
         """
         await self.log(log=log, level=LogLevel.Warning)
 
     async def error(self, log):
         """
-        Remember the transaction.
+        Log an error message.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            log (dict): The log to be written.
         """
         await self.log(log=log, level=LogLevel.Error)
 
     async def critical(self, log):
         """
-        Remember the transaction.
+        Log a critical message.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            log (dict): The log to be written.
         """
         await self.log(log=log, level=LogLevel.Critical)
