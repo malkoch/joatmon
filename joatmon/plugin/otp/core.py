@@ -3,37 +3,40 @@ from joatmon.plugin.core import Plugin
 
 class OTP(Plugin):
     """
-    Deep Deterministic Policy Gradient
+    OTP class that inherits from the Plugin class. It provides the functionality for generating and verifying OTPs.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Methods:
+        get_qr: Generates a QR code for the OTP.
+        verify: Verifies the OTP.
     """
 
     async def get_qr(self, secret, name, issuer):
         """
-        Remember the transaction.
+        Generates a QR code for the OTP.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        This method should be implemented in the child classes.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            secret (str): The secret key for the OTP.
+            name (str): The name of the OTP.
+            issuer (str): The issuer of the OTP.
+
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
         raise NotImplementedError
 
     async def verify(self, secret, otp):
         """
-        Remember the transaction.
+        Verifies the OTP.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        This method should be implemented in the child classes.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            secret (str): The secret key for the OTP.
+            otp (str): The OTP to be verified.
+
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
         raise NotImplementedError
