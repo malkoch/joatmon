@@ -31,36 +31,55 @@ from joatmon.system.memory.core import (
 
 class ProcessException(Exception):
     """
-    Deep Deterministic Policy Gradient
+    A class used to represent a ProcessException.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    This exception is raised when there is an error related to the process.
     """
 
 
 class BaseProcess(object):
     """
-    Deep Deterministic Policy Gradient
+    A base class used to represent a Process.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes
+    ----------
+    h_process : object
+        The handle to the process.
+    pid : int
+        The process ID.
+    is_process_open : bool
+        Whether the process is open.
+    buffer : object
+        The buffer used for reading and writing to the process.
+    buffer_len : int
+        The length of the buffer.
+
+    Methods
+    -------
+    __init__(self)
+        Initializes a new instance of the BaseProcess class.
+    __del__(self)
+        Deletes the instance of the BaseProcess class.
+    close(self)
+        Closes the process.
+    iter_region(self, *args, **kwargs)
+        Iterates over the regions of the process.
+    write_bytes(self, address, data)
+        Writes bytes to the process.
+    read_bytes(self, address, size=4)
+        Reads bytes from the process.
+    get_symbolic_name(a)
+        Gets the symbolic name of the process.
+    read(self, address, of_type='uint', max_length=50, errors='raise')
+        Reads data from the process.
+    write(self, address, data, of_type='uint')
+        Writes data to the process.
     """
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes a new instance of the BaseProcess class.
+        """
         self.h_process = None
         self.pid = None
         self.is_process_open = False
@@ -68,71 +87,73 @@ class BaseProcess(object):
         self.buffer_len = 0
 
     def __del__(self):
+        """
+        Deletes the instance of the BaseProcess class.
+        """
         self.close()
 
     def close(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Closes the process.
         """
 
     def iter_region(self, *args, **kwargs):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Iterates over the regions of the process.
         """
         raise NotImplementedError
 
     def write_bytes(self, address, data):
         """
-        Remember the transaction.
+        Writes bytes to the process.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            address (int): The address to write to.
+            data (bytes): The data to write.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            bool: Whether the write was successful.
         """
         raise NotImplementedError
 
     def read_bytes(self, address, size=4):
         """
-        Remember the transaction.
+        Reads bytes from the process.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            address (int): The address to read from.
+            size (int, optional): The number of bytes to read. Defaults to 4.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            bytes: The bytes read from the process.
         """
         raise NotImplementedError
 
     @staticmethod
     def get_symbolic_name(a):
         """
-        Remember the transaction.
+        Gets the symbolic name of the process.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            a (int): The address to get the symbolic name for.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            str: The symbolic name of the process.
         """
         return '0x%08X' % int(a)
 
     def read(self, address, of_type='uint', max_length=50, errors='raise'):
         """
-        Remember the transaction.
+        Reads data from the process.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            address (int): The address to read from.
+            of_type (str, optional): The type of data to read. Defaults to 'uint'.
+            max_length (int, optional): The maximum length of data to read. Defaults to 50.
+            errors (str, optional): The error handling scheme. Defaults to 'raise'.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            object: The data read from the process.
         """
         if of_type == 's' or of_type == 'string':
             byte_array = self.read_bytes(int(address), size=max_length)
@@ -152,12 +173,15 @@ class BaseProcess(object):
 
     def write(self, address, data, of_type='uint'):
         """
-        Remember the transaction.
+        Writes data to the process.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            address (int): The address to write to.
+            data (object): The data to write.
+            of_type (str, optional): The type of data to write. Defaults to 'uint'.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            bool: Whether the write was successful.
         """
         if of_type != 'bytes':
             struct_type, struct_length = type_unpack(of_type)
@@ -168,20 +192,76 @@ class BaseProcess(object):
 
 class Process(BaseProcess):
     """
-    Deep Deterministic Policy Gradient
+    A class used to represent a Process.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes
+    ----------
+    h_process : object
+        The handle to the process.
+    pid : int
+        The process ID.
+    is_process_open : bool
+        Whether the process is open.
+    buffer : object
+        The buffer used for reading and writing to the process.
+    buffer_len : int
+        The length of the buffer.
+    max_address : int
+        The maximum address space for the process.
+    min_address : int
+        The minimum address space for the process.
+
+    Methods
+    -------
+    __init__(self, pid=None, name=None, debug=True)
+        Initializes a new instance of the Process class.
+    __del__(self)
+        Deletes the instance of the Process class.
+    is_64(self)
+        Checks if the process is 64-bit.
+    list()
+        Lists all the processes.
+    processes_from_name(process_name)
+        Gets the processes from the process name.
+    name_from_process(dw_process_id)
+        Gets the process name from the process ID.
+    _open(self, dw_process_id, debug=False)
+        Opens the process with the given process ID.
+    close(self)
+        Closes the process.
+    _open_from_name(self, process_name, debug=False)
+        Opens the process with the given process name.
+    get_system_info()
+        Gets the system information.
+    get_native_system_info()
+        Gets the native system information.
+    virtual_query_ex(self, lp_address)
+        Queries the virtual memory for the given address.
+    virtual_protect_ex(self, base_address, size, protection)
+        Protects the virtual memory for the given base address, size, and protection.
+    iter_region(self, start_offset=None, end_offset=None, protect=None, optimizations=None)
+        Iterates over the regions of the process.
+    write_bytes(self, address, data)
+        Writes bytes to the process.
+    read_bytes(self, address, size=4, use_nt_wow64_read_virtual_memory64=False)
+        Reads bytes from the process.
+    list_modules(self)
+        Lists all the modules of the process.
+    get_symbolic_name(self, address)
+        Gets the symbolic name of the process.
+    has_module(self, module)
+        Checks if the process has the given module.
     """
 
     def __init__(self, pid=None, name=None, debug=True):
+        """
+        Initializes a new instance of the Process class.
+
+        Args:
+            pid (int, optional): The process ID. Defaults to None.
+            name (str, optional): The process name. Defaults to None.
+            debug (bool, optional): Whether to debug the process. Defaults to True.
+        """
         super(Process, self).__init__()
         if pid:
             self._open(int(pid), debug=debug)
@@ -200,16 +280,17 @@ class Process(BaseProcess):
         self.min_address = si.lpMinimumApplicationAddress
 
     def __del__(self):
+        """
+        Deletes the instance of the Process class.
+        """
         self.close()
 
     def is_64(self):
         """
-        Remember the transaction.
+        Checks if the process is 64-bit.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            bool: True if the process is 64-bit, False otherwise.
         """
         if '64' not in platform.machine():
             return False
@@ -223,12 +304,10 @@ class Process(BaseProcess):
     @staticmethod
     def list():
         """
-        Remember the transaction.
+        Lists all the processes.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            list: A list of all the processes.
         """
         processes = []
         arr = ctypes.c_ulong * 256
@@ -261,12 +340,13 @@ class Process(BaseProcess):
     @staticmethod
     def processes_from_name(process_name):
         """
-        Remember the transaction.
+        Gets the processes from the process name.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            process_name (str): The process name.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            list: A list of processes with the given name.
         """
         processes = []
         for process in Process.list():
@@ -281,12 +361,13 @@ class Process(BaseProcess):
     @staticmethod
     def name_from_process(dw_process_id):
         """
-        Remember the transaction.
+        Gets the process name from the process ID.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            dw_process_id (int): The process ID.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            str: The process name.
         """
         process_list = Process.list()
         for process in process_list:
@@ -297,12 +378,14 @@ class Process(BaseProcess):
 
     def _open(self, dw_process_id, debug=False):
         """
-        Remember the transaction.
+        Opens the process with the given process ID.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            dw_process_id (int): The process ID.
+            debug (bool, optional): Whether to debug the process. Defaults to False.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            bool: True if the process is opened successfully, False otherwise.
         """
         if debug:
             ppsid_owner = wintypes.DWORD()
@@ -341,12 +424,10 @@ class Process(BaseProcess):
 
     def close(self):
         """
-        Remember the transaction.
+        Closes the process.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            bool: True if the process is closed successfully, False otherwise.
         """
         if self.h_process is not None:
             ret = ctypes.windll.kernel32.CloseHandle(self.h_process) == 1
@@ -359,12 +440,15 @@ class Process(BaseProcess):
 
     def _open_from_name(self, process_name, debug=False):
         """
-        Remember the transaction.
+        Opens the process with the given process name.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            process_name (str): The process name.
+            debug (bool, optional): Whether to debug the process. Defaults to False.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            ProcessException: If the process name is not found.
+            ValueError: If there are multiple processes with the same name.
         """
         processes = self.processes_from_name(process_name)
         # need to remove the self process
@@ -384,12 +468,10 @@ class Process(BaseProcess):
     @staticmethod
     def get_system_info():
         """
-        Remember the transaction.
+        Gets the system information.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            object: The system information.
         """
         si = SystemInfo()
         ctypes.windll.kernel32.GetSystemInfo(ctypes.byref(si))
@@ -398,12 +480,10 @@ class Process(BaseProcess):
     @staticmethod
     def get_native_system_info():
         """
-        Remember the transaction.
+        Gets the native system information.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            object: The native system information.
         """
         si = SystemInfo()
         ctypes.windll.kernel32.GetNativeSystemInfo(ctypes.byref(si))
@@ -411,12 +491,16 @@ class Process(BaseProcess):
 
     def virtual_query_ex(self, lp_address):
         """
-        Remember the transaction.
+        Queries the virtual memory for the given address.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            lp_address (int): The address to query.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            object: The memory basic information.
+
+        Raises:
+            ProcessException: If there is an error in querying the virtual memory.
         """
         mbi = MemoryBasicInformation()
         if not VirtualQueryEx(self.h_process, lp_address, ctypes.byref(mbi), ctypes.sizeof(mbi)):
@@ -425,12 +509,18 @@ class Process(BaseProcess):
 
     def virtual_protect_ex(self, base_address, size, protection):
         """
-        Remember the transaction.
+        Protects the virtual memory for the given base address, size, and protection.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            base_address (int): The base address.
+            size (int): The size.
+            protection (int): The protection.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            int: The old protection.
+
+        Raises:
+            ProcessException: If there is an error in protecting the virtual memory.
         """
         old_protect = ctypes.c_ulong(0)
         if not ctypes.windll.kernel32.virtual_protect_ex(
@@ -441,12 +531,16 @@ class Process(BaseProcess):
 
     def iter_region(self, start_offset=None, end_offset=None, protect=None, optimizations=None):
         """
-        Remember the transaction.
+        Iterates over the regions of the process.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            start_offset (int, optional): The start offset. Defaults to None.
+            end_offset (int, optional): The end offset. Defaults to None.
+            protect (int, optional): The protection. Defaults to None.
+            optimizations (object, optional): The optimizations. Defaults to None.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Yields:
+            tuple: The offset start and chunk.
         """
         _offset_start = start_offset or self.min_address
         _offset_end = end_offset or self.max_address
@@ -477,12 +571,17 @@ class Process(BaseProcess):
 
     def write_bytes(self, address, data):
         """
-        Remember the transaction.
+        Writes bytes to the process.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            address (int): The address to write to.
+            data (bytes): The data to write.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            bool: True if the write was successful, False otherwise.
+
+        Raises:
+            ProcessException: If the process is not open.
         """
         address = int(address)
         if not self.is_process_open:
@@ -509,12 +608,19 @@ class Process(BaseProcess):
 
     def read_bytes(self, address, size=4, use_nt_wow64_read_virtual_memory64=False):
         """
-        Remember the transaction.
+        Reads bytes from the process.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            address (int): The address to read from.
+            size (int, optional): The number of bytes to read. Defaults to 4.
+            use_nt_wow64_read_virtual_memory64 (bool, optional): Whether to use NtWow64ReadVirtualMemory64. Defaults to False.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            bytes: The bytes read from the process.
+
+        Raises:
+            WindowsError: If NtWow64ReadVirtualMemory64 is not available from a 64bit process.
+            ctypes.WinError: If there is an error in reading the bytes.
         """
         if use_nt_wow64_read_virtual_memory64:
             if NtWow64ReadVirtualMemory64 is None:
@@ -551,12 +657,13 @@ class Process(BaseProcess):
 
     def list_modules(self):
         """
-        Remember the transaction.
+        Lists all the modules of the process.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        This method creates a snapshot of the specified processes, as well as the heaps, modules, and threads used by these
+        processes. It then examines all modules of the process and yields them one by one.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Yields:
+            ModuleEntry32: A module entry from the snapshot of modules for the process.
         """
         if self.pid is not None:
             h_module_snap = CreateToolhelp32Snapshot(Th32csClass.SNAPMODULE, self.pid)
@@ -573,12 +680,17 @@ class Process(BaseProcess):
 
     def get_symbolic_name(self, address):
         """
-        Remember the transaction.
+        Gets the symbolic name of the process.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        This method iterates over all modules of the process and checks if the given address falls within the range of
+        any module. If it does, it returns the module name along with the offset of the address from the base address
+        of the module.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            address (int): The address to get the symbolic name for.
+
+        Returns:
+            str: The symbolic name of the process.
         """
         for m in self.list_modules():
             if (
@@ -592,12 +704,16 @@ class Process(BaseProcess):
 
     def has_module(self, module):
         """
-        Remember the transaction.
+        Checks if the process has the given module.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        This method iterates over all modules of the process and checks if the given module name matches with any of
+        the module names. If it does, it returns True, otherwise False.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            module (str): The name of the module to check.
+
+        Returns:
+            bool: True if the process has the module, False otherwise.
         """
         if module[-4:] != '.dll':
             module += '.dll'

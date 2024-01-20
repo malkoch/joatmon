@@ -18,47 +18,104 @@ PAGE_READWRITE = 4
 
 class Worker(object):
     """
-    Deep Deterministic Policy Gradient
+    A class used to represent a Worker.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes
+    ----------
+    process : object
+        The process that the worker belongs to.
+
+    Methods
+    -------
+    __init__(self, pid=None, name=None, debug=True)
+        Initializes a new instance of the Worker class.
+    __enter__(self)
+        Enters the context of the Worker class.
+    __exit__(self)
+        Exits the context of the Worker class.
+    address(self, value, default_type='uint')
+        Returns an Address object with the given value and default type.
+    memory_replace_unicode(self, regex, replace)
+        Replaces all occurrences of the regex with the replace in the memory.
+    memory_replace(self, regex, replace)
+        Replaces all occurrences of the regex with the replace in the memory.
+    memory_search_unicode(self, regex)
+        Searches for the regex in the memory.
+    group_search(self, group, start_offset=None, end_offset=None)
+        Searches for the group in the memory.
+    search_address(self, search)
+        Searches for the address in the memory.
+    parse_re_function(self, byte_array, value, offset)
+        Parses the byte array using the regex function.
+    parse_float_function(self, byte_array, value, offset)
+        Parses the byte array using the float function.
+    parse_named_groups_function(byte_array, value, _)
+        Parses the byte array using the named groups function.
+    parse_groups_function(byte_array, value, _)
+        Parses the byte array using the groups function.
+    parse_any_function(self, byte_array, value, offset)
+        Parses the byte array using any function.
+    memory_search(
+            self,
+            value,
+            of_type='match',
+            protect=PAGE_READWRITE | PAGE_READONLY,
+            optimizations=None,
+            start_offset=None,
+            end_offset=None,
+    )
+        Searches for the value in the memory.
     """
 
     def __init__(self, pid=None, name=None, debug=True):
+        """
+        Initializes a new instance of the Worker class.
+
+        Args:
+            pid (int, optional): The process ID. Defaults to None.
+            name (str, optional): The name of the process. Defaults to None.
+            debug (bool, optional): Whether to enable debug mode. Defaults to True.
+        """
         self.process = Process(name=name, pid=pid, debug=debug)
 
     def __enter__(self):
+        """
+        Enters the context of the Worker class.
+
+        Returns:
+            Worker: The current instance of the Worker class.
+        """
         return self
 
     def __exit__(self):
+        """
+        Exits the context of the Worker class.
+        """
         self.process.close()
 
     def address(self, value, default_type='uint'):
         """
-        Remember the transaction.
+        Returns an Address object with the given value and default type.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            value (int): The value of the address.
+            default_type (str, optional): The default type of the address. Defaults to 'uint'.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            Address: An Address object with the given value and default type.
         """
         return Address(value, process=self.process, default_type=default_type)
 
     def memory_replace_unicode(self, regex, replace):
         """
-        Remember the transaction.
+        Replaces all occurrences of the regex with the replace in the memory.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            regex (str): The regex to replace.
+            replace (str): The string to replace the regex with.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            bool: Whether the replacement was successful.
         """
         regex = regex.encode('utf-16-le')
         replace = replace.encode('utf-16-le')
@@ -66,12 +123,14 @@ class Worker(object):
 
     def memory_replace(self, regex, replace):
         """
-        Remember the transaction.
+        Replaces all occurrences of the regex with the replace in the memory.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            regex (str): The regex to replace.
+            replace (str): The string to replace the regex with.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            bool: Whether the replacement was successful.
         """
         succeed = True
         for _, start_offset in self.memory_search(regex, of_type='re'):
@@ -85,12 +144,13 @@ class Worker(object):
 
     def memory_search_unicode(self, regex):
         """
-        Remember the transaction.
+        Searches for the regex in the memory.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            regex (str): The regex to search for.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Yields:
+            tuple: A tuple containing the name and address of the regex.
         """
         regex = regex.encode('utf-16-le')
         for _name, _address in self.memory_search(regex, of_type='re'):
@@ -98,12 +158,15 @@ class Worker(object):
 
     def group_search(self, group, start_offset=None, end_offset=None):
         """
-        Remember the transaction.
+        Searches for the group in the memory.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            group (list): The group to search for.
+            start_offset (int, optional): The start offset of the search. Defaults to None.
+            end_offset (int, optional): The end offset of the search. Defaults to None.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            list: The addresses of the group in the memory.
         """
         regex = ''
         for value, of_type in group:
@@ -117,12 +180,13 @@ class Worker(object):
 
     def search_address(self, search):
         """
-        Remember the transaction.
+        Searches for the address in the memory.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            search (int): The address to search for.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Yields:
+            int: The address in the memory.
         """
         _address = '%08X' % search
         print('searching address %s' % _address)
@@ -135,12 +199,15 @@ class Worker(object):
 
     def parse_re_function(self, byte_array, value, offset):
         """
-        Remember the transaction.
+        Parses the byte array using the regex function.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            byte_array (bytes): The byte array to parse.
+            value (str): The value to search for in the byte array.
+            offset (int): The offset of the byte array.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Yields:
+            tuple: A tuple containing the name and address of the value in the byte array.
         """
         for name, regex in value:
             for res in regex.finditer(byte_array):
@@ -148,12 +215,15 @@ class Worker(object):
 
     def parse_float_function(self, byte_array, value, offset):
         """
-        Remember the transaction.
+        Parses the byte array using the float function.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            byte_array (bytes): The byte array to parse.
+            value (float): The value to search for in the byte array.
+            offset (int): The offset of the byte array.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Yields:
+            Address: An Address object with the offset and type 'float'.
         """
         for index in range(0, len(byte_array)):
             try:
@@ -168,12 +238,15 @@ class Worker(object):
     @staticmethod
     def parse_named_groups_function(byte_array, value, _):
         """
-        Remember the transaction.
+        Parses the byte array using the named groups function.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            byte_array (bytes): The byte array to parse.
+            value (str): The value to search for in the byte array.
+            _ (None): Unused parameter.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Yields:
+            tuple: A tuple containing the name and group dictionary of the value in the byte array.
         """
         for name, regex in value:
             for res in regex.finditer(byte_array):
@@ -182,12 +255,15 @@ class Worker(object):
     @staticmethod
     def parse_groups_function(byte_array, value, _):
         """
-        Remember the transaction.
+        Parses the byte array using the groups function.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            byte_array (bytes): The byte array to parse.
+            value (str): The value to search for in the byte array.
+            _ (None): Unused parameter.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Yields:
+            tuple: A tuple containing the name and groups of the value in the byte array.
         """
         for name, regex in value:
             for res in regex.finditer(byte_array):
@@ -195,12 +271,15 @@ class Worker(object):
 
     def parse_any_function(self, byte_array, value, offset):
         """
-        Remember the transaction.
+        Parses the byte array using any function.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            byte_array (bytes): The byte array to parse.
+            value (str): The value to search for in the byte array.
+            offset (int): The offset of the byte array.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Yields:
+            Address: An Address object with the offset and type 'bytes'.
         """
         index = byte_array.find(value)
         while index != -1:
@@ -218,12 +297,18 @@ class Worker(object):
             end_offset=None,
     ):
         """
-        Remember the transaction.
+        Searches for the value in the memory.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            value (str): The value to search for.
+            of_type (str, optional): The type of the value. Defaults to 'match'.
+            protect (int, optional): The protection of the memory. Defaults to PAGE_READWRITE | PAGE_READONLY.
+            optimizations (None, optional): The optimizations to use. Defaults to None.
+            start_offset (int, optional): The start offset of the search. Defaults to None.
+            end_offset (int, optional): The end offset of the search. Defaults to None.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Yields:
+            tuple: A tuple containing the name and address of the value in the memory.
         """
         if of_type == 're' or of_type == 'groups' or of_type == 'ngroups':
             if type(value) is not list:

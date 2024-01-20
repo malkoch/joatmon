@@ -6,20 +6,49 @@ from joatmon.system.memory.address import Address
 
 class Locator(object):
     """
-    Deep Deterministic Policy Gradient
+    A class used to represent a Locator.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes
+    ----------
+    worker : object
+        The worker object that the locator belongs to.
+    of_type : str
+        The type of the locator.
+    last_iteration : dict
+        The last iteration of the locator.
+    last_value : object
+        The last value of the locator.
+    start : int
+        The start of the locator.
+    end : int
+        The end of the locator.
+
+    Methods
+    -------
+    __init__(self, worker, of_type='unknown', start=None, end=None)
+        Initializes a new instance of the Locator class.
+    find(self, value, erase_last=True)
+        Finds the given value in the locator.
+    feed(self, value, erase_last=True)
+        Feeds the given value into the locator.
+    get_addresses(self)
+        Gets the addresses of the locator.
+    diff(self, erase_last=False)
+        Gets the difference of the locator.
+    get_modified_address(self, erase_last=False)
+        Gets the modified address of the locator.
     """
 
     def __init__(self, worker, of_type='unknown', start=None, end=None):
+        """
+        Initializes a new instance of the Locator class.
+
+        Args:
+            worker (object): The worker object that the locator belongs to.
+            of_type (str, optional): The type of the locator. Defaults to 'unknown'.
+            start (int, optional): The start of the locator. Defaults to None.
+            end (int, optional): The end of the locator. Defaults to None.
+        """
         self.worker = worker
         self.of_type = of_type
         self.last_iteration = {}
@@ -29,23 +58,27 @@ class Locator(object):
 
     def find(self, value, erase_last=True):
         """
-        Remember the transaction.
+        Finds the given value in the locator.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            value (object): The value to find.
+            erase_last (bool, optional): Whether to erase the last value. Defaults to True.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            dict: The new iteration of the locator.
         """
         return self.feed(value, erase_last)
 
     def feed(self, value, erase_last=True):
         """
-        Remember the transaction.
+        Feeds the given value into the locator.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            value (object): The value to feed.
+            erase_last (bool, optional): Whether to erase the last value. Defaults to True.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            dict: The new iteration of the locator.
         """
         self.last_value = value
         new_iter = copy.copy(self.last_iteration)
@@ -84,34 +117,34 @@ class Locator(object):
 
     def get_addresses(self):
         """
-        Remember the transaction.
+        Gets the addresses of the locator.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            dict: The addresses of the locator.
         """
         return self.last_iteration
 
     def diff(self, erase_last=False):
         """
-        Remember the transaction.
+        Gets the difference of the locator.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            erase_last (bool, optional): Whether to erase the last value. Defaults to False.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            dict: The difference of the locator.
         """
         return self.get_modified_address(erase_last)
 
     def get_modified_address(self, erase_last=False):
         """
-        Remember the transaction.
+        Gets the modified address of the locator.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            erase_last (bool, optional): Whether to erase the last value. Defaults to False.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            dict: The modified address of the locator.
         """
         last = self.last_iteration
         new = self.feed(self.last_value, erase_last=erase_last)
