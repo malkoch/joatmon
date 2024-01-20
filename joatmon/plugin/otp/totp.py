@@ -5,37 +5,40 @@ from joatmon.plugin.otp.core import OTP
 
 class TOTP(OTP):
     """
-    Deep Deterministic Policy Gradient
+    TOTP class that inherits from the OTP class. It provides the functionality for generating and verifying Time-based One-Time Passwords (TOTP).
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Methods:
+        get_qr: Generates a QR code for the TOTP.
+        verify: Verifies the TOTP.
     """
 
     async def get_qr(self, secret, name, issuer):
         """
-        Remember the transaction.
+        Generates a QR code for the TOTP.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        This method uses the pyotp library to generate a provisioning URI for the TOTP. This URI can be converted into a QR code.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            secret (str): The secret key for the TOTP.
+            name (str): The name of the TOTP.
+            issuer (str): The issuer of the TOTP.
+
+        Returns:
+            str: The provisioning URI for the TOTP.
         """
         return pyotp.totp.TOTP(secret).provisioning_uri(name=name, issuer_name=issuer)
 
     async def verify(self, secret, otp):
         """
-        Remember the transaction.
+        Verifies the TOTP.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        This method uses the pyotp library to verify the TOTP.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            secret (str): The secret key for the TOTP.
+            otp (str): The TOTP to be verified.
+
+        Returns:
+            bool: True if the TOTP is valid, False otherwise.
         """
         return pyotp.TOTP(secret).verify(otp)
