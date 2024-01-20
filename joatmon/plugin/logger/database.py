@@ -4,20 +4,28 @@ from joatmon.plugin.logger.core import LoggerPlugin
 
 class DatabaseLogger(LoggerPlugin):
     """
-    Deep Deterministic Policy Gradient
+    DatabaseLogger class that inherits from the LoggerPlugin class. It implements the abstract methods of the LoggerPlugin class
+    using a database for logging operations.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes:
+        level (str): The level of logging.
+        database (str): The name of the database to be used for logging.
+        cls (str): The class of the documents to be logged.
+        language (str): The language for logging.
+        ip (str): The IP address for logging.
     """
 
     def __init__(self, level: str, database: str, cls, language, ip):
+        """
+        Initialize DatabaseLogger with the given level, database, class, language, and IP.
+
+        Args:
+            level (str): The level of logging.
+            database (str): The name of the database to be used for logging.
+            cls (str): The class of the documents to be logged.
+            language (str): The language for logging.
+            ip (str): The IP address for logging.
+        """
         super(DatabaseLogger, self).__init__(level, language, ip)
 
         self.database = database
@@ -25,12 +33,12 @@ class DatabaseLogger(LoggerPlugin):
 
     async def _write(self, log: dict):
         """
-        Remember the transaction.
+        Write a log to the database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        This method inserts the log into the database.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            log (dict): The log to be written.
         """
         database = context.get_value(self.database)
         await database.insert(self.cls, log)
