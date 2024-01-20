@@ -8,20 +8,46 @@ import pycurl
 
 class Download:
     """
-    Deep Deterministic Policy Gradient
+    A class used to represent a Download.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes
+    ----------
+    url : str
+        The URL of the file to download.
+    filename : str
+        The name of the file to download.
+    size : int
+        The size of the file to download.
+    chunks : list
+        The chunks of the file to download.
+    m : pycurl.CurlMulti
+        The CurlMulti object used for downloading the file.
+    bom_check : dict
+        A dictionary used to check the byte order mark of each chunk.
+
+    Methods
+    -------
+    __init__(self, url)
+        Initializes a new instance of the Download class.
+    get_range(self, chunk, max_chunks)
+        Gets the range of the specified chunk.
+    write_body(self, buf, chunk, f)
+        Writes the specified buffer to the specified file.
+    write_header(self, buf, chunk)
+        Writes the specified buffer to the header.
+    progress(self, *args, chunk)
+        Shows the progress of the download.
+    download(self, chunks)
+        Downloads the file in the specified number of chunks.
     """
 
     def __init__(self, url):
+        """
+        Initializes a new instance of the Download class.
+
+        Args:
+            url (str): The URL of the file to download.
+        """
         self.url = url
         self.filename = url.split('/')[-1]
 
@@ -42,12 +68,14 @@ class Download:
 
     def get_range(self, chunk, max_chunks):
         """
-        Remember the transaction.
+        Gets the range of the specified chunk.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            chunk (int): The chunk to get the range for.
+            max_chunks (int): The total number of chunks.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            str: The range of the chunk.
         """
         if chunk == max_chunks - 1:
             return f'{int((self.size // max_chunks) * chunk)}-{int(self.size - 1)}'
@@ -56,12 +84,12 @@ class Download:
 
     def write_body(self, buf, chunk, f):
         """
-        Remember the transaction.
+        Writes the specified buffer to the specified file.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            buf (bytes): The buffer to write.
+            chunk (int): The chunk to write to.
+            f (file): The file to write to.
         """
         if not self.bom_check.get(chunk, False):
             if buf[:3] == codecs.BOM_UTF8:
@@ -72,35 +100,29 @@ class Download:
 
     def write_header(self, buf, chunk):
         """
-        Remember the transaction.
+        Writes the specified buffer to the header.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            buf (bytes): The buffer to write.
+            chunk (int): The chunk to write to.
         """
         print(f'{chunk}: {buf}')
 
     def progress(self, *args, chunk):
         """
-        Remember the transaction.
+        Shows the progress of the download.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            *args: Variable length argument list.
+            chunk (int): The chunk to show the progress for.
         """
-        ...
-        # print(chunk, args)
 
     def download(self, chunks):
         """
-        Remember the transaction.
+        Downloads the file in the specified number of chunks.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            chunks (int): The number of chunks to download the file in.
         """
         files = []
 
@@ -181,12 +203,14 @@ class Download:
 
 def download(url, chunks):
     """
-    Remember the transaction.
+    Downloads a file from a URL in a specified number of chunks.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        url (str): The URL of the file to download.
+        chunks (int): The number of chunks to download the file in.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        Download: The Download object used to download the file.
     """
     d = Download(url)
     d.download(chunks)
