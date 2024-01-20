@@ -2,48 +2,83 @@ from joatmon.plugin.core import Plugin
 
 
 class Producer:
+    """
+    Abstract Producer class that defines the interface for producing messages.
+
+    Methods:
+        produce: Sends a message to a specified topic.
+    """
+
     def produce(self, topic: str, message: str):
+        """
+        Sends a message to a specified topic.
+
+        Args:
+            topic (str): The topic to which the message should be sent.
+            message (str): The message to be sent.
+
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
+        """
         raise NotImplementedError
 
 
 class Consumer:
+    """
+    Abstract Consumer class that defines the interface for consuming messages.
+
+    Methods:
+        consume: Receives a message.
+    """
+
     def consume(self) -> str:
+        """
+        Receives a message.
+
+        Returns:
+            str: The received message.
+
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
+        """
         raise NotImplementedError
 
 
 class MessagePlugin(Plugin):
     """
-    Deep Deterministic Policy Gradient
+    MessagePlugin class that inherits from the Plugin class. It provides the functionality for producing and consuming messages.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Methods:
+        get_producer: Returns a Producer for a specified topic.
+        get_consumer: Returns a Consumer for a specified topic.
     """
 
     def get_producer(self, topic) -> Producer:
         """
-        Remember the transaction.
+        Returns a Producer for a specified topic.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            topic (str): The topic for which a Producer should be returned.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            Producer: The Producer for the specified topic.
+
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
         raise NotImplementedError
 
     def get_consumer(self, topic) -> Consumer:
         """
-        Remember the transaction.
+        Returns a Consumer for a specified topic.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            topic (str): The topic for which a Consumer should be returned.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            Consumer: The Consumer for the specified topic.
+
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
         raise NotImplementedError

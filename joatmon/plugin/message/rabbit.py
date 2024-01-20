@@ -8,21 +8,66 @@ from joatmon.plugin.message.core import Consumer, MessagePlugin, Producer
 
 
 class RabbitProducer(Producer):
+    """
+    RabbitProducer class that inherits from the Producer class. It implements the produce method using RabbitMQ.
+
+    Attributes:
+        producer (pika.BlockingConnection.channel): The RabbitMQ producer instance.
+    """
+
     def __init__(self, producer):
+        """
+        Initialize RabbitProducer with the given RabbitMQ producer.
+
+        Args:
+            producer (pika.BlockingConnection.channel): The RabbitMQ producer instance.
+        """
         self.producer = producer
 
     def produce(self, topic: str, message: str):
+        """
+        Sends a message to a specified RabbitMQ topic.
+
+        Args:
+            topic (str): The topic to which the message should be sent.
+            message (str): The message to be sent.
+        """
         self.producer.basic_publish(exchange=topic, routing_key=topic, body=message)
 
 
 class RabbitConsumer(Consumer):
+    """
+    RabbitConsumer class that inherits from the Consumer class. It implements the consume method using RabbitMQ.
+
+    Attributes:
+        consumer (pika.BlockingConnection.channel): The RabbitMQ consumer instance.
+    """
+
     def __init__(self, consumer):
+        """
+        Initialize RabbitConsumer with the given RabbitMQ consumer.
+
+        Args:
+            consumer (pika.BlockingConnection.channel): The RabbitMQ consumer instance.
+        """
         self.consumer = consumer
 
     def set_q(self, q):
+        """
+        Set the queue for the consumer.
+
+        Args:
+            q (queue.Queue): The queue for the consumer.
+        """
         self.q = q
 
     def consume(self) -> typing.Optional[str]:
+        """
+        Receives a message from a RabbitMQ topic.
+
+        Returns:
+            str: The received message.
+        """
         try:
             msg = self.q.get(timeout=.1)
         except queue.Empty:
@@ -33,20 +78,26 @@ class RabbitConsumer(Consumer):
 
 class RabbitMQPlugin(MessagePlugin):
     """
-    Deep Deterministic Policy Gradient
+    RabbitMQPlugin class that inherits from the MessagePlugin class. It provides the functionality for producing and consuming messages using RabbitMQ.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes:
+        host (str): The host for RabbitMQ.
+        port (int): The port for RabbitMQ.
+        username (str): The username for RabbitMQ.
+        password (str): The password for RabbitMQ.
+        d (dict): A dictionary to store the queues for each topic.
     """
 
     def __init__(self, host, port, username, password):
+        """
+        Initialize RabbitMQPlugin with the given host, port, username, and password.
+
+        Args:
+            host (str): The host for RabbitMQ.
+            port (int): The port for RabbitMQ.
+            username (str): The username for RabbitMQ.
+            password (str): The password for RabbitMQ.
+        """
         self.host = host
         self.port = port
         self.username = username
@@ -56,12 +107,13 @@ class RabbitMQPlugin(MessagePlugin):
 
     def get_producer(self, topic):
         """
-        Remember the transaction.
+        Returns a RabbitProducer for a specified topic.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            topic (str): The topic for which a RabbitProducer should be returned.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            RabbitProducer: The RabbitProducer for the specified topic.
         """
         if topic not in self.d:
             self.d[topic] = queue.Queue()
@@ -80,12 +132,13 @@ class RabbitMQPlugin(MessagePlugin):
 
     def get_consumer(self, topic):
         """
-        Remember the transaction.
+        Returns a RabbitConsumer for a specified topic.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            topic (str): The topic for which a RabbitConsumer should be returned.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            RabbitConsumer: The RabbitConsumer for the specified topic.
         """
         if topic not in self.d:
             self.d[topic] = queue.Queue()
