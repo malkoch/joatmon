@@ -6,20 +6,39 @@ import speech_recognition as sr
 
 class Microphone:
     """
-    Deep Deterministic Policy Gradient
+    A class used to represent a Microphone.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    ...
+
+    Attributes
+    ----------
+    r : sr.Recognizer
+        The recognizer instance used to recognize speech.
+    audio_queue : queue.Queue
+        The queue to store audio data.
+    result_queue : queue.Queue
+        The queue to store the result of speech recognition.
+    stop_event : threading.Event
+        The event to signal the stop of the listening thread.
+    listening_thread : threading.Thread
+        The thread to listen to the microphone.
+
+    Methods
+    -------
+    __init__(self)
+        Initializes a new instance of the Microphone class.
+    record_audio(self)
+        Records audio from the microphone and puts it into the audio queue.
+    listen(self)
+        Gets the next audio data from the audio queue.
+    stop(self)
+        Stops the listening thread.
     """
 
     def __init__(self):
+        """
+        Initializes a new instance of the Microphone class.
+        """
         super(Microphone, self).__init__()
 
         self.r = sr.Recognizer()
@@ -39,12 +58,7 @@ class Microphone:
 
     def record_audio(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Records audio from the microphone and puts it into the audio queue.
         """
         with sr.Microphone(sample_rate=16000) as source:
             # self.r.adjust_for_ambient_noise(source)
@@ -57,22 +71,15 @@ class Microphone:
 
     def listen(self):
         """
-        Remember the transaction.
+        Gets the next audio data from the audio queue.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            sr.AudioData: The next audio data from the audio queue.
         """
         return self.audio_queue.get()
 
     def stop(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Stops the listening thread.
         """
         self.stop_event.set()

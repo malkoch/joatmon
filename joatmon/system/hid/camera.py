@@ -5,20 +5,24 @@ import cv2
 
 class Camera:
     """
-    Deep Deterministic Policy Gradient
+    Camera class that provides the functionality for capturing video from a camera.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes:
+        cam (cv2.VideoCapture): The camera object.
+        stop_event (threading.Event): The event to stop the camera.
+
+    Methods:
+        frame: Captures a single frame from the camera.
+        shot: Captures a single frame from the camera and saves it to a file.
+        stream: Streams video from the camera.
+        record: Records video from the camera for a specified amount of time.
+        stop: Stops the camera.
     """
 
     def __init__(self):
+        """
+        Initialize Camera.
+        """
         super(Camera, self).__init__()
 
         self.cam = None
@@ -26,12 +30,10 @@ class Camera:
 
     def frame(self):
         """
-        Remember the transaction.
+        Captures a single frame from the camera.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            numpy.ndarray: The captured frame.
         """
         self.cam = cv2.VideoCapture(0)
         ret, frame = self.cam.read()
@@ -40,23 +42,18 @@ class Camera:
 
     def shot(self, path):
         """
-        Remember the transaction.
+        Captures a single frame from the camera and saves it to a file.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            path (str): The path to save the frame.
         """
-        ...
 
     def stream(self):
         """
-        Remember the transaction.
+        Streams video from the camera.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Yields:
+            numpy.ndarray: The current frame.
         """
         self.cam = cv2.VideoCapture(0)
 
@@ -66,23 +63,16 @@ class Camera:
 
     def record(self, path, time):
         """
-        Remember the transaction.
+        Records video from the camera for a specified amount of time.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            path (str): The path to save the video.
+            time (int): The amount of time to record video.
         """
-        ...
 
     def stop(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Stops the camera.
         """
         self.stop_event.set()
         if self.cam is not None:

@@ -5,35 +5,44 @@ from joatmon.system import is_installed
 
 class Speaker:
     """
-    Deep Deterministic Policy Gradient
+    A class used to represent a Speaker.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    ...
+
+    Methods
+    -------
+    __init__(self)
+        Initializes a new instance of the Speaker class.
+    say(self, audio)
+        Plays the specified audio.
     """
 
     def __init__(self):
+        """
+        Initializes a new instance of the Speaker class.
+        """
         super(Speaker, self).__init__()
 
     def say(self, audio):
         """
-        Remember the transaction.
+        Plays the specified audio.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            audio (bytes): The audio to be played.
         """
         play(audio)
 
 
 def play(audio: bytes) -> None:
+    """
+    Plays the specified audio using ffplay from ffmpeg.
+
+    Args:
+        audio (bytes): The audio to be played.
+
+    Raises:
+        ValueError: If ffplay from ffmpeg is not installed.
+    """
     if not is_installed("ffplay"):
         raise ValueError("ffplay from ffmpeg not found, necessary to play audio.")
     args = ["ffplay", "-autoexit", "-", "-nodisp"]

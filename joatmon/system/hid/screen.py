@@ -8,29 +8,35 @@ __all__ = ['resolution', 'cursor', 'grab']
 
 
 class POINT(ctypes.Structure):
+    """
+    A class used to represent a point with x and y coordinates.
+
+    Attributes
+    ----------
+    x : ctypes.c_long
+        The x-coordinate of the point.
+    y : ctypes.c_long
+        The y-coordinate of the point.
+    """
     _fields_ = [('x', ctypes.c_long), ('y', ctypes.c_long)]
 
 
 def resolution():
     """
-    Remember the transaction.
+    Gets the resolution of the system.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        tuple: The resolution of the system as a tuple (height, width).
     """
     return ctypes.windll.user32.GetSystemMetrics(1), ctypes.windll.user32.GetSystemMetrics(0)
 
 
 def cursor():
     """
-    Remember the transaction.
+    Gets the current position of the cursor.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        tuple: The current position of the cursor as a tuple (y, x).
     """
     _cursor = POINT()
     ctypes.windll.user32.GetCursorPos(ctypes.byref(_cursor))
@@ -39,12 +45,13 @@ def cursor():
 
 def grab(region=None) -> numpy.ndarray:
     """
-    Remember the transaction.
+    Grabs a screenshot of the specified region.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        region (tuple, optional): The region to grab a screenshot of as a tuple (left, top, right, bottom). If not specified, a screenshot of the entire screen is grabbed.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        numpy.ndarray: The screenshot as a numpy array.
     """
     if sys.platform == 'win32':
         import win32api
