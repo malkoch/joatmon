@@ -8,7 +8,7 @@
 [![Build](https://github.com/malkoch/joatmon/actions/workflows/build.yml/badge.svg)](https://github.com/malkoch/joatmon/actions/workflows/build.yml)
 [![Release](https://github.com/malkoch/joatmon/actions/workflows/release.yml/badge.svg)](https://github.com/malkoch/joatmon/actions/workflows/release.yml)
 
-Welcome to the Joatmon repository! Here you'll find a collection of codes and scripts I've written over the past 6 years, spanning a wide range of topics and applications. This repository truly lives up to its name â€“ a jack of all trades.
+Welcome to the Joatmon repository! Here you'll find a collection of codes and scripts I've written over the past 6 years, spanning a wide range of topics and applications. This repository truly lives up to its name – a jack of all trades.
 
 The Joatmon repository is a testament to my journey and exploration in the world of programming and technology. As such, it might not represent best practices, and some parts might be outdated. Use the resources here as a reference or a starting point for your projects, but always exercise due diligence and consider best practices for your specific use case.
 
@@ -136,6 +136,6 @@ Use these scripts at your own risk. I am not responsible for any damages, losses
 
 Happy coding!
 
-**Hamitcan MalkoÃ§**
+**Hamitcan Malkoç**
 
 For more information or inquiries, please contact me at info@hamitcanmalkoc.com.
