@@ -4,40 +4,43 @@ from joatmon.plugin.core import Plugin
 
 class ValuePlugin(Plugin):
     """
-    Deep Deterministic Policy Gradient
+    ValuePlugin class that inherits from the Plugin class. It provides the functionality for setting and getting values in the context.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes:
+        key (str): The key for the value in the context.
+
+    Methods:
+        set: Sets a value in the context.
+        get: Gets a value from the context.
     """
 
     def __init__(self, key):
+        """
+        Initialize ValuePlugin with the given key.
+
+        Args:
+            key (str): The key for the value in the context.
+        """
         self.key = key
 
     def set(self, value):
         """
-        Remember the transaction.
+        Sets a value in the context.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        This method uses the joatmon.core.context.set_value method to set a value in the context.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            value (any): The value to be set in the context.
         """
         context.set_value(self.key, value)
 
     def get(self):
         """
-        Remember the transaction.
+        Gets a value from the context.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        This method uses the joatmon.core.context.get_value method to get a value from the context.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            any: The value from the context.
         """
         return context.get_value(self.key)
