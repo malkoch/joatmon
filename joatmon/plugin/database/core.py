@@ -3,17 +3,8 @@ from joatmon.plugin.core import Plugin
 
 class DatabasePlugin(Plugin):
     """
-    Deep Deterministic Policy Gradient
-
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    DatabasePlugin class that inherits from the Plugin class. It is an abstract class that provides
+    the structure for database operations. The methods in this class should be implemented in the child classes.
     """
 
     # query can be a dictionary, query builder or formatted query
@@ -22,11 +13,32 @@ class DatabasePlugin(Plugin):
     # when writing, might write to message queue and consume in batcher so that the write operation will be reduced
     # after writing the read cache should be updated as well
     async def __aenter__(self):
+        """
+        This method is called when the 'with' statement is used. It starts the database connection.
+
+        Returns:
+            self: The current instance of the class.
+        """
         await self.start()
 
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
+        """
+        This method is called when the 'with' statement is finished. It commits or aborts the transaction
+        depending on whether an exception occurred or not. It then ends the database connection.
+
+        Args:
+            exc_type (type): The type of the exception that occurred, if any.
+            exc_val (Exception): The instance of the exception that occurred, if any.
+            exc_tb (traceback): A traceback object encapsulating the call stack at the point where the exception occurred, if any.
+
+        Returns:
+            self: The current instance of the class.
+
+        Raises:
+            exc_val: If an exception occurred during the 'with' statement.
+        """
         if exc_type is None:
             await self.commit()
         else:
@@ -36,159 +48,179 @@ class DatabasePlugin(Plugin):
 
         return self
 
-    # def __del__(self):
-    #     self.end()
-
     async def create(self, document):
         """
-        Remember the transaction.
+        This is an abstract method that should be implemented in the child classes. It is used to
+        create a new document in the database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            document (dict): The document to be created.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
         raise NotImplementedError
 
     async def alter(self, document):
         """
-        Remember the transaction.
+        This is an abstract method that should be implemented in the child classes. It is used to
+        alter an existing document in the database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            document (dict): The document to be altered.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
         raise NotImplementedError
 
     async def drop(self, document):
         """
-        Remember the transaction.
+        This is an abstract method that should be implemented in the child classes. It is used to
+        drop a document from the database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            document (dict): The document to be dropped.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
         raise NotImplementedError
 
     async def insert(self, document, *docs):
         """
-        Remember the transaction.
+        This is an abstract method that should be implemented in the child classes. It is used to
+        insert one or more documents into the database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            document (dict): The first document to be inserted.
+            *docs (dict): Additional documents to be inserted.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
         raise NotImplementedError
 
     async def read(self, document, query):
         """
-        Remember the transaction.
+        This is an abstract method that should be implemented in the child classes. It is used to
+        read a document from the database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            document (dict): The document to be read.
+            query (dict): The query to be used for reading the document.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
         raise NotImplementedError
 
     async def update(self, document, query, update):
         """
-        Remember the transaction.
+        This is an abstract method that should be implemented in the child classes. It is used to
+        update a document in the database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            document (dict): The document to be updated.
+            query (dict): The query to be used for updating the document.
+            update (dict): The update to be applied to the document.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
         raise NotImplementedError
 
     async def delete(self, document, query):
         """
-        Remember the transaction.
+        This is an abstract method that should be implemented in the child classes. It is used to
+        delete a document from the database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            document (dict): The document to be deleted.
+            query (dict): The query to be used for deleting the document.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
         raise NotImplementedError
 
     async def view(self, document, query):
         """
-        Remember the transaction.
+        This is an abstract method that should be implemented in the child classes. It is used to
+        view a document in the database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            document (dict): The document to be viewed.
+            query (dict): The query to be used for viewing the document.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
         raise NotImplementedError
 
     async def execute(self, document, query):
         """
-        Remember the transaction.
+        This is an abstract method that should be implemented in the child classes. It is used to
+        execute a query on a document in the database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            document (dict): The document to be queried.
+            query (dict): The query to be executed.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
         raise NotImplementedError
 
     async def count(self, query):
         """
-        Remember the transaction.
+        This is an abstract method that should be implemented in the child classes. It is used to
+        count the number of documents that match a query in the database.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            query (dict): The query to be counted.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
         raise NotImplementedError
 
     async def start(self):
         """
-        Remember the transaction.
+        This is an abstract method that should be implemented in the child classes. It is used to
+        start a database transaction.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
         raise NotImplementedError
 
     async def commit(self):
         """
-        Remember the transaction.
+        This is an abstract method that should be implemented in the child classes. It is used to
+        commit a database transaction.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
         raise NotImplementedError
 
     async def abort(self):
         """
-        Remember the transaction.
+        This is an abstract method that should be implemented in the child classes. It is used to
+        abort a database transaction.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
         raise NotImplementedError
 
     async def end(self):
         """
-        Remember the transaction.
+        This is an abstract method that should be implemented in the child classes. It is used to
+        end a database transaction.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
         raise NotImplementedError
