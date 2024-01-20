@@ -5,116 +5,39 @@ repo_url: https://github.com/malkoch/joatmon
 site_description: 'Documentation for joatmon.'
 
 pages:
+  - page: "./joatmon/nn/optimizer/rmsprop.md"
+    source: "joatmon/nn/optimizer/rmsprop.py"
+    classes: 
+      - RMSprop
   - page: "./joatmon/plugin/logger/core.md"
     source: "joatmon/plugin/logger/core.py"
     classes: 
       - LogLevel
       - LoggerPlugin
-  - page: "./joatmon/nn/layer/pool/avgpool.md"
-    source: "joatmon/nn/layer/pool/avgpool.py"
-    classes: 
-      - AvgPool
-  - page: "./joatmon/ai/policy.md"
-    source: "joatmon/ai/policy.py"
-    classes: 
-      - CorePolicy
-      - GreedyQPolicy
-      - EpsilonGreedyPolicy
-  - page: "./joatmon/nn/layer/activation/softmax.md"
-    source: "joatmon/nn/layer/activation/softmax.py"
-    classes: 
-      - Softmax
-  - page: "./joatmon/plugin/core.md"
-    source: "joatmon/plugin/core.py"
+  - page: "./joatmon/nn/processing.md"
+    source: "joatmon/nn/processing.py"
     functions: 
-      - register
+      - word_tokenize
+      - pad_sequences
     classes: 
-      - Plugin
-      - PluginProxy
-  - page: "./joatmon/array/random.md"
-    source: "joatmon/array/random.py"
+      - OneHotEncoder
+      - Tokenizer
+  - page: "./joatmon/system/hid/speaker.md"
+    source: "joatmon/system/hid/speaker.py"
     functions: 
-      - rand
-      - randint
-      - randn
-      - normal
-      - uniform
-  - page: "./joatmon/nn/core.md"
-    source: "joatmon/nn/core.py"
+      - play
     classes: 
-      - ModuleAttributeException
-      - RemovableHandle
-      - Tensor
-      - Parameter
-      - Module
-      - Sequential
-      - Loss
-      - Optimizer
-      - LRScheduler
-  - page: "./joatmon/ai/models/ddpg.md"
-    source: "joatmon/ai/models/ddpg.py"
-    classes: 
-      - DDPGModel
-  - page: "./joatmon/nn/scheduler/exponential.md"
-    source: "joatmon/nn/scheduler/exponential.py"
-    classes: 
-      - ExponentialLR
-  - page: "./joatmon/plugin/database/elastic.md"
-    source: "joatmon/plugin/database/elastic.py"
-    classes: 
-      - ElasticDatabase
-  - page: "./joatmon/nn/layer/flatten.md"
-    source: "joatmon/nn/layer/flatten.py"
-    classes: 
-      - Flatten
-  - page: "./joatmon/plugin/otp/totp.md"
-    source: "joatmon/plugin/otp/totp.py"
-    classes: 
-      - TOTP
+      - Speaker
   - page: "./joatmon/orm/document.md"
     source: "joatmon/orm/document.py"
     functions: 
       - create_new_type
     classes: 
       - Document
-  - page: "./joatmon/decorator/auth.md"
-    source: "joatmon/decorator/auth.py"
-    functions: 
-      - authorized
-  - page: "./joatmon/system/hid/keyboard.md"
-    source: "joatmon/system/hid/keyboard.py"
-    functions: 
-      - _send_keyboard_event
+  - page: "./joatmon/nn/layer/activation/tanh.md"
+    source: "joatmon/nn/layer/activation/tanh.py"
     classes: 
-      - KeyBdInput
-      - HardwareInput
-      - MouseInput
-      - POINT
-      - InputI
-      - Input
-      - Keyboard
-  - page: "./joatmon/game/tiles.md"
-    source: "joatmon/game/tiles.py"
-    classes: 
-      - TilesEnv
-  - page: "./joatmon/ai/network/core.md"
-    source: "joatmon/ai/network/core.py"
-    classes: 
-      - CoreNetwork
-  - page: "./joatmon/system/memory/locator.md"
-    source: "joatmon/system/memory/locator.py"
-    classes: 
-      - Locator
-  - page: "./joatmon/ai/network/ddpg.md"
-    source: "joatmon/ai/network/ddpg.py"
-    classes: 
-      - DDPGActor
-      - DDPGCritic
-  - page: "./joatmon/nn/layer/lstm.md"
-    source: "joatmon/nn/layer/lstm.py"
-    classes: 
-      - LSTMCell
-      - LSTM
+      - Tanh
   - page: "./joatmon/orm/constraint.md"
     source: "joatmon/orm/constraint.py"
     classes: 
@@ -126,118 +49,26 @@ pages:
       - ForeignKeyConstraint
       - UniqueConstraint
       - CustomConstraint
-  - page: "./joatmon/nn/utility.md"
-    source: "joatmon/nn/utility.py"
-    functions: 
-      - _calculate_input_dims
-      - _calculate_output_dims
-      - _forward_unimplemented
-      - typename
-      - indent
-      - get_enum
-      - legacy_get_string
-      - legacy_get_enum
+  - page: "./joatmon/nn/layer/batchnorm.md"
+    source: "joatmon/nn/layer/batchnorm.py"
     classes: 
-      - _RequiredParameter
-  - page: "./joatmon/decorator/web.md"
-    source: "joatmon/decorator/web.py"
-    functions: 
-      - get
-      - post
-      - incoming
-      - wrap
-      - outgoing
-      - ip_limit
-      - limit
-  - page: "./joatmon/array/functional.md"
-    source: "joatmon/array/functional.py"
-    functions: 
-      - prod
-      - unravel_index
-      - ravel_index
-      - dim
-      - flatten
-      - size
-      - reshape
-  - page: "./joatmon/system/__init__.md"
-    source: "joatmon/system/__init__.py"
-    functions: 
-      - is_installed
-  - page: "./joatmon/ai/utility.md"
-    source: "joatmon/ai/utility.py"
-    functions: 
-      - load
-      - save
-      - display
-      - easy_range
-      - normalize
-      - range_tensor
-      - to_numpy
-      - to_tensor
-  - page: "./joatmon/assistant/task.md"
-    source: "joatmon/assistant/task.py"
-    classes: 
-      - Task
-      - TaskState
-      - TaskInfo
-      - BaseTask
-  - page: "./joatmon/assistant/service.md"
-    source: "joatmon/assistant/service.py"
-    classes: 
-      - Service
-      - ServiceState
-      - ServiceInfo
-      - BaseService
+      - BatchNorm
   - page: "./joatmon/plugin/cache/core.md"
     source: "joatmon/plugin/cache/core.py"
     classes: 
       - CachePlugin
-  - page: "./joatmon/core/serializable.md"
-    source: "joatmon/core/serializable.py"
-    classes: 
-      - Serializable
-  - page: "./joatmon/ai/agent.md"
-    source: "joatmon/ai/agent.py"
-    classes: 
-      - Agent
-  - page: "./joatmon/structure/buffer.md"
-    source: "joatmon/structure/buffer.py"
-    classes: 
-      - CoreBuffer
-      - RingBuffer
-  - page: "./joatmon/nn/loss/mae.md"
-    source: "joatmon/nn/loss/mae.py"
-    classes: 
-      - MAELoss
-  - page: "./joatmon/decorator/cache.md"
-    source: "joatmon/decorator/cache.py"
-    functions: 
-      - cached
-      - remove
-  - page: "./joatmon/nn/loss/huber.md"
-    source: "joatmon/nn/loss/huber.py"
-    classes: 
-      - HuberLoss
   - page: "./joatmon/core/exception.md"
     source: "joatmon/core/exception.py"
     classes: 
       - CoreException
-  - page: "./joatmon/decorator/logger.md"
-    source: "joatmon/decorator/logger.py"
+  - page: "./joatmon/decorator/debug.md"
+    source: "joatmon/decorator/debug.py"
     functions: 
-      - log
-  - page: "./joatmon/nn/loss/ce.md"
-    source: "joatmon/nn/loss/ce.py"
-    classes: 
-      - CELoss
-  - page: "./joatmon/nn/layer/activation/sigmoid.md"
-    source: "joatmon/nn/layer/activation/sigmoid.py"
-    classes: 
-      - Sigmoid
-  - page: "./joatmon/system/memory/address.md"
-    source: "joatmon/system/memory/address.py"
-    classes: 
-      - Address
+      - timeit
+  - page: "./joatmon/decorator/otp.md"
+    source: "joatmon/decorator/otp.py"
+    functions: 
+      - authorized
   - page: "./joatmon/image/__init__.md"
     source: "joatmon/image/__init__.py"
     functions: 
@@ -247,345 +78,30 @@ pages:
       - save
       - mask
       - match_template
-  - page: "./joatmon/game/core.md"
-    source: "joatmon/game/core.py"
+  - page: "./joatmon/plugin/otp/totp.md"
+    source: "joatmon/plugin/otp/totp.py"
     classes: 
-      - CoreEnv
-  - page: "./joatmon/plugin/localizer/file.md"
-    source: "joatmon/plugin/localizer/file.py"
+      - TOTP
+  - page: "./joatmon/plugin/database/core.md"
+    source: "joatmon/plugin/database/core.py"
     classes: 
-      - FileLocalizer
-  - page: "./joatmon/system/lock.md"
-    source: "joatmon/system/lock.py"
+      - DatabasePlugin
+  - page: "./joatmon/nn/layer/flatten.md"
+    source: "joatmon/nn/layer/flatten.py"
     classes: 
-      - RWLock
-  - page: "./joatmon/system/hid/console.md"
-    source: "joatmon/system/hid/console.py"
-    classes: 
-      - ConsoleReader
-      - ConsoleWriter
-  - page: "./joatmon/orm/enum.md"
-    source: "joatmon/orm/enum.py"
-    classes: 
-      - Meta
-      - Enum
-  - page: "./joatmon/decorator/retry.md"
-    source: "joatmon/decorator/retry.py"
-    functions: 
-      - retry
-  - page: "./joatmon/ai/random.md"
-    source: "joatmon/ai/random.py"
-    classes: 
-      - CoreRandom
-      - GaussianRandom
-      - OrnsteinUhlenbeck
-  - page: "./joatmon/plugin/database/postgresql.md"
-    source: "joatmon/plugin/database/postgresql.py"
-    classes: 
-      - PostgreSQLDatabase
-  - page: "./joatmon/structure/dictionary.md"
-    source: "joatmon/structure/dictionary.py"
-    functions: 
-      - value_to_cls
-    classes: 
-      - CustomDictionary
-  - page: "./joatmon/plugin/logger/terminal.md"
-    source: "joatmon/plugin/logger/terminal.py"
-    classes: 
-      - TerminalLogger
-  - page: "./joatmon/nn/layer/activation/tanh.md"
-    source: "joatmon/nn/layer/activation/tanh.py"
-    classes: 
-      - Tanh
-  - page: "./joatmon/decorator/__init__.md"
-    source: "joatmon/decorator/__init__.py"
-    functions: 
-      - register
-  - page: "./joatmon/assistant/runnable.md"
-    source: "joatmon/assistant/runnable.py"
-    classes: 
-      - Runnable
-  - page: "./joatmon/orm/index.md"
-    source: "joatmon/orm/index.py"
-    classes: 
-      - Index
-  - page: "./joatmon/plugin/logger/file.md"
-    source: "joatmon/plugin/logger/file.py"
-    classes: 
-      - FileLogger
-  - page: "./joatmon/nn/init.md"
-    source: "joatmon/nn/init.py"
-    functions: 
-      - _calculate_fan_in_and_fan_out
-      - _calculate_correct_fan
-      - calculate_gain
-      - normal
-      - uniform
-      - zeros
-      - ones
-      - xavier_uniform
-      - xavier_normal
-      - kaiming_uniform
-      - kaiming_normal
-  - page: "./joatmon/system/hid/microphone.md"
-    source: "joatmon/system/hid/microphone.py"
-    classes: 
-      - Microphone
-  - page: "./joatmon/nn/layer/batchnorm.md"
-    source: "joatmon/nn/layer/batchnorm.py"
-    classes: 
-      - BatchNorm
-  - page: "./joatmon/plugin/message/core.md"
-    source: "joatmon/plugin/message/core.py"
-    classes: 
-      - Producer
-      - Consumer
-      - MessagePlugin
-  - page: "./joatmon/nn/layer/conv.md"
-    source: "joatmon/nn/layer/conv.py"
-    classes: 
-      - Conv
-      - ConvTranspose
-  - page: "./joatmon/plugin/database/mongo.md"
-    source: "joatmon/plugin/database/mongo.py"
-    classes: 
-      - MongoDatabase
-  - page: "./joatmon/decorator/otp.md"
-    source: "joatmon/decorator/otp.py"
-    functions: 
-      - authorized
-  - page: "./joatmon/plugin/web.md"
-    source: "joatmon/plugin/web.py"
-    classes: 
-      - ValuePlugin
-  - page: "./joatmon/plugin/message/rabbit.md"
-    source: "joatmon/plugin/message/rabbit.py"
-    classes: 
-      - RabbitProducer
-      - RabbitConsumer
-      - RabbitMQPlugin
-  - page: "./joatmon/decorator/exception.md"
-    source: "joatmon/decorator/exception.py"
-    functions: 
-      - handler
-  - page: "./joatmon/array/array.md"
-    source: "joatmon/array/array.py"
-    classes: 
-      - Array
-  - page: "./joatmon/system/memory/worker.md"
-    source: "joatmon/system/memory/worker.py"
-    classes: 
-      - Worker
-  - page: "./joatmon/nn/layer/upsample.md"
-    source: "joatmon/nn/layer/upsample.py"
-    classes: 
-      - Upsample
-  - page: "./joatmon/decorator/message.md"
-    source: "joatmon/decorator/message.py"
-    functions: 
-      - producer
-      - loop
-      - consumer_loop_creator
-      - add_consumer
-      - consumer
-  - page: "./joatmon/plugin/auth/jwt.md"
-    source: "joatmon/plugin/auth/jwt.py"
-    classes: 
-      - JWTAuth
-  - page: "./joatmon/orm/query.md"
-    source: "joatmon/orm/query.py"
-    classes: 
-      - Arithmetic
-      - Comparator
-      - Equality
-      - Matching
-      - Boolean
-      - Order
-      - JoinType
-      - DatePart
-      - Dialects
-      - Node
-      - Term
-      - ValueWrapper
-      - Criterion
-      - BasicCriteria
-      - ComplexCriteria
-      - ArithmeticExpression
-      - Column
-      - Table
-      - Schema
-      - Database
-      - Count
-      - Array
-      - JSON
-      - Sum
-      - Query
-  - page: "./joatmon/system/decorators.md"
-    source: "joatmon/system/decorators.py"
-    functions: 
-      - auto_pause
-  - page: "./joatmon/assistant/action/help.md"
-    source: "joatmon/assistant/action/help.py"
-    classes: 
-      - Task
-  - page: "./joatmon/system/fs/path.md"
-    source: "joatmon/system/fs/path.py"
-    classes: 
-      - Path
-  - page: "./joatmon/plugin/otp/core.md"
-    source: "joatmon/plugin/otp/core.py"
-    classes: 
-      - OTP
-  - page: "./joatmon/plugin/cache/redis.md"
-    source: "joatmon/plugin/cache/redis.py"
-    classes: 
-      - RedisCache
-  - page: "./joatmon/plugin/message/kafka.md"
-    source: "joatmon/plugin/message/kafka.py"
-    classes: 
-      - KafkaProducer
-      - KafkaConsumer
-      - KafkaPlugin
-  - page: "./joatmon/game/cube.md"
-    source: "joatmon/game/cube.py"
-    functions: 
-      - flip
-      - project_points
-      - resize
-    classes: 
-      - Quaternion
-      - Sticker
-      - Face
-      - Cube
-      - CubeEnv
-  - page: "./joatmon/assistant/action/run.md"
-    source: "joatmon/assistant/action/run.py"
-    classes: 
-      - Task
-  - page: "./joatmon/orm/meta.md"
-    source: "joatmon/orm/meta.py"
-    functions: 
-      - normalize_kwargs
-    classes: 
-      - Meta
-  - page: "./joatmon/system/hid/camera.md"
-    source: "joatmon/system/hid/camera.py"
-    classes: 
-      - Camera
-  - page: "./joatmon/plugin/localizer/database.md"
-    source: "joatmon/plugin/localizer/database.py"
-    classes: 
-      - DatabaseLocalizer
-  - page: "./joatmon/decorator/database.md"
-    source: "joatmon/decorator/database.py"
-    functions: 
-      - transaction
-  - page: "./joatmon/ai/models/dqn.md"
-    source: "joatmon/ai/models/dqn.py"
-    classes: 
-      - DQNModel
-  - page: "./joatmon/system/memory/process.md"
-    source: "joatmon/system/memory/process.py"
-    classes: 
-      - ProcessException
-      - BaseProcess
-      - Process
-  - page: "./joatmon/core/context.md"
-    source: "joatmon/core/context.py"
-    functions: 
-      - get_ctx
-      - set_ctx
-      - get_value
-      - set_value
-    classes: 
-      - CTX
-  - page: "./joatmon/system/hid/mouse.md"
-    source: "joatmon/system/hid/mouse.py"
-    functions: 
-      - _send_mouse_event
-    classes: 
-      - Mouse
-  - page: "./joatmon/plugin/auth/core.md"
-    source: "joatmon/plugin/auth/core.py"
-    classes: 
-      - Auth
-  - page: "./joatmon/assistant/api.md"
-    source: "joatmon/assistant/api.py"
-    classes: 
-      - API
-  - page: "./joatmon/nn/optimizer/rmsprop.md"
-    source: "joatmon/nn/optimizer/rmsprop.py"
-    classes: 
-      - RMSprop
-  - page: "./joatmon/nn/layer/activation/relu.md"
-    source: "joatmon/nn/layer/activation/relu.py"
-    classes: 
-      - ReLU
-  - page: "./joatmon/nn/optimizer/adam.md"
-    source: "joatmon/nn/optimizer/adam.py"
-    classes: 
-      - Adam
-  - page: "./joatmon/system/memory/core.md"
-    source: "joatmon/system/memory/core.py"
-    functions: 
-      - type_unpack
-      - hex_dump
-    classes: 
-      - ModuleEntry32
-      - MemoryBasicInformation
-      - SystemInfo
-      - SecurityDescriptor
-      - Th32csClass
-  - page: "./joatmon/core/event.md"
-    source: "joatmon/core/event.py"
-    classes: 
-      - Event
-      - AsyncEvent
-  - page: "./joatmon/plugin/logger/database.md"
-    source: "joatmon/plugin/logger/database.py"
-    classes: 
-      - DatabaseLogger
-  - page: "./joatmon/ai/models/td3.md"
-    source: "joatmon/ai/models/td3.py"
-    classes: 
-      - TD3Model
+      - Flatten
   - page: "./joatmon/decorator/version.md"
     source: "joatmon/decorator/version.py"
     functions: 
       - deprecated
-  - page: "./joatmon/system/fs/file.md"
-    source: "joatmon/system/fs/file.py"
+  - page: "./joatmon/plugin/localizer/core.md"
+    source: "joatmon/plugin/localizer/core.py"
     classes: 
-      - File
-  - page: "./joatmon/decorator/debug.md"
-    source: "joatmon/decorator/debug.py"
-    functions: 
-      - timeit
-  - page: "./joatmon/plugin/database/couchbase.md"
-    source: "joatmon/plugin/database/couchbase.py"
+      - Localizer
+  - page: "./joatmon/orm/relation.md"
+    source: "joatmon/orm/relation.py"
     classes: 
-      - CouchBaseDatabase
-  - page: "./joatmon/system/hid/screen.md"
-    source: "joatmon/system/hid/screen.py"
-    functions: 
-      - resolution
-      - cursor
-      - grab
-    classes: 
-      - POINT
-  - page: "./joatmon/ai/memory.md"
-    source: "joatmon/ai/memory.py"
-    classes: 
-      - CoreMemory
-      - RingMemory
-  - page: "./joatmon/ai/network/dqn.md"
-    source: "joatmon/ai/network/dqn.py"
-    classes: 
-      - DQN
-  - page: "./joatmon/nn/layer/dropout.md"
-    source: "joatmon/nn/layer/dropout.py"
-    classes: 
-      - Dropout
+      - Relation
   - page: "./joatmon/core/utility.md"
     source: "joatmon/core/utility.py"
     functions: 
@@ -621,18 +137,131 @@ pages:
     classes: 
       - JSONEncoder
       - JSONDecoder
-  - page: "./joatmon/nn/loss/mse.md"
-    source: "joatmon/nn/loss/mse.py"
+  - page: "./joatmon/plugin/cache/redis.md"
+    source: "joatmon/plugin/cache/redis.py"
     classes: 
-      - MSELoss
-  - page: "./joatmon/nn/loss/cce.md"
-    source: "joatmon/nn/loss/cce.py"
+      - RedisCache
+  - page: "./joatmon/ai/utility.md"
+    source: "joatmon/ai/utility.py"
+    functions: 
+      - load
+      - save
+      - display
+      - easy_range
+      - normalize
+      - range_tensor
+      - to_numpy
+      - to_tensor
+  - page: "./joatmon/decorator/database.md"
+    source: "joatmon/decorator/database.py"
+    functions: 
+      - transaction
+  - page: "./joatmon/assistant/service.md"
+    source: "joatmon/assistant/service.py"
     classes: 
-      - CCELoss
+      - Service
+      - ServiceState
+      - ServiceInfo
+      - BaseService
+  - page: "./joatmon/plugin/message/kafka.md"
+    source: "joatmon/plugin/message/kafka.py"
+    classes: 
+      - KafkaProducer
+      - KafkaConsumer
+      - KafkaPlugin
+  - page: "./joatmon/nn/core.md"
+    source: "joatmon/nn/core.py"
+    classes: 
+      - ModuleAttributeException
+      - RemovableHandle
+      - Tensor
+      - Parameter
+      - Module
+      - Sequential
+      - Loss
+      - Optimizer
+      - LRScheduler
+  - page: "./joatmon/system/fs/path.md"
+    source: "joatmon/system/fs/path.py"
+    classes: 
+      - Path
+  - page: "./joatmon/nn/init.md"
+    source: "joatmon/nn/init.py"
+    functions: 
+      - _calculate_fan_in_and_fan_out
+      - _calculate_correct_fan
+      - calculate_gain
+      - normal
+      - uniform
+      - zeros
+      - ones
+      - xavier_uniform
+      - xavier_normal
+      - kaiming_uniform
+      - kaiming_normal
+  - page: "./joatmon/plugin/database/elastic.md"
+    source: "joatmon/plugin/database/elastic.py"
+    classes: 
+      - ElasticDatabase
+  - page: "./joatmon/orm/index.md"
+    source: "joatmon/orm/index.py"
+    classes: 
+      - Index
+  - page: "./joatmon/orm/field.md"
+    source: "joatmon/orm/field.py"
+    functions: 
+      - get_converter
+    classes: 
+      - Field
+  - page: "./joatmon/nn/layer/upsample.md"
+    source: "joatmon/nn/layer/upsample.py"
+    classes: 
+      - Upsample
   - page: "./joatmon/nn/layer/pool/maxpool.md"
     source: "joatmon/nn/layer/pool/maxpool.py"
     classes: 
       - MaxPool
+  - page: "./joatmon/ai/models/td3.md"
+    source: "joatmon/ai/models/td3.py"
+    classes: 
+      - TD3Model
+  - page: "./joatmon/array/array.md"
+    source: "joatmon/array/array.py"
+    classes: 
+      - Array
+  - page: "./joatmon/ai/models/core.md"
+    source: "joatmon/ai/models/core.py"
+    classes: 
+      - CoreModel
+  - page: "./joatmon/ai/models/dqn.md"
+    source: "joatmon/ai/models/dqn.py"
+    classes: 
+      - DQNModel
+  - page: "./joatmon/decorator/exception.md"
+    source: "joatmon/decorator/exception.py"
+    functions: 
+      - handler
+  - page: "./joatmon/ai/models/ddpg.md"
+    source: "joatmon/ai/models/ddpg.py"
+    classes: 
+      - DDPGModel
+  - page: "./joatmon/assistant/action/run.md"
+    source: "joatmon/assistant/action/run.py"
+    classes: 
+      - Task
+  - page: "./joatmon/plugin/message/rabbit.md"
+    source: "joatmon/plugin/message/rabbit.py"
+    classes: 
+      - RabbitProducer
+      - RabbitConsumer
+      - RabbitMQPlugin
+  - page: "./joatmon/plugin/core.md"
+    source: "joatmon/plugin/core.py"
+    functions: 
+      - register
+    classes: 
+      - Plugin
+      - PluginProxy
   - page: "./joatmon/game/sokoban.md"
     source: "joatmon/game/sokoban.py"
     functions: 
@@ -653,10 +282,53 @@ pages:
       - convert_to
     classes: 
       - SokobanEnv
-  - page: "./joatmon/plugin/localizer/core.md"
-    source: "joatmon/plugin/localizer/core.py"
+  - page: "./joatmon/plugin/message/core.md"
+    source: "joatmon/plugin/message/core.py"
     classes: 
-      - Localizer
+      - Producer
+      - Consumer
+      - MessagePlugin
+  - page: "./joatmon/orm/enum.md"
+    source: "joatmon/orm/enum.py"
+    classes: 
+      - Meta
+      - Enum
+  - page: "./joatmon/system/hid/screen.md"
+    source: "joatmon/system/hid/screen.py"
+    functions: 
+      - resolution
+      - cursor
+      - grab
+    classes: 
+      - POINT
+  - page: "./joatmon/nn/loss/mse.md"
+    source: "joatmon/nn/loss/mse.py"
+    classes: 
+      - MSELoss
+  - page: "./joatmon/system/hid/mouse.md"
+    source: "joatmon/system/hid/mouse.py"
+    functions: 
+      - _send_mouse_event
+    classes: 
+      - Mouse
+  - page: "./joatmon/plugin/logger/terminal.md"
+    source: "joatmon/plugin/logger/terminal.py"
+    classes: 
+      - TerminalLogger
+  - page: "./joatmon/ai/random.md"
+    source: "joatmon/ai/random.py"
+    classes: 
+      - CoreRandom
+      - GaussianRandom
+      - OrnsteinUhlenbeck
+  - page: "./joatmon/assistant/api.md"
+    source: "joatmon/assistant/api.py"
+    classes: 
+      - API
+  - page: "./joatmon/nn/layer/activation/sigmoid.md"
+    source: "joatmon/nn/layer/activation/sigmoid.py"
+    classes: 
+      - Sigmoid
   - page: "./joatmon/nn/functional.md"
     source: "joatmon/nn/functional.py"
     functions: 
@@ -784,12 +456,214 @@ pages:
       - lstm
       - adam
       - rmsprop
-  - page: "./joatmon/orm/field.md"
-    source: "joatmon/orm/field.py"
-    functions: 
-      - get_converter
+  - page: "./joatmon/plugin/database/postgresql.md"
+    source: "joatmon/plugin/database/postgresql.py"
     classes: 
-      - Field
+      - PostgreSQLDatabase
+  - page: "./joatmon/nn/loss/ce.md"
+    source: "joatmon/nn/loss/ce.py"
+    classes: 
+      - CELoss
+  - page: "./joatmon/nn/layer/activation/relu.md"
+    source: "joatmon/nn/layer/activation/relu.py"
+    classes: 
+      - ReLU
+  - page: "./joatmon/plugin/auth/core.md"
+    source: "joatmon/plugin/auth/core.py"
+    classes: 
+      - Auth
+  - page: "./joatmon/array/random.md"
+    source: "joatmon/array/random.py"
+    functions: 
+      - rand
+      - randint
+      - randn
+      - normal
+      - uniform
+  - page: "./joatmon/game/core.md"
+    source: "joatmon/game/core.py"
+    classes: 
+      - CoreEnv
+  - page: "./joatmon/nn/layer/lstm.md"
+    source: "joatmon/nn/layer/lstm.py"
+    classes: 
+      - LSTMCell
+      - LSTM
+  - page: "./joatmon/system/memory/process.md"
+    source: "joatmon/system/memory/process.py"
+    classes: 
+      - ProcessException
+      - BaseProcess
+      - Process
+  - page: "./joatmon/plugin/logger/file.md"
+    source: "joatmon/plugin/logger/file.py"
+    classes: 
+      - FileLogger
+  - page: "./joatmon/decorator/message.md"
+    source: "joatmon/decorator/message.py"
+    functions: 
+      - producer
+      - loop
+      - consumer_loop_creator
+      - add_consumer
+      - consumer
+  - page: "./joatmon/system/hid/microphone.md"
+    source: "joatmon/system/hid/microphone.py"
+    classes: 
+      - Microphone
+  - page: "./joatmon/system/hid/camera.md"
+    source: "joatmon/system/hid/camera.py"
+    classes: 
+      - Camera
+  - page: "./joatmon/structure/buffer.md"
+    source: "joatmon/structure/buffer.py"
+    classes: 
+      - CoreBuffer
+      - RingBuffer
+  - page: "./joatmon/system/lock.md"
+    source: "joatmon/system/lock.py"
+    classes: 
+      - RWLock
+  - page: "./joatmon/plugin/logger/database.md"
+    source: "joatmon/plugin/logger/database.py"
+    classes: 
+      - DatabaseLogger
+  - page: "./joatmon/nn/layer/dropout.md"
+    source: "joatmon/nn/layer/dropout.py"
+    classes: 
+      - Dropout
+  - page: "./joatmon/decorator/web.md"
+    source: "joatmon/decorator/web.py"
+    functions: 
+      - get
+      - post
+      - incoming
+      - wrap
+      - outgoing
+      - ip_limit
+      - limit
+  - page: "./joatmon/nn/scheduler/exponential.md"
+    source: "joatmon/nn/scheduler/exponential.py"
+    classes: 
+      - ExponentialLR
+  - page: "./joatmon/nn/layer/conv.md"
+    source: "joatmon/nn/layer/conv.py"
+    classes: 
+      - Conv
+      - ConvTranspose
+  - page: "./joatmon/plugin/auth/jwt.md"
+    source: "joatmon/plugin/auth/jwt.py"
+    classes: 
+      - JWTAuth
+  - page: "./joatmon/assistant/task.md"
+    source: "joatmon/assistant/task.py"
+    classes: 
+      - Task
+      - TaskState
+      - TaskInfo
+      - BaseTask
+  - page: "./joatmon/ai/network/td3.md"
+    source: "joatmon/ai/network/td3.py"
+    classes: 
+      - TD3Actor
+      - TD3Critic
+  - page: "./joatmon/core/event.md"
+    source: "joatmon/core/event.py"
+    classes: 
+      - Event
+      - AsyncEvent
+  - page: "./joatmon/plugin/database/mongo.md"
+    source: "joatmon/plugin/database/mongo.py"
+    classes: 
+      - MongoDatabase
+  - page: "./joatmon/plugin/web.md"
+    source: "joatmon/plugin/web.py"
+    classes: 
+      - ValuePlugin
+  - page: "./joatmon/decorator/retry.md"
+    source: "joatmon/decorator/retry.py"
+    functions: 
+      - retry
+  - page: "./joatmon/system/fs/file.md"
+    source: "joatmon/system/fs/file.py"
+    classes: 
+      - File
+  - page: "./joatmon/plugin/otp/core.md"
+    source: "joatmon/plugin/otp/core.py"
+    classes: 
+      - OTP
+  - page: "./joatmon/ai/network/core.md"
+    source: "joatmon/ai/network/core.py"
+    classes: 
+      - CoreNetwork
+  - page: "./joatmon/ai/network/dqn.md"
+    source: "joatmon/ai/network/dqn.py"
+    classes: 
+      - DQN
+  - page: "./joatmon/ai/network/ddpg.md"
+    source: "joatmon/ai/network/ddpg.py"
+    classes: 
+      - DDPGActor
+      - DDPGCritic
+  - page: "./joatmon/orm/query.md"
+    source: "joatmon/orm/query.py"
+    classes: 
+      - Arithmetic
+      - Comparator
+      - Equality
+      - Matching
+      - Boolean
+      - Order
+      - JoinType
+      - DatePart
+      - Dialects
+      - Node
+      - Term
+      - ValueWrapper
+      - Criterion
+      - BasicCriteria
+      - ComplexCriteria
+      - ArithmeticExpression
+      - Column
+      - Table
+      - Schema
+      - Database
+      - Count
+      - Array
+      - JSON
+      - Sum
+      - Query
+  - page: "./joatmon/plugin/database/couchbase.md"
+    source: "joatmon/plugin/database/couchbase.py"
+    classes: 
+      - CouchBaseDatabase
+  - page: "./joatmon/decorator/auth.md"
+    source: "joatmon/decorator/auth.py"
+    functions: 
+      - authorized
+  - page: "./joatmon/nn/optimizer/adam.md"
+    source: "joatmon/nn/optimizer/adam.py"
+    classes: 
+      - Adam
+  - page: "./joatmon/array/functional.md"
+    source: "joatmon/array/functional.py"
+    functions: 
+      - prod
+      - unravel_index
+      - ravel_index
+      - dim
+      - flatten
+      - size
+      - reshape
+  - page: "./joatmon/nn/loss/cce.md"
+    source: "joatmon/nn/loss/cce.py"
+    classes: 
+      - CCELoss
+  - page: "./joatmon/system/hid/console.md"
+    source: "joatmon/system/hid/console.py"
+    classes: 
+      - ConsoleReader
+      - ConsoleWriter
   - page: "./joatmon/system/hid/desktop.md"
     source: "joatmon/system/hid/desktop.py"
     functions: 
@@ -814,49 +688,144 @@ pages:
       - GetWindowException
       - Rectangle
       - Window
-  - page: "./joatmon/plugin/database/core.md"
-    source: "joatmon/plugin/database/core.py"
-    classes: 
-      - DatabasePlugin
-  - page: "./joatmon/automate/generator/doc.md"
-    source: "joatmon/automate/generator/doc.py"
+  - page: "./joatmon/decorator/cache.md"
+    source: "joatmon/decorator/cache.py"
     functions: 
-      - automate_docstring
-      - automate_mkdocs_from_docstring
+      - cached
+      - remove
+  - page: "./joatmon/ai/policy.md"
+    source: "joatmon/ai/policy.py"
+    classes: 
+      - CorePolicy
+      - GreedyQPolicy
+      - EpsilonGreedyPolicy
+  - page: "./joatmon/decorator/logger.md"
+    source: "joatmon/decorator/logger.py"
+    functions: 
+      - log
+  - page: "./joatmon/orm/meta.md"
+    source: "joatmon/orm/meta.py"
+    functions: 
+      - normalize_kwargs
+    classes: 
+      - Meta
+  - page: "./joatmon/system/memory/worker.md"
+    source: "joatmon/system/memory/worker.py"
+    classes: 
+      - Worker
+  - page: "./joatmon/assistant/action/help.md"
+    source: "joatmon/assistant/action/help.py"
+    classes: 
+      - Task
+  - page: "./joatmon/nn/layer/pool/avgpool.md"
+    source: "joatmon/nn/layer/pool/avgpool.py"
+    classes: 
+      - AvgPool
+  - page: "./joatmon/nn/loss/mae.md"
+    source: "joatmon/nn/loss/mae.py"
+    classes: 
+      - MAELoss
+  - page: "./joatmon/core/serializable.md"
+    source: "joatmon/core/serializable.py"
+    classes: 
+      - Serializable
+  - page: "./joatmon/plugin/localizer/file.md"
+    source: "joatmon/plugin/localizer/file.py"
+    classes: 
+      - FileLocalizer
+  - page: "./joatmon/system/memory/locator.md"
+    source: "joatmon/system/memory/locator.py"
+    classes: 
+      - Locator
+  - page: "./joatmon/nn/loss/huber.md"
+    source: "joatmon/nn/loss/huber.py"
+    classes: 
+      - HuberLoss
+  - page: "./joatmon/system/memory/core.md"
+    source: "joatmon/system/memory/core.py"
+    functions: 
+      - type_unpack
+      - hex_dump
+    classes: 
+      - ModuleEntry32
+      - MemoryBasicInformation
+      - SystemInfo
+      - SecurityDescriptor
+      - Th32csClass
+  - page: "./joatmon/nn/utility.md"
+    source: "joatmon/nn/utility.py"
+    functions: 
+      - _calculate_input_dims
+      - _calculate_output_dims
+      - _forward_unimplemented
+      - typename
       - indent
-      - docstring_from_type_hints
-  - page: "./joatmon/ai/network/td3.md"
-    source: "joatmon/ai/network/td3.py"
+      - get_enum
+      - legacy_get_string
+      - legacy_get_enum
     classes: 
-      - TD3Actor
-      - TD3Critic
-  - page: "./joatmon/nn/processing.md"
-    source: "joatmon/nn/processing.py"
+      - _RequiredParameter
+  - page: "./joatmon/decorator/__init__.md"
+    source: "joatmon/decorator/__init__.py"
     functions: 
-      - word_tokenize
-      - pad_sequences
+      - register
+  - page: "./joatmon/system/hid/keyboard.md"
+    source: "joatmon/system/hid/keyboard.py"
+    functions: 
+      - _send_keyboard_event
     classes: 
-      - OneHotEncoder
-      - Tokenizer
+      - KeyBdInput
+      - HardwareInput
+      - MouseInput
+      - POINT
+      - InputI
+      - Input
+      - Keyboard
+  - page: "./joatmon/core/context.md"
+    source: "joatmon/core/context.py"
+    functions: 
+      - get_ctx
+      - set_ctx
+      - get_value
+      - set_value
+    classes: 
+      - CTX
+  - page: "./joatmon/ai/memory.md"
+    source: "joatmon/ai/memory.py"
+    classes: 
+      - CoreMemory
+      - RingMemory
+  - page: "./joatmon/plugin/localizer/database.md"
+    source: "joatmon/plugin/localizer/database.py"
+    classes: 
+      - DatabaseLocalizer
+  - page: "./joatmon/nn/layer/activation/softmax.md"
+    source: "joatmon/nn/layer/activation/softmax.py"
+    classes: 
+      - Softmax
+  - page: "./joatmon/system/decorators.md"
+    source: "joatmon/system/decorators.py"
+    functions: 
+      - auto_pause
   - page: "./joatmon/nn/layer/linear.md"
     source: "joatmon/nn/layer/linear.py"
     classes: 
       - Linear
-  - page: "./joatmon/system/hid/speaker.md"
-    source: "joatmon/system/hid/speaker.py"
+  - page: "./joatmon/system/memory/address.md"
+    source: "joatmon/system/memory/address.py"
+    classes: 
+      - Address
+  - page: "./joatmon/structure/dictionary.md"
+    source: "joatmon/structure/dictionary.py"
     functions: 
-      - play
+      - value_to_cls
     classes: 
-      - Speaker
-  - page: "./joatmon/orm/relation.md"
-    source: "joatmon/orm/relation.py"
+      - CustomDictionary
+  - page: "./joatmon/assistant/runnable.md"
+    source: "joatmon/assistant/runnable.py"
     classes: 
-      - Relation
-  - page: "./joatmon/ai/models/core.md"
-    source: "joatmon/ai/models/core.py"
-    classes: 
-      - CoreModel
-  - page: "./joatmon/game/puzzle.md"
-    source: "joatmon/game/puzzle.py"
-    classes: 
-      - Puzzle2048
+      - Runnable
+  - page: "./joatmon/system/__init__.md"
+    source: "joatmon/system/__init__.py"
+    functions: 
+      - is_installed
