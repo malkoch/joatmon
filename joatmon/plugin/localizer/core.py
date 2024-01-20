@@ -3,26 +3,19 @@ from joatmon.plugin.core import Plugin
 
 class Localizer(Plugin):
     """
-    Deep Deterministic Policy Gradient
-
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Localizer class that inherits from the Plugin class. It is an abstract class that provides
+    the structure for localization operations. The methods in this class should be implemented in the child classes.
     """
 
     async def localize(self, language, value):
         """
-        Remember the transaction.
+        This method is used to localize a given value to a specified language.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            language (str): The language to which the value should be localized.
+            value (str): The value to be localized.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
         raise NotImplementedError
