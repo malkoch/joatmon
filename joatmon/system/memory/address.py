@@ -3,20 +3,44 @@ from joatmon.system.memory.core import hex_dump
 
 class Address(object):
     """
-    Deep Deterministic Policy Gradient
+    A class used to represent an Address in memory.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes
+    ----------
+    value : int
+        The value of the address.
+    process : object
+        The process that the address belongs to.
+    default_type : str
+        The default type of the address.
+    symbolic_name : str
+        The symbolic name of the address.
+
+    Methods
+    -------
+    __init__(self, value, process, default_type='uint')
+        Initializes a new instance of the Address class.
+    read(self, of_type=None, max_length=None, errors='raise')
+        Reads the value at the address.
+    write(self, data, of_type=None)
+        Writes a value to the address.
+    symbol(self)
+        Gets the symbolic name of the address.
+    get_instruction(self)
+        Gets the instruction at the address.
+    dump(self, of_type='bytes', size=512, before=32)
+        Dumps the memory at the address.
     """
 
     def __init__(self, value, process, default_type='uint'):
+        """
+        Initializes a new instance of the Address class.
+
+        Args:
+            value (int): The value of the address.
+            process (object): The process that the address belongs to.
+            default_type (str, optional): The default type of the address. Defaults to 'uint'.
+        """
         self.value = int(value)
         self.process = process
         self.default_type = default_type
@@ -24,12 +48,15 @@ class Address(object):
 
     def read(self, of_type=None, max_length=None, errors='raise'):
         """
-        Remember the transaction.
+        Reads the value at the address.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            of_type (str, optional): The type of the value to read. If not specified, the default type of the address is used.
+            max_length (int, optional): The maximum length of the value to read. If not specified, the entire value is read.
+            errors (str, optional): The error handling scheme. If 'raise', errors during reading will raise an exception. If 'ignore', errors during reading will be ignored.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            object: The value read from the address.
         """
         if max_length is None:
             try:
@@ -48,12 +75,14 @@ class Address(object):
 
     def write(self, data, of_type=None):
         """
-        Remember the transaction.
+        Writes a value to the address.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            data (object): The value to write to the address.
+            of_type (str, optional): The type of the value to write. If not specified, the default type of the address is used.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            int: The number of bytes written.
         """
         if not of_type:
             of_type = self.default_type
@@ -61,34 +90,33 @@ class Address(object):
 
     def symbol(self):
         """
-        Remember the transaction.
+        Gets the symbolic name of the address.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            str: The symbolic name of the address.
         """
         return self.process.get_symbolic_name(self.value)
 
     def get_instruction(self):
         """
-        Remember the transaction.
+        Gets the instruction at the address.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            str: The instruction at the address.
         """
         return self.process.get_instruction(self.value)
 
     def dump(self, of_type='bytes', size=512, before=32):
         """
-        Remember the transaction.
+        Dumps the memory at the address.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            of_type (str, optional): The type of the memory to dump. Defaults to 'bytes'.
+            size (int, optional): The size of the memory to dump. Defaults to 512.
+            before (int, optional): The number of bytes before the address to include in the dump. Defaults to 32.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            None
         """
         buf = self.process.read_bytes(self.value - before, size)
         print(hex_dump(buf, self.value - before, of_type=of_type))

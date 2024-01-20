@@ -6,12 +6,16 @@ from ctypes import wintypes
 
 def type_unpack(of_type):
     """
-    Remember the transaction.
+    Unpacks the given type into a structure type and structure length.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        of_type (str): The type to unpack.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        tuple: A tuple containing the structure type and structure length.
+
+    Raises:
+        TypeError: If the given type is unknown.
     """
     of_type = of_type.lower()
     if of_type == 'short':
@@ -45,12 +49,16 @@ def type_unpack(of_type):
 
 def hex_dump(data, address=0, prefix='', of_type='bytes'):
     """
-    Remember the transaction.
+    Dumps the given data in hexadecimal format.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        data (bytes): The data to dump.
+        address (int, optional): The starting address of the data. Defaults to 0.
+        prefix (str, optional): The prefix to add to each line of the dump. Defaults to ''.
+        of_type (str, optional): The type of the data. Defaults to 'bytes'.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        str: The hexadecimal dump of the data.
     """
     dump = prefix
     piece = ''
@@ -133,17 +141,30 @@ else:
 
 class ModuleEntry32(ctypes.Structure):
     """
-    Deep Deterministic Policy Gradient
+    A class used to represent a module entry in a 32-bit system.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes
+    ----------
+    dwSize : ctypes.c_ulong
+        The size of the structure.
+    th32ModuleID : ctypes.c_ulong
+        The identifier of the module.
+    th32ProcessID : ctypes.c_ulong
+        The identifier of the process.
+    GlblcntUsage : ctypes.c_ulong
+        The global count of the usage.
+    ProccntUsage : ctypes.c_ulong
+        The process count of the usage.
+    modBaseAddr : ctypes.POINTER(ctypes.c_byte)
+        The base address of the module in the context of the owning process.
+    modBaseSize : ctypes.c_ulong
+        The size of the module, in bytes.
+    hModule : ctypes.c_void_p
+        A handle to the module in the context of the owning process.
+    szModule : ctypes.c_char * 256
+        The module name.
+    szExePath : ctypes.c_char * 260
+        The module path.
     """
 
     _fields_ = [
@@ -162,17 +183,24 @@ class ModuleEntry32(ctypes.Structure):
 
 class MemoryBasicInformation(ctypes.Structure):
     """
-    Deep Deterministic Policy Gradient
+    A class used to represent basic memory information.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes
+    ----------
+    BaseAddress : ctypes.c_void_p
+        A pointer to the base address of the region of pages.
+    AllocationBase : ctypes.c_void_p
+        A pointer to the base address of a range of pages allocated by the VirtualAlloc function.
+    AllocationProtect : wintypes.DWORD
+        The memory protection option when the region was initially allocated.
+    RegionSize : ctypes.c_size_t
+        The size of the region beginning at the base address in which all pages have identical attributes, in bytes.
+    State : wintypes.DWORD
+        The state of the pages in the region (free, reserve, or commit).
+    Protect : wintypes.DWORD
+        The access protection of the pages in the region.
+    Type : wintypes.DWORD
+        The type of pages in the region (private, mapped, or image).
     """
 
     _fields_ = [
@@ -188,17 +216,32 @@ class MemoryBasicInformation(ctypes.Structure):
 
 class SystemInfo(ctypes.Structure):
     """
-    Deep Deterministic Policy Gradient
+    A class used to represent system information.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes
+    ----------
+    wProcessorArchitecture : wintypes.WORD
+        The architecture of the processor.
+    wReserved : wintypes.WORD
+        Reserved.
+    dwPageSize : wintypes.DWORD
+        The page size, in bytes.
+    lpMinimumApplicationAddress : wintypes.LPVOID
+        A pointer to the lowest memory address accessible to applications and dynamic-link libraries (DLLs).
+    lpMaximumApplicationAddress : wintypes.LPVOID
+        A pointer to the highest memory address accessible to applications and DLLs.
+    dwActiveProcessorMask : ULONG_PTR
+        A mask representing the set of processors configured into the system.
+    dwNumberOfProcessors : wintypes.DWORD
+        The number of logical processors in the current group.
+    dwProcessorType : wintypes.DWORD
+        The type of processor.
+    dwAllocationGranularity : wintypes.DWORD
+        The granularity for the starting address at which virtual memory can be allocated.
+    wProcessorLevel : wintypes.WORD
+        The architecture-dependent processor level.
+    wProcessorRevision : wintypes.WORD
+        The architecture-dependent revision of the processor.
     """
 
     _fields_ = [
@@ -218,17 +261,20 @@ class SystemInfo(ctypes.Structure):
 
 class SecurityDescriptor(ctypes.Structure):
     """
-    Deep Deterministic Policy Gradient
+    A class used to represent a security descriptor.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes
+    ----------
+    SID : wintypes.DWORD
+        The security identifier (SID) for the security descriptor.
+    group : wintypes.DWORD
+        The primary group SID for the security descriptor.
+    dacl : wintypes.DWORD
+        The discretionary access control list (DACL) for the security descriptor.
+    sacl : wintypes.DWORD
+        The system access control list (SACL) for the security descriptor.
+    test : wintypes.DWORD
+        Test field for the security descriptor.
     """
 
     _fields_ = [
@@ -242,17 +288,24 @@ class SecurityDescriptor(ctypes.Structure):
 
 class Th32csClass(object):
     """
-    Deep Deterministic Policy Gradient
+    A class used to represent a snapshot of the specified processes, as well as the heaps, modules, and threads used by these processes.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes
+    ----------
+    INHERIT : int
+        Indicates that the returned handle can be inherited by child processes of the current process.
+    SNAPHEAPLIST : int
+        Includes all heaps of the specified process in the snapshot.
+    SNAPMODULE : int
+        Includes all modules of the specified process in the snapshot.
+    SNAPMODULE32 : int
+        Includes all 32-bit modules of the specified process in the snapshot.
+    SNAPPROCESS : int
+        Includes all processes in the system in the snapshot.
+    SNAPTHREAD : int
+        Includes all threads in the system in the snapshot.
+    ALL : int
+        Includes all of the above in the snapshot.
     """
 
     INHERIT = 2147483648
