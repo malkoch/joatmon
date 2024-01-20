@@ -5,31 +5,35 @@ from joatmon.system.lock import RWLock
 
 class File:
     """
-    Deep Deterministic Policy Gradient
+    File class that provides the functionality for reading and writing to a file with a read-write lock.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes:
+        path (str): The path of the file.
+        lock (RWLock): The read-write lock for the file.
+
+    Methods:
+        read: Reads the content of the file.
+        write: Writes data to the file.
     """
 
     def __init__(self, path):
+        """
+        Initialize File with the given path.
+
+        Args:
+            path (str): The path of the file.
+        """
         self.path = path
         self.lock = RWLock()
 
     def read(self):
         """
-        Remember the transaction.
+        Reads the content of the file.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        This method uses a read lock to ensure that the file is not modified while it is being read.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            str: The content of the file.
         """
         with self.lock.r_locked():
             with open(str(self.path), 'r') as file:
@@ -37,12 +41,12 @@ class File:
 
     def write(self, data=''):
         """
-        Remember the transaction.
+        Writes data to the file.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        This method uses a write lock to ensure that the file is not read while it is being modified.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            data (str): The data to be written to the file.
         """
         with self.lock.w_locked():
             with open(str(self.path), 'w') as file:
