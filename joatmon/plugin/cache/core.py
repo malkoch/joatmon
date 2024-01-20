@@ -3,59 +3,61 @@ from joatmon.plugin.core import Plugin
 
 class CachePlugin(Plugin):
     """
-    Deep Deterministic Policy Gradient
-
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    CachePlugin class that inherits from the Plugin class. It is an abstract class that provides
+    the structure for caching methods. The methods in this class should be implemented in the child classes.
     """
 
     async def add(self, key, value, duration=None):
         """
-        Remember the transaction.
+        This is an abstract method that should be implemented in the child classes. It is used to
+        add a key-value pair to the cache.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            key (str): The key of the item to be added.
+            value (str): The value of the item to be added.
+            duration (int, optional): The duration for which the item should be stored in the cache.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
         raise NotImplementedError
 
     async def get(self, key):
         """
-        Remember the transaction.
+        This is an abstract method that should be implemented in the child classes. It is used to
+        retrieve a value from the cache using its key.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            key (str): The key of the item to be retrieved.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
         raise NotImplementedError
 
     async def update(self, key, value):
         """
-        Remember the transaction.
+        This is an abstract method that should be implemented in the child classes. It is used to
+        update the value of an item in the cache using its key.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            key (str): The key of the item to be updated.
+            value (str): The new value of the item.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
         raise NotImplementedError
 
     async def remove(self, key):
         """
-        Remember the transaction.
+        This is an abstract method that should be implemented in the child classes. It is used to
+        remove an item from the cache using its key.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            key (str): The key of the item to be removed.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
         """
         raise NotImplementedError
