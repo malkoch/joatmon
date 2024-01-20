@@ -3,20 +3,25 @@ import random
 
 class CoreBuffer(list):
     """
-    Deep Deterministic Policy Gradient
+    CoreBuffer class that inherits from the list class. It provides the functionality for a buffer with core operations.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes:
+        values (list): The list of values in the buffer.
+        batch_size (int): The size of the batch for sampling.
+
+    Methods:
+        add: Adds an element to the buffer.
+        sample: Returns a random sample from the buffer.
     """
 
     def __init__(self, values, batch_size):
+        """
+        Initialize CoreBuffer with the given values and batch size.
+
+        Args:
+            values (list): The list of values for the buffer.
+            batch_size (int): The size of the batch for sampling.
+        """
         super(CoreBuffer, self).__init__()
 
         self.values = values
@@ -37,43 +42,44 @@ class CoreBuffer(list):
 
     def add(self, element):
         """
-        Remember the transaction.
+        Adds an element to the buffer.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            element (any): The element to be added to the buffer.
         """
         self.values.append(element)
 
     def sample(self):
         """
-        Remember the transaction.
+         Returns a random sample from the buffer.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
-        """
+         Returns:
+             list: A random sample from the buffer.
+         """
         return random.sample(self, self.batch_size)  # need to implement own random sampling algorithm
 
 
 class RingBuffer(CoreBuffer):
     """
-    Deep Deterministic Policy Gradient
+    RingBuffer class that inherits from the CoreBuffer class. It provides the functionality for a circular buffer.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes:
+        data (list): The list of data in the buffer.
+        start (int): The start index of the buffer.
+        end (int): The end index of the buffer.
+
+    Methods:
+        add: Adds an element to the buffer.
     """
 
     def __init__(self, size, batch_size):
+        """
+        Initialize RingBuffer with the given size and batch size.
+
+        Args:
+            size (int): The size of the buffer.
+            batch_size (int): The size of the batch for sampling.
+        """
         self.data = [None] * (size + 1)
         self.start = 0
         self.end = 0
@@ -107,12 +113,12 @@ class RingBuffer(CoreBuffer):
 
     def add(self, element):
         """
-        Remember the transaction.
+        Adds an element to the buffer.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        If the buffer is full, it removes the oldest element to make room for the new element.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            element (any): The element to be added to the buffer.
         """
         self.data[self.end] = element
         self.end = (self.end + 1) % len(self.data)
