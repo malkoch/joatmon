@@ -7,12 +7,13 @@ __all__ = ['auto_pause']
 
 def auto_pause(duration):
     """
-    Remember the transaction.
+    Decorator to pause the execution of a function for a specified duration.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        duration (float): The duration to pause the function execution in seconds.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        function: The decorated function which will pause for the specified duration after execution.
     """
 
     def _decorator(func):

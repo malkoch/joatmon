@@ -6,20 +6,39 @@ __all__ = ['RWLock']
 
 class RWLock(object):
     """
-    Deep Deterministic Policy Gradient
+    A class used to represent a Read-Write Lock.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes
+    ----------
+    w_lock : Lock
+        The lock for write operations.
+    num_r_lock : Lock
+        The lock for read operations.
+    num_r : int
+        The number of read operations.
+
+    Methods
+    -------
+    __init__(self)
+        Initializes a new instance of the RWLock class.
+    r_acquire(self)
+        Acquires the read lock.
+    r_release(self)
+        Releases the read lock.
+    r_locked(self)
+        Context manager for read lock.
+    w_acquire(self)
+        Acquires the write lock.
+    w_release(self)
+        Releases the write lock.
+    w_locked(self)
+        Context manager for write lock.
     """
 
     def __init__(self, modes=None, max_read=0):
+        """
+        Initializes a new instance of the RWLock class.
+        """
         self.w_lock = Lock()
         self.num_r_lock = Lock()
         self.num_r = 0
@@ -44,12 +63,9 @@ class RWLock(object):
 
     def r_acquire(self):
         """
-        Remember the transaction.
+        Acquires the read lock.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method increases the number of read operations and acquires the write lock if it's the first read operation.
         """
         # print('attempting to acquire read lock')
         self.num_r_lock.acquire()
@@ -60,12 +76,9 @@ class RWLock(object):
 
     def r_release(self):
         """
-        Remember the transaction.
+        Releases the read lock.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method decreases the number of read operations and releases the write lock if there are no more read operations.
         """
         # print('attempting to release read lock')
         assert self.num_r > 0
@@ -78,12 +91,9 @@ class RWLock(object):
     @contextmanager
     def r_locked(self):
         """
-        Remember the transaction.
+        Context manager for read lock.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method acquires the read lock before entering the context and releases it after exiting the context.
         """
         try:
             self.r_acquire()
@@ -93,24 +103,14 @@ class RWLock(object):
 
     def w_acquire(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Acquires the write lock.
         """
         # print('attempting to acquire write lock')
         self.w_lock.acquire()
 
     def w_release(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Releases the write lock.
         """
         # print('attempting to release write lock')
         self.w_lock.release()
@@ -118,12 +118,9 @@ class RWLock(object):
     @contextmanager
     def w_locked(self):
         """
-        Remember the transaction.
+        Context manager for write lock.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        This method acquires the write lock before entering the context and releases it after exiting the context.
         """
         try:
             self.w_acquire()
