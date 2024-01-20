@@ -1,58 +1,46 @@
 class ConsoleReader:
     """
-    Deep Deterministic Policy Gradient
+    ConsoleReader class that provides the functionality for reading input from the console.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Methods:
+        read: Reads input from the console.
     """
 
     def __init__(self):
+        """
+        Initialize ConsoleReader.
+        """
         super(ConsoleReader, self).__init__()
 
     def read(self):
         """
-        Remember the transaction.
+        Reads input from the console.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            str: The input from the console.
         """
         return input()
 
 
 class ConsoleWriter:
     """
-    Deep Deterministic Policy Gradient
+    ConsoleWriter class that provides the functionality for writing output to the console.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Methods:
+        write: Writes data to the console.
     """
 
     def __init__(self):
+        """
+        Initialize ConsoleWriter.
+        """
         super(ConsoleWriter, self).__init__()
 
     def write(self, data):
         """
-        Remember the transaction.
+        Writes data to the console.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            data (str): The data to be written to the console.
         """
         print(data)

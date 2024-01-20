@@ -67,17 +67,11 @@ Point = collections.namedtuple('Point', 'x y')
 
 class POINT(ctypes.Structure):
     """
-    Deep Deterministic Policy Gradient
+    POINT structure for representing a point in a 2D space.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Fields:
+        x (long): The x-coordinate of the point.
+        y (long): The y-coordinate of the point.
     """
 
     _fields_ = [('x', ctypes.c_long), ('y', ctypes.c_long)]
@@ -85,17 +79,13 @@ class POINT(ctypes.Structure):
 
 class RECT(ctypes.Structure):
     """
-    Deep Deterministic Policy Gradient
+    RECT structure for representing a rectangle.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Fields:
+        left (long): The x-coordinate of the upper-left corner of the rectangle.
+        top (long): The y-coordinate of the upper-left corner of the rectangle.
+        right (long): The x-coordinate of the lower-right corner of the rectangle.
+        bottom (long): The y-coordinate of the lower-right corner of the rectangle.
     """
 
     _fields_ = [('left', ctypes.c_long), ('top', ctypes.c_long), ('right', ctypes.c_long), ('bottom', ctypes.c_long)]
@@ -103,44 +93,22 @@ class RECT(ctypes.Structure):
 
 class RectangleException(Exception):
     """
-    Deep Deterministic Policy Gradient
-
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Exception raised for errors in the Rectangle class.
     """
 
 
 class GetWindowException(Exception):
     """
-    Deep Deterministic Policy Gradient
-
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Exception raised for errors in getting window information.
     """
 
 
 def _check_for_int_or_float(arg):
     """
-    Remember the transaction.
+    Check if the argument is an integer or a float.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Args:
+        arg: The argument to check.
     """
     if not isinstance(arg, (int, float)):
         raise RectangleException(f'argument must be int or float, not {arg.__class__.__name__}')
@@ -148,12 +116,10 @@ def _check_for_int_or_float(arg):
 
 def _check_for_two_int_or_float_tuple(arg):
     """
-    Remember the transaction.
+    Check if the argument is a tuple of two integers or floats.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Args:
+        arg: The argument to check.
     """
     try:
         if not isinstance(arg[0], (int, float)) or not isinstance(arg[1], (int, float)):
@@ -165,12 +131,10 @@ def _check_for_two_int_or_float_tuple(arg):
 
 def _check_for_four_int_or_float_tuple(arg):
     """
-    Remember the transaction.
+    Check if the argument is a tuple of four integers or floats.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Args:
+        arg: The argument to check.
     """
     try:
         if (
@@ -187,22 +151,68 @@ def _check_for_four_int_or_float_tuple(arg):
 
 class Rectangle(object):
     """
-    Deep Deterministic Policy Gradient
+    Rectangle class for representing and manipulating a rectangle.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Methods:
+        __init__: Initialize the Rectangle.
+        __repr__: Return a string representation of the Rectangle.
+        __str__: Return a string representation of the Rectangle.
+        call_on_change: Call a function when the Rectangle changes.
+        enable_float: Enable or disable floating point values.
+        left: Get or set the left coordinate of the Rectangle.
+        top: Get or set the top coordinate of the Rectangle.
+        right: Get or set the right coordinate of the Rectangle.
+        bottom: Get or set the bottom coordinate of the Rectangle.
+        top_left: Get or set the top-left coordinate of the Rectangle.
+        bottom_left: Get or set the bottom-left coordinate of the Rectangle.
+        top_right: Get or set the top-right coordinate of the Rectangle.
+        bottom_right: Get or set the bottom-right coordinate of the Rectangle.
+        mid_top: Get or set the mid-top coordinate of the Rectangle.
+        mid_bottom: Get or set the mid-bottom coordinate of the Rectangle.
+        mid_left: Get or set the mid-left coordinate of the Rectangle.
+        mid_right: Get or set the mid-right coordinate of the Rectangle.
+        center: Get or set the center coordinate of the Rectangle.
+        center_x: Get or set the x-coordinate of the center of the Rectangle.
+        center_y: Get or set the y-coordinate of the center of the Rectangle.
+        size: Get or set the size of the Rectangle.
+        width: Get or set the width of the Rectangle.
+        height: Get or set the height of the Rectangle.
+        area: Get the area of the Rectangle.
+        box: Get or set the box of the Rectangle.
+        get: Get a property of the Rectangle.
+        set: Set a property of the Rectangle.
+        move: Move the Rectangle.
+        copy: Return a copy of the Rectangle.
+        inflate: Inflate the Rectangle.
+        clamp: Clamp the Rectangle to another Rectangle.
+        union: Union the Rectangle with another Rectangle.
+        union_all: Union the Rectangle with a list of other Rectangles.
+        normalize: Normalize the Rectangle.
+        __contains__: Check if a point or another Rectangle is contained in the Rectangle.
+        collide: Check if a point or another Rectangle collides with the Rectangle.
+        __eq__: Check if the Rectangle is equal to another Rectangle.
+        __ne__: Check if the Rectangle is not equal to another Rectangle.
     """
 
     def __init__(
             self, left=0, top=0, width=0, height=0, enable_float=False, read_only=False, on_change=None, on_read=None
     ):
+        """
+        Initialize the Rectangle instance.
+
+        Args:
+            left (int, float): The x-coordinate of the left edge of the rectangle. Defaults to 0.
+            top (int, float): The y-coordinate of the top edge of the rectangle. Defaults to 0.
+            width (int, float): The width of the rectangle. Defaults to 0.
+            height (int, float): The height of the rectangle. Defaults to 0.
+            enable_float (bool): A flag indicating whether the rectangle's dimensions should be treated as floats. Defaults to False.
+            read_only (bool): A flag indicating whether the rectangle's dimensions can be modified. Defaults to False.
+            on_change (callable): A function to be called when the rectangle's dimensions change. Must be None or callable. Defaults to None.
+            on_read (callable): A function to be called when the rectangle's dimensions are accessed. Must be None or callable. Defaults to None.
+
+        Raises:
+            RectangleException: If on_change or on_read is not None or callable.
+        """
         _check_for_int_or_float(width)
         _check_for_int_or_float(height)
         _check_for_int_or_float(left)
@@ -231,6 +241,10 @@ class Rectangle(object):
             self._top = int(top)
 
     def __repr__(self):
+        """
+        Returns a string representation of the Rectangle object.
+        The string includes the class name and the values of left, top, width, and height attributes.
+        """
         return (
             f'{self.__class__.__name__}'
             f'(left={self._left}, '
@@ -240,16 +254,15 @@ class Rectangle(object):
         )
 
     def __str__(self):
+        """
+        Returns a string representation of the Rectangle object.
+        The string includes the values of left (x), top (y), width (w), and height (h) attributes.
+        """
         return f'(x={self._left}, y={self._top}, w={self._width}, h={self._height})'
 
     def call_on_change(self, old_left, old_top, old_width, old_height):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Calls the onChange function if it is not None.
         """
         if self.onChange is not None:
             self.onChange(
@@ -259,24 +272,15 @@ class Rectangle(object):
     @property
     def enable_float(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns the value of the _enable_float attribute.
         """
         return self._enable_float
 
     @enable_float.setter
     def enable_float(self, value):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Sets the value of the _enable_float attribute.
+        Raises an error if the value is not a boolean.
         """
         if not isinstance(value, bool):
             raise RectangleException('enable_float must be set to a bool value')
@@ -296,12 +300,7 @@ class Rectangle(object):
     @property
     def left(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns the value of the _left attribute.
         """
         if self.on_read is not None:
             self.on_read(LEFT)
@@ -310,12 +309,8 @@ class Rectangle(object):
     @left.setter
     def left(self, new_left):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Sets the value of the _left attribute.
+        Raises an error if the new value is not an integer or a float.
         """
         if self._read_only:
             raise RectangleException('Rect object is read-only')
@@ -332,12 +327,7 @@ class Rectangle(object):
     @property
     def top(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns the value of the _top attribute.
         """
         if self.on_read is not None:
             self.on_read(TOP)
@@ -346,12 +336,8 @@ class Rectangle(object):
     @top.setter
     def top(self, new_top):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Sets the value of the _top attribute.
+        Raises an error if the new value is not an integer or a float.
         """
         if self._read_only:
             raise RectangleException('Rect object is read-only')
@@ -368,12 +354,7 @@ class Rectangle(object):
     @property
     def right(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns the sum of the _left and _width attributes.
         """
         if self.on_read is not None:
             self.on_read(RIGHT)
@@ -382,12 +363,8 @@ class Rectangle(object):
     @right.setter
     def right(self, new_right):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Sets the value of the _left attribute based on the new_right value and the current _width.
+        Raises an error if the new value is not an integer or a float.
         """
         if self._read_only:
             raise RectangleException('Rect object is read-only')
@@ -404,12 +381,7 @@ class Rectangle(object):
     @property
     def bottom(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns the sum of the _top and _height attributes.
         """
         if self.on_read is not None:
             self.on_read(BOTTOM)
@@ -418,12 +390,8 @@ class Rectangle(object):
     @bottom.setter
     def bottom(self, new_bottom):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Sets the value of the _top attribute based on the new_bottom value and the current _height.
+        Raises an error if the new value is not an integer or a float.
         """
         if self._read_only:
             raise RectangleException('Rect object is read-only')
@@ -440,12 +408,7 @@ class Rectangle(object):
     @property
     def top_left(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns a Point object with the _left and _top attributes as its coordinates.
         """
         if self.on_read is not None:
             self.on_read(TOP_LEFT)
@@ -454,12 +417,8 @@ class Rectangle(object):
     @top_left.setter
     def top_left(self, value):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Sets the values of the _left and _top attributes based on the given value.
+        Raises an error if the new value is not a tuple of two integers or floats.
         """
         if self._read_only:
             raise RectangleException('Rect object is read-only')
@@ -480,12 +439,7 @@ class Rectangle(object):
     @property
     def bottom_left(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns a Point object with the _left and the sum of _top and _height as its coordinates.
         """
         if self.on_read is not None:
             self.on_read(BOTTOM_LEFT)
@@ -494,12 +448,8 @@ class Rectangle(object):
     @bottom_left.setter
     def bottom_left(self, value):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Sets the values of the _left and _top attributes based on the given value.
+        Raises an error if the new value is not a tuple of two integers or floats.
         """
         if self._read_only:
             raise RectangleException('Rect object is read-only')
@@ -520,12 +470,7 @@ class Rectangle(object):
     @property
     def top_right(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns a Point object with the sum of _left and _width and _top as its coordinates.
         """
         if self.on_read is not None:
             self.on_read(TOP_RIGHT)
@@ -534,12 +479,8 @@ class Rectangle(object):
     @top_right.setter
     def top_right(self, value):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Sets the values of the _left and _top attributes based on the given value.
+        Raises an error if the new value is not a tuple of two integers or floats.
         """
         if self._read_only:
             raise RectangleException('Rect object is read-only')
@@ -560,12 +501,7 @@ class Rectangle(object):
     @property
     def bottom_right(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns a Point object with the sum of _left and _width and the sum of _top and _height as its coordinates.
         """
         if self.on_read is not None:
             self.on_read(BOTTOM_RIGHT)
@@ -574,12 +510,8 @@ class Rectangle(object):
     @bottom_right.setter
     def bottom_right(self, value):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Sets the values of the _left, _top, _width, and _height attributes based on the given value.
+        Raises an error if the new value is not a tuple of two integers or floats.
         """
         if self._read_only:
             raise RectangleException('Rect object is read-only')
@@ -600,12 +532,7 @@ class Rectangle(object):
     @property
     def mid_top(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns a Point object with the middle point of the top edge as its coordinates.
         """
         if self.on_read is not None:
             self.on_read(MID_TOP)
@@ -617,12 +544,8 @@ class Rectangle(object):
     @mid_top.setter
     def mid_top(self, value):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Sets the values of the _left and _top attributes based on the given value.
+        Raises an error if the new value is not a tuple of two integers or floats.
         """
         if self._read_only:
             raise RectangleException('Rect object is read-only')
@@ -645,12 +568,7 @@ class Rectangle(object):
     @property
     def mid_bottom(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns a Point object with the middle point of the bottom edge as its coordinates.
         """
         if self.on_read is not None:
             self.on_read(MID_BOTTOM)
@@ -662,12 +580,8 @@ class Rectangle(object):
     @mid_bottom.setter
     def mid_bottom(self, value):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Sets the values of the _left and _top attributes based on the given value.
+        Raises an error if the new value is not a tuple of two integers or floats.
         """
         if self._read_only:
             raise RectangleException('Rect object is read-only')
@@ -690,12 +604,7 @@ class Rectangle(object):
     @property
     def mid_left(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns a Point object with the middle point of the left edge as its coordinates.
         """
         if self.on_read is not None:
             self.on_read(MID_LEFT)
@@ -707,12 +616,8 @@ class Rectangle(object):
     @mid_left.setter
     def mid_left(self, value):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Sets the values of the _left and _top attributes based on the given value.
+        Raises an error if the new value is not a tuple of two integers or floats.
         """
         if self._read_only:
             raise RectangleException('Rect object is read-only')
@@ -735,12 +640,7 @@ class Rectangle(object):
     @property
     def mid_right(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns a Point object with the middle point of the right edge as its coordinates.
         """
         if self.on_read is not None:
             self.on_read(MID_RIGHT)
@@ -752,12 +652,8 @@ class Rectangle(object):
     @mid_right.setter
     def mid_right(self, value):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Sets the values of the _left and _top attributes based on the given value.
+        Raises an error if the new value is not a tuple of two integers or floats.
         """
         if self._read_only:
             raise RectangleException('Rect object is read-only')
@@ -780,12 +676,7 @@ class Rectangle(object):
     @property
     def center(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns a Point object with the center point of the rectangle as its coordinates.
         """
         if self.on_read is not None:
             self.on_read(CENTER)
@@ -797,12 +688,8 @@ class Rectangle(object):
     @center.setter
     def center(self, value):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Sets the values of the _left and _top attributes based on the given value.
+        Raises an error if the new value is not a tuple of two integers or floats.
         """
         if self._read_only:
             raise RectangleException('Rect object is read-only')
@@ -825,12 +712,7 @@ class Rectangle(object):
     @property
     def center_x(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns the x-coordinate of the center point of the rectangle.
         """
         if self.on_read is not None:
             self.on_read(CENTER_X)
@@ -842,12 +724,8 @@ class Rectangle(object):
     @center_x.setter
     def center_x(self, new_center_x):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Sets the value of the _left attribute based on the given value.
+        Raises an error if the new value is not an integer or a float.
         """
         if self._read_only:
             raise RectangleException('Rect object is read-only')
@@ -866,12 +744,7 @@ class Rectangle(object):
     @property
     def center_y(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns the y-coordinate of the center point of the rectangle.
         """
         if self.on_read is not None:
             self.on_read(CENTER_Y)
@@ -883,12 +756,8 @@ class Rectangle(object):
     @center_y.setter
     def center_y(self, new_center_y):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Sets the value of the _top attribute based on the given value.
+        Raises an error if the new value is not an integer or a float.
         """
         if self._read_only:
             raise RectangleException('Rect object is read-only')
@@ -907,12 +776,7 @@ class Rectangle(object):
     @property
     def size(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns a Size object with the _width and _height attributes as its dimensions.
         """
         if self.on_read is not None:
             self.on_read(SIZE)
@@ -921,12 +785,8 @@ class Rectangle(object):
     @size.setter
     def size(self, value):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Sets the values of the _width and _height attributes based on the given value.
+        Raises an error if the new value is not a tuple of two integers or floats.
         """
         if self._read_only:
             raise RectangleException('Rect object is read-only')
@@ -947,12 +807,7 @@ class Rectangle(object):
     @property
     def width(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns the value of the _width attribute.
         """
         if self.on_read is not None:
             self.on_read(WIDTH)
@@ -961,12 +816,8 @@ class Rectangle(object):
     @width.setter
     def width(self, new_width):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Sets the value of the _width attribute.
+        Raises an error if the new value is not an integer or a float.
         """
         if self._read_only:
             raise RectangleException('Rect object is read-only')
@@ -983,12 +834,10 @@ class Rectangle(object):
     @property
     def height(self):
         """
-        Remember the transaction.
+        Property getter for _height attribute of the Rectangle instance.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            int or float: The height of the rectangle.
         """
         if self.on_read is not None:
             self.on_read(HEIGHT)
@@ -997,12 +846,13 @@ class Rectangle(object):
     @height.setter
     def height(self, new_height):
         """
-        Remember the transaction.
+        Property setter for _height attribute of the Rectangle instance.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            new_height (int or float): The new height of the rectangle.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            RectangleException: If the Rectangle instance is read-only.
         """
         if self._read_only:
             raise RectangleException('Rect object is read-only')
@@ -1024,12 +874,10 @@ class Rectangle(object):
     @property
     def area(self):
         """
-        Remember the transaction.
+        Property getter for the area of the Rectangle instance.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            int or float: The area of the rectangle.
         """
         if self.on_read is not None:
             self.on_read(AREA)
@@ -1038,12 +886,10 @@ class Rectangle(object):
     @property
     def box(self):
         """
-        Remember the transaction.
+        Property getter for the box representation of the Rectangle instance.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            Box: The box representation of the rectangle.
         """
         if self.on_read is not None:
             self.on_read(BOX)
@@ -1052,12 +898,13 @@ class Rectangle(object):
     @box.setter
     def box(self, value):
         """
-        Remember the transaction.
+        Property setter for the box representation of the Rectangle instance.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            value (tuple): The new box representation of the rectangle.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            RectangleException: If the Rectangle instance is read-only.
         """
         if self._read_only:
             raise RectangleException('Rect object is read-only')
@@ -1088,12 +935,16 @@ class Rectangle(object):
 
     def get(self, rect_attr_name):
         """
-        Remember the transaction.
+        Returns the value of the specified rectangle attribute.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            rect_attr_name (str): The name of the rectangle attribute.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            int or float: The value of the specified rectangle attribute.
+
+        Raises:
+            RectangleException: If the attribute name is not valid.
         """
         if rect_attr_name == TOP:
             return self.top
@@ -1140,12 +991,14 @@ class Rectangle(object):
 
     def set(self, rect_attr_name, value):
         """
-        Remember the transaction.
+        Sets the value of the specified rectangle attribute.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            rect_attr_name (str): The name of the rectangle attribute.
+            value (int or float): The new value of the rectangle attribute.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            RectangleException: If the attribute name is not valid or if the attribute is read-only.
         """
         if rect_attr_name == TOP:
             self.top = value
@@ -1192,12 +1045,14 @@ class Rectangle(object):
 
     def move(self, x_offset, y_offset):
         """
-        Remember the transaction.
+        Moves the rectangle by the specified offsets.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            x_offset (int or float): The offset along the x-axis.
+            y_offset (int or float): The offset along the y-axis.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            RectangleException: If the Rectangle instance is read-only.
         """
         if self._read_only:
             raise RectangleException('Rect object is read-only')
@@ -1213,23 +1068,23 @@ class Rectangle(object):
 
     def copy(self):
         """
-        Remember the transaction.
+        Returns a copy of the Rectangle instance.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            Rectangle: A copy of the Rectangle instance.
         """
         return Rectangle(self._left, self._top, self._width, self._height, self._enable_float, self._read_only)
 
     def inflate(self, width_change=0, height_change=0):
         """
-        Remember the transaction.
+        Increases the size of the rectangle by the specified amounts.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            width_change (int or float): The change in width. Defaults to 0.
+            height_change (int or float): The change in height. Defaults to 0.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            RectangleException: If the Rectangle instance is read-only.
         """
         if self._read_only:
             raise RectangleException('Rect object is read-only')
@@ -1241,12 +1096,13 @@ class Rectangle(object):
 
     def clamp(self, other_rect):
         """
-        Remember the transaction.
+        Moves the rectangle to be within the bounds of another rectangle.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            other_rect (Rectangle): The other rectangle.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            RectangleException: If the Rectangle instance is read-only.
         """
         if self._read_only:
             raise RectangleException('Rect object is read-only')
@@ -1255,12 +1111,10 @@ class Rectangle(object):
 
     def union(self, other_rect):
         """
-        Remember the transaction.
+        Expands the rectangle to include another rectangle.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            other_rect (Rectangle): The other rectangle.
         """
         union_left = min(self._left, other_rect._left)
         union_top = min(self._top, other_rect._top)
@@ -1274,12 +1128,10 @@ class Rectangle(object):
 
     def union_all(self, other_rectangles):
         """
-        Remember the transaction.
+        Expands the rectangle to include a list of other rectangles.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            other_rectangles (list): The list of other rectangles.
         """
         other_rectangles = list(other_rectangles)
         other_rectangles.append(self)
@@ -1296,12 +1148,10 @@ class Rectangle(object):
 
     def normalize(self):
         """
-        Remember the transaction.
+        Adjusts the rectangle to have non-negative width and height.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Raises:
+            RectangleException: If the Rectangle instance is read-only.
         """
         if self._read_only:
             raise RectangleException('Rect object is read-only')
@@ -1314,6 +1164,18 @@ class Rectangle(object):
             self._top -= self._height
 
     def __contains__(self, value):
+        """
+        Checks whether a point or rectangle is contained within the rectangle.
+
+        Args:
+            value (tuple or Rectangle): The point or rectangle to check.
+
+        Returns:
+            bool: True if the point or rectangle is contained within the rectangle, False otherwise.
+
+        Raises:
+            RectangleException: If the value is not a valid point or rectangle.
+        """
         if isinstance(value, Rectangle):
             return (
                     value.top_left in self
@@ -1354,12 +1216,16 @@ class Rectangle(object):
 
     def collide(self, value):
         """
-        Remember the transaction.
+        Checks whether a point or rectangle collides with the rectangle.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            value (tuple or Rectangle): The point or rectangle to check.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            bool: True if the point or rectangle collides with the rectangle, False otherwise.
+
+        Raises:
+            RectangleException: If the value is not a valid point or rectangle.
         """
         if isinstance(value, Rectangle):
             return (
@@ -1399,12 +1265,36 @@ class Rectangle(object):
             )
 
     def __eq__(self, other):
+        """
+        Checks whether the rectangle is equal to another rectangle.
+
+        Args:
+            other (Rectangle): The rectangle to compare with.
+
+        Returns:
+            bool: True if the rectangles are equal, False otherwise.
+
+        Raises:
+            RectangleException: If the other object is not a Rectangle.
+        """
         if isinstance(other, Rectangle):
             return other.box == self.box
         else:
             raise RectangleException('Rect objects can only be compared with other Rect objects')
 
     def __ne__(self, other):
+        """
+        Checks whether the rectangle is not equal to another rectangle.
+
+        Args:
+            other (Rectangle): The rectangle to compare with.
+
+        Returns:
+            bool: True if the rectangles are not equal, False otherwise.
+
+        Raises:
+            RectangleException: If the other object is not a Rectangle.
+        """
         if isinstance(other, Rectangle):
             return other.box != self.box
         else:
@@ -1413,12 +1303,13 @@ class Rectangle(object):
 
 def _format_message(error_code):
     """
-    Remember the transaction.
+    Format a Windows error message.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        error_code (int): The error code to format.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        str: The formatted error message.
     """
     lp_buffer = wintypes.LPWSTR()
 
@@ -1438,12 +1329,7 @@ def _format_message(error_code):
 
 def _raise_with_last_error():
     """
-    Remember the transaction.
-
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Raise an exception with the last Windows error message.
     """
     error_code = ctypes.windll.kernel32.GetLastError()
     raise GetWindowException(f'Error code from Windows: {error_code} - {_format_message(error_code)}')
@@ -1451,24 +1337,28 @@ def _raise_with_last_error():
 
 def point_in_rect(x, y, left, top, width, height):
     """
-    Remember the transaction.
+    Check if a point is in a rectangle.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        x (int): The x-coordinate of the point.
+        y (int): The y-coordinate of the point.
+        left (int): The left coordinate of the rectangle.
+        top (int): The top coordinate of the rectangle.
+        width (int): The width of the rectangle.
+        height (int): The height of the rectangle.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        bool: True if the point is in the rectangle, False otherwise.
     """
     return left < x < left + width and top < y < top + height
 
 
 def _get_all_titles():
     """
-    Remember the transaction.
+    Get the titles of all visible windows.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        list: A list of window titles.
     """
     titles = []
 
@@ -1487,12 +1377,14 @@ def _get_all_titles():
 
 def get_windows_at(x, y):
     """
-    Remember the transaction.
+    Get all windows at a specific point.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        x (int): The x-coordinate of the point.
+        y (int): The y-coordinate of the point.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        list: A list of windows at the point.
     """
     windows_at_xy = []
     for _window in get_all_windows():
@@ -1503,12 +1395,13 @@ def get_windows_at(x, y):
 
 def get_windows_with_title(title):
     """
-    Remember the transaction.
+    Get all windows with a specific title.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        title (str): The title to search for.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        list: A list of windows with the title.
     """
     h_windows_and_titles = _get_all_titles()
     window_objects = []
@@ -1520,24 +1413,20 @@ def get_windows_with_title(title):
 
 def get_all_titles():
     """
-    Remember the transaction.
+    Get the titles of all windows.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        list: A list of window titles.
     """
     return [_window.title for _window in get_all_windows()]
 
 
 def get_all_windows():
     """
-    Remember the transaction.
+    Get all windows.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        list: A list of all windows.
     """
     window_objects = []
 
@@ -1553,12 +1442,13 @@ def get_all_windows():
 
 def get_window_rect(h_wnd):
     """
-    Remember the transaction.
+    Get the rectangle of a window.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        h_wnd (int): The handle of the window.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        Rect: The rectangle of the window.
     """
     _rect = RECT()
     result = ctypes.windll.user32.GetWindowRect(h_wnd, ctypes.byref(_rect))
@@ -1570,12 +1460,10 @@ def get_window_rect(h_wnd):
 
 def get_active_window():
     """
-    Remember the transaction.
+    Get the active window.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
-
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        Window: The active window.
     """
     h_wnd = ctypes.windll.user32.GetForegroundWindow()
     if h_wnd == 0:
@@ -1586,12 +1474,13 @@ def get_active_window():
 
 def get_window_text(h_wnd):
     """
-    Remember the transaction.
+    Get the text of a window.
 
-    Accepts a state, action, reward, next_state, terminal transaction.
+    Args:
+        h_wnd (int): The handle of the window.
 
-    # Arguments
-        transaction (abstract): state, action, reward, next_state, terminal transaction.
+    Returns:
+        str: The text of the window.
     """
     text_len_in_characters = ctypes.windll.user32.GetWindowTextLengthW(h_wnd)
     string_buffer = ctypes.create_unicode_buffer(text_len_in_characters + 1)
@@ -1601,23 +1490,63 @@ def get_window_text(h_wnd):
 
 class Window:
     """
-    Deep Deterministic Policy Gradient
+    Window class for representing and manipulating a window.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Methods:
+        __init__: Initialize the Window.
+        __repr__: Return a string representation of the Window.
+        __str__: Return a string representation of the Window.
+        __eq__: Check if the Window is equal to another Window.
+        close: Close the Window.
+        minimize: Minimize the Window.
+        maximize: Maximize the Window.
+        restore: Restore the Window.
+        activate: Activate the Window.
+        resize_rel: Resize the Window relative to its current size.
+        resize_to: Resize the Window to a specific size.
+        move_rel: Move the Window relative to its current position.
+        move_to: Move the Window to a specific position.
+        h_wnd: Get the handle of the Window.
+        is_minimized: Check if the Window is minimized.
+        is_maximized: Check if the Window is maximized.
+        is_active: Check if the Window is active.
+        title: Get the title of the Window.
+        visible: Check if the Window is visible.
+        left: Get or set the left coordinate of the Window.
+        right: Get or set the right coordinate of the Window.
+        top: Get or set the top coordinate of the Window.
+        bottom: Get or set the bottom coordinate of the Window.
+        top_left: Get or set the top-left coordinate of the Window.
+        bottom_left: Get or set the bottom-left coordinate of the Window.
+        top_right: Get or set the top-right coordinate of the Window.
+        bottom_right: Get or set the bottom-right coordinate of the Window.
+        mid_left: Get or set the mid-left coordinate of the Window.
+        mid_right: Get or set the mid-right coordinate of the Window.
+        mid_top: Get or set the mid-top coordinate of the Window.
+        mid_bottom: Get or set the mid-bottom coordinate of the Window.
+        center: Get or set the center coordinate of the Window.
+        center_x: Get or set the x-coordinate of the center of the Window.
+        center_y: Get or set the y-coordinate of the center of the Window.
+        width: Get or set the width of the Window.
+        height: Get or set the height of the Window.
+        size: Get or set the size of the Window.
+        area: Get the area of the Window.
+        box: Get or set the box of the Window.
     """
 
     def __init__(self, h_wnd):
+        """
+        Initializes a new instance of the Window class.
+
+        Args:
+            h_wnd: The handle to the window.
+        """
         self._h_wnd = h_wnd
 
         def _on_read(_):
+            """
+            Updates the rectangle's position and size when the window's position or size is read.
+            """
             _rect = get_window_rect(self._h_wnd)
             self._rect._left = _rect.left
             self._rect._top = _rect.top
@@ -1625,6 +1554,12 @@ class Window:
             self._rect._height = _rect.bottom - _rect.top
 
         def _on_change(_, new_box):
+            """
+            Updates the window's position and size when the rectangle's position or size is changed.
+
+            Args:
+                new_box: The new position and size of the rectangle.
+            """
             self.move_to(new_box.left, new_box.top)
             self.resize_to(new_box.width, new_box.height)
 
@@ -1634,6 +1569,12 @@ class Window:
         )
 
     def __str__(self):
+        """
+        Returns a string representation of the Window instance.
+
+        Returns:
+            A string representation of the Window instance.
+        """
         r = get_window_rect(self._h_wnd)
         width = r.right - r.left
         height = r.bottom - r.top
@@ -1647,19 +1588,29 @@ class Window:
         )
 
     def __repr__(self):
+        """
+        Returns a string that can be used to recreate the Window instance.
+
+        Returns:
+            A string that can be used to recreate the Window instance.
+        """
         return '%s(hWnd=%s)' % (self.__class__.__name__, self._h_wnd)
 
     def __eq__(self, other):
+        """
+        Checks whether the Window instance is equal to another Window instance.
+
+        Args:
+            other: The other Window instance to compare with.
+
+        Returns:
+            True if the Window instance is equal to the other Window instance, False otherwise.
+        """
         return isinstance(other, Window) and self._h_wnd == other._h_wnd
 
     def close(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Closes the window.
         """
         result = ctypes.windll.user32.PostMessageA(self._h_wnd, WM_CLOSE, 0, 0)
         if result == 0:
@@ -1667,45 +1618,25 @@ class Window:
 
     def minimize(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Minimizes the window.
         """
         ctypes.windll.user32.ShowWindow(self._h_wnd, SW_MINIMIZE)
 
     def maximize(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Maximizes the window.
         """
         ctypes.windll.user32.ShowWindow(self._h_wnd, SW_MAXIMIZE)
 
     def restore(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Restores the window to its original size and position.
         """
         ctypes.windll.user32.ShowWindow(self._h_wnd, SW_RESTORE)
 
     def activate(self):
         """
-        Remember the transaction.
-
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Brings the window to the foreground.
         """
         result = ctypes.windll.user32.SetForegroundWindow(self._h_wnd)
         if result == 0:
@@ -1713,12 +1644,11 @@ class Window:
 
     def resize_rel(self, width_offset, height_offset):
         """
-        Remember the transaction.
+        Resizes the window relative to its current size.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            width_offset: The offset to add to the window's current width.
+            height_offset: The offset to add to the window's current height.
         """
         result = ctypes.windll.user32.SetWindowPos(
             self._h_wnd, HWND_TOP, self.left, self.top, self.width + width_offset, self.height + height_offset, 0
@@ -1728,12 +1658,11 @@ class Window:
 
     def resize_to(self, new_width, new_height):
         """
-        Remember the transaction.
+        Resizes the window to a specific size.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            new_width: The new width of the window.
+            new_height: The new height of the window.
         """
         result = ctypes.windll.user32.SetWindowPos(self._h_wnd, HWND_TOP, self.left, self.top, new_width, new_height, 0)
         if result == 0:
@@ -1741,12 +1670,11 @@ class Window:
 
     def move_rel(self, x_offset, y_offset):
         """
-        Remember the transaction.
+        Moves the window relative to its current position.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            x_offset: The offset to add to the window's current x-coordinate.
+            y_offset: The offset to add to the window's current y-coordinate.
         """
         result = ctypes.windll.user32.SetWindowPos(
             self._h_wnd, HWND_TOP, self.left + x_offset, self.top + y_offset, self.width, self.height, 0
@@ -1756,12 +1684,11 @@ class Window:
 
     def move_to(self, new_left, new_top):
         """
-        Remember the transaction.
+        Moves the window to a specific position.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            new_left: The new left position of the window.
+            new_top: The new top position of the window.
         """
         result = ctypes.windll.user32.SetWindowPos(self._h_wnd, HWND_TOP, new_left, new_top, self.width, self.height, 0)
         if result == 0:
@@ -1770,96 +1697,80 @@ class Window:
     @property
     def h_wnd(self):
         """
-        Remember the transaction.
+        Gets the handle to the window.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            The handle to the window.
         """
         return self._h_wnd
 
     @property
     def is_minimized(self):
         """
-        Remember the transaction.
+        Checks whether the window is minimized.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            True if the window is minimized, False otherwise.
         """
         return ctypes.windll.user32.IsIconic(self._h_wnd) != 0
 
     @property
     def is_maximized(self):
         """
-        Remember the transaction.
+        Checks whether the window is maximized.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            True if the window is maximized, False otherwise.
         """
         return ctypes.windll.user32.IsZoomed(self._h_wnd) != 0
 
     @property
     def is_active(self):
         """
-        Remember the transaction.
+        Checks whether the window is the active window.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            True if the window is the active window, False otherwise.
         """
         return get_active_window() == self
 
     @property
     def title(self):
         """
-        Remember the transaction.
+        Gets the title of the window.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            The title of the window.
         """
         return get_window_text(self._h_wnd)
 
     @property
     def visible(self):
         """
-        Remember the transaction.
+        Checks whether the window is visible.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            True if the window is visible, False otherwise.
         """
         return IsWindowVisible(self._h_wnd)
 
     @property
     def left(self):
         """
-        Remember the transaction.
+        Gets the left position of the window.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            The left position of the window.
         """
         return self._rect.left
 
     @left.setter
     def left(self, value):
         """
-        Remember the transaction.
+        Sets the left position of the window.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            value: The new left position of the window.
         """
         _ = self._rect.left
         self._rect.left = value
@@ -1867,24 +1778,20 @@ class Window:
     @property
     def right(self):
         """
-        Remember the transaction.
+        Gets the right position of the window.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            The right position of the window.
         """
         return self._rect.right
 
     @right.setter
     def right(self, value):
         """
-        Remember the transaction.
+        Sets the right position of the window.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            value: The new right position of the window.
         """
         _ = self._rect.right
         self._rect.right = value
@@ -1892,24 +1799,20 @@ class Window:
     @property
     def top(self):
         """
-        Remember the transaction.
+        Gets the top position of the window.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            The top position of the window.
         """
         return self._rect.top
 
     @top.setter
     def top(self, value):
         """
-        Remember the transaction.
+        Sets the top position of the window.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            value: The new top position of the window.
         """
         _ = self._rect.top
         self._rect.top = value
@@ -1917,24 +1820,20 @@ class Window:
     @property
     def bottom(self):
         """
-        Remember the transaction.
+        Gets the bottom position of the window.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            The bottom position of the window.
         """
         return self._rect.bottom
 
     @bottom.setter
     def bottom(self, value):
         """
-        Remember the transaction.
+        Sets the bottom position of the window.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            value: The new bottom position of the window.
         """
         _ = self._rect.bottom
         self._rect.bottom = value
@@ -1942,24 +1841,20 @@ class Window:
     @property
     def top_left(self):
         """
-        Remember the transaction.
+        Gets the top-left position of the window.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            The top-left position of the window.
         """
         return self._rect.top_left
 
     @top_left.setter
     def top_left(self, value):
         """
-        Remember the transaction.
+        Sets the top-left position of the window.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            value: The new top-left position of the window.
         """
         _ = self._rect.top_left
         self._rect.top_left = value
@@ -1967,24 +1862,20 @@ class Window:
     @property
     def top_right(self):
         """
-        Remember the transaction.
+        Gets the top-right position of the window.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            The top-right position of the window.
         """
         return self._rect.top_right
 
     @top_right.setter
     def top_right(self, value):
         """
-        Remember the transaction.
+        Sets the top-right position of the window.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            value: The new top-right position of the window.
         """
         _ = self._rect.top_right
         self._rect.top_right = value
@@ -1992,24 +1883,20 @@ class Window:
     @property
     def bottom_left(self):
         """
-        Remember the transaction.
+        Gets the bottom-left position of the window.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            The bottom-left position of the window.
         """
         return self._rect.bottom_left
 
     @bottom_left.setter
     def bottom_left(self, value):
         """
-        Remember the transaction.
+        Sets the bottom-left position of the window.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            value: The new bottom-left position of the window.
         """
         _ = self._rect.bottom_left
         self._rect.bottom_left = value
@@ -2017,24 +1904,20 @@ class Window:
     @property
     def bottom_right(self):
         """
-        Remember the transaction.
+        Gets the bottom-right position of the window.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            The bottom-right position of the window.
         """
         return self._rect.bottom_right
 
     @bottom_right.setter
     def bottom_right(self, value):
         """
-        Remember the transaction.
+        Sets the bottom-right position of the window.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            value: The new bottom-right position of the window.
         """
         _ = self._rect.bottom_right
         self._rect.bottom_right = value
@@ -2042,24 +1925,20 @@ class Window:
     @property
     def mid_left(self):
         """
-        Remember the transaction.
+        Gets the middle-left position of the window.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            The middle-left position of the window.
         """
         return self._rect.mid_left
 
     @mid_left.setter
     def mid_left(self, value):
         """
-        Remember the transaction.
+        Sets the middle-left position of the window.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            value: The new middle-left position of the window.
         """
         _ = self._rect.mid_left
         self._rect.mid_left = value
@@ -2067,24 +1946,20 @@ class Window:
     @property
     def mid_right(self):
         """
-        Remember the transaction.
+        Gets the middle-right position of the window.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            The middle-right position of the window.
         """
         return self._rect.mid_right
 
     @mid_right.setter
     def mid_right(self, value):
         """
-        Remember the transaction.
+        Setter for the mid_right property of the Window instance.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            value (tuple): A tuple representing the new mid-right coordinates of the window.
         """
         _ = self._rect.mid_right
         self._rect.mid_right = value
@@ -2092,24 +1967,20 @@ class Window:
     @property
     def mid_top(self):
         """
-        Remember the transaction.
+        Getter for the mid_top property of the Window instance.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            tuple: The mid-top coordinates of the window.
         """
         return self._rect.mid_top
 
     @mid_top.setter
     def mid_top(self, value):
         """
-        Remember the transaction.
+        Setter for the mid_top property of the Window instance.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            value (tuple): A tuple representing the new mid-top coordinates of the window.
         """
         _ = self._rect.mid_top
         self._rect.mid_top = value
@@ -2117,24 +1988,20 @@ class Window:
     @property
     def mid_bottom(self):
         """
-        Remember the transaction.
+        Getter for the mid_bottom property of the Window instance.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            tuple: The mid-bottom coordinates of the window.
         """
         return self._rect.mid_bottom
 
     @mid_bottom.setter
     def mid_bottom(self, value):
         """
-        Remember the transaction.
+        Setter for the mid_bottom property of the Window instance.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            value (tuple): A tuple representing the new mid-bottom coordinates of the window.
         """
         _ = self._rect.mid_bottom
         self._rect.mid_bottom = value
@@ -2142,24 +2009,20 @@ class Window:
     @property
     def center(self):
         """
-        Remember the transaction.
+        Getter for the center property of the Window instance.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            tuple: The center coordinates of the window.
         """
         return self._rect.center
 
     @center.setter
     def center(self, value):
         """
-        Remember the transaction.
+        Setter for the center property of the Window instance.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            value (tuple): A tuple representing the new center coordinates of the window.
         """
         _ = self._rect.center
         self._rect.center = value
@@ -2167,24 +2030,20 @@ class Window:
     @property
     def center_x(self):
         """
-        Remember the transaction.
+        Getter for the center_x property of the Window instance.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            int: The x-coordinate of the center of the window.
         """
         return self._rect.center_x
 
     @center_x.setter
     def center_x(self, value):
         """
-        Remember the transaction.
+        Setter for the center_x property of the Window instance.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            value (int): The new x-coordinate of the center of the window.
         """
         _ = self._rect.center_x
         self._rect.center_x = value
@@ -2192,24 +2051,20 @@ class Window:
     @property
     def center_y(self):
         """
-        Remember the transaction.
+        Getter for the center_y property of the Window instance.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            int: The y-coordinate of the center of the window.
         """
         return self._rect.center_y
 
     @center_y.setter
     def center_y(self, value):
         """
-        Remember the transaction.
+        Setter for the center_y property of the Window instance.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            value (int): The new y-coordinate of the center of the window.
         """
         _ = self._rect.center_y
         self._rect.center_y = value
@@ -2217,24 +2072,20 @@ class Window:
     @property
     def width(self):
         """
-        Remember the transaction.
+        Getter for the width property of the Window instance.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            int: The width of the window.
         """
         return self._rect.width
 
     @width.setter
     def width(self, value):
         """
-        Remember the transaction.
+        Setter for the width property of the Window instance.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            value (int): The new width of the window.
         """
         _ = self._rect.width
         self._rect.width = value
@@ -2242,24 +2093,20 @@ class Window:
     @property
     def height(self):
         """
-        Remember the transaction.
+        Getter for the height property of the Window instance.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            int: The height of the window.
         """
         return self._rect.height
 
     @height.setter
     def height(self, value):
         """
-        Remember the transaction.
+        Setter for the height property of the Window instance.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            value (int): The new height of the window.
         """
         _ = self._rect.height
         self._rect.height = value
@@ -2267,24 +2114,20 @@ class Window:
     @property
     def size(self):
         """
-        Remember the transaction.
+        Getter for the size property of the Window instance.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            tuple: The size of the window as a tuple (width, height).
         """
         return self._rect.size
 
     @size.setter
     def size(self, value):
         """
-        Remember the transaction.
+        Setter for the size property of the Window instance.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            value (tuple): The new size of the window as a tuple (width, height).
         """
         _ = self._rect.size
         self._rect.size = value
@@ -2292,36 +2135,30 @@ class Window:
     @property
     def area(self):
         """
-        Remember the transaction.
+        Getter for the area property of the Window instance.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            int: The area of the window.
         """
         return self._rect.area
 
     @property
     def box(self):
         """
-        Remember the transaction.
+        Getter for the box property of the Window instance.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            tuple: The box of the window as a tuple (left, top, width, height).
         """
         return self._rect.box
 
     @box.setter
     def box(self, value):
         """
-        Remember the transaction.
+        Setter for the box property of the Window instance.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            value (tuple): The new box of the window as a tuple (left, top, width, height).
         """
         _ = self._rect.box
         self._rect.box = value
