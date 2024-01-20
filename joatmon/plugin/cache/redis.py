@@ -5,20 +5,25 @@ from joatmon.plugin.cache.core import CachePlugin
 
 class RedisCache(CachePlugin):
     """
-    Deep Deterministic Policy Gradient
+    RedisCache class that inherits from the CachePlugin class. It implements the abstract methods of the CachePlugin class
+    using Redis for caching.
 
-    # Arguments
-        actor_model (`keras.nn.Model` instance): See [Model](#) for details.
-        critic_model (`keras.nn.Model` instance): See [Model](#) for details.
-        optimizer (`keras.optimizers.Optimizer` instance):
-        See [Optimizer](#) for details.
-        action_inp (`keras.layers.Input` / `keras.layers.InputLayer` instance):
-        See [Input](#) for details.
-        tau (float): tau.
-        gamma (float): gamma.
+    Attributes:
+        host (str): The host of the Redis server.
+        port (int): The port of the Redis server.
+        password (str): The password for the Redis server.
+        connection (`redis.Redis` instance): The connection to the Redis server.
     """
 
     def __init__(self, host: str, port: int, password: str):
+        """
+        Initialize RedisCache with the given host, port, and password for the Redis server.
+
+        Args:
+            host (str): The host of the Redis server.
+            port (int): The port of the Redis server.
+            password (str): The password for the Redis server.
+        """
         self.host = host
         self.port = port
         self.password = password
@@ -27,45 +32,43 @@ class RedisCache(CachePlugin):
 
     async def add(self, key, value, duration=None):
         """
-        Remember the transaction.
+        Add a key-value pair to the cache with an optional duration.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            key (str): The key of the item to be added.
+            value (str): The value of the item to be added.
+            duration (int, optional): The duration for which the item should be stored in the cache.
         """
         self.connection.set(key, value, ex=duration)
 
     async def get(self, key):
         """
-        Remember the transaction.
+        Retrieve a value from the cache using its key.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
+        Args:
+            key (str): The key of the item to be retrieved.
 
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Returns:
+            str: The value of the item.
         """
         return self.connection.get(key)
 
     async def update(self, key, value):
         """
-        Remember the transaction.
+        Update the value of an item in the cache using its key.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            key (str): The key of the item to be updated.
+            value (str): The new value of the item.
         """
         self.connection.set(key, value)
 
     async def remove(self, key):
         """
-        Remember the transaction.
+        Remove an item from the cache using its key.
 
-        Accepts a state, action, reward, next_state, terminal transaction.
-
-        # Arguments
-            transaction (abstract): state, action, reward, next_state, terminal transaction.
+        Args:
+            key (str): The key of the item to be removed.
         """
         for k in self.connection.keys(key):
             self.connection.delete(k)
