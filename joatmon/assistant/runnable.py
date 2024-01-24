@@ -1,9 +1,13 @@
 import asyncio
+import enum
 import uuid
 
 from transitions import Machine
 
-from joatmon.core.event import Event
+
+class Result(enum.Enum):
+    Success = 0
+    Failure = 1
 
 
 class Runnable:
@@ -48,7 +52,7 @@ class Runnable:
         self.type = type
         self.kwargs = kwargs
         self.event = asyncio.Event()
-        self.task = asyncio.ensure_future(self.run(), loop=self.api.loop)
+        self.task = None
 
     @staticmethod
     def help():
@@ -84,8 +88,9 @@ class Runnable:
         This method starts the task by setting the state to 'starting', firing the 'begin' event, and then setting the state to 'started'.
         """
         self.machine.set_state('starting')
-        events['begin'].fire()
         self.machine.set_state('started')
+
+        self.task = asyncio.ensure_future(self.run(), loop=self.api.loop)
 
     def stop(self):
         """
@@ -94,14 +99,7 @@ class Runnable:
         This method stops the task by setting the state to 'stopping', firing the 'end' event, setting the event, setting the state to 'stopped', and then cancelling the task.
         """
         self.machine.set_state('stopping')
-        events['end'].fire()
         self.event.set()
         self.machine.set_state('stopped')
-        self.task.cancel()
-
-
-events = {
-    'begin': Event(),
-    'end': Event(),
-    'error': Event(),
-}
+        if self.task and not self.task.done():
+            self.task.cancel()

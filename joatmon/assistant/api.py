@@ -11,6 +11,7 @@ from joatmon.assistant.task import (
     BaseTask, Task
 )
 from joatmon.core.utility import first, get_module_classes
+from joatmon.core.event import Event
 
 
 class API:
@@ -36,7 +37,15 @@ class API:
         services (list, optional): The list of services.
     """
 
-    def __init__(self, loop, cwd, folders=None, tasks: typing.Optional[typing.List[Task]] = None, services: typing.Optional[typing.List[Service]] = None):
+    def __init__(
+        self,
+        loop,
+        cwd,
+        folders=None,
+        tasks: typing.Optional[typing.List[Task]] = None,
+        services: typing.Optional[typing.List[Service]] = None,
+        events: typing.Optional[typing.Dict[str, Event]] = None
+    ):
         """
         Initialize the API.
 
@@ -57,6 +66,7 @@ class API:
         self.processes: typing.List[Runnable] = []
 
         self.event = asyncio.Event()
+        self.events = events
 
     async def main(self):
         """
@@ -70,23 +80,29 @@ class API:
         for _service in sorted(filter(lambda x: x.status and x.mode == 'automatic', self.services), key=lambda x: x.priority):
             self.start_service(_service.name)
 
-        self.cleaning_task = asyncio.ensure_future(self.clean(), loop=self.loop)
-        self.service_task = asyncio.ensure_future(self.run_services(), loop=self.loop)
-        self.interval_task = asyncio.ensure_future(self.run_interval(), loop=self.loop)
+        service_task = asyncio.ensure_future(self.run_services(), loop=self.loop)
+        interval_task = asyncio.ensure_future(self.run_interval(), loop=self.loop)
 
         while not self.event.is_set():
             try:
                 done, pending = await asyncio.wait(
-                    list(map(lambda x: x.task, self.processes)) + [self.cleaning_task, self.service_task, self.interval_task],
+                    list(filter(lambda a: a, map(lambda x: x.task, self.processes))) + [service_task, interval_task],
                     return_when=asyncio.FIRST_COMPLETED
                 )
 
-                if self.cleaning_task in done:
-                    self.cleaning_task = asyncio.ensure_future(self.clean(), loop=self.loop)
-                if self.service_task in done:
-                    self.service_task = asyncio.ensure_future(self.run_services(), loop=self.loop)
-                if self.interval_task in done:
-                    self.interval_task = asyncio.ensure_future(self.run_interval(), loop=self.loop)
+                for t in filter(lambda x: x not in (service_task, interval_task), done):
+                    task = first(filter(lambda x: x.task == t, self.processes))
+                    if task is not None:
+                        if t.exception():
+                            self.events.get('error', Event()).fire(id=task.info.id, ex=t.exception())
+                        else:
+                            self.events.get('end', Event()).fire(id=task.info.id)
+                self.processes = list(filter(lambda x: x.task and x.task not in done, self.processes))
+
+                if service_task in done:
+                    service_task = asyncio.ensure_future(self.run_services(), loop=self.loop)
+                if interval_task in done:
+                    interval_task = asyncio.ensure_future(self.run_interval(), loop=self.loop)
             except Exception as ex:
                 print(str(ex))
 
@@ -98,23 +114,21 @@ class API:
 
         This method runs the tasks that are configured to run at specified intervals.
         """
-        tasks = filter(lambda x: x['status'], self.tasks)
-        tasks = filter(lambda x: x['on'] == 'interval', tasks)
-        tasks = filter(lambda x: x['interval'] > 0, tasks)
+        tasks = filter(lambda x: x.status, self.tasks)
+        tasks = filter(lambda x: x.on == 'interval', tasks)
+        tasks = filter(lambda x: x.interval > 0, tasks)
         tasks = list(tasks)
 
-        new_tasks = filter(lambda x: x.get('last_run_time', None) is None, tasks)
+        new_tasks = filter(lambda x: x.last_run_time is None, tasks)
         new_tasks = list(new_tasks)
-        old_tasks = filter(lambda x: x.get('next_run_time', None) is not None, tasks)
-        old_tasks = filter(
-            lambda x: datetime.datetime.now() > datetime.datetime.fromisoformat(x['next_run_time']), old_tasks
-        )
+        old_tasks = filter(lambda x: x.next_run_time is not None, tasks)
+        old_tasks = filter(lambda x: datetime.datetime.now() > x.next_run_time, old_tasks)
         old_tasks = list(old_tasks)
 
-        for _task in sorted(new_tasks, key=lambda x: x['priority']):
-            self.run_task(task_name=_task['name'], kwargs=None)  # need to do them in background
-        for _task in sorted(old_tasks, key=lambda x: x['priority']):
-            self.run_task(task_name=_task['name'], kwargs=None)  # need to do them in background
+        for _task in sorted(new_tasks, key=lambda x: x.priority):
+            self.run_task(task_name=_task.name, kwargs=None)  # need to do them in background
+        for _task in sorted(old_tasks, key=lambda x: x.priority):
+            self.run_task(task_name=_task.name, kwargs=None)  # need to do them in background
 
     async def run_services(self):
         """
@@ -127,18 +141,6 @@ class API:
         for _service in sorted(filter(lambda x: x['status'], self.services), key=lambda x: x['priority']):
             if _service.id not in list(map(lambda x: x.service.id, self.processes)):
                 self.start_service(_service['name'])  # need to do them in background
-
-    async def clean(self):
-        """
-        Clean up processes.
-
-        This method cleans up the processes that have ended.
-        """
-        ended_processes = list(filter(lambda x: not x.running(), self.processes))
-        self.processes = list(filter(lambda x: x.running(), self.processes))
-
-        for process in ended_processes:
-            process.stop()
 
     def action(self, action, arguments):  # each request must have request id and client id or token
         """
@@ -224,6 +226,8 @@ class API:
         obj = cls(task, self, **kwargs)
         obj.start()
 
+        self.events.get('begin', Event()).fire(id=obj.info.id)
+
         self.processes.append(obj)
 
     def run_task(self, task_name, kwargs=None):
@@ -236,6 +240,8 @@ class API:
             task_name (str): The name of the task to run.
             kwargs (dict, optional): The arguments for the task.
         """
+        kwargs = kwargs or {}
+
         task_info: typing.Optional[Task] = first(filter(lambda x: x.status and x.name == task_name, self.tasks))
         if task_info is None:
             task_info = Task(
@@ -297,6 +303,8 @@ class API:
 
         obj = service_cls(service, self, **kwargs)
         obj.start()
+
+        self.events.get('begin', Event()).fire(id=obj.info.id)
 
         self.processes.append(obj)
 
