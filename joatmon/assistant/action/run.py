@@ -4,6 +4,7 @@ import os.path
 import subprocess
 
 from joatmon.assistant.task import BaseTask
+from joatmon.assistant.runnable import Runnable, Result
 
 
 class Task(BaseTask):
@@ -52,7 +53,7 @@ class Task(BaseTask):
             },
         }
 
-    def run(self):
+    async def run(self):
         """
         Run the task.
 
@@ -70,5 +71,10 @@ class Task(BaseTask):
 
         executable_path = os.path.join(self.api.cwd, 'executables', executable)
 
-        subprocess.run(['python.exe', executable_path] + args.split(' ') + ['--task', self.name])
-        # run them in a thread
+        # subprocess.run(['python', executable_path] + args.split(' ') + ['--task', self.info.name])
+        try:
+            x = subprocess.run(['python', executable_path] + args.split(' ') + ['--task', self.info.name])
+            if x.returncode:
+                raise Exception(Result.Failure)
+        except:
+            raise Exception(Result.Failure)

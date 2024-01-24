@@ -29,10 +29,13 @@ class Task:
     priority: int
     status: bool
     on: str
+    interval: int
     script: str
     arguments: dict
     created_at: datetime.datetime
     updated_at: datetime.datetime
+    last_run_time: datetime.datetime
+    next_run_time: datetime.datetime
 
 
 class TaskState(enum.Enum):
