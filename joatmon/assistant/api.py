@@ -142,9 +142,9 @@ class API:
         """
         # if the service is closed for some reason and is configured as restart automatically, need to restart the service
 
-        for _service in sorted(filter(lambda x: x['status'], self.services), key=lambda x: x['priority']):
-            if _service.id not in list(map(lambda x: x.service.id, self.processes)):
-                self.start_service(_service['name'])  # need to do them in background
+        for _service in sorted(filter(lambda x: x.status, self.services), key=lambda x: x.priority):
+            if _service.id not in list(map(lambda x: x.info.id, self.processes)):
+                self.start_service(_service.name)  # need to do them in background
 
     def action(self, action, arguments):  # each request must have request id and client id or token
         """
@@ -163,11 +163,7 @@ class API:
             match action.lower():
                 case 'list processes':
                     for process in self.processes:
-                        if process.type == 'task':
-                            print(f'{process.info.name}, {process.process_id}: {process.running()}')
-                        if process.type == 'service':
-                            print(f'{process.info.name}, {process.process_id}: {process.running()}')
-
+                        print(f'{process.info.name}, {process.process_id}: {process.running()}')
                     return False
                 case 'exit':
                     return self.exit()
@@ -276,7 +272,7 @@ class API:
         Args:
             service (Service): The service to start.
         """
-        service_cls = None
+        cls = None
 
         for scripts in self.folders:
             if os.path.isabs(scripts):
@@ -301,17 +297,17 @@ class API:
                 if not issubclass(class_[1], BaseService) or class_[1] is BaseService:
                     continue
 
-                service_cls = class_[1]
+                cls = class_[1]
 
-        if service_cls is None:
+        if cls is None:
             return False
 
-        kwargs = service_cls.arguments
+        kwargs = service.arguments
 
-        obj = service_cls(service, self, **kwargs)
+        obj = cls(service, self, **kwargs)
         obj.start()
 
-        self.events.get('begin', Event()).fire(id=obj.info.id)
+        self.events.get('begin', Event()).fire(info=obj.info)
 
         self.processes.append(obj)
 
