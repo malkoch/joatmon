@@ -24,28 +24,25 @@ class Runnable:
     Attributes:
         machine (Machine): The state machine for managing the state of the task.
         process_id (uuid.UUID): The unique identifier for the task.
-        info (str): The information about the task.
-        api (object): The API object.
-        type (str): The type of the task.
+        info (Union[Task, Service]): The information about the task.
+        api (API): The API object.
         kwargs (dict): Additional keyword arguments.
         event (asyncio.Event): An event for signaling the termination of the task.
         task (asyncio.Task): The task that is being run.
 
     Args:
-        info (str): The information about the task.
-        api (object): The API object.
-        type (str): The type of the task.
+        info ([Task, Service]): The information about the task.
+        api (API): The API object.
         kwargs (dict): Additional keyword arguments.
     """
 
-    def __init__(self, info, api, type, **kwargs):  # another parameter called cache output
+    def __init__(self, info, api, **kwargs):  # another parameter called cache output
         """
         Initialize the Runnable.
 
         Args:
-            info (str): The information about the task.
-            api (object): The API object.
-            type (str): The type of the task.
+            info ([Task, Service]): The information about the task.
+            api (API): The API object.
             kwargs (dict): Additional keyword arguments.
         """
         states = ['none', 'started', 'stopped', 'running', 'exception', 'starting', 'stopping']
