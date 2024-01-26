@@ -14,6 +14,10 @@ extras = {
     'ai': [
         'numpy'
     ],
+    'analysis': [
+        'numpy',
+        'pandas'
+    ],
     'array': [
         'transitions'
     ],
