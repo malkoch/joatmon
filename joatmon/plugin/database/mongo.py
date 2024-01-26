@@ -61,7 +61,7 @@ class MongoDatabase(DatabasePlugin):
         Check if a collection exists in the MongoDB database.
 
         Args:
-            collection (str): The collection to be checked.
+            collection (Meta): The collection to be checked.
 
         Returns:
             bool: True if the collection exists, False otherwise.
@@ -73,7 +73,7 @@ class MongoDatabase(DatabasePlugin):
         Create a collection in the MongoDB database.
 
         Args:
-            collection (str): The collection to be created.
+            collection (Meta): The collection to be created.
         """
 
         # even if collection is not structured, need to create indexes
@@ -89,7 +89,7 @@ class MongoDatabase(DatabasePlugin):
         Create a schema for a collection in the MongoDB database.
 
         Args:
-            collection (str): The collection for which the schema is to be created.
+            collection (Meta): The collection for which the schema is to be created.
         """
         def get_type(dtype: typing.Union[type, typing.List, typing.Tuple]):
             type_mapper = {
@@ -143,7 +143,7 @@ class MongoDatabase(DatabasePlugin):
         Create indexes for a collection in the MongoDB database.
 
         Args:
-            collection (str): The collection for which the indexes are to be created.
+            collection (Meta): The collection for which the indexes are to be created.
         """
         index_names = set()
         for index_name, index in collection.constraints(collection, lambda x: isinstance(x, (PrimaryKeyConstraint, UniqueConstraint))).items():
@@ -178,7 +178,7 @@ class MongoDatabase(DatabasePlugin):
         Ensure that a collection exists in the MongoDB database.
 
         Args:
-            collection (str): The collection to be ensured.
+            collection (Meta): The collection to be ensured.
         """
         if not await self._check_collection(collection):
             await self._create_collection(collection)
@@ -192,7 +192,7 @@ class MongoDatabase(DatabasePlugin):
         Get a collection from the MongoDB database.
 
         Args:
-            collection (str): The collection to be gotten.
+            collection (Meta): The collection to be gotten.
 
         Returns:
             `pymongo.collection.Collection` instance: The gotten collection.
@@ -232,7 +232,7 @@ class MongoDatabase(DatabasePlugin):
         Drop a collection from the MongoDB database.
 
         Args:
-            document (dict): The document whose collection is to be dropped.
+            document (Document): The document whose collection is to be dropped.
         """
         if self.session is None:
             self.database.drop_collection(document.__metaclass__.__collection__)
@@ -244,8 +244,8 @@ class MongoDatabase(DatabasePlugin):
         Insert one or more documents into the MongoDB database.
 
         Args:
-            document (dict): The first document to be inserted.
-            *docs (dict): Additional documents to be inserted.
+            document (Document): The first document to be inserted.
+            *docs (Union[dict, Document]): Additional documents to be inserted.
         """
 
         to_insert = []
@@ -271,7 +271,7 @@ class MongoDatabase(DatabasePlugin):
         Read a document from the MongoDB database.
 
         Args:
-            document (dict): The document to be read.
+            document (Document): The document to be read.
             query (dict): The query to be used for reading the document.
 
         Yields:
@@ -292,7 +292,7 @@ class MongoDatabase(DatabasePlugin):
         Update a document in the MongoDB database.
 
         Args:
-            document (dict): The document to be updated.
+            document (Document): The document to be updated.
             query (dict): The query to be used for updating the document.
             update (dict): The update to be applied to the document.
         """
@@ -311,7 +311,7 @@ class MongoDatabase(DatabasePlugin):
         Delete a document from the MongoDB database.
 
         Args:
-            document (dict): The document to be deleted.
+            document (Document): The document to be deleted.
             query (dict): The query to be used for deleting the document.
         """
         if document.__metaclass__.structured and document.__metaclass__.force:
