@@ -94,9 +94,13 @@ class API:
                     task = first(filter(lambda x: x.task == t, self.processes))
                     if task is not None:
                         if t.exception():
-                            self.events.get('error', Event()).fire(id=task.info.id, ex=t.exception())
+                            self.events.get('error', Event()).fire(info=task.info, ex=t.exception())
                         else:
-                            self.events.get('end', Event()).fire(id=task.info.id)
+                            self.events.get('end', Event()).fire(info=task.info)
+
+                        task.info.last_run_time = datetime.datetime.now()
+                        task.info.next_run_time = datetime.datetime.now() + datetime.timedelta(seconds=task.info.interval)
+
                 self.processes = list(filter(lambda x: x.task and x.task not in done, self.processes))
 
                 if service_task in done:
@@ -223,10 +227,12 @@ class API:
 
         kwargs = {**(kwargs or {}), **task.arguments}
 
+        # check if the task is already running
+
         obj = cls(task, self, **kwargs)
         obj.start()
 
-        self.events.get('begin', Event()).fire(id=obj.info.id)
+        self.events.get('begin', Event()).fire(info=obj.info)
 
         self.processes.append(obj)
 
