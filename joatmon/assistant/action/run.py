@@ -3,8 +3,8 @@ from __future__ import print_function
 import os.path
 import subprocess
 
+from joatmon.assistant.runnable import ActionException
 from joatmon.assistant.task import BaseTask
-from joatmon.assistant.runnable import Runnable, Result
 
 
 class Task(BaseTask):
@@ -71,10 +71,6 @@ class Task(BaseTask):
 
         executable_path = os.path.join(self.api.cwd, 'executables', executable)
 
-        # subprocess.run(['python', executable_path] + args.split(' ') + ['--task', self.info.name])
-        try:
-            x = subprocess.run(['python', executable_path] + args.split(' ') + ['--task', self.info.name])
-            if x.returncode:
-                raise Exception(Result.Failure)
-        except:
-            raise Exception(Result.Failure)
+        process = subprocess.run(['python', executable_path] + args.split(' '))
+        if process.returncode:
+            raise ActionException(process.returncode)

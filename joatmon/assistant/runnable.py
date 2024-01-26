@@ -1,13 +1,18 @@
 import asyncio
-import enum
 import uuid
 
 from transitions import Machine
 
 
-class Result(enum.Enum):
-    Success = 0
-    Failure = 1
+class ActionException(Exception):
+    def __init__(self, code: int):
+        self.code = code
+
+    def __str__(self):
+        return f'({self.code})'
+
+    def __repr__(self):
+        return str(self)
 
 
 class Runnable:
