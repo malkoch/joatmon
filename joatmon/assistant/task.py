@@ -1,6 +1,7 @@
 import dataclasses
 import datetime
 import enum
+import typing
 
 from joatmon.assistant.runnable import Runnable
 
@@ -34,8 +35,8 @@ class Task:
     arguments: dict
     created_at: datetime.datetime
     updated_at: datetime.datetime
-    last_run_time: datetime.datetime
-    next_run_time: datetime.datetime
+    last_run_time: typing.Optional[datetime.datetime] = None
+    next_run_time: typing.Optional[datetime.datetime] = None
 
 
 class TaskState(enum.Enum):
@@ -79,14 +80,14 @@ class BaseTask(Runnable):
     This class provides a way to manage base tasks, including their task and API.
 
     Attributes:
-        task (Task): The task.
-        api (object): The API object.
+        info (Task): The task.
+        api (API): The API object.
 
     Args:
         task (Task): The task.
-        api (object): The API object.
+        api (API): The API object.
         kwargs (dict): Additional keyword arguments.
     """
 
     def __init__(self, task: Task, api, **kwargs):  # another parameter called cache output
-        super().__init__(task, api, 'task', **kwargs)
+        super().__init__(task, api, **kwargs)

@@ -28,7 +28,7 @@ class Service:
     name: str
     description: str
     priority: int
-    status: str
+    status: bool
     mode: str
     script: str
     arguments: dict
@@ -79,14 +79,14 @@ class BaseService(Runnable):
     This class provides a way to manage base services, including their service and API.
 
     Attributes:
-        service (Service): The service.
-        api (object): The API object.
+        info (Service): The service.
+        api (API): The API object.
 
     Args:
         service (Service): The service.
-        api (object): The API object.
+        api (API): The API object.
         kwargs (dict): Additional keyword arguments.
     """
 
     def __init__(self, service: Service, api, **kwargs):
-        super().__init__(service, api, 'service', **kwargs)
+        super().__init__(service, api, **kwargs)

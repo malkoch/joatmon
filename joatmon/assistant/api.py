@@ -257,10 +257,11 @@ class API:
                 script=task_name,
                 status=True,
                 on='manual',
+                interval=999999999,
                 priority=0,
                 arguments={},
                 created_at=datetime.datetime.now(),
-                updated_at=datetime.datetime.now(),
+                updated_at=datetime.datetime.now()
             )
         self._run_task(task_info, **kwargs)
 
