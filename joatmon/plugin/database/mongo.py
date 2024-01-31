@@ -260,11 +260,11 @@ class MongoDatabase(DatabasePlugin):
             elif document.__metaclass__.structured:
                 warnings.warn(f'document validation will be ignored')
 
-            to_insert.append(InsertOne(d))
+            to_insert.append(d)
 
         await self._ensure_collection(document.__metaclass__)
         collection = await self._get_collection(document.__metaclass__.__collection__)
-        collection.bulk_write(to_insert, session=self.session)  # bulk write might be causing collection already in use error
+        collection.insert_many(to_insert, session=self.session, ordered=False)  # bulk write might be causing collection already in use error
 
     async def read(self, document, query):
         """
