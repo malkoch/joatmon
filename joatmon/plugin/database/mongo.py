@@ -303,7 +303,9 @@ class MongoDatabase(DatabasePlugin):
         await self._ensure_collection(document.__metaclass__)
         collection = await self._get_collection(document.__metaclass__.__collection__)
 
-        to_update = [UpdateMany(dict(**query), {'$set': update}, upsert=True)]
+        to_update = []
+        for q, u in zip(query, update):
+            to_update += [UpdateMany(dict(**q), {'$set': u}, upsert=True)]
         collection.bulk_write(to_update, session=self.session)  # bulk write might be causing collection already in use error
 
     async def delete(self, document, query):
