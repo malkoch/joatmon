@@ -51,10 +51,15 @@ class Runnable:
         self.process_id = uuid.uuid4()
         self.info = info
         self.api = api
-        self.type = type
         self.kwargs = kwargs
         self.event = asyncio.Event()
         self.task = None
+
+    def __str__(self):
+        return f'{self.process_id} {self.info} {self.machine.state}'
+
+    def __repr__(self):
+        return str(self)
 
     @staticmethod
     def help():
@@ -90,9 +95,8 @@ class Runnable:
         This method starts the task by setting the state to 'starting', firing the 'begin' event, and then setting the state to 'started'.
         """
         self.machine.set_state('starting')
-        self.machine.set_state('started')
-
         self.task = asyncio.ensure_future(self.run(), loop=self.api.loop)
+        self.machine.set_state('started')
 
     def stop(self):
         """
@@ -102,6 +106,6 @@ class Runnable:
         """
         self.machine.set_state('stopping')
         self.event.set()
-        self.machine.set_state('stopped')
         if self.task and not self.task.done():
             self.task.cancel()
+        self.machine.set_state('stopped')

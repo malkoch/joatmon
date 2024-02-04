@@ -1,6 +1,6 @@
 import ctypes
 
-from joatmon.system.decorators import auto_pause
+from joatmon.core.decorators import auto_pause
 from joatmon.system.hid.screen import (
     cursor,
     resolution
