@@ -1,7 +1,7 @@
 import ctypes
 import sys
 
-from joatmon.system.decorators import auto_pause
+from joatmon.core.decorators import auto_pause
 
 __all__ = ['Keyboard']
 

@@ -141,6 +141,9 @@ def get_converter(field: Field):
         if isinstance(value, bool):
             return value
 
+        if isinstance(value, int):
+            return bool(value)
+
         # need to convert float, int and str as well
 
         raise ValueError(f'cannot convert {value} with type {type(value)} to boolean')
