@@ -9,7 +9,7 @@ from transitions import Machine
 
 from joatmon.core import context
 from joatmon.core.exception import CoreException
-from joatmon.core.utility import new_object_id, to_list_async
+from joatmon.core.utility import convert_size, new_object_id, to_list_async
 from joatmon.orm import enum
 from joatmon.orm.document import Document, create_new_type
 from joatmon.orm.field import Field
@@ -169,8 +169,16 @@ class FSModule(Module):
             pass
 
     def ls(self, path):
-        for x in os.listdir(self._get_host_path(path)):
-            print(x)
+        content = list(os.listdir(self._get_host_path(path)))
+        content.sort(key=lambda x: (not x.startswith('.'), not os.path.isdir(os.path.join(self._get_host_path(path), x)), x))
+
+        for x in content:
+            if os.path.isdir(os.path.join(self._get_host_path(path), x)):
+                size, unit = convert_size(os.path.getsize(os.path.join(self._get_host_path(path), x))).split(' ')
+                print(f'{size:>8} {unit:>2} {x}/')
+            elif os.path.isfile(x):
+                size, unit = convert_size(os.path.getsize(os.path.join(self._get_host_path(path), x))).split(' ')
+                print(f'{size:>8} {unit:>2} {x}')
 
     def cd(self, path):
         if os.path.isabs(path):

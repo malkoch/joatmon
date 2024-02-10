@@ -8,7 +8,7 @@ from joatmon.system.os import OS
 register(SQLiteDatabase, 'sqlite', 'joatmon')
 
 os = OS('.')
-os.touch('test.json')
+# os.touch('test.json')
 os.ls('..')
 
 asyncio.run(
