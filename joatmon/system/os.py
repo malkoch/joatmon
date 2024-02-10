@@ -146,14 +146,63 @@ class Process:
 Task = create_new_type(Task, (Document,))
 
 
+class Module:
+    def __init__(self, name):
+        self.name = name
+
+
+class FSModule(Module):
+    def __init__(self, root):
+        super().__init__('fs')
+
+        self._root = root
+        self._cwd = '/'
+
+    def _get_host_path(self, path):
+        if os.path.isabs(path):
+            return os.path.abspath(os.path.join(self._root, path))
+        else:
+            return os.path.abspath(os.path.join(os.path.abspath(self._root), './' + os.path.abspath(os.path.join(self._cwd, path))))
+
+    def touch(self, file):
+        with open(self._get_host_path(file), 'w'):
+            pass
+
+    def ls(self, path):
+        for x in os.listdir(self._get_host_path(path)):
+            print(x)
+
+    def cd(self, path):
+        if os.path.isabs(path):
+            self._cwd = path
+        else:
+            self._cwd = os.path.abspath(os.path.join(self._cwd, path))
+
+    def mkdir(self):
+        ...
+
+    def rm(self):
+        ...
+
+
 class OS:
     def __init__(self, root):
-        self._root = os.path.abspath(root)
-        self._cwd = '/'
+        self.modules = [
+            FSModule(root)
+        ]
 
         self.db = context.get_value('sqlite')
 
+    def __getattr__(self, item):
+        for module in self.modules:
+            if getattr(module, item, None):
+                return getattr(module, item)
+        else:
+            raise OSException(f'{item} is not a valid executable')
+
     async def create_task(self, name, description, priority, status, mode, interval, script, arguments):
+        await self.db.drop(Task)
+
         if not os.path.isabs(script):
             script = os.path.abspath(os.path.join(self._cwd, script))
 
@@ -182,21 +231,3 @@ class OS:
         )
         ret = await to_list_async(self.db.read(Task, {}))
         print(ret)
-
-    async def test(self):
-        await self.db.drop(Task)
-
-    def _get_host_path(self, path):
-        return os.path.abspath(os.path.join(self._root, './' + self._cwd, path))
-
-    def cd(self, path):
-        if os.path.isabs(path):
-            self._cwd = path
-        else:
-            self._cwd = os.path.abspath(os.path.join(self._cwd, path))
-
-    def ls(self, path):
-        ...
-
-    def touch(self, path):
-        print(self._get_host_path(path))

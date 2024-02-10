@@ -114,5 +114,6 @@ saves/
 # development folder
 _*
 !__init__.py
+*.json
 
 /iva/
