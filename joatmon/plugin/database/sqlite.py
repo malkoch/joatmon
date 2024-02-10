@@ -23,7 +23,7 @@ class SQLiteDatabase(DatabasePlugin):
         Args:
             database (str): The database of the PostgreSQL server.
         """
-        self.connection = sqlite3.connect(f'.{database}.sqlite3', isolation_level=None)
+        self.connection = sqlite3.connect(f'{database}.sqlite3', isolation_level=None)
 
     async def _check_collection(self, collection):
         """

@@ -8,13 +8,13 @@ from joatmon.system.os import OS
 register(SQLiteDatabase, 'sqlite', 'joatmon')
 
 os = OS('.')
-os.touch('test.txt')
+os.touch('test.json')
+os.ls('..')
 
-asyncio.run(os.test())
 asyncio.run(
     os.create_task(
-        'test',
-        'test',
+        'startup greeter',
+        'a task to greet on startup',
         10,
         True,
         'startup',
