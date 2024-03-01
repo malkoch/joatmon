@@ -39,7 +39,7 @@ class PostgreSQLDatabase(DatabasePlugin):
             database (str): The database of the PostgreSQL server.
         """
         self.connection = psycopg2.connect(
-            user=user, password=password, host=host, port=port  # , async_=True
+            user=user, password=password, host=host, port=port, database=database  # , async_=True
         )
 
         self.connection.autocommit = True
