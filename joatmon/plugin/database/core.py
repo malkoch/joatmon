@@ -101,7 +101,7 @@ class DatabasePlugin(Plugin):
         """
         raise NotImplementedError
 
-    async def read(self, document, query):
+    async def read(self, document, query):  # extra filters, limit, skip, sort etc.
         """
         This is an abstract method that should be implemented in the child classes. It is used to
         read a document from the database.
