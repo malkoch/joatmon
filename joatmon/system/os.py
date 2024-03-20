@@ -143,7 +143,7 @@ class Process:
         self.machine.set_state('stopped')
 
 
-Task = create_new_type(Task, (Document,))
+# Task = create_new_type(Task, (Document,))
 
 
 class Module:

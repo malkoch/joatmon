@@ -5,7 +5,8 @@
 ```python 
 API(
    loop, cwd, folders = None, tasks: typing.Optional[typing.List[Task]] = None,
-   services: typing.Optional[typing.List[Service]] = None
+   services: typing.Optional[typing.List[Service]] = None,
+   events: typing.Optional[typing.Dict[str, Event]] = None
 )
 ```
 
@@ -69,16 +70,6 @@ This method runs the tasks that are configured to run at specified intervals.
 Run services.
 
 This method runs the services that are configured to run automatically.
-
-### .clean
-```python
-.clean()
-```
-
----
-Clean up processes.
-
-This method cleans up the processes that have ended.
 
 ### .action
 ```python

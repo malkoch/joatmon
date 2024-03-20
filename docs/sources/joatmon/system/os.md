@@ -1,11 +1,9 @@
 #
 
 
-## ActionException
+## Task
 ```python 
-ActionException(
-   code: int
-)
+Task()
 ```
 
 
@@ -13,36 +11,53 @@ ActionException(
 ----
 
 
-## Runnable
+## Service
 ```python 
-Runnable(
-   info, api, **kwargs
-)
+Service()
 ```
 
 
----
-Runnable class for managing asynchronous tasks.
 
-This class provides a way to manage asynchronous tasks, including starting, stopping, and checking the running status of the tasks.
+----
 
 
-**Attributes**
-
-* **machine** (Machine) : The state machine for managing the state of the task.
-* **process_id** (uuid.UUID) : The unique identifier for the task.
-* **info** (Union[Task, Service]) : The information about the task.
-* **api** (API) : The API object.
-* **kwargs** (dict) : Additional keyword arguments.
-* **event** (asyncio.Event) : An event for signaling the termination of the task.
-* **task** (asyncio.Task) : The task that is being run.
+## State
+```python 
+State()
+```
 
 
-**Args**
 
-* **info** ([Task, Service]) : The information about the task.
-* **api** (API) : The API object.
-* **kwargs** (dict) : Additional keyword arguments.
+----
+
+
+## Result
+```python 
+Result()
+```
+
+
+
+----
+
+
+## OSException
+```python 
+OSException()
+```
+
+
+
+----
+
+
+## Process
+```python 
+Process(
+   info: typing.Union[Task, Service], loop: asyncio.AbstractEventLoop, **kwargs
+)
+```
+
 
 
 
@@ -106,3 +121,91 @@ This method starts the task by setting the state to 'starting', firing the 'begi
 Stop the task.
 
 This method stops the task by setting the state to 'stopping', firing the 'end' event, setting the event, setting the state to 'stopped', and then cancelling the task.
+
+----
+
+
+## Module
+```python 
+Module(
+   name
+)
+```
+
+
+
+----
+
+
+## FSModule
+```python 
+FSModule(
+   root
+)
+```
+
+
+
+
+**Methods:**
+
+
+### .touch
+```python
+.touch(
+   file
+)
+```
+
+
+### .ls
+```python
+.ls(
+   path
+)
+```
+
+
+### .cd
+```python
+.cd(
+   path
+)
+```
+
+
+### .mkdir
+```python
+.mkdir()
+```
+
+
+### .rm
+```python
+.rm()
+```
+
+
+----
+
+
+## OS
+```python 
+OS(
+   root
+)
+```
+
+
+
+
+**Methods:**
+
+
+### .create_task
+```python
+.create_task(
+   name, description, priority, status, mode, interval, script, arguments
+)
+```
+

@@ -1,29 +1,17 @@
 #
 
 
-## MongoDatabase
+## SQLiteDatabase
 ```python 
-MongoDatabase(
-   uri, database
+SQLiteDatabase(
+   database
 )
 ```
 
 
 ---
-MongoDatabase class that inherits from the DatabasePlugin class. It implements the abstract methods of the DatabasePlugin class
-using MongoDB for database operations.
-
-
-**Attributes**
-
-* **DATABASES** (set) : A set to store the databases.
-* **CREATED_COLLECTIONS** (set) : A set to store the created collections.
-* **UPDATED_COLLECTIONS** (set) : A set to store the updated collections.
-* **database_name** (str) : The name of the MongoDB database.
-* **client** (`pymongo.MongoClient` instance) : The connection to the MongoDB server.
-* **database** (`pymongo.database.Database` instance) : The MongoDB database instance.
-* **session** (`pymongo.client_session.ClientSession` instance) : The MongoDB client session instance.
-
+PostgreSQLDatabase class that inherits from the DatabasePlugin class. It implements the abstract methods of the DatabasePlugin class
+using PostgreSQL for database operations.
 
 
 **Methods:**
@@ -37,18 +25,12 @@ using MongoDB for database operations.
 ```
 
 ---
-This is an abstract method that should be implemented in the child classes. It is used to
-create a new document in the database.
+Create a new document in the PostgreSQL database.
 
 
 **Args**
 
-* **document** (dict) : The document to be created.
-
-
-**Raises**
-
-* **NotImplementedError**  : This method should be implemented in the child classes.
+* **document** (Document) : The document to be created.
 
 
 ### .alter
@@ -59,8 +41,7 @@ create a new document in the database.
 ```
 
 ---
-This is an abstract method that should be implemented in the child classes. It is used to
-alter an existing document in the database.
+Alter an existing document in the PostgreSQL database.
 
 
 **Args**
@@ -81,7 +62,7 @@ alter an existing document in the database.
 ```
 
 ---
-Drop a collection from the MongoDB database.
+Drop a collection from the PostgreSQL database.
 
 
 **Args**
@@ -97,13 +78,13 @@ Drop a collection from the MongoDB database.
 ```
 
 ---
-Insert one or more documents into the MongoDB database.
+Insert one or more documents into the PostgreSQL database.
 
 
 **Args**
 
 * **document** (Document) : The first document to be inserted.
-* **docs** (Union[dict, Document]) : Additional documents to be inserted.
+* **docs** (dict) : Additional documents to be inserted.
 
 
 ### .read
@@ -114,7 +95,7 @@ Insert one or more documents into the MongoDB database.
 ```
 
 ---
-Read a document from the MongoDB database.
+Read a document from the PostgreSQL database.
 
 
 **Args**
@@ -136,7 +117,7 @@ Read a document from the MongoDB database.
 ```
 
 ---
-Update a document in the MongoDB database.
+Update a document in the PostgreSQL database.
 
 
 **Args**
@@ -154,7 +135,7 @@ Update a document in the MongoDB database.
 ```
 
 ---
-Delete a document from the MongoDB database.
+Delete a document from the PostgreSQL database.
 
 
 **Args**
@@ -171,19 +152,18 @@ Delete a document from the MongoDB database.
 ```
 
 ---
-This is an abstract method that should be implemented in the child classes. It is used to
-view a document in the database.
+View a document in the PostgreSQL database.
 
 
 **Args**
 
-* **document** (dict) : The document to be viewed.
+* **document** (Document) : The document to be viewed.
 * **query** (dict) : The query to be used for viewing the document.
 
 
-**Raises**
+**Yields**
 
-* **NotImplementedError**  : This method should be implemented in the child classes.
+* **dict**  : The viewed document.
 
 
 ### .execute
@@ -237,7 +217,10 @@ count the number of documents that match a query in the database.
 ```
 
 ---
-Start a database transaction in the MongoDB database.
+Start a database transaction in the PostgreSQL database.
+
+This method sets the autocommit mode of the connection to False, which means that changes made to the database
+are not saved until you call the commit method.
 
 ### .commit
 ```python
@@ -245,7 +228,9 @@ Start a database transaction in the MongoDB database.
 ```
 
 ---
-Commit a database transaction in the MongoDB database.
+Commit a database transaction in the PostgreSQL database.
+
+This method saves the changes made to the database since the last call to the start method.
 
 ### .abort
 ```python
@@ -253,7 +238,9 @@ Commit a database transaction in the MongoDB database.
 ```
 
 ---
-Abort a database transaction in the MongoDB database.
+Abort a database transaction in the PostgreSQL database.
+
+This method discards the changes made to the database since the last call to the start method.
 
 ### .end
 ```python
@@ -261,4 +248,7 @@ Abort a database transaction in the MongoDB database.
 ```
 
 ---
-End a database transaction in the MongoDB database.
+End a database transaction in the PostgreSQL database.
+
+This method closes the connection to the database. After calling this method, you cannot make any more
+queries to the database using this connection.

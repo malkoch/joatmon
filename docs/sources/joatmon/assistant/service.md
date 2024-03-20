@@ -90,13 +90,13 @@ This class provides a way to manage base services, including their service and A
 
 **Attributes**
 
-* **service** (Service) : The service.
-* **api** (object) : The API object.
+* **info** (Service) : The service.
+* **api** (API) : The API object.
 
 
 **Args**
 
 * **service** (Service) : The service.
-* **api** (object) : The API object.
+* **api** (API) : The API object.
 * **kwargs** (dict) : Additional keyword arguments.
 
