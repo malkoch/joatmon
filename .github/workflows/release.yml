@@ -24,7 +24,7 @@ jobs:
           pip install .[all]
       - name: Build Docs
         run: |
-          python joatmon/generator/doc.py
+          python doc.py
           gendocs --config mkgendocs.yml
       - name: Commit changes
         run: |

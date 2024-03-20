@@ -88,13 +88,13 @@ This class provides a way to manage base tasks, including their task and API.
 
 **Attributes**
 
-* **task** (Task) : The task.
-* **api** (object) : The API object.
+* **info** (Task) : The task.
+* **api** (API) : The API object.
 
 
 **Args**
 
 * **task** (Task) : The task.
-* **api** (object) : The API object.
+* **api** (API) : The API object.
 * **kwargs** (dict) : Additional keyword arguments.
 
