@@ -9,9 +9,7 @@ from bson.binary import UuidRepresentation
 from bson.codec_options import DEFAULT_CODEC_OPTIONS
 from pymongo import (
     DeleteMany,
-    InsertOne,
     read_concern,
-    UpdateMany,
     write_concern
 )
 
@@ -91,6 +89,7 @@ class MongoDatabase(DatabasePlugin):
         Args:
             collection (Meta): The collection for which the schema is to be created.
         """
+
         def get_type(dtype: typing.Union[type, typing.List, typing.Tuple]):
             type_mapper = {
                 datetime: ['date'],
@@ -303,10 +302,7 @@ class MongoDatabase(DatabasePlugin):
         await self._ensure_collection(document.__metaclass__)
         collection = await self._get_collection(document.__metaclass__.__collection__)
 
-        to_update = []
-        for q, u in zip(query, update):
-            to_update += [UpdateMany(dict(**q), {'$set': u}, upsert=True)]
-        collection.bulk_write(to_update, session=self.session)  # bulk write might be causing collection already in use error
+        collection.update_many(dict(**query), {'$set': update}, upsert=True, session=self.session)  # bulk write might be causing collection already in use error
 
     async def delete(self, document, query):
         """
@@ -321,7 +317,7 @@ class MongoDatabase(DatabasePlugin):
 
         await self._ensure_collection(document.__metaclass__)
         collection = await self._get_collection(document.__metaclass__.__collection__)
-        collection.bulk_write([DeleteMany(dict(**query))], session=self.session)  # bulk write might be causing collection already in use error
+        collection.delete_many(dict(**query), session=self.session)  # bulk write might be causing collection already in use error
 
     async def view(self, document, query):
         """
