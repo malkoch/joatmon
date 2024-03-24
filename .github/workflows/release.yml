@@ -6,7 +6,6 @@ on:
 
 jobs:
   deploy:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -14,31 +13,13 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.x'
+          python-version: '3.10'
       - name: Install dependencies
         run: |
           sudo apt install libcurl4-openssl-dev libssl-dev
           python -m pip install --upgrade pip
-          python -m pip install mkgendocs
           pip install setuptools wheel twine
           pip install .[all]
-      - name: Build Docs
-        run: |
-          python doc.py
-          gendocs --config mkgendocs.yml
-      - name: Commit changes
-        run: |
-          git config --global user.email "hamitcanmalkoc@gmail.com"
-          git config --global user.name "Hamitcan Malkoç"
-          git add .
-          git commit -m "release documentation"
-      - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          tags: false
-
-
       - name: Build and publish
         env:
           TWINE_USERNAME: __token__
