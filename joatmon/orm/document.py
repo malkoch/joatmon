@@ -162,10 +162,10 @@ def create_new_type(meta, subclasses):
     Creates a new type with the specified metaclass and subclasses.
 
     Args:
-        meta (Meta): The metaclass for the new type.
+        meta (type[Meta]): The metaclass for the new type.
         subclasses (tuple): The subclasses for the new type.
 
     Returns:
         type: The new type.
     """
-    return type(meta.__collection__, subclasses, {'__metaclass__': meta})
+    return type(meta.__name__, subclasses, {'__metaclass__': meta})
