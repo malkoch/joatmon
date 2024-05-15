@@ -18,6 +18,7 @@ from time import (
 )
 from uuid import UUID
 
+
 pascal_case_pattern = re.compile(r'(?<!^)(?=[A-Z])')
 
 email_pattern = re.compile(r'(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)')
@@ -612,6 +613,40 @@ async def single_async(items):
         return None
     except StopAsyncIteration:
         return first_item
+
+
+def last(items):
+    """
+    Get the single item of an iterable.
+
+    Args:
+        items (iterable): The iterable to get the single item from.
+
+    Returns:
+        Any: The single item of the iterable, or None if the iterable is empty or contains more than one item.
+    """
+    iterable = iter(items)
+    current_item = None
+    for current_item in iterable:
+        continue
+    return current_item
+
+
+async def last_async(items):
+    """
+    Asynchronously get the single item of an iterable.
+
+    Args:
+        items (iterable): The iterable to get the single item from.
+
+    Returns:
+        Any: The single item of the iterable, or None if the iterable is empty or contains more than one item.
+    """
+    iterable = aiter(items)
+    current_item = None
+    async for current_item in iterable:
+        continue
+    return current_item
 
 
 def pretty_printer(headers, m=None):

@@ -41,7 +41,7 @@ class JWTAuth(Auth):
         token = jwt.encode(
             payload=kwargs,
             key=self.secret,
-            algorithm='HS256',
+            algorithm='RS256',
         )
         return token
 
@@ -61,7 +61,7 @@ class JWTAuth(Auth):
             CoreException: If the JWT cannot be decoded or the issuer and audience do not match the expected values.
         """
         try:
-            decoded = jwt.decode(token, self.secret, issuer=issuer, audience=audience, algorithms='HS256')
+            decoded = jwt.decode(token, self.secret, issuer=issuer, audience=audience, algorithms='RS256')
         except (jwt.PyJWTError, ValueError):
             raise CoreException('not_authorized')
 
