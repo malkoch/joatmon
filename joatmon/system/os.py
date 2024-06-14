@@ -9,11 +9,11 @@ from transitions import Machine
 
 from joatmon.core import context
 from joatmon.core.exception import CoreException
-from joatmon.core.utility import convert_size, new_object_id, to_list_async
+from joatmon.core.utility import new_object_id, to_list_async
 from joatmon.orm import enum
-from joatmon.orm.document import Document, create_new_type
 from joatmon.orm.field import Field
 from joatmon.orm.meta import Meta
+from joatmon.system.module import ModuleManager
 
 
 class Task(Meta):
@@ -38,7 +38,7 @@ class Task(Meta):
 
 
 class Service(Meta):
-    __collection__ = 'task'
+    __collection__ = 'service'
 
     structured = True
     force = True
@@ -143,70 +143,17 @@ class Process:
         self.machine.set_state('stopped')
 
 
-# Task = create_new_type(Task, (Document,))
-
-
-class Module:
-    def __init__(self, name):
-        self.name = name
-
-
-class FSModule(Module):
-    def __init__(self, root):
-        super().__init__('fs')
-
-        self._root = root
-        self._cwd = '/'
-
-    def _get_host_path(self, path):
-        if os.path.isabs(path):
-            return os.path.abspath(os.path.join(self._root, path))
-        else:
-            return os.path.abspath(os.path.join(os.path.abspath(self._root), './' + os.path.abspath(os.path.join(self._cwd, path))))
-
-    def touch(self, file):
-        with open(self._get_host_path(file), 'w'):
-            pass
-
-    def ls(self, path):
-        content = list(os.listdir(self._get_host_path(path)))
-        content.sort(key=lambda x: (not x.startswith('.'), not os.path.isdir(os.path.join(self._get_host_path(path), x)), x))
-
-        for x in content:
-            if os.path.isdir(os.path.join(self._get_host_path(path), x)):
-                size, unit = convert_size(os.path.getsize(os.path.join(self._get_host_path(path), x))).split(' ')
-                print(f'{size:>8} {unit:>2} {x}/')
-            elif os.path.isfile(x):
-                size, unit = convert_size(os.path.getsize(os.path.join(self._get_host_path(path), x))).split(' ')
-                print(f'{size:>8} {unit:>2} {x}')
-
-    def cd(self, path):
-        if os.path.isabs(path):
-            self._cwd = path
-        else:
-            self._cwd = os.path.abspath(os.path.join(self._cwd, path))
-
-    def mkdir(self):
-        ...
-
-    def rm(self):
-        ...
-
-
 class OS:
-    def __init__(self, root):
-        self.modules = [
-            FSModule(root)
-        ]
+    def __init__(self):
+        self.mm = ModuleManager()
 
         self.db = context.get_value('sqlite')
 
+    def inject(self, name, module):
+        self.mm.register(name, module)
+
     def __getattr__(self, item):
-        for module in self.modules:
-            if getattr(module, item, None):
-                return getattr(module, item)
-        else:
-            raise OSException(f'{item} is not a valid executable')
+        return self.mm.__getattr__(item)
 
     async def create_task(self, name, description, priority, status, mode, interval, script, arguments):
         await self.db.drop(Task)
