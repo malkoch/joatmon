@@ -169,7 +169,7 @@ def ip_limit(interval, cache, ip):
             key = f'limit_request:{func.__qualname__}:{ip_value}'
 
             if await c.get(key) is not None:
-                raise ValueError('too_many_request')
+                raise CoreException('too_many_request')
             await c.add(key, 1, duration=interval)
 
             response = await func(*args, **kwargs)
@@ -203,7 +203,7 @@ def limit(interval, cache):
             key = f'limit_request:{func.__qualname__}'
 
             if await c.get(key) is not None:
-                raise ValueError('too_many_request')
+                raise CoreException('too_many_request')
 
             await c.add(key, 1, duration=interval)
 
