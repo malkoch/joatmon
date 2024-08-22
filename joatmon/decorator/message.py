@@ -24,11 +24,11 @@ def producer(plugin, topic):
     """
 
     def _decorator(func):
-        def _wrapper(*args, **kwargs):
+        def _wrapper(**kwargs):
             p = context.get_value(plugin).get_producer(topic)
-            message = json.dumps({'args': args, 'kwargs': kwargs}, cls=JSONEncoder)
+            message = json.dumps(kwargs, cls=JSONEncoder)
             p.produce(topic, message)
-            return func(*args, **kwargs)
+            return func(**kwargs)
 
         return _wrapper
 
@@ -57,11 +57,9 @@ def loop(topic, cons):
             continue
 
         packet = json.loads(msg)
-        args = packet['args']
-        kwargs = packet['kwargs']
 
         try:
-            consumer_events[topic].fire(*args, **kwargs)
+            consumer_events[topic].fire(**packet)
         except Exception as ex:
             print(str(ex))
 
