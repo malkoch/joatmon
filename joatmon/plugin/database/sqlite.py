@@ -149,7 +149,7 @@ class SQLiteDatabase(DatabasePlugin):
 
         Args:
             document (Document): The first document to be inserted.
-            *docs (dict): Additional documents to be inserted.
+            *docs (Document): Additional documents to be inserted.
         """
         cursor = self.connection.cursor()
 

@@ -3,11 +3,11 @@ from datetime import datetime
 
 import psycopg2
 
+from joatmon.core.utility import get_converter
 from joatmon.orm.constraint import UniqueConstraint
 from joatmon.orm.meta import normalize_kwargs
 from joatmon.orm.query import Dialects
 from joatmon.plugin.database.core import DatabasePlugin
-from joatmon.core.utility import get_converter
 
 
 class PostgreSQLDatabase(DatabasePlugin):
@@ -55,7 +55,7 @@ class PostgreSQLDatabase(DatabasePlugin):
         Check if a collection exists in the PostgreSQL database.
 
         Args:
-            collection (str): The collection to be checked.
+            collection (Meta): The collection to be checked.
 
         Returns:
             bool: True if the collection exists, False otherwise.
@@ -71,7 +71,7 @@ class PostgreSQLDatabase(DatabasePlugin):
         Create a collection in the PostgreSQL database.
 
         Args:
-            collection (str): The collection to be created.
+            collection (Meta): The collection to be created.
         """
 
         def get_type(dtype: type):
@@ -116,7 +116,7 @@ class PostgreSQLDatabase(DatabasePlugin):
         Create a view for a collection in the PostgreSQL database.
 
         Args:
-            collection (str): The collection for which the view is to be created.
+            collection (Meta): The collection for which the view is to be created.
         """
         cursor = self.connection.cursor()
 
@@ -131,7 +131,7 @@ class PostgreSQLDatabase(DatabasePlugin):
         Ensure that a collection exists in the PostgreSQL database.
 
         Args:
-            collection (str): The collection to be ensured.
+            collection (Meta): The collection to be ensured.
         """
         if not await self._check_collection(collection):
             await self._create_collection(collection)
@@ -141,7 +141,7 @@ class PostgreSQLDatabase(DatabasePlugin):
         Create a new document in the PostgreSQL database.
 
         Args:
-            document (dict): The document to be created.
+            document (Document): The document to be created.
         """
         await self._ensure_collection(document.__metaclass__)
 
@@ -161,7 +161,7 @@ class PostgreSQLDatabase(DatabasePlugin):
         Drop a collection from the PostgreSQL database.
 
         Args:
-            document (dict): The document whose collection is to be dropped.
+            document (Document): The document whose collection is to be dropped.
         """
         cursor = self.connection.cursor()
         sql = f'drop table if exists {document.__metaclass__.__collection__} cascade'
@@ -173,8 +173,8 @@ class PostgreSQLDatabase(DatabasePlugin):
         Insert one or more documents into the PostgreSQL database.
 
         Args:
-            document (dict): The first document to be inserted.
-            *docs (dict): Additional documents to be inserted.
+            document (Document): The first document to be inserted.
+            *docs (Document): Additional documents to be inserted.
         """
         cursor = self.connection.cursor()
 
@@ -218,7 +218,7 @@ class PostgreSQLDatabase(DatabasePlugin):
         Read a document from the PostgreSQL database.
 
         Args:
-            document (dict): The document to be read.
+            document (Document): The document to be read.
             query (dict): The query to be used for reading the document.
 
         Yields:
@@ -274,7 +274,7 @@ class PostgreSQLDatabase(DatabasePlugin):
         Update a document in the PostgreSQL database.
 
         Args:
-            document (dict): The document to be updated.
+            document (Document): The document to be updated.
             query (dict): The query to be used for updating the document.
             update (dict): The update to be applied to the document.
         """
@@ -340,7 +340,7 @@ class PostgreSQLDatabase(DatabasePlugin):
         Delete a document from the PostgreSQL database.
 
         Args:
-            document (dict): The document to be deleted.
+            document (Document): The document to be deleted.
             query (dict): The query to be used for deleting the document.
         """
         cursor = self.connection.cursor()
@@ -382,7 +382,7 @@ class PostgreSQLDatabase(DatabasePlugin):
         View a document in the PostgreSQL database.
 
         Args:
-            document (dict): The document to be viewed.
+            document (Document): The document to be viewed.
             query (dict): The query to be used for viewing the document.
 
         Yields:
