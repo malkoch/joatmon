@@ -8,7 +8,6 @@ import pymongo
 from bson.binary import UuidRepresentation
 from bson.codec_options import DEFAULT_CODEC_OPTIONS
 from pymongo import (
-    DeleteMany,
     read_concern,
     write_concern
 )
