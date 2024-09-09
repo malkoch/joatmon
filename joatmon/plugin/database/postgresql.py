@@ -40,7 +40,7 @@ class PostgreSQLDatabase(DatabasePlugin):
         """
         self.connection = psycopg2.connect(
             user=user, password=password, host=host, port=port, database=database  # , async_=True
-        )
+        )  # maybe use schema
 
         self.connection.autocommit = True
 

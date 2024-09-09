@@ -1,6 +1,7 @@
 import functools
 import inspect
 import time
+from datetime import timedelta
 
 
 def timeit():
@@ -19,6 +20,8 @@ def timeit():
             begin = time.time()
             ret = await func(*args, **kwargs)
             end = time.time()
+
+            delta = timedelta(seconds=end - begin)
 
             print(f'{func.__name__} took {end - begin} seconds to run')
 
