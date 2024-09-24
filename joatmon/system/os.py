@@ -17,10 +17,10 @@ class OS:
         self.mm = ModuleManager()
 
         self.inject('file_system', FileSystemModule(self, path))
+        self.inject('process_manager', ProcessModule(self))
         self.inject('task_manager', TaskModule(self))
         self.inject('job_manager', JobModule(self))
         self.inject('service_manager', ServiceModule(self))
-        self.inject('process_manager', ProcessModule(self))
 
         self.persistence = context.get_value('sqlite')
 
@@ -30,8 +30,14 @@ class OS:
     def __getattr__(self, item):
         return self.mm.__getattr__(item)
 
-    def start(self):
-        ...
+    async def start(self):
+        await self.process_manager.start()
+        await self.task_manager.start()
+        await self.job_manager.start()
+        await self.service_manager.start()
 
-    def shutdown(self):
-        ...
+    async def shutdown(self):
+        await self.service_manager.shutdown()
+        await self.job_manager.shutdown()
+        await self.task_manager.shutdown()
+        await self.process_manager.shutdown()
