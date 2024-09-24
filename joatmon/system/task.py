@@ -36,6 +36,7 @@ class Task(Meta):
 
 Task = create_new_type(Task, (Document,))
 
+
 class TaskModule(Module):
     def __init__(self, system):
         super().__init__(system)
@@ -43,10 +44,10 @@ class TaskModule(Module):
     async def create(self, name, description, priority, status, mode, interval, script: str, arguments):
         await self.system.persistence.drop(Task)
 
-        script = self.system.file_system._get_host_path(script)
+        script = self.system.file_system.__get_host_path(script)
 
         if not self.system.file_system.exists(script):
-            raise TaskException(f'{script} does not exist')
+            raise TaskException(f'{self.system.file_system.__get_system_path(script)} does not exist')
 
         if mode not in ['manual', 'interval', 'startup', 'shutdown']:
             raise TaskException(f'{mode} is not a valid mode')

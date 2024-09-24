@@ -10,10 +10,10 @@ register(SQLiteDatabase, 'sqlite', 'joatmon')
 os = OS(r'/Users/malkoch/Desktop/IVA')
 
 os.file_system.mkdir('test')
-# os.file_system.rm('test')
+os.file_system.rm('test')
 
 os.file_system.touch('test.json')
-# os.file_system.rm('test.json')
+os.file_system.rm('test.json')
 
 for file_or_folder, stat in os.file_system.ls('..'):
     size = stat['size']
