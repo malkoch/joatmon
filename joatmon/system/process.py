@@ -97,29 +97,20 @@ class ProcessModule(Module):
     def __init__(self, system):
         super().__init__(system)
 
-    def create(self):
+    async def run(self, obj: typing.Union[Task, Job, Service]):
+        print(f'running {obj}')
+
+    async def stop(self, object_id):
         ...
 
-    def start(self):
+    async def list(self):
         ...
 
-    def stop(self):
+    async def get(self, object_id):
         ...
 
-    def list(self):
+    async def start(self):
         ...
 
-    def get(self):
-        ...
-
-    def remove(self):
-        ...
-
-    def update(self):
-        ...
-
-    def run(self):
-        ...
-
-    def shutdown(self):
+    async def shutdown(self):
         ...
