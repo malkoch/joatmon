@@ -1,8 +1,13 @@
+class Module:
+    def __init__(self, system):
+        self.system = system
+
+
 class ModuleManager:
     def __init__(self):
         self.modules = {}
 
-    def register(self, name, module):
+    def register(self, name, module: Module):
         if name in self.modules:
             raise Exception(f'{name} is already registered')
 

@@ -1,20 +1,15 @@
 import datetime
 import uuid
 
-from joatmon.core.exception import CoreException
-from joatmon.core.utility import new_object_id, to_list_async
+from joatmon.core.utility import new_object_id
 from joatmon.orm.document import Document, create_new_type
 from joatmon.orm.field import Field
 from joatmon.orm.meta import Meta
 from joatmon.system.module import Module
 
 
-class TaskException(CoreException):
-    ...
-
-
-class Task(Meta):
-    __collection__ = 'task'
+class Job(Meta):
+    __collection__ = 'job'
 
     structured = True
     force = True
@@ -34,42 +29,15 @@ class Task(Meta):
     next_run_time = Field(datetime.datetime, nullable=True)
 
 
-Task = create_new_type(Task, (Document,))
+Job = create_new_type(Job, (Document,))
 
-class TaskModule(Module):
+
+class JobModule(Module):
     def __init__(self, system):
         super().__init__(system)
 
-    async def create(self, name, description, priority, status, mode, interval, script: str, arguments):
-        await self.system.persistence.drop(Task)
-
-        script = self.system.file_system._get_host_path(script)
-
-        if not self.system.file_system.exists(script):
-            raise TaskException(f'{script} does not exist')
-
-        if mode not in ['manual', 'interval', 'startup', 'shutdown']:
-            raise TaskException(f'{mode} is not a valid mode')
-
-        if mode in ['interval'] and (interval is None or interval <= 0):
-            interval = 60 * 60 * 24
-        else:
-            interval = None
-
-        await self.system.persistence.insert(
-            Task, {
-                'name': name,
-                'description': description,
-                'priority': priority,
-                'status': status,
-                'mode': mode,
-                'interval': interval,
-                'script': script,
-                'arguments': arguments,
-            }
-        )
-        ret = await to_list_async(self.system.persistence.read(Task, {}))
-        print(ret)
+    def create(self):
+        ...
 
     def start(self):
         ...
