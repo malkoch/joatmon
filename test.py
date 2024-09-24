@@ -26,7 +26,7 @@ asyncio.run(
         description='greeter task',
         priority=10,
         status=True,
-        mode='manual',
+        mode='startup',
         interval=10,
         script='my_script.py',
         arguments=''
