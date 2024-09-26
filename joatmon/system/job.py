@@ -5,7 +5,7 @@ import uuid
 
 from joatmon.core.event import AsyncEvent
 from joatmon.core.exception import CoreException
-from joatmon.core.utility import new_object_id, to_list_async
+from joatmon.core.utility import first_async, new_object_id, to_list_async
 from joatmon.orm.document import Document, create_new_type
 from joatmon.orm.field import Field
 from joatmon.orm.meta import Meta
@@ -74,8 +74,12 @@ class JobModule(Module):
 
             time.sleep(0.1)
 
-    async def create(self, name, description, priority, status, interval, script: str, arguments):
+    async def create(self, name, description, priority, interval, script: str, arguments):
         await self.system.persistence.drop(Job)
+
+        job = await first_async(self.system.persistence.read(Job, {'name': name, 'is_deleted': False}))
+        if job:
+            raise JobException(f'{name} already exists')
 
         script = self.system.file_system._get_host_path(script)
 
@@ -94,7 +98,6 @@ class JobModule(Module):
                 'name': name,
                 'description': description,
                 'priority': priority,
-                'status': status,
                 'interval': interval,
                 'script': script,
                 'arguments': arguments,

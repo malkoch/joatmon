@@ -124,6 +124,10 @@ class ProcessModule(Module):
             time.sleep(0.1)
 
     async def run(self, obj: typing.Union[Task, Job, Service]):
+        process = await self.system.persistence.read(Process, {'info_id': obj.id, 'is_deleted': False})
+        if process:
+            raise ProcessException(f'{obj} is already running')
+
         process = subprocess.Popen([sys.executable, obj.script] + obj.arguments.split(' '), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         await self.events['on_start'].fire(obj)
         self._processes.append((obj, process))

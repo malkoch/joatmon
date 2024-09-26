@@ -31,7 +31,6 @@ asyncio.run(
         name='greeter',
         description='greeter task',
         priority=10,
-        status=True,
         mode='startup',
         script='my_script.py',
         arguments=''
@@ -42,7 +41,6 @@ asyncio.run(
         name='greeter',
         description='greeter job',
         priority=10,
-        status=True,
         interval=10,
         script='my_script.py',
         arguments=''
@@ -53,7 +51,6 @@ asyncio.run(
         name='greeter',
         description='greeter service',
         priority=10,
-        status=True,
         mode='automatic',
         script='my_script.py',
         arguments=''
