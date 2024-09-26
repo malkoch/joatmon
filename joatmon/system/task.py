@@ -1,6 +1,7 @@
 import datetime
 import uuid
 
+from joatmon.core.event import AsyncEvent
 from joatmon.core.exception import CoreException
 from joatmon.core.utility import first_async, new_object_id, to_list_async
 from joatmon.orm.document import Document, create_new_type
@@ -30,7 +31,6 @@ class Task(Meta):
     created_at = Field(datetime.datetime, nullable=False, default=datetime.datetime.now)
     updated_at = Field(datetime.datetime, nullable=False, default=datetime.datetime.now)
     last_run_time = Field(datetime.datetime, nullable=True)
-    next_run_time = Field(datetime.datetime, nullable=True)
     is_deleted = Field(bool, nullable=False, default=False)
 
 
@@ -40,6 +40,21 @@ Task = create_new_type(Task, (Document,))
 class TaskModule(Module):
     def __init__(self, system):
         super().__init__(system)
+
+        self.events = {
+            'on_start': AsyncEvent(),
+            'on_end': AsyncEvent(),
+            'on_error': AsyncEvent()
+        }
+
+    async def _on_start(self, task):
+        print(f'task {task} started')
+
+    async def _on_end(self, task):
+        print(f'task {task} ended')
+
+    async def _on_error(self, task):
+        print(f'task {task} ended with error')
 
     async def create(self, name, description, priority, status, mode, script: str, arguments):
         await self.system.persistence.drop(Task)
@@ -85,9 +100,15 @@ class TaskModule(Module):
         ...
 
     async def start(self):
+        self.events['on_start'] += self._on_start
+        self.events['on_end'] += self._on_end
+        self.events['on_error'] += self._on_error
+
         tasks = await self.list()
         for task in filter(lambda x: x.mode == 'startup', tasks):
             await self.system.process_manager.run(task)
 
     async def shutdown(self):
-        ...
+        self.events['on_start'] -= self._on_start
+        self.events['on_end'] -= self._on_end
+        self.events['on_error'] -= self._on_error

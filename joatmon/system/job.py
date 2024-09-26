@@ -1,6 +1,7 @@
 import datetime
 import uuid
 
+from joatmon.core.event import AsyncEvent
 from joatmon.core.exception import CoreException
 from joatmon.core.utility import new_object_id, to_list_async
 from joatmon.orm.document import Document, create_new_type
@@ -41,6 +42,21 @@ class JobModule(Module):
     def __init__(self, system):
         super().__init__(system)
 
+        self.events = {
+            'on_start': AsyncEvent(),
+            'on_end': AsyncEvent(),
+            'on_error': AsyncEvent()
+        }
+
+    async def _on_start(self, job):
+        print(f'job {job} started')
+
+    async def _on_end(self, job):
+        print(f'job {job} ended')
+
+    async def _on_error(self, job):
+        print(f'job {job} ended with error')
+
     async def create(self, name, description, priority, status, interval, script: str, arguments):
         await self.system.persistence.drop(Job)
 
@@ -67,8 +83,6 @@ class JobModule(Module):
                 'arguments': arguments,
             }
         )
-        ret = await to_list_async(self.system.persistence.read(Job, {}))
-        print(ret)
 
     async def run(self, object_id):
         ...
@@ -90,7 +104,13 @@ class JobModule(Module):
         ...
 
     async def start(self):
+        self.events['on_start'] += self._on_start
+        self.events['on_end'] += self._on_end
+        self.events['on_error'] += self._on_error
+
         await self.list()
 
     async def shutdown(self):
-        ...
+        self.events['on_start'] -= self._on_start
+        self.events['on_end'] -= self._on_end
+        self.events['on_error'] -= self._on_error
