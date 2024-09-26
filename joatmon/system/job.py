@@ -32,9 +32,6 @@ class Job(Meta):
     created_at = Field(datetime.datetime, nullable=False, default=datetime.datetime.now)
     updated_at = Field(datetime.datetime, nullable=False, default=datetime.datetime.now)
     last_run_time = Field(datetime.datetime, nullable=True)
-    started_at = Field(datetime.datetime, nullable=True)
-    ended_at = Field(datetime.datetime, nullable=True)
-    end_code = Field(int, nullable=True)
     is_deleted = Field(bool, nullable=False, default=False)
 
 
@@ -75,8 +72,6 @@ class JobModule(Module):
             time.sleep(0.1)
 
     async def create(self, name, description, priority, interval, script: str, arguments):
-        await self.system.persistence.drop(Job)
-
         job = await first_async(self.system.persistence.read(Job, {'name': name, 'is_deleted': False}))
         if job:
             raise JobException(f'{name} already exists')
@@ -123,8 +118,6 @@ class JobModule(Module):
         ...
 
     async def start(self):
-        self._alive = True
-
         self.events['on_start'] += self._on_start
         self.events['on_end'] += self._on_end
         self.events['on_error'] += self._on_error
@@ -132,8 +125,6 @@ class JobModule(Module):
         self._runner = asyncio.create_task(self._runner_loop())
 
     async def shutdown(self):
-        self._alive = False
-
         if self._runner and not self._runner.done():
             self._runner.cancel()
 
