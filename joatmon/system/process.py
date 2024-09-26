@@ -21,19 +21,6 @@ from joatmon.system.service import Service
 from joatmon.system.task import Task
 
 
-class State(enum.Enum):
-    RUNNING = auto()
-    PAUSED = auto()
-    STOPPED = auto()
-    COMPLETED = auto()
-    FAILED = auto()
-
-
-class Result(enum.Enum):
-    SUCCESS = auto()
-    FAILURE = auto()
-
-
 class ProcessType(enum.Enum):
     TASK = auto()
     JOB = auto()
@@ -54,10 +41,7 @@ class Process(Meta):
     pid = Field(int, nullable=False)
     type = Field(int, nullable=False, default=int(ProcessType.TASK))
     info_id = Field(uuid.UUID, nullable=False)
-    state = Field(int, nullable=False, default=int(State.RUNNING))
     started_at = Field(datetime.datetime, nullable=False, default=datetime.datetime.now)
-    output = Field(int, nullable=True)
-    is_deleted = Field(bool, nullable=False, default=False)
 
 
 Process = create_new_type(Process, (Document,))
@@ -83,9 +67,8 @@ class ProcessModule(Module):
         await self.system.persistence.insert(
             Process, {
                 'pid': process.pid,
-                'type': int(ProcessType.TASK),
+                'type': int(ProcessType.TASK) if isinstance(obj, Task) else int(ProcessType.JOB) if isinstance(obj, Job) else int(ProcessType.SERVICE),
                 'info_id': obj.id,
-                'state': int(State.RUNNING),
                 'started_at': datetime.datetime.now()
             }
         )
