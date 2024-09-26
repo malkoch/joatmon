@@ -24,14 +24,12 @@ class Service(Meta):
     name = Field(str, nullable=False, default='')
     description = Field(str, nullable=False, default='')
     priority = Field(int, nullable=False, default=10)
-    status = Field(bool, nullable=False, default=True)
     mode = Field(str, nullable=False, default='manual')
     retry = Field(int, nullable=True)
     script = Field(str, nullable=False)
     arguments = Field(str, nullable=False, default='')
     created_at = Field(datetime.datetime, nullable=False, default=datetime.datetime.now)
     updated_at = Field(datetime.datetime, nullable=False, default=datetime.datetime.now)
-    last_run_time = Field(datetime.datetime, nullable=True)
     is_deleted = Field(bool, nullable=False, default=False)
 
 
@@ -49,13 +47,14 @@ class ServiceModule(Module):
         }
 
     async def _on_start(self, service):
-        print(f'service {service} started')
+        ...
 
     async def _on_end(self, service):
-        print(f'service {service} ended')
+        ...
 
     async def _on_error(self, service):
-        print(f'service {service} ended with error')
+        if service.retry:
+            await self.system.process_manager.run(service)
 
     async def create(self, name, description, priority, status, mode, script: str, arguments):
         await self.system.persistence.drop(Service)
@@ -89,8 +88,7 @@ class ServiceModule(Module):
         ...
 
     async def list(self):
-        ret = await to_list_async(self.system.persistence.read(Service, {'is_deleted': False}))
-        print(ret)
+        return await to_list_async(self.system.persistence.read(Service, {'is_deleted': False}))
 
     async def get(self, object_id):
         ...
@@ -106,7 +104,9 @@ class ServiceModule(Module):
         self.events['on_end'] += self._on_end
         self.events['on_error'] += self._on_error
 
-        await self.list()
+        services = await self.list()
+        for service in filter(lambda x: x.mode == 'automatic', services):
+            await self.system.process_manager.run(service)
 
     async def shutdown(self):
         self.events['on_start'] -= self._on_start
