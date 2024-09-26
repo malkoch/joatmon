@@ -1,11 +1,19 @@
 import asyncio
+import datetime
+import subprocess
+import sys
+import time
 import typing
 import uuid
 from enum import auto
 
-from transitions import Machine
-
+from joatmon.core.event import AsyncEvent
+from joatmon.core.exception import CoreException
+from joatmon.core.utility import new_object_id
 from joatmon.orm import enum
+from joatmon.orm.document import Document, create_new_type
+from joatmon.orm.field import Field
+from joatmon.orm.meta import Meta
 from joatmon.system.job import Job
 from joatmon.system.module import Module
 from joatmon.system.service import Service
@@ -25,80 +33,97 @@ class Result(enum.Enum):
     FAILURE = auto()
 
 
-class Process:
-    def __init__(self, info: typing.Union[Task, Job, Service], loop: asyncio.AbstractEventLoop, **kwargs):
-        states = ['none', 'started', 'stopped', 'running', 'exception', 'starting', 'stopping']
-        self.machine = Machine(model=self, states=states, initial='none')
+class ProcessType:
+    TASK = auto()
+    JOB = auto()
+    SERVICE = auto()
 
-        self.info = info
-        self.loop = loop
-        self.kwargs = kwargs
-        self.process_id = uuid.uuid4()
-        self.event = asyncio.Event()
-        self.task = None
 
-    def __str__(self):
-        return f'{self.process_id} {self.info} {self.machine.state}'
+class ProcessException(CoreException):
+    ...
 
-    def __repr__(self):
-        return str(self)
 
-    @staticmethod
-    def help():
-        """
-        Provide help about the Runnable.
+class Process(Meta):
+    __collection__ = 'process'
 
-        Returns:
-            dict: An empty dictionary as this method needs to be implemented in subclasses.
-        """
-        return {}
+    structured = True
+    force = True
 
-    async def run(self):
-        """
-        Run the task.
+    id = Field(uuid.UUID, nullable=False, default=new_object_id, primary=True)
+    pid = Field(int, nullable=False)
+    info_id = Field(uuid.UUID, nullable=False)
+    started_at = Field(datetime.datetime, nullable=False)
 
-        This method needs to be implemented in subclasses.
-        """
-        raise NotImplementedError
 
-    def running(self):
-        """
-        Check if the task is running.
-
-        Returns:
-            bool: True if the task is running, False otherwise.
-        """
-        return not self.task.done()
-
-    def start(self):
-        """
-        Start the task.
-
-        This method starts the task by setting the state to 'starting', firing the 'begin' event, and then setting the state to 'started'.
-        """
-        self.machine.set_state('starting')
-        self.task = asyncio.ensure_future(self.run(), loop=self.loop)
-        self.machine.set_state('started')
-
-    def stop(self):
-        """
-        Stop the task.
-
-        This method stops the task by setting the state to 'stopping', firing the 'end' event, setting the event, setting the state to 'stopped', and then cancelling the task.
-        """
-        self.machine.set_state('stopping')
-        self.event.set()
-        if self.task and not self.task.done():
-            self.task.cancel()
-        self.machine.set_state('stopped')
+Process = create_new_type(Process, (Document,))
 
 
 class ProcessModule(Module):
     def __init__(self, system):
         super().__init__(system)
 
+        self.events = {
+            'on_start': AsyncEvent(),
+            'on_end': AsyncEvent(),
+            'on_error': AsyncEvent()
+        }
+
+        self._processes = []
+        self._process_runner = None
+
+    async def _on_start(self, process):
+        print(f'process {process} started')
+        if isinstance(process, Task):
+            await self.system.task_manager.events['on_start'].fire(process)
+        if isinstance(process, Job):
+            await self.system.job_manager.events['on_start'].fire(process)
+        if isinstance(process, Service):
+            await self.system.service_manager.events['on_start'].fire(process)
+
+    async def _on_end(self, process):
+        print(f'process {process} ended')
+        if isinstance(process, Task):
+            await self.system.task_manager.events['on_end'].fire(process)
+        if isinstance(process, Job):
+            await self.system.job_manager.events['on_end'].fire(process)
+        if isinstance(process, Service):
+            await self.system.service_manager.events['on_end'].fire(process)
+
+    async def _on_error(self, process):
+        print(f'process {process} ended with error')
+        if isinstance(process, Task):
+            await self.system.task_manager.events['on_error'].fire(process)
+        if isinstance(process, Job):
+            await self.system.job_manager.events['on_error'].fire(process)
+        if isinstance(process, Service):
+            await self.system.service_manager.events['on_error'].fire(process)
+
+    async def _process_runner_loop(self):
+        while self._alive:
+            ended_processes = list(filter(lambda x: x[1].returncode is not None, self._processes))
+            for ended_process in ended_processes:
+                if ended_process[1].returncode == 0:
+                    await self.events['on_end'].fire(ended_process[0])
+                if ended_process[1].returncode != 0:
+                    await self.events['on_error'].fire(ended_process[0])
+
+            self._processes = list(filter(lambda x: x[1].returncode is None, self._processes))
+            for info, process in self._processes:
+                ret = process.poll()
+                if ret is None:
+                    continue
+
+                for line in iter(process.stdout.read, b''):
+                    print(line)
+                for line in iter(process.stderr.read, b''):
+                    print(line)
+
+            time.sleep(0.1)
+
     async def run(self, obj: typing.Union[Task, Job, Service]):
-        print(f'running {obj}')
+        process = subprocess.Popen([sys.executable, obj.script] + obj.arguments.split(' '), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        await self.events['on_start'].fire(obj)
+        self._processes.append((obj, process))
 
     async def stop(self, object_id):
         ...
@@ -110,7 +135,20 @@ class ProcessModule(Module):
         ...
 
     async def start(self):
-        ...
+        self._alive = True
+
+        self.events['on_start'] += self._on_start
+        self.events['on_end'] += self._on_end
+        self.events['on_error'] += self._on_error
+
+        self._process_runner = asyncio.create_task(self._process_runner_loop())
 
     async def shutdown(self):
-        ...
+        self._alive = False
+
+        if self._process_runner and not self._process_runner.done():
+            self._process_runner.cancel()
+
+        self.events['on_start'] -= self._on_start
+        self.events['on_end'] -= self._on_end
+        self.events['on_error'] -= self._on_error

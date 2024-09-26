@@ -1,3 +1,5 @@
+import asyncio
+
 from joatmon.core import context
 from joatmon.core.exception import CoreException
 from joatmon.system.fs import FileSystemModule
@@ -24,6 +26,8 @@ class OS:
 
         self.persistence = context.get_value('sqlite')
 
+        self.waiter = asyncio.Event()
+
     def inject(self, name, module):
         self.mm.register(name, module)
 
@@ -41,3 +45,5 @@ class OS:
         await self.job_manager.shutdown()
         await self.task_manager.shutdown()
         await self.process_manager.shutdown()
+
+        self.waiter.set()

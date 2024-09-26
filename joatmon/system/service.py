@@ -1,6 +1,7 @@
 import datetime
 import uuid
 
+from joatmon.core.event import AsyncEvent
 from joatmon.core.exception import CoreException
 from joatmon.core.utility import new_object_id, to_list_async
 from joatmon.orm.document import Document, create_new_type
@@ -31,7 +32,6 @@ class Service(Meta):
     created_at = Field(datetime.datetime, nullable=False, default=datetime.datetime.now)
     updated_at = Field(datetime.datetime, nullable=False, default=datetime.datetime.now)
     last_run_time = Field(datetime.datetime, nullable=True)
-    next_run_time = Field(datetime.datetime, nullable=True)
     is_deleted = Field(bool, nullable=False, default=False)
 
 
@@ -41,6 +41,21 @@ Service = create_new_type(Service, (Document,))
 class ServiceModule(Module):
     def __init__(self, system):
         super().__init__(system)
+
+        self.events = {
+            'on_start': AsyncEvent(),
+            'on_end': AsyncEvent(),
+            'on_error': AsyncEvent()
+        }
+
+    async def _on_start(self, service):
+        print(f'service {service} started')
+
+    async def _on_end(self, service):
+        print(f'service {service} ended')
+
+    async def _on_error(self, service):
+        print(f'service {service} ended with error')
 
     async def create(self, name, description, priority, status, mode, script: str, arguments):
         await self.system.persistence.drop(Service)
@@ -87,7 +102,13 @@ class ServiceModule(Module):
         ...
 
     async def start(self):
+        self.events['on_start'] += self._on_start
+        self.events['on_end'] += self._on_end
+        self.events['on_error'] += self._on_error
+
         await self.list()
 
     async def shutdown(self):
-        ...
+        self.events['on_start'] -= self._on_start
+        self.events['on_end'] -= self._on_end
+        self.events['on_error'] -= self._on_error

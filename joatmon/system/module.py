@@ -1,6 +1,7 @@
 class Module:
     def __init__(self, system):
         self.system = system
+        self._alive = False
 
 
 class ModuleManager:
