@@ -55,8 +55,12 @@ class TaskModule(Module):
     async def _on_error(self, task):
         ...
 
-    async def create(self, name, description, priority, status, mode, script: str, arguments):
+    async def create(self, name, description, priority, mode, script: str, arguments):
         await self.system.persistence.drop(Task)
+
+        task = await first_async(self.system.persistence.read(Task, {'name': name, 'is_deleted': False}))
+        if task:
+            raise TaskException(f'{name} already exists')
 
         script = self.system.file_system._get_host_path(script)
 
@@ -73,7 +77,6 @@ class TaskModule(Module):
                 'name': name,
                 'description': description,
                 'priority': priority,
-                'status': status,
                 'mode': mode,
                 'script': script,
                 'arguments': arguments,
