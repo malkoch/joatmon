@@ -24,7 +24,6 @@ class Task(Meta):
     name = Field(str, nullable=False, default='')
     description = Field(str, nullable=False, default='')
     priority = Field(int, nullable=False, default=10)
-    status = Field(bool, nullable=False, default=True)
     mode = Field(str, nullable=False, default='manual')
     script = Field(str, nullable=False)
     arguments = Field(str, nullable=False, default='')
@@ -48,13 +47,13 @@ class TaskModule(Module):
         }
 
     async def _on_start(self, task):
-        print(f'task {task} started')
+        ...
 
     async def _on_end(self, task):
-        print(f'task {task} ended')
+        ...
 
     async def _on_error(self, task):
-        print(f'task {task} ended with error')
+        ...
 
     async def create(self, name, description, priority, status, mode, script: str, arguments):
         await self.system.persistence.drop(Task)

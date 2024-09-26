@@ -1,4 +1,6 @@
+import asyncio
 import datetime
+import time
 import uuid
 
 from joatmon.core.event import AsyncEvent
@@ -24,14 +26,15 @@ class Job(Meta):
     name = Field(str, nullable=False, default='')
     description = Field(str, nullable=False, default='')
     priority = Field(int, nullable=False, default=10)
-    status = Field(bool, nullable=False, default=True)
     interval = Field(int, nullable=True)
     script = Field(str, nullable=False)
     arguments = Field(str, nullable=False, default='')
     created_at = Field(datetime.datetime, nullable=False, default=datetime.datetime.now)
     updated_at = Field(datetime.datetime, nullable=False, default=datetime.datetime.now)
     last_run_time = Field(datetime.datetime, nullable=True)
-    next_run_time = Field(datetime.datetime, nullable=True)
+    started_at = Field(datetime.datetime, nullable=True)
+    ended_at = Field(datetime.datetime, nullable=True)
+    end_code = Field(int, nullable=True)
     is_deleted = Field(bool, nullable=False, default=False)
 
 
@@ -48,14 +51,28 @@ class JobModule(Module):
             'on_error': AsyncEvent()
         }
 
+        self._runner = None
+
     async def _on_start(self, job):
-        print(f'job {job} started')
+        job.last_run_time = datetime.datetime.now()
+        await self.system.persistence.update(Job, {'id': job.object_id}, job)
 
     async def _on_end(self, job):
-        print(f'job {job} ended')
+        ...
 
     async def _on_error(self, job):
-        print(f'job {job} ended with error')
+        ...
+
+    async def _runner_loop(self):
+        while self._alive:
+            jobs = await self.list()
+            for job in jobs:
+                if job.last_run_time + datetime.timedelta(seconds=job.interval) > datetime.datetime.now():
+                    continue
+
+                await self.system.process_manager.run(job)
+
+            time.sleep(0.1)
 
     async def create(self, name, description, priority, status, interval, script: str, arguments):
         await self.system.persistence.drop(Job)
@@ -91,8 +108,7 @@ class JobModule(Module):
         ...
 
     async def list(self):
-        ret = await to_list_async(self.system.persistence.read(Job, {'is_deleted': False}))
-        print(ret)
+        return await to_list_async(self.system.persistence.read(Job, {'is_deleted': False}))
 
     async def get(self, object_id):
         ...
@@ -104,13 +120,20 @@ class JobModule(Module):
         ...
 
     async def start(self):
+        self._alive = True
+
         self.events['on_start'] += self._on_start
         self.events['on_end'] += self._on_end
         self.events['on_error'] += self._on_error
 
-        await self.list()
+        self._runner = asyncio.create_task(self._runner_loop())
 
     async def shutdown(self):
+        self._alive = False
+
+        if self._runner and not self._runner.done():
+            self._runner.cancel()
+
         self.events['on_start'] -= self._on_start
         self.events['on_end'] -= self._on_end
         self.events['on_error'] -= self._on_error

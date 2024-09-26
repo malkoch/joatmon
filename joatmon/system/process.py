@@ -51,8 +51,14 @@ class Process(Meta):
 
     id = Field(uuid.UUID, nullable=False, default=new_object_id, primary=True)
     pid = Field(int, nullable=False)
+    type = Field(int, nullable=False, default=int(ProcessType.TASK))
     info_id = Field(uuid.UUID, nullable=False)
-    started_at = Field(datetime.datetime, nullable=False)
+    state = Field(int, nullable=False, default=int(State.RUNNING))
+    started_at = Field(datetime.datetime, nullable=False, default=datetime.datetime.now)
+    ended_at = Field(datetime.datetime, nullable=True)
+    end_code = Field(int, nullable=True)
+    end_reason = Field(str, nullable=True)
+    is_deleted = Field(bool, nullable=False, default=False)
 
 
 Process = create_new_type(Process, (Document,))
@@ -69,10 +75,9 @@ class ProcessModule(Module):
         }
 
         self._processes = []
-        self._process_runner = None
+        self._runner = None
 
     async def _on_start(self, process):
-        print(f'process {process} started')
         if isinstance(process, Task):
             await self.system.task_manager.events['on_start'].fire(process)
         if isinstance(process, Job):
@@ -81,7 +86,6 @@ class ProcessModule(Module):
             await self.system.service_manager.events['on_start'].fire(process)
 
     async def _on_end(self, process):
-        print(f'process {process} ended')
         if isinstance(process, Task):
             await self.system.task_manager.events['on_end'].fire(process)
         if isinstance(process, Job):
@@ -90,7 +94,6 @@ class ProcessModule(Module):
             await self.system.service_manager.events['on_end'].fire(process)
 
     async def _on_error(self, process):
-        print(f'process {process} ended with error')
         if isinstance(process, Task):
             await self.system.task_manager.events['on_error'].fire(process)
         if isinstance(process, Job):
@@ -98,7 +101,7 @@ class ProcessModule(Module):
         if isinstance(process, Service):
             await self.system.service_manager.events['on_error'].fire(process)
 
-    async def _process_runner_loop(self):
+    async def _runner_loop(self):
         while self._alive:
             ended_processes = list(filter(lambda x: x[1].returncode is not None, self._processes))
             for ended_process in ended_processes:
@@ -141,13 +144,16 @@ class ProcessModule(Module):
         self.events['on_end'] += self._on_end
         self.events['on_error'] += self._on_error
 
-        self._process_runner = asyncio.create_task(self._process_runner_loop())
+        self._runner = asyncio.create_task(self._runner_loop())
 
     async def shutdown(self):
         self._alive = False
 
-        if self._process_runner and not self._process_runner.done():
-            self._process_runner.cancel()
+        if self._runner and not self._runner.done():
+            self._runner.cancel()
+
+        # kill each running process
+        # send all events
 
         self.events['on_start'] -= self._on_start
         self.events['on_end'] -= self._on_end
