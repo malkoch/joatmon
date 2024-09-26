@@ -57,8 +57,6 @@ class ServiceModule(Module):
             await self.system.process_manager.run(service)
 
     async def create(self, name, description, priority, mode, script: str, arguments):
-        await self.system.persistence.drop(Service)
-
         service = await first_async(self.system.persistence.read(Service, {'name': name, 'is_deleted': False}))
         if service:
             raise ServiceException(f'{name} already exists')

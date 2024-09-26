@@ -29,7 +29,6 @@ class Task(Meta):
     arguments = Field(str, nullable=False, default='')
     created_at = Field(datetime.datetime, nullable=False, default=datetime.datetime.now)
     updated_at = Field(datetime.datetime, nullable=False, default=datetime.datetime.now)
-    last_run_time = Field(datetime.datetime, nullable=True)
     is_deleted = Field(bool, nullable=False, default=False)
 
 
@@ -56,8 +55,6 @@ class TaskModule(Module):
         ...
 
     async def create(self, name, description, priority, mode, script: str, arguments):
-        await self.system.persistence.drop(Task)
-
         task = await first_async(self.system.persistence.read(Task, {'name': name, 'is_deleted': False}))
         if task:
             raise TaskException(f'{name} already exists')
