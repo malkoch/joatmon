@@ -116,7 +116,7 @@ py.test tests/.
 If you want to check if the files conform to the PEP8 style guidelines, run the following command:
 
 ```bash
-py.test --pep8
+pep8
 ```
 
 If you want to check the code coverage, run the following command:
