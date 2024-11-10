@@ -1,6 +1,5 @@
 import asyncio
 import datetime
-import time
 import uuid
 
 from joatmon.core.event import AsyncEvent
@@ -26,7 +25,7 @@ class Job(Meta):
     name = Field(str, nullable=False, default='')
     description = Field(str, nullable=False, default='')
     priority = Field(int, nullable=False, default=10)
-    interval = Field(int, nullable=True)
+    interval = Field(int, nullable=False, default=60 * 60 * 24)
     script = Field(str, nullable=False)
     arguments = Field(str, nullable=False, default='')
     created_at = Field(datetime.datetime, nullable=False, default=datetime.datetime.now)
@@ -61,15 +60,15 @@ class JobModule(Module):
         ...
 
     async def _runner_loop(self):
-        while self._alive:
+        while True:
             jobs = await self.list()
             for job in jobs:
-                if job.last_run_time + datetime.timedelta(seconds=job.interval) > datetime.datetime.now():
+                if job.last_run_time and job.last_run_time + datetime.timedelta(seconds=job.interval) > datetime.datetime.now():
                     continue
 
                 await self.system.process_manager.run(job)
 
-            time.sleep(0.1)
+            await asyncio.sleep(0.1)
 
     async def create(self, name, description, priority, interval, script: str, arguments):
         job = await first_async(self.system.persistence.read(Job, {'name': name, 'is_deleted': False}))
@@ -85,8 +84,6 @@ class JobModule(Module):
 
         if interval is None or interval <= 0:
             interval = 60 * 60 * 24
-        else:
-            interval = None
 
         await self.system.persistence.insert(
             Job, {
