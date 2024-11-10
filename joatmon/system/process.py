@@ -123,7 +123,7 @@ class ProcessModule(Module):
             time.sleep(0.1)
 
     async def run(self, obj: typing.Union[Task, Job, Service]):
-        process = await first_async(self.system.persistence.read(Process, {'info_id': obj.id, 'is_deleted': False}))
+        process = await first_async(self.system.persistence.read(Process, {'info_id': obj.id}))
         if process:
             raise ProcessException(f'{obj} is already running')
 
@@ -133,7 +133,7 @@ class ProcessModule(Module):
         ...
 
     async def list(self):
-        return await to_list_async(self.system.persistence.read(Process, {'is_deleted': False}))
+        return await to_list_async(self.system.persistence.read(Process, {}))
 
     async def get(self, object_id):
         ...
