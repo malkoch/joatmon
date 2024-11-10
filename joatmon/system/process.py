@@ -115,12 +115,12 @@ class ProcessModule(Module):
                 if ret is None:
                     continue
 
-                # for c in iter(process.stdout.read, b''):
-                #     print(c)
-                # for c in iter(process.stderr.read, b''):
-                #     print(c)
+                for c in iter(process.stdout.read, b''):
+                    print(c)
+                for c in iter(process.stderr.read, b''):
+                    print(c)
 
-            time.sleep(0.1)
+            await asyncio.sleep(0.1)
 
     async def run(self, obj: typing.Union[Task, Job, Service]):
         process = await first_async(self.system.persistence.read(Process, {'info_id': obj.id}))
