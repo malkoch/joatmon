@@ -3,7 +3,6 @@ import datetime
 import os
 import subprocess
 import sys
-import time
 import typing
 import uuid
 from enum import auto
@@ -150,7 +149,7 @@ class ProcessModule(Module):
         for process in processes:
             os.kill(process.pid, 9)
 
-        time.sleep(1)
+        await asyncio.sleep(1)
 
         if self._runner and not self._runner.done():
             self._runner.cancel()
