@@ -56,8 +56,6 @@ class TaskModule(Module):
 
     async def create(self, name, description, priority, mode, script: str, arguments):
         task = await first_async(self.system.persistence.read(Task, {'name': name, 'is_deleted': False}))
-        if task:
-            raise TaskException(f'{name} already exists')
 
         script = self.system.file_system._get_host_path(script)
 
@@ -69,16 +67,28 @@ class TaskModule(Module):
         if mode not in ['manual', 'startup', 'shutdown']:
             raise TaskException(f'{mode} is not a valid mode')
 
-        await self.system.persistence.insert(
-            Task, {
-                'name': name,
-                'description': description,
-                'priority': priority,
-                'mode': mode,
-                'script': script,
-                'arguments': arguments,
-            }
-        )
+        if task:
+            await self.system.persistence.update(
+                Task, {'id': task.id}, {
+                    'name': name,
+                    'description': description,
+                    'priority': priority,
+                    'mode': mode,
+                    'script': script,
+                    'arguments': arguments,
+                }
+            )
+        else:
+            await self.system.persistence.insert(
+                Task, {
+                    'name': name,
+                    'description': description,
+                    'priority': priority,
+                    'mode': mode,
+                    'script': script,
+                    'arguments': arguments,
+                }
+            )
 
     async def run(self, object_id):
         ...

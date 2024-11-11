@@ -58,8 +58,6 @@ class ServiceModule(Module):
 
     async def create(self, name, description, priority, mode, script: str, arguments):
         service = await first_async(self.system.persistence.read(Service, {'name': name, 'is_deleted': False}))
-        if service:
-            raise ServiceException(f'{name} already exists')
 
         script = self.system.file_system._get_host_path(script)
 
@@ -71,16 +69,28 @@ class ServiceModule(Module):
         if mode not in ['manual', 'automatic']:
             raise ServiceException(f'{mode} is not a valid mode')
 
-        await self.system.persistence.insert(
-            Service, {
-                'name': name,
-                'description': description,
-                'priority': priority,
-                'mode': mode,
-                'script': script,
-                'arguments': arguments,
-            }
-        )
+        if service:
+            await self.system.persistence.update(
+                Service, {'id': service.id}, {
+                    'name': name,
+                    'description': description,
+                    'priority': priority,
+                    'mode': mode,
+                    'script': script,
+                    'arguments': arguments,
+                }
+            )
+        else:
+            await self.system.persistence.insert(
+                Service, {
+                    'name': name,
+                    'description': description,
+                    'priority': priority,
+                    'mode': mode,
+                    'script': script,
+                    'arguments': arguments,
+                }
+            )
 
     async def run(self, object_id):
         ...

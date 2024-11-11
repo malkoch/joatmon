@@ -72,8 +72,6 @@ class JobModule(Module):
 
     async def create(self, name, description, priority, interval, script: str, arguments):
         job = await first_async(self.system.persistence.read(Job, {'name': name, 'is_deleted': False}))
-        if job:
-            raise JobException(f'{name} already exists')
 
         script = self.system.file_system._get_host_path(script)
 
@@ -85,16 +83,28 @@ class JobModule(Module):
         if interval is None or interval <= 0:
             interval = 60 * 60 * 24
 
-        await self.system.persistence.insert(
-            Job, {
-                'name': name,
-                'description': description,
-                'priority': priority,
-                'interval': interval,
-                'script': script,
-                'arguments': arguments,
-            }
-        )
+        if job:
+            await self.system.persistence.update(
+                Job, {'id': job.id}, {
+                    'name': name,
+                    'description': description,
+                    'priority': priority,
+                    'interval': interval,
+                    'script': script,
+                    'arguments': arguments,
+                }
+            )
+        else:
+            await self.system.persistence.insert(
+                Job, {
+                    'name': name,
+                    'description': description,
+                    'priority': priority,
+                    'interval': interval,
+                    'script': script,
+                    'arguments': arguments,
+                }
+            )
 
     async def run(self, object_id):
         ...
