@@ -34,15 +34,15 @@ class OS:
         return self.mm.__getattr__(item)
 
     async def start(self):
-        await self.process_manager.start()
-        await self.task_manager.start()
-        await self.job_manager.start()
-        await self.service_manager.start()
+        for module in self.mm:
+            if not hasattr(module, 'start'):
+                continue
+            await module.start()
 
     async def shutdown(self):
-        await self.service_manager.shutdown()
-        await self.job_manager.shutdown()
-        await self.task_manager.shutdown()
-        await self.process_manager.shutdown()
+        for module in reversed(self.mm):
+            if not hasattr(module, 'shutdown'):
+                continue
+            await module.shutdown()
 
         self.waiter.set()
