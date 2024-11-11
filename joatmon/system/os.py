@@ -1,10 +1,10 @@
 import asyncio
 
-from joatmon.core import context
 from joatmon.core.exception import CoreException
 from joatmon.system.fs import FileSystemModule
 from joatmon.system.job import JobModule
 from joatmon.system.module import ModuleManager
+from joatmon.system.persistence import PersistenceModule
 from joatmon.system.process import ProcessModule
 from joatmon.system.service import ServiceModule
 from joatmon.system.task import TaskModule
@@ -23,8 +23,7 @@ class OS:
         self.inject('task_manager', TaskModule(self))
         self.inject('job_manager', JobModule(self))
         self.inject('service_manager', ServiceModule(self))
-
-        self.persistence = context.get_value('sqlite')
+        self.inject('persistence', PersistenceModule(self, 'sqlite'))
 
         self.waiter = asyncio.Event()
 

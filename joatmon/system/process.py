@@ -122,6 +122,7 @@ class ProcessModule(Module):
             await asyncio.sleep(0.1)
 
     async def run(self, obj: typing.Union[Task, Job, Service]):
+        # obj.unique -> only one process
         process = await first_async(self.system.persistence.read(Process, {'info_id': obj.id}))
         if process:
             raise ProcessException(f'{obj} is already running')

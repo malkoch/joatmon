@@ -29,7 +29,6 @@ class Task(Meta):
     arguments = Field(str, nullable=False, default='')
     created_at = Field(datetime.datetime, nullable=False, default=datetime.datetime.now)
     updated_at = Field(datetime.datetime, nullable=False, default=datetime.datetime.now)
-    is_deleted = Field(bool, nullable=False, default=False)
 
 
 Task = create_new_type(Task, (Document,))
@@ -55,7 +54,7 @@ class TaskModule(Module):
         ...
 
     async def create(self, name, description, priority, mode, script: str, arguments):
-        task = await first_async(self.system.persistence.read(Task, {'name': name, 'is_deleted': False}))
+        task = await first_async(self.system.persistence.read(Task, {'name': name}))
 
         script = self.system.file_system._get_host_path(script)
 
@@ -91,19 +90,20 @@ class TaskModule(Module):
             )
 
     async def run(self, object_id):
-        ...
+        task = await first_async(self.system.persistence.read(Task, {'id': object_id}))
+        await self.system.process_manager.run(task)
 
     async def stop(self, object_id):
         ...
 
     async def list(self):
-        return await to_list_async(self.system.persistence.read(Task, {'is_deleted': False}))
+        return await to_list_async(self.system.persistence.read(Task, {}))
 
     async def get(self, object_id):
-        return await first_async(self.system.persistence.read(Task, {'object_id': object_id, 'is_deleted': False}))
+        return await first_async(self.system.persistence.read(Task, {'id': object_id}))
 
     async def remove(self, object_id):
-        ...
+        await self.system.persistence.delete(Task, {'id': object_id})
 
     async def update(self, object_id):
         ...
@@ -118,6 +118,10 @@ class TaskModule(Module):
             await self.system.process_manager.run(task)
 
     async def shutdown(self):
+        tasks = await self.list()
+        for task in filter(lambda x: x.mode == 'shutdown', tasks):
+            await self.system.process_manager.run(task)
+
         self.events['on_start'] -= self._on_start
         self.events['on_end'] -= self._on_end
         self.events['on_error'] -= self._on_error
