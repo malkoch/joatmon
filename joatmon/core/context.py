@@ -51,7 +51,7 @@ def get_value(name):
         Any: The value from the current context, or None if the value does not exist.
     """
     current = getattr(get_ctx(), 'current', {})
-    return current.get(name, None)
+    return current.get(name.replace('-', '_'), None)
 
 
 def set_value(name, value):
@@ -65,6 +65,6 @@ def set_value(name, value):
         value (Any): The value to set.
     """
     current = getattr(get_ctx(), 'current', {})
-    if name not in current:
-        current[name] = value
+    if name.replace('-', '_') not in current:
+        current[name.replace('-', '_')] = value
     setattr(get_ctx(), 'current', current)

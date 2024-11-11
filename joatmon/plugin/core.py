@@ -19,7 +19,7 @@ def register(cls, alias, *args, **kwargs):
 
         cls = getattr(_module, cls.split(".")[-1], None)
 
-    context.set_value(alias.replace('-', '_'), PluginProxy(cls, *args, **kwargs))
+    context.set_value(alias, PluginProxy(cls, *args, **kwargs))
 
 
 class Plugin:
