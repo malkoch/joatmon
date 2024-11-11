@@ -31,7 +31,6 @@ class Job(Meta):
     created_at = Field(datetime.datetime, nullable=False, default=datetime.datetime.now)
     updated_at = Field(datetime.datetime, nullable=False, default=datetime.datetime.now)
     last_run_time = Field(datetime.datetime, nullable=True)
-    is_deleted = Field(bool, nullable=False, default=False)
 
 
 Job = create_new_type(Job, (Document,))
@@ -51,7 +50,7 @@ class JobModule(Module):
 
     async def _on_start(self, job):
         job.last_run_time = datetime.datetime.now()
-        await self.system.persistence.update(Job, {'id': job.object_id}, job)
+        await self.system.persistence.update(Job, {'id': job.id}, job)
 
     async def _on_end(self, job):
         ...
@@ -66,12 +65,12 @@ class JobModule(Module):
                 if job.last_run_time and job.last_run_time + datetime.timedelta(seconds=job.interval) > datetime.datetime.now():
                     continue
 
-                await self.system.process_manager.run(job)
+                await self.run(job.id)
 
             await asyncio.sleep(0.1)
 
     async def create(self, name, description, priority, interval, script: str, arguments):
-        job = await first_async(self.system.persistence.read(Job, {'name': name, 'is_deleted': False}))
+        job = await first_async(self.system.persistence.read(Job, {'name': name}))
 
         script = self.system.file_system._get_host_path(script)
 
@@ -107,19 +106,20 @@ class JobModule(Module):
             )
 
     async def run(self, object_id):
-        ...
+        job = await first_async(self.system.persistence.read(Job, {'id': object_id}))
+        await self.system.process_manager.run(job)
 
     async def stop(self, object_id):
         ...
 
     async def list(self):
-        return await to_list_async(self.system.persistence.read(Job, {'is_deleted': False}))
+        return await to_list_async(self.system.persistence.read(Job, {}))
 
     async def get(self, object_id):
-        ...
+        return await first_async(self.system.persistence.read(Job, {'id': object_id}))
 
     async def remove(self, object_id):
-        ...
+        await self.system.persistence.delete(Job, {'id': object_id})
 
     async def update(self, object_id):
         ...
