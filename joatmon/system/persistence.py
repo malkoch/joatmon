@@ -13,15 +13,15 @@ class PersistenceModule(Module):
 
         self.db = context.get_value(plugin)
 
-    async def insert(self, a, b):
-        return await self.db.insert(a, b)
+    async def insert(self, doc, insert):
+        return await self.db.insert(doc, insert)
 
-    async def read(self, a, b):
-        async for d in self.db.read(a, b):
+    async def read(self, doc, query):
+        async for d in self.db.read(doc, query):
             yield d
 
-    async def update(self, a, b, c):
-        return await self.db.update(a, b, c)
+    async def update(self, doc, query, update):
+        return await self.db.update(doc, query, update)
 
-    async def delete(self, a, b):
-        return await self.db.delete(a, b)
+    async def delete(self, doc, query):
+        return await self.db.delete(doc, query)

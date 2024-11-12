@@ -72,7 +72,7 @@ class JobModule(Module):
     async def create(self, name, description, priority, interval, script: str, arguments):
         job = await first_async(self.system.persistence.read(Job, {'name': name}))
 
-        script = self.system.file_system._get_host_path(script)
+        script = self.system.file_system._get_host_path(script)  # full path or task name
 
         if not self.system.file_system.exists(script):
             raise JobException(f'{self.system.file_system._get_system_path(script)} does not exist')
