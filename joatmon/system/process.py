@@ -1,8 +1,6 @@
 import asyncio
 import datetime
-import os
-import subprocess
-import sys
+import json
 import typing
 import uuid
 from enum import auto
@@ -14,10 +12,10 @@ from joatmon.orm import enum
 from joatmon.orm.document import Document, create_new_type
 from joatmon.orm.field import Field
 from joatmon.orm.meta import Meta
-from joatmon.system.job import Job
+from joatmon.system.job import BaseJob, Job
 from joatmon.system.module import Module
-from joatmon.system.service import Service
-from joatmon.system.task import Task
+from joatmon.system.service import BaseService, Service
+from joatmon.system.task import BaseTask, Task
 
 
 class ProcessType(enum.Enum):
@@ -37,7 +35,6 @@ class Process(Meta):
     force = True
 
     id = Field(uuid.UUID, nullable=False, default=new_object_id, primary=True)
-    pid = Field(int, nullable=False)
     type = Field(int, nullable=False, default=int(ProcessType.TASK))
     info_id = Field(uuid.UUID, nullable=False)
     started_at = Field(datetime.datetime, nullable=False, default=datetime.datetime.now)
@@ -56,19 +53,32 @@ class ProcessModule(Module):
             'on_error': AsyncEvent()
         }
 
-        self._processes = []
+        self._processes: typing.List[typing.Tuple[typing.Union[Task, Job, Service], asyncio.Task]] = []
         self._runner = None
 
     async def _on_start(self, obj):
         # might want to use Future
         # might want to use Thread
         # might want to use Process
-        process = subprocess.Popen([sys.executable, obj.script] + obj.arguments.split(' '), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        self._processes.append((obj, process))
+        cls = None
+        if isinstance(obj, Task):
+            cls = BaseTask.get_cls(obj.script)
+        if isinstance(obj, Job):
+            cls = BaseJob.get_cls(obj.script)
+        if isinstance(obj, Service):
+            cls = BaseService.get_cls(obj.script)
+
+        if cls is None:
+            return
+
+        args = json.loads(obj.args)
+        kwargs = json.loads(obj.kwargs)
+        instance = cls(self.system)
+        asyncio_task = asyncio.ensure_future(instance.run(*args, **kwargs))
+        self._processes.append((obj, asyncio_task))
 
         await self.system.persistence.insert(
             Process, {
-                'pid': process.pid,
                 'type': int(ProcessType.TASK) if isinstance(obj, Task) else int(ProcessType.JOB) if isinstance(obj, Job) else int(ProcessType.SERVICE),
                 'info_id': obj.id,
                 'started_at': datetime.datetime.now()
@@ -104,23 +114,13 @@ class ProcessModule(Module):
 
     async def _runner_loop(self):
         while True:
-            ended_processes = list(filter(lambda x: x[1].returncode is not None, self._processes))
-            for info, process in ended_processes:
-                if process.returncode == 0:
-                    await self.events['on_end'].fire(info)
-                if process.returncode != 0:
-                    await self.events['on_error'].fire(info)
+            await asyncio.wait([x[1] for x in self._processes], timeout=0.1)
 
-            self._processes = list(filter(lambda x: x[1].returncode is None, self._processes))
-            for info, process in self._processes:
-                ret = process.poll()
-                if ret is None:
-                    continue
-
-                for c in iter(process.stdout.read, b''):
-                    print(c)
-                for c in iter(process.stderr.read, b''):
-                    print(c)
+            for obj, process in self._processes:
+                if process.done() and process.exception() is None:
+                    await self.events['on_end'].fire(obj)
+                if process.done() and process.exception() is not None:
+                    await self.events['on_error'].fire(obj)
 
             await asyncio.sleep(0.1)
 
@@ -144,10 +144,6 @@ class ProcessModule(Module):
     async def start(self):
         processes = await self.list()
         for process in processes:
-            try:
-                os.kill(process.pid, 9)
-            except ProcessLookupError:
-                ...
             await self.system.persistence.delete(Process, {'id': process.id})
 
         self.events['on_start'] += self._on_start
@@ -157,9 +153,10 @@ class ProcessModule(Module):
         self._runner = asyncio.create_task(self._runner_loop())
 
     async def shutdown(self):
-        processes = await self.list()
-        for process in processes:
-            os.kill(process.pid, 9)
+        for obj, process in self._processes:
+            if process.done():
+                continue
+            process.cancel()
 
         await asyncio.sleep(1)
 
