@@ -60,6 +60,9 @@ class ProcessModule(Module):
         self._runner = None
 
     async def _on_start(self, obj):
+        # might want to use Future
+        # might want to use Thread
+        # might want to use Process
         process = subprocess.Popen([sys.executable, obj.script] + obj.arguments.split(' '), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self._processes.append((obj, process))
 
@@ -139,6 +142,14 @@ class ProcessModule(Module):
         ...
 
     async def start(self):
+        processes = await self.list()
+        for process in processes:
+            try:
+                os.kill(process.pid, 9)
+            except ProcessLookupError:
+                ...
+            await self.system.persistence.delete(Process, {'id': process.id})
+
         self.events['on_start'] += self._on_start
         self.events['on_end'] += self._on_end
         self.events['on_error'] += self._on_error
