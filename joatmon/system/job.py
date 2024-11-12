@@ -1,5 +1,10 @@
 import asyncio
 import datetime
+import importlib.util
+import inspect
+import json
+import os
+import sys
 import uuid
 
 from joatmon.core.event import AsyncEvent
@@ -15,6 +20,27 @@ class JobException(CoreException):
     ...
 
 
+class BaseJob:
+    def __init__(self, system):
+        ...
+
+    @staticmethod
+    def get_cls(path):
+        module_name = os.path.abspath(path).split(os.sep)[-1].split('.')[0]
+
+        spec = importlib.util.spec_from_file_location(module_name, path)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[module_name] = module
+        spec.loader.exec_module(module)
+
+        classes = inspect.getmembers(module, inspect.isclass)
+        cls = list(filter(lambda x: issubclass(x[1], BaseJob) and x[1] is not BaseJob, classes))[0][1]
+        return cls
+
+    async def run(self, *args, **kwargs):
+        raise NotImplementedError
+
+
 class Job(Meta):
     __collection__ = 'job'
 
@@ -27,7 +53,8 @@ class Job(Meta):
     priority = Field(int, nullable=False, default=10)
     interval = Field(int, nullable=False, default=60 * 60 * 24)
     script = Field(str, nullable=False)
-    arguments = Field(str, nullable=False, default='')
+    args = Field(str, nullable=False, default='[]')
+    kwargs = Field(str, nullable=False, default='{}')
     created_at = Field(datetime.datetime, nullable=False, default=datetime.datetime.now)
     updated_at = Field(datetime.datetime, nullable=False, default=datetime.datetime.now)
     last_run_time = Field(datetime.datetime, nullable=True)
@@ -69,7 +96,7 @@ class JobModule(Module):
 
             await asyncio.sleep(0.1)
 
-    async def create(self, name, description, priority, interval, script: str, arguments):
+    async def create(self, name, description, priority, interval, script: str, *args, **kwargs):
         job = await first_async(self.system.persistence.read(Job, {'name': name}))
 
         script = self.system.file_system._get_host_path(script)  # full path or task name
@@ -90,7 +117,8 @@ class JobModule(Module):
                     'priority': priority,
                     'interval': interval,
                     'script': script,
-                    'arguments': arguments,
+                    'args': json.dumps(args),
+                    'kwargs': json.dumps(kwargs)
                 }
             )
         else:
@@ -101,7 +129,8 @@ class JobModule(Module):
                     'priority': priority,
                     'interval': interval,
                     'script': script,
-                    'arguments': arguments,
+                    'args': json.dumps(args),
+                    'kwargs': json.dumps(kwargs)
                 }
             )
 

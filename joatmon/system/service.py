@@ -1,4 +1,9 @@
 import datetime
+import importlib.util
+import inspect
+import json
+import os
+import sys
 import uuid
 
 from joatmon.core.event import AsyncEvent
@@ -14,6 +19,27 @@ class ServiceException(CoreException):
     ...
 
 
+class BaseService:
+    def __init__(self, system):
+        ...
+
+    @staticmethod
+    def get_cls(path):
+        module_name = os.path.abspath(path).split(os.sep)[-1].split('.')[0]
+
+        spec = importlib.util.spec_from_file_location(module_name, path)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[module_name] = module
+        spec.loader.exec_module(module)
+
+        classes = inspect.getmembers(module, inspect.isclass)
+        cls = list(filter(lambda x: issubclass(x[1], BaseService) and x[1] is not BaseService, classes))[0][1]
+        return cls
+
+    async def run(self, *args, **kwargs):
+        raise NotImplementedError
+
+
 class Service(Meta):
     __collection__ = 'service'
 
@@ -27,7 +53,8 @@ class Service(Meta):
     mode = Field(str, nullable=False, default='manual')
     retry = Field(int, nullable=True)
     script = Field(str, nullable=False)
-    arguments = Field(str, nullable=False, default='')
+    args = Field(str, nullable=False, default='[]')
+    kwargs = Field(str, nullable=False, default='{}')
     created_at = Field(datetime.datetime, nullable=False, default=datetime.datetime.now)
     updated_at = Field(datetime.datetime, nullable=False, default=datetime.datetime.now)
 
@@ -55,7 +82,7 @@ class ServiceModule(Module):
         if service.retry:
             await self.run(service.id)
 
-    async def create(self, name, description, priority, mode, script: str, arguments):
+    async def create(self, name, description, priority, mode, script: str, *args, **kwargs):
         service = await first_async(self.system.persistence.read(Service, {'name': name}))
 
         script = self.system.file_system._get_host_path(script)
@@ -76,7 +103,8 @@ class ServiceModule(Module):
                     'priority': priority,
                     'mode': mode,
                     'script': script,
-                    'arguments': arguments,
+                    'args': json.dumps(args),
+                    'kwargs': json.dumps(kwargs)
                 }
             )
         else:
@@ -87,7 +115,8 @@ class ServiceModule(Module):
                     'priority': priority,
                     'mode': mode,
                     'script': script,
-                    'arguments': arguments,
+                    'args': json.dumps(args),
+                    'kwargs': json.dumps(kwargs)
                 }
             )
 
