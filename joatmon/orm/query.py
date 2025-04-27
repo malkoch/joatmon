@@ -150,14 +150,14 @@ class Dialects(Enum):
         MSSQL (str): Microsoft SQL Server.
         MYSQL (str): MySQL.
         POSTGRESQL (str): PostgreSQL.
-        SQLLITE (str): SQLite.
+        SQLITE (str): SQLite.
         MONGO (str): MongoDB.
     """
 
     MSSQL = 'mssql'
     MYSQL = 'mysql'
-    POSTGRESQL = 'postgressql'
-    SQLLITE = 'sqllite'
+    POSTGRESQL = 'postgresql'
+    SQLITE = 'sqlite'
     MONGO = 'mongo'
 
 
@@ -378,6 +378,7 @@ class BasicCriteria(Criterion):
                 ret[self.left.build(dialect)] = {'$eq': self.right.build(dialect)}
             print(ret)
             return ret
+        return None
 
 
 class ComplexCriteria(Criterion):
@@ -429,6 +430,7 @@ class ComplexCriteria(Criterion):
                 ret['$and'] = [self.left.build(dialect), self.right.build(dialect)]
             print(ret)
             return ret
+        return None
 
 
 class ArithmeticExpression(Term):
@@ -495,6 +497,7 @@ class ArithmeticExpression(Term):
                 ret['$add'] = [self.left.build(dialect), self.right.build(dialect)]
             print(ret)
             return ret
+        return None
 
 
 class Column(Term):
@@ -527,6 +530,7 @@ class Column(Term):
         """
         if dialect == Dialects.POSTGRESQL:
             return f'{self._table.build(dialect)}."{self._name}"'
+        return None
 
 
 class Table:
@@ -601,6 +605,7 @@ class Table:
                 return f'"{self._name}"'
             else:
                 return f'{self._schema.build(dialect)}."{self._name}"'
+        return None
 
 
 class Schema:
@@ -663,6 +668,7 @@ class Schema:
         """
         if dialect == Dialects.POSTGRESQL:
             return f'{self._database.build(dialect)}."{self._name}"'
+        return None
 
 
 class Database:
@@ -722,6 +728,7 @@ class Database:
         """
         if dialect == Dialects.POSTGRESQL:
             return f'"{self._name}"'
+        return None
 
 
 class Count:
@@ -779,6 +786,8 @@ class Count:
                 return f'count(*) filter(where {self.column.build(dialect)})'
         if dialect == Dialects.MONGO:
             ...
+            return None
+        return None
 
 
 class Array:
@@ -853,6 +862,8 @@ class Array:
                 return f'count(*) filter(where {self.column[0].build(dialect)})'
         if dialect == Dialects.MONGO:
             ...
+            return None
+        return None
 
 
 class JSON:
@@ -946,6 +957,8 @@ class JSON:
                 return f'json_build_object({x})'
         if dialect == Dialects.MONGO:
             ...
+            return None
+        return None
 
 
 class Sum:
@@ -982,6 +995,8 @@ class Sum:
             return f'sum({self.column._table._name}.{self.column._name})'
         if dialect == Dialects.MONGO:
             ...
+            return None
+        return None
 
 
 class Query:
@@ -1231,3 +1246,4 @@ class Query:
                 ret.append({'$project': {table_selects[0].build(dialect): 1}})
 
             return ret
+        return None

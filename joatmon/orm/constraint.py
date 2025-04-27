@@ -45,6 +45,7 @@ class Constraint(Serializable):
             return UniqueConstraint(**kwargs)
         if constraint_type == 'custom':
             return CustomConstraint(**kwargs)
+        return None
 
     def check(self, obj):
         """
