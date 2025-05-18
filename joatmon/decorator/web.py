@@ -145,13 +145,14 @@ def outgoing(case):
     return _decorator
 
 
-def ip_limit(interval, cache, ip):
+def ip_limited(amount, interval, cache, ip):
     """
     Decorator for limiting requests per IP.
 
     This decorator retrieves the cache and the IP from the context. It limits the number of requests from the IP to one per specified interval.
 
     Args:
+        amount:
         interval (int): The interval in seconds between requests.
         cache (str): The name of the cache in the context.
         ip (str): The name of the IP in the context.
@@ -168,9 +169,15 @@ def ip_limit(interval, cache, ip):
 
             key = f'limit_request:{func.__qualname__}:{ip_value}'
 
-            if await c.get(key) is not None:
-                raise CoreException('too_many_request')
-            await c.add(key, 1, duration=interval)
+            value = await c.get(key)
+            if value is not None:
+                value = int(value)
+                if value >= amount:
+                    raise CoreException('too_many_request')
+
+                await c.update(key, value + 1)
+            else:
+                await c.add(key, 1, duration=interval)
 
             response = await func(*args, **kwargs)
             return response
@@ -181,13 +188,14 @@ def ip_limit(interval, cache, ip):
     return _decorator
 
 
-def limit(interval, cache):
+def resource_limited(amount, interval, cache):
     """
     Decorator for limiting requests.
 
     This decorator retrieves the cache from the context. It limits the number of requests to one per specified interval.
 
     Args:
+        amount:
         interval (int): The interval in seconds between requests.
         cache (str): The name of the cache in the context.
 
@@ -202,10 +210,15 @@ def limit(interval, cache):
 
             key = f'limit_request:{func.__qualname__}'
 
-            if await c.get(key) is not None:
-                raise CoreException('too_many_request')
+            value = await c.get(key)
+            if value is not None:
+                value = int(value)
+                if value >= amount:
+                    raise CoreException('too_many_request')
 
-            await c.add(key, 1, duration=interval)
+                await c.update(key, value + 1)
+            else:
+                await c.add(key, 1, duration=interval)
 
             response = await func(*args, **kwargs)
             return response

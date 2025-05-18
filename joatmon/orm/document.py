@@ -48,7 +48,6 @@ class Document(Serializable):  # need to have copy and deepcopy functions as wel
         """
         # if value is callable, get the value first
         # then use converter to get the value
-
         if key not in self.__metaclass__.fields(self.__metaclass__).keys():
             self.__dict__[key] = value
             return

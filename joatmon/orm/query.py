@@ -1072,7 +1072,7 @@ class Query:
         Adds columns to the projection of the query.
 
         Args:
-            *terms (Term): The terms to include in the projection.
+            *terms (object): The terms to include in the projection.
 
         Returns:
             Query: The current query instance.
@@ -1099,7 +1099,7 @@ class Query:
 
         Args:
             table (Table): The table to join.
-            term (Term): The condition of the join.
+            term (object): The condition of the join.
 
         Returns:
             Query: The current query instance.
@@ -1113,7 +1113,7 @@ class Query:
 
         Args:
             table (Table): The table to join.
-            term (Term): The condition of the join.
+            term (object): The condition of the join.
 
         Returns:
             Query: The current query instance.
@@ -1126,7 +1126,7 @@ class Query:
         Adds a condition to the query.
 
         Args:
-            term (Term): The condition to add.
+            term (object): The condition to add.
 
         Returns:
             Query: The current query instance.
@@ -1155,7 +1155,7 @@ class Query:
         Adds terms to the sorting of the query.
 
         Args:
-            *terms (Term): The terms to include in the sorting.
+            *terms (object): The terms to include in the sorting.
 
         Returns:
             Query: The current query instance.
@@ -1200,22 +1200,14 @@ class Query:
 
             if depth >= 0:
                 sql += '('
-            sql += (
-                    'select ' + ', '.join([x.build(dialect, depth + 1) + ' as ' + x.alias for x in self.projection]) + '\n'
-            )
+            sql += 'select ' + ', '.join([x.build(dialect, depth + 1) + ' as ' + x.alias for x in self.projection]) + '\n'
 
             if len(self.tables) == 0:
                 raise ValueError('from clause cannot be empty')
             sql += 'from ' + ', '.join([x.build(dialect) for x in self.tables]) + '\n'
 
             if len(self.joins) > 0:
-                for join in self.joins:
-                    jtype, jtable, condition = join
-
-                    sql += (
-                            f'{jtype} join {jtable.build(dialect) if not isinstance(jtable, Query) else jtable.as_table().build(dialect)} on {condition.build(dialect)}'
-                            + '\n'
-                    )
+                sql += '\n'.join([f'{jtype} join {jtable.build(dialect) if not isinstance(jtable, Query) else jtable.as_table().build(dialect)} on {condition.build(dialect)}' for (jtype, jtable, condition) in self.joins]) + '\n'
 
             if self.condition is not None:
                 sql += 'where ' + self.condition.build(dialect) + '\n'

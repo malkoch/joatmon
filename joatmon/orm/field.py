@@ -40,6 +40,7 @@ class Field(Serializable):
         self.primary = primary
         self.hash_ = hash_
         self.fields = fields or {}
+        self.name = None
 
         if resource:
             self.resource = '{{@resource.{0}}}'
@@ -51,6 +52,9 @@ class Field(Serializable):
             self.default = lambda: default
         else:
             self.default = default
+
+    def named(self, name):
+        self.name = name
 
 
 def get_converter(field: Field):
