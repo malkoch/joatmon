@@ -61,7 +61,7 @@ class RedisCache(CachePlugin):
             key (str): The key of the item to be updated.
             value (str): The new value of the item.
         """
-        self.connection.set(key, value)
+        self.connection.set(key, value, keepttl=True)
 
     async def remove(self, key):
         """

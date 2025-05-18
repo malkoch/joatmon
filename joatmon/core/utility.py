@@ -788,6 +788,8 @@ class JSONEncoder(json.JSONEncoder):
         Returns:
             Any: A serializable object.
         """
+        if isinstance(obj, type):
+            return str(obj)
         if isinstance(obj, (datetime, date, time)):
             return obj.isoformat()
         if isinstance(obj, timedelta):
