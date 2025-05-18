@@ -1,6 +1,5 @@
 import asyncio
 from datetime import datetime
-from pydoc import locate
 from uuid import UUID
 
 from joatmon.core import context
@@ -17,15 +16,10 @@ from joatmon.orm.document import (
 from joatmon.orm.field import Field
 from joatmon.orm.meta import Meta
 from joatmon.plugin.core import register
-from joatmon.plugin.database.mongo import MongoDatabase
 from joatmon.plugin.database.postgresql import PostgreSQLDatabase
-from joatmon.plugin.migration.postgresql import PostgreSQLMigration
 
 
-register(MongoDatabase, 'history', 'mongodb://10.2.7.202:27017,10.2.7.202:27018,10.2.7.202:27019/?replicaSet=rs0', 'appyfany')
 register(PostgreSQLDatabase, 'database', '10.2.7.202', 5432, 'postgres', '', 'appyfany')
-
-register(PostgreSQLMigration, 'migrator', 'history', 'database')
 
 
 def get_current_user_id():
@@ -60,12 +54,9 @@ DAttributeType = create_new_type(DAttributeType, (Document,))
 
 
 async def initialize():
-    migrator = context.get_value('migrator')
-    await migrator.create(DAttributeType)
-    await migrator.execute(DAttributeType)
-
-    print(locate('datetime.datetime'))
-    print(locate('uuid.UUID'))
+    database = context.get_value('database')
+    await database.alter(DAttributeType)
+    await database.insert(DAttributeType, {'code': 1, 'name': 'Basic', 'description': 'Basic'})
 
 
 asyncio.run(initialize())

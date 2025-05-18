@@ -24,14 +24,14 @@ class Field(Serializable):
     """
 
     def __init__(
-            self,
-            dtype: typing.Union[type, typing.List, typing.Tuple],
-            nullable: bool = True,
-            default=None,
-            primary: bool = False,
-            hash_: bool = False,
-            resource: bool = False,
-            fields: dict = None,
+        self,
+        dtype: typing.Union[type, typing.List, typing.Tuple],
+        nullable: bool = True,
+        default=None,
+        primary: bool = False,
+        hash_: bool = False,
+        resource: bool = False,
+        fields: dict = None,
     ):
         super(Field, self).__init__()
 
@@ -40,7 +40,7 @@ class Field(Serializable):
         self.primary = primary
         self.hash_ = hash_
         self.fields = fields or {}
-        self.name = None
+        self.names = []
 
         if resource:
             self.resource = '{{@resource.{0}}}'
@@ -53,8 +53,16 @@ class Field(Serializable):
         else:
             self.default = default
 
-    def named(self, name):
-        self.name = name
+    def rename(self, name):
+        self.names.append(f'{"" if self.name is None else self.name}->{name}')
+        return self
+
+    @property
+    def name(self):
+        if not len(self.names):
+            return None
+
+        return self.names[-1].split('->')[1]
 
 
 def get_converter(field: Field):
