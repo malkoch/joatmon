@@ -1,8 +1,10 @@
 import datetime
-import json
 
+from joatmon.core import context
+from joatmon.core.serializable import Serializable
 from joatmon.core.utility import (
-    JSONEncoder
+    to_enumerable,
+    to_list_async
 )
 from joatmon.plugin.migration.core import (
     Migration,
@@ -11,8 +13,9 @@ from joatmon.plugin.migration.core import (
 
 
 class PostgreSQLMigration(MigrationPlugin):
-    def __init__(self, db):
-        self.db = db
+    def __init__(self, history, database):
+        self.history = history
+        self.database = database
 
     async def create(self, document):
         collection = document.__metaclass__
@@ -20,15 +23,28 @@ class PostgreSQLMigration(MigrationPlugin):
         definition = Migration(
             **{
                 'table': collection.__collection__,
-                'columns': json.dumps(collection.fields(collection).values(), cls=JSONEncoder),
-                'datetime': datetime.datetime.now()
+                'columns': [{'property': name, 'field': to_enumerable(field)} for name, field in collection.fields(collection).items()],
+                'datetime': datetime.datetime.now(),
+                'applied': False
             }
         )
-        print(definition)
+
+        print(Serializable.from_json(definition.json))
+
+        db = context.get_value(self.history)
+        await db.insert(Migration, Serializable.from_json(definition.json))
 
 
     async def drop(self, document):
-        raise NotImplementedError
+        db = context.get_value(self.history)
+        history = await to_list_async(db.read(Migration, {'table': document.__metaclass__.__collection__, 'applied': False}))
+
+        for migration in history:
+            await db.delete(Migration, migration.object_id)
 
     async def execute(self, document):
-        raise NotImplementedError
+        db = context.get_value(self.history)
+        history = await to_list_async(db.read(Migration, {'table': document.__metaclass__.__collection__, 'applied': False}))
+
+        for migration in history:
+            await db.update(Migration, {'object_id': migration.object_id}, {'applied': True})

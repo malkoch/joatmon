@@ -134,12 +134,8 @@ class Document(Serializable):  # need to have copy and deepcopy functions as wel
                 raise ValueError(f'field {name} is not nullable')
 
             if isinstance(field.dtype, (tuple, list)):
-                if ((value is not None and field.nullable) or not field.nullable) and not isinstance(
-                        value, field.dtype
-                ):
-                    raise ValueError(
-                        f'field {name} has to be one of the following {field.dtype} not {type(value).__name__}'
-                    )
+                if ((value is not None and field.nullable) or not field.nullable) and not isinstance(value, field.dtype):
+                    raise ValueError(f'field {name} has to be one of the following {field.dtype} not {type(value).__name__}')
             else:
                 if ((value is not None and field.nullable) or not field.nullable) and type(value) is not field.dtype:
                     raise ValueError(f'field {name} has to be type {field.dtype} not {type(value).__name__}')
