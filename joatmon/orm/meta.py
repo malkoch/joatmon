@@ -1,10 +1,10 @@
 import inspect
 import typing
 
+from joatmon.core.utility import get_converter
 from joatmon.orm.constraint import Constraint
 from joatmon.orm.field import Field
 from joatmon.orm.index import Index
-from joatmon.core.utility import get_converter
 
 
 class Meta(type):
@@ -38,6 +38,20 @@ class Meta(type):
             Meta: A new instance of the Meta class.
         """
         return super().__new__(mcs, name, bases, dct)
+
+    def validate(cls):
+        field_names = set()
+
+        for field_name, field in cls.fields(cls).items():
+            if field_name in field_names:
+                raise ValueError(f'field {field_name} is duplicated')
+            field_names.add(field_name)
+
+            for name in field.names:
+                prev, new = name.split('->')
+                if new in field_names:
+                    raise ValueError(f'field {new} is duplicated')
+                field_names.add(new)
 
     def fields(cls, predicate=lambda x: True) -> typing.Dict[str, Field]:
         """

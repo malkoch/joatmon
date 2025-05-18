@@ -1,6 +1,6 @@
+from joatmon.core.serializable import Serializable
 from joatmon.orm.field import get_converter
 from joatmon.orm.meta import Meta
-from joatmon.core.serializable import Serializable
 
 
 class Document(Serializable):  # need to have copy and deepcopy functions as well
@@ -54,7 +54,7 @@ class Document(Serializable):  # need to have copy and deepcopy functions as wel
 
         field = self.__metaclass__.fields(self.__metaclass__)[key]
         # self.__dict__[key] = get_converter(field.dtype)(value)
-        self.__dict__[key] = get_converter(field)(value)
+        self.__dict__[key] = get_converter(field)(value)  # need to check if the field is list, tuple, object or dictionary
 
     def __len__(self):
         """
@@ -133,9 +133,10 @@ class Document(Serializable):  # need to have copy and deepcopy functions as wel
             if value is None and not field.nullable:
                 raise ValueError(f'field {name} is not nullable')
 
-            if isinstance(field.dtype, (tuple, list)):
+            if isinstance(field.dtype, (tuple, list)):  # need to check every value in the list and validate
                 if ((value is not None and field.nullable) or not field.nullable) and not isinstance(value, field.dtype):
                     raise ValueError(f'field {name} has to be one of the following {field.dtype} not {type(value).__name__}')
+            # elif isinstance(field.dtype, dict):  # need to check every key-value pair in the dictionary and validate
             else:
                 if ((value is not None and field.nullable) or not field.nullable) and type(value) is not field.dtype:
                     raise ValueError(f'field {name} has to be type {field.dtype} not {type(value).__name__}')
@@ -163,4 +164,5 @@ def create_new_type(meta, subclasses):
     Returns:
         type: The new type.
     """
+    meta.validate(meta)
     return type(meta.__name__, subclasses, {'__metaclass__': meta})

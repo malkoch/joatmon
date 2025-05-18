@@ -88,9 +88,7 @@ class PostgreSQLDatabase(DatabasePlugin):
 
         fields = []
         for field_name, field in collection.fields(collection).items():
-            fields.append(
-                f'{field_name} {get_type(field.dtype)} {"" if field.nullable else "not null"} {"primary key" if field.primary else ""}'
-            )
+            fields.append(f'{field_name} {get_type(field.dtype)} {"" if field.nullable else "not null"} {"primary key" if field.primary else ""}')
         sql = f'create table {collection.__collection__} (\n' + ',\n'.join(fields) + '\n);'
 
         cursor = self.connection.cursor()
@@ -107,9 +105,61 @@ class PostgreSQLDatabase(DatabasePlugin):
             if index_name in index_names:
                 continue
             index_names.add(index_name)
-            cursor.execute(
-                f'create {"unique" if isinstance(index, UniqueConstraint) else ""} index {collection.__collection__}_{index_name} on {collection.__collection__} ({c})'
-            )
+            cursor.execute(f'create {"unique" if isinstance(index, UniqueConstraint) else ""} index {collection.__collection__}_{index_name} on {collection.__collection__} ({c})')
+
+    async def _update_collection(self, collection):
+        cursor = self.connection.cursor()
+
+        doc_fields = collection.fields(collection).items()
+
+        # check column rename
+
+        # instead of this, loop through document fields
+        # check for all field names in the document fields
+        # if they exist in the database rename them into new name
+        cursor.execute(f'select table_name, column_name from information_schema.columns where table_name = \'{collection.__collection__}\';')
+        for table, column in cursor.fetchall():
+            for name, field in doc_fields:
+                if column == (field.name or name):
+                    continue
+
+                if column != name and column not in list(map(lambda x: name if x.split('->')[0] == '' else x.split('->')[0], field.names)):
+                    continue
+
+                if column != name:
+                    cursor.execute(f'alter table {collection.__collection__} rename column {column} to {name}')
+                else:
+                    cursor.execute(f'alter table {collection.__collection__} rename column {column} to {field.name or name}')
+
+        """alter table d_attribute_type rename id to object_id;"""
+        # check column drop
+        # check column add
+
+        # check column types
+
+        # check primary key
+        """alter table d_attribute_type drop constraint d_attribute_type_pkey;"""
+        f"""
+        select conname, attname
+        from pg_index, pg_attribute, pg_constraint
+        where attrelid = indrelid and
+              indrelid = conrelid and
+              attnum = any(indkey) and
+              indisprimary and
+              indrelid = '{collection.__collection__}'::regclass;
+        """
+        """alter table d_attribute_type add primary key (object_id);"""
+
+        # check constraints
+        # check indexes
+
+        cursor = self.connection.cursor()
+        cursor.execute(f'select tablename, indexname from pg_indexes where tablename = \'{collection.__collection__}\';')
+
+        for table_name, index_name in cursor.fetchall():
+            ...
+
+        db_indexes = []
 
     async def _create_view(self, collection):
         """
@@ -150,11 +200,12 @@ class PostgreSQLDatabase(DatabasePlugin):
         Alter an existing document in the PostgreSQL database.
 
         Args:
-            document (dict): The document to be altered.
+            document (Document): The document to be altered.
 
         Raises:
             NotImplementedError: This method should be implemented in the child classes.
         """
+        await self._update_collection(document.__metaclass__)
 
     async def drop(self, document):
         """
@@ -192,7 +243,7 @@ class PostgreSQLDatabase(DatabasePlugin):
                 keys = []
                 values = []
                 for field_name, field in fields.items():
-                    keys.append(field_name)
+                    keys.append(field.name or field_name)
 
                     if dictionary[field_name] is None:
                         values.append('null')
@@ -238,9 +289,9 @@ class PostgreSQLDatabase(DatabasePlugin):
             keys = []
             values = []
             for k, v in kwargs.items():
-                keys.append(k)
-
                 field = fields[k]
+
+                keys.append(field.name or k)
 
                 field_value = get_converter(field.dtype)(kwargs[k])
 
@@ -286,9 +337,9 @@ class PostgreSQLDatabase(DatabasePlugin):
             keys = []
             values = []
             for k, v in kwargs.items():
-                keys.append(k)
-
                 field = fields[k]
+
+                keys.append(field.name or k)
 
                 field_value = get_converter(field.dtype)(kwargs[k])
 
@@ -311,9 +362,9 @@ class PostgreSQLDatabase(DatabasePlugin):
             keys = []
             values = []
             for k, v in kwargs.items():
-                keys.append(k)
-
                 field = fields[k]
+
+                keys.append(field.name or k)
 
                 field_value = get_converter(field.dtype)(kwargs[k])
 
@@ -353,9 +404,9 @@ class PostgreSQLDatabase(DatabasePlugin):
             keys = []
             values = []
             for k, v in kwargs.items():
-                keys.append(k)
-
                 field = fields[k]
+
+                keys.append(field.name or k)
 
                 field_value = get_converter(field.dtype)(kwargs[k])
 
@@ -400,9 +451,9 @@ class PostgreSQLDatabase(DatabasePlugin):
             keys = []
             values = []
             for k, v in kwargs.items():
-                keys.append(k)
-
                 field = fields[k]
+
+                keys.append(field.name or k)
 
                 field_value = get_converter(field.dtype)(kwargs[k])
 
