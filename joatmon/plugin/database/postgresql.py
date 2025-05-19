@@ -136,7 +136,7 @@ class PostgreSQLDatabase(DatabasePlugin):
             if len(cursor.fetchall()) == 0:
                 # instead of setting default value
                 # add as null, update the whole table and then set to not null
-                cursor.execute(f'alter table {collection.__collection__} add column {name} {get_type(field.dtype)} {"not null" if not field.nullable else ""} default {field.default()}')  # default value might be a function
+                cursor.execute(f'alter table {collection.__collection__} add column {name} {get_type(field.dtype)} {"not null" if not field.nullable else ""}')  # default value might be a function
 
         cursor.execute(
             f"""
