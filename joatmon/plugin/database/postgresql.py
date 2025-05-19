@@ -88,7 +88,7 @@ class PostgreSQLDatabase(DatabasePlugin):
 
         fields = []
         for field_name, field in collection.fields(collection).items():
-            fields.append(f'{field_name} {get_type(field.dtype)} {"" if field.nullable else "not null"} {"primary key" if field.primary else ""}')
+            fields.append(f'{field_name} {get_type(field.dtype)} {"" if field.nullable else "not null"} {"primary key" if field.primary else ""}')  # multiple field can be primary, need to add the constraint later on
         sql = f'create table {collection.__collection__} (\n' + ',\n'.join(fields) + '\n);'
 
         cursor = self.connection.cursor()
@@ -96,7 +96,7 @@ class PostgreSQLDatabase(DatabasePlugin):
         cursor.execute(sql)
 
         index_names = set()
-        for index_name, index in collection.constraints(collection).items():
+        for index_name, index in collection.constraints(collection).items():  # need to loop through indexes as well
             if ',' in index.field:
                 index_fields = list(map(lambda x: x.strip(), index.field.split(',')))
             else:
@@ -108,58 +108,96 @@ class PostgreSQLDatabase(DatabasePlugin):
             cursor.execute(f'create {"unique" if isinstance(index, UniqueConstraint) else ""} index {collection.__collection__}_{index_name} on {collection.__collection__} ({c})')
 
     async def _update_collection(self, collection):
+        def get_type(dtype: type):
+            type_mapper = {
+                datetime: 'timestamp without time zone',
+                int: 'integer',
+                float: 'real',
+                str: 'varchar',
+                bool: 'boolean',
+                uuid.UUID: 'uuid',
+            }
+
+            return type_mapper.get(dtype, None)
+
         cursor = self.connection.cursor()
 
         doc_fields = collection.fields(collection).items()
+        doc_indexes = collection.indexes(collection).items()
+        doc_constraints = collection.constraints(collection).items()
 
-        # check column rename
+        cursor.execute(f'select table_name, column_name, data_type from information_schema.columns where table_name = \'{collection.__collection__}\';')
 
-        # instead of this, loop through document fields
-        # check for all field names in the document fields
-        # if they exist in the database rename them into new name
-        cursor.execute(f'select table_name, column_name from information_schema.columns where table_name = \'{collection.__collection__}\';')
-        for table, column in cursor.fetchall():
-            for name, field in doc_fields:
-                if column == (field.name or name):
-                    continue
+        for table, column, _ in cursor.fetchall():
+            if column in list(map(lambda x: x[1].name or x[0], doc_fields)):
+                continue
 
-                if column != name and column not in list(map(lambda x: name if x.split('->')[0] == '' else x.split('->')[0], field.names)):
-                    continue
+            if column in sum(list(map(lambda x: [x[0]] + list(map(lambda y: y.split('->')[0], x[1].names)), doc_fields)), []):
+                cursor.execute(f'alter table {collection.__collection__} rename column {column} to {list(filter(lambda x: column in [x[0]] + list(map(lambda y: y.split("->")[0], x[1].names)), doc_fields))[0][1].name}')
+                continue
 
-                if column != name:
-                    cursor.execute(f'alter table {collection.__collection__} rename column {column} to {name}')
-                else:
-                    cursor.execute(f'alter table {collection.__collection__} rename column {column} to {field.name or name}')
+            if column in list(map(lambda x: x[1].name, doc_fields)):
+                continue
 
-        """alter table d_attribute_type rename id to object_id;"""
-        # check column drop
-        # check column add
+            cursor.execute(f'alter table {collection.__collection__} drop column {column}')
 
-        # check column types
+        for field_name, field in doc_fields:
+            name = field.name or field_name
 
-        # check primary key
-        """alter table d_attribute_type drop constraint d_attribute_type_pkey;"""
-        f"""
-        select conname, attname
-        from pg_index, pg_attribute, pg_constraint
-        where attrelid = indrelid and
-              indrelid = conrelid and
-              attnum = any(indkey) and
-              indisprimary and
-              indrelid = '{collection.__collection__}'::regclass;
-        """
-        """alter table d_attribute_type add primary key (object_id);"""
+            cursor.execute(f'select table_name, column_name, data_type from information_schema.columns where table_name = \'{collection.__collection__}\' and column_name = \'{name}\';')
+            if len(cursor.fetchall()) == 0:
+                cursor.execute(f'alter table {collection.__collection__} add column {name} {get_type(field.dtype)} {"not null" if not field.nullable else ""} default {field.default()}')  # default value might be a function
 
-        # check constraints
-        # check indexes
+        cursor.execute(
+            f"""
+            select conname, attname
+            from pg_index, pg_attribute, pg_constraint
+            where attrelid = indrelid and
+                  indrelid = conrelid and
+                  attnum = any(indkey) and
+                  indisprimary and
+                  indrelid = '{collection.__collection__}'::regclass;
+            """
+        )
+        pk_name, pk_field = cursor.fetchone()  # primary key might be multiple column
+        if pk_name and pk_field and pk_field not in list(map(lambda x: x[1].name or x[0], list(filter(lambda x: x[1].primary, doc_fields)))):
+            cursor.execute(f'alter table {collection.__collection__} drop constraint {pk_name}')
 
-        cursor = self.connection.cursor()
-        cursor.execute(f'select tablename, indexname from pg_indexes where tablename = \'{collection.__collection__}\';')
+        primaries = list(filter(lambda x: x[1].primary, doc_fields))
+        if len(primaries) == 1 and (primaries[0][1].name or primaries[0][0]) != pk_field:
+            primary = primaries[0]
+            cursor.execute(f'alter table {collection.__collection__} add primary key ({primary[1].name or primary[0]})')
 
-        for table_name, index_name in cursor.fetchall():
-            ...
+        cursor.execute(
+            f"""
+            select indexname from pg_indexes where tablename = '{collection.__collection__}'
+            and indexname not in (
+                select conname
+                from pg_index, pg_attribute, pg_constraint
+                where attrelid = indrelid and
+                    indrelid = conrelid and
+                    attnum = any(indkey) and
+                    indisprimary and
+                    indrelid = '{collection.__collection__}'::regclass
+            );
+            """
+        )
+        for index_name, in cursor.fetchall():
+            if index_name in list(map(lambda x: x[0], doc_constraints)):
+                continue
+            cursor.execute(f'drop index {index_name}')
 
-        db_indexes = []
+        index_names = set()
+        for index_name, index in doc_constraints:
+            if ',' in index.field:
+                index_fields = list(map(lambda x: x.strip(), index.field.split(',')))
+            else:
+                index_fields = [index.field]
+            c = ', '.join(index_fields)
+            if index_name in index_names:
+                continue
+            index_names.add(index_name)
+            cursor.execute(f'create {"unique" if isinstance(index, UniqueConstraint) else ""} index {collection.__collection__}_{index_name} on {collection.__collection__} ({c})')
 
     async def _create_view(self, collection):
         """
