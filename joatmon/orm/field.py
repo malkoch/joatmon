@@ -54,13 +54,20 @@ class Field(Serializable):
             self.default = default
 
     def rename(self, name):
-        self.names.append(f'{"" if self.name is None else self.name}->{name}')
+        self.names.append(f'{self.name}->{name}')
         return self
+
+    @property
+    def prev_name(self):
+        if not len(self.names):
+            return ''
+
+        return self.names[-1].split('->')[0]
 
     @property
     def name(self):
         if not len(self.names):
-            return None
+            return ''
 
         return self.names[-1].split('->')[1]
 

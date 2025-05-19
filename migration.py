@@ -55,6 +55,7 @@ DAttributeType = create_new_type(DAttributeType, (Document,))
 
 async def initialize():
     database = context.get_value('database')
+    await database.create(DAttributeType)
     await database.alter(DAttributeType)
     await database.insert(DAttributeType, {'code': 1, 'name': 'Basic', 'description': 'Basic'})
 
