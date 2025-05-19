@@ -10,6 +10,19 @@ from joatmon.orm.query import Dialects
 from joatmon.plugin.database.core import DatabasePlugin
 
 
+def get_type(dtype: type):
+    type_mapper = {
+        datetime: 'timestamp without time zone',
+        int: 'integer',
+        float: 'real',
+        str: 'varchar',
+        bool: 'boolean',
+        uuid.UUID: 'uuid',
+    }
+
+    return type_mapper.get(dtype, None)
+
+
 class PostgreSQLDatabase(DatabasePlugin):
     """
     PostgreSQLDatabase class that inherits from the DatabasePlugin class. It implements the abstract methods of the DatabasePlugin class
@@ -73,19 +86,6 @@ class PostgreSQLDatabase(DatabasePlugin):
         Args:
             collection (Meta): The collection to be created.
         """
-
-        def get_type(dtype: type):
-            type_mapper = {
-                datetime: 'timestamp without time zone',
-                int: 'integer',
-                float: 'real',
-                str: 'varchar',
-                bool: 'boolean',
-                uuid.UUID: 'uuid',
-            }
-
-            return type_mapper.get(dtype, None)
-
         fields = []
         for field_name, field in collection.fields(collection).items():
             fields.append(f'{field_name} {get_type(field.dtype)} {"" if field.nullable else "not null"} {"primary key" if field.primary else ""}')  # multiple field can be primary, need to add the constraint later on
@@ -108,18 +108,6 @@ class PostgreSQLDatabase(DatabasePlugin):
             cursor.execute(f'create {"unique" if isinstance(index, UniqueConstraint) else ""} index {collection.__collection__}_{index_name} on {collection.__collection__} ({c})')
 
     async def _update_collection(self, collection):
-        def get_type(dtype: type):
-            type_mapper = {
-                datetime: 'timestamp without time zone',
-                int: 'integer',
-                float: 'real',
-                str: 'varchar',
-                bool: 'boolean',
-                uuid.UUID: 'uuid',
-            }
-
-            return type_mapper.get(dtype, None)
-
         cursor = self.connection.cursor()
 
         doc_fields = collection.fields(collection).items()
@@ -146,6 +134,8 @@ class PostgreSQLDatabase(DatabasePlugin):
 
             cursor.execute(f'select table_name, column_name, data_type from information_schema.columns where table_name = \'{collection.__collection__}\' and column_name = \'{name}\';')
             if len(cursor.fetchall()) == 0:
+                # instead of setting default value
+                # add as null, update the whole table and then set to not null
                 cursor.execute(f'alter table {collection.__collection__} add column {name} {get_type(field.dtype)} {"not null" if not field.nullable else ""} default {field.default()}')  # default value might be a function
 
         cursor.execute(
