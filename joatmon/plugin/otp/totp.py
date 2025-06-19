@@ -1,4 +1,8 @@
+import base64
+from io import BytesIO
+
 import pyotp
+import qrcode
 
 from joatmon.plugin.otp.core import OTP
 
@@ -26,7 +30,14 @@ class TOTP(OTP):
         Returns:
             str: The provisioning URI for the TOTP.
         """
-        return pyotp.totp.TOTP(secret).provisioning_uri(name=name, issuer_name=issuer)
+        uri = pyotp.totp.TOTP(secret).provisioning_uri(name=name, issuer_name=issuer)
+        qr = qrcode.QRCode(version=1, box_size=10, border=5)
+        qr.add_data(uri)
+        qr.make(fit=True)
+        img = qr.make_image(fill_color='black', back_color='white')
+        buffered = BytesIO()
+        img.save(buffered)
+        return base64.b64encode(buffered.getvalue()).decode("utf-8")
 
     async def verify(self, secret, otp):
         """

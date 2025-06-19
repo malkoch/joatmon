@@ -164,8 +164,21 @@ class DatabasePlugin(Plugin):
         execute a query on a document in the database.
 
         Args:
-            document (dict): The document to be queried.
-            query (dict): The query to be executed.
+            document (Document): The query to be executed.
+            query (object): The query to be executed.
+
+        Raises:
+            NotImplementedError: This method should be implemented in the child classes.
+        """
+        raise NotImplementedError
+
+    async def query(self, query):
+        """
+        This is an abstract method that should be implemented in the child classes. It is used to
+        query a document in the database.
+
+        Args:
+            query (Query): The query to be used for querying the document.
 
         Raises:
             NotImplementedError: This method should be implemented in the child classes.

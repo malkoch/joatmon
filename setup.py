@@ -48,7 +48,8 @@ extras = {
         'psycopg2',
         'confluent_kafka',
         'pika',
-        'pyotp'
+        'pyotp',
+        'qrcode'
     ],
     'structure': [],
     'system': [
