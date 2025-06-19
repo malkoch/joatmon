@@ -514,8 +514,8 @@ class PostgreSQLDatabase(DatabasePlugin):
         execute a query on a document in the database.
 
         Args:
-            document (dict): The document to be queried.
-            query (dict): The query to be executed.
+            document (Document): The query to be executed.
+            query (str): The query to be executed.
 
         Raises:
             NotImplementedError: This method should be implemented in the child classes.

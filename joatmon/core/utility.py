@@ -299,7 +299,20 @@ def to_hash(func, *args, **kwargs):
     args_str = ', '.join([f'{arg}' for arg in get_function_args(func, *args)])
     kwargs_str = ', '.join([f'{k}={v}' for k, v in get_function_kwargs(func, **kwargs).items()])
     arg_kwarg_str = ', '.join(filter(lambda x: x != '', [args_str, kwargs_str]))
-    return f'{func.__module__}.{func.__qualname__}({arg_kwarg_str})'
+
+    owner_class = None
+
+    if args:
+        maybe_self = args[0]
+        if inspect.isclass(maybe_self):
+            owner_class = maybe_self
+        else:
+            owner_class = maybe_self.__class__
+
+    if owner_class:
+        return f'{owner_class.__module__}.{owner_class.__name__}.{func.__name__}({arg_kwarg_str})'
+    else:
+        return f'{func.__module__}.{func.__qualname__}({arg_kwarg_str})'
 
 
 def get_converter(kind: type):

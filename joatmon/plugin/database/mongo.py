@@ -331,18 +331,26 @@ class MongoDatabase(DatabasePlugin):
             NotImplementedError: This method should be implemented in the child classes.
         """
 
-    async def execute(self, document, query):
+    async def execute(self, document, query, project=None, skip=0, limit=10):
         """
         This is an abstract method that should be implemented in the child classes. It is used to
         execute a query on a document in the database.
 
         Args:
-            document (dict): The document to be queried.
+            document (Document): The query to be executed.
             query (dict): The query to be executed.
+            project (dict): The query to be executed.
+            skip (int): The query to be executed.
+            limit (int): The query to be executed.
 
         Raises:
             NotImplementedError: This method should be implemented in the child classes.
         """
+        await self._ensure_collection(document.__metaclass__)
+        collection = await self._get_collection(document.__metaclass__.__collection__)
+        result = collection.find(query, project, session=self.session).skip(skip).limit(limit)
+        for r in result:
+            yield r
 
     async def count(self, query):
         """
