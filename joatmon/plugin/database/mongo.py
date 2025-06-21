@@ -14,6 +14,7 @@ from pymongo import (
 
 from joatmon.orm.constraint import (
     PrimaryKeyConstraint,
+    TTLConstraint,
     UniqueConstraint
 )
 from joatmon.orm.meta import normalize_kwargs
@@ -154,7 +155,20 @@ class MongoDatabase(DatabasePlugin):
                 continue
             index_names.add(index_name)
             try:
-                self.database[collection.__collection__].create_index(c, unique=True, name=index_name)
+                self.database[collection.__collection__].create_index(c, name=index_name, unique=True)
+            except Exception as ex:
+                print(str(ex))
+        for index_name, index in collection.constraints(collection, lambda x: isinstance(x, (TTLConstraint,))).items():
+            if ',' in index.field:
+                index_fields = list(map(lambda x: x.strip(), index.field.split(',')))
+            else:
+                index_fields = [index.field]
+            c = [(f'{k}', 1) for k in index_fields]
+            if index_name in index_names:
+                continue
+            index_names.add(index_name)
+            try:
+                self.database[collection.__collection__].create_index(c, name=index_name, expireAfterSeconds=index.ttl)
             except Exception as ex:
                 print(str(ex))
         for index_name, index in collection.indexes(collection).items():
@@ -349,8 +363,17 @@ class MongoDatabase(DatabasePlugin):
         """
         await self._ensure_collection(document.__metaclass__)
         collection = await self._get_collection(document.__metaclass__.__collection__)
-        result = collection.find(query, project, session=self.session).sort(sort).skip(skip).limit(limit)
-        for r in result:
+        if project:
+            cursor = collection.find(query, project, session=self.session)
+        else:
+            cursor = collection.find(query, session=self.session)
+        if sort:
+            cursor = cursor.sort(sort)
+        if skip:
+            cursor = cursor.skip(skip)
+        if limit:
+            cursor = cursor.limit(limit)
+        for r in cursor:
             yield r
 
     async def count(self, query):

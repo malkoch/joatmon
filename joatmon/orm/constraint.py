@@ -152,6 +152,19 @@ class UniqueConstraint(Constraint):
         super(UniqueConstraint, self).__init__(field)
 
 
+class TTLConstraint(Constraint):
+    """
+    Constraint that checks whether a field's value has a valid time-to-live (TTL).
+
+    Attributes:
+        ttl (int): The time-to-live in seconds.
+    """
+
+    def __init__(self, field, ttl):
+        super(TTLConstraint, self).__init__(field)
+        self.ttl = ttl
+
+
 class CustomConstraint(Constraint):
     """
     Constraint that checks whether a field's value satisfies a custom condition.
