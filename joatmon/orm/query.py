@@ -1,3 +1,5 @@
+import datetime
+import uuid
 from enum import Enum
 
 
@@ -269,7 +271,7 @@ class ValueWrapper:
             return 'true'
         elif self.value is False:
             return 'false'
-        elif isinstance(self.value, str):
+        elif isinstance(self.value, (str, datetime.datetime, uuid.UUID)):
             return f"'{self.value}'"
         return str(self.value)
 
@@ -318,7 +320,7 @@ class BasicCriteria(Criterion):
         self.left = left
         if right is None:
             right = ValueWrapper(right)
-        if isinstance(right, (bool, int, float, str)):
+        if isinstance(right, (bool, int, float, str, datetime.datetime, uuid.UUID)):
             right = ValueWrapper(right)
         self.right = right
 
@@ -999,6 +1001,82 @@ class Sum:
         return None
 
 
+class MIN:
+    """
+    Class representing a sum operation in SQL.
+
+    Attributes:
+        column (Column): The column to sum.
+    """
+
+    def __init__(self, column):
+        """
+        Initializes a new instance of the Sum class.
+
+        Args:
+            column (Column): The column to sum.
+        """
+        self.column = column
+
+    def build(self, dialect, depth=0):
+        """
+        Builds the SQL representation of the sum operation.
+
+        Args:
+            dialect (Dialects): The SQL dialect to use.
+            depth (int, optional): The depth of the query. Defaults to 0.
+
+        Returns:
+            str: The SQL representation of the sum operation.
+        """
+        if dialect == Dialects.MSSQL:
+            return f'min({self.column._table._name}.{self.column._name})'
+        if dialect == Dialects.POSTGRESQL:
+            return f'min({self.column._table._name}.{self.column._name})'
+        if dialect == Dialects.MONGO:
+            ...
+            return None
+        return None
+
+
+class MAX:
+    """
+    Class representing a sum operation in SQL.
+
+    Attributes:
+        column (Column): The column to sum.
+    """
+
+    def __init__(self, column):
+        """
+        Initializes a new instance of the Sum class.
+
+        Args:
+            column (Column): The column to sum.
+        """
+        self.column = column
+
+    def build(self, dialect, depth=0):
+        """
+        Builds the SQL representation of the sum operation.
+
+        Args:
+            dialect (Dialects): The SQL dialect to use.
+            depth (int, optional): The depth of the query. Defaults to 0.
+
+        Returns:
+            str: The SQL representation of the sum operation.
+        """
+        if dialect == Dialects.MSSQL:
+            return f'max({self.column._table._name}.{self.column._name})'
+        if dialect == Dialects.POSTGRESQL:
+            return f'max({self.column._table._name}.{self.column._name})'
+        if dialect == Dialects.MONGO:
+            ...
+            return None
+        return None
+
+
 class Query:
     """
     Class representing a SQL query.
@@ -1024,6 +1102,7 @@ class Query:
         self.grouping = []
         self.sort = []
         self.limit = None
+        self.offset = None
 
         self.tables = []
         self.joins = []
@@ -1176,6 +1255,19 @@ class Query:
         self.limit = limit
         return self
 
+    def skip(self, offset):
+        """
+        Sets the limit of the query.
+
+        Args:
+            offset (int): The limit to set.
+
+        Returns:
+            Query: The current query instance.
+        """
+        self.offset = offset
+        return self
+
     def build(self, dialect, depth=0):
         """
         Builds the SQL representation of the query.
@@ -1200,7 +1292,7 @@ class Query:
 
             if depth >= 0:
                 sql += '('
-            sql += 'select ' + ', '.join([x.build(dialect, depth + 1) + ' as ' + x.alias for x in self.projection]) + '\n'
+            sql += 'select ' + ', '.join([x.build(dialect, depth + 1) + (' as ' + x.alias if x.alias else '') for x in self.projection]) + '\n'
 
             if len(self.tables) == 0:
                 raise ValueError('from clause cannot be empty')
@@ -1220,6 +1312,9 @@ class Query:
 
             if self.limit is not None:
                 sql += f'limit {self.limit}\n'
+
+            if self.offset is not None:
+                sql += f'offset {self.offset}\n'
 
             if depth >= 0:
                 sql += ')'
