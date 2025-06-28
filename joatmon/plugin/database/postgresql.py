@@ -1,7 +1,8 @@
+import datetime
 import uuid
-from datetime import datetime
 
 import psycopg2
+import psycopg2.extras
 
 from joatmon.core.utility import get_converter
 from joatmon.orm.constraint import UniqueConstraint
@@ -12,7 +13,7 @@ from joatmon.plugin.database.core import DatabasePlugin
 
 def get_type(dtype: type):
     type_mapper = {
-        datetime: 'timestamp without time zone',
+        datetime.datetime: 'timestamp without time zone',
         int: 'integer',
         float: 'real',
         str: 'varchar',
@@ -40,7 +41,7 @@ class PostgreSQLDatabase(DatabasePlugin):
     UPDATED_COLLECTIONS = set()
 
     # on del method
-    def __init__(self, host, port, user, password, database):
+    def __init__(self, host, port, user, password, database, schema='public'):
         """
         Initialize PostgreSQLDatabase with the given host, port, user, password, and database for the PostgreSQL server.
 
@@ -51,8 +52,10 @@ class PostgreSQLDatabase(DatabasePlugin):
             password (str): The password for the PostgreSQL server.
             database (str): The database of the PostgreSQL server.
         """
+        psycopg2.extras.register_uuid()
+
         self.connection = psycopg2.connect(
-            user=user, password=password, host=host, port=port, database=database  # , async_=True
+            user=user, password=password, host=host, port=port, database=database, options=f'-c search_path={schema}'  # , async_=True
         )  # maybe use schema
 
         self.connection.autocommit = True
@@ -272,13 +275,7 @@ class PostgreSQLDatabase(DatabasePlugin):
                 values = []
                 for field_name, field in fields.items():
                     keys.append(field.name or field_name)
-
-                    if dictionary[field_name] is None:
-                        values.append('null')
-                    elif field.dtype in (uuid.UUID, str, datetime):
-                        values.append(f"'{str(dictionary[field_name])}'")
-                    else:
-                        values.append(str(dictionary[field_name]))
+                    values.append(dictionary[field_name])
 
                 return keys, values, dictionary
 
@@ -288,9 +285,9 @@ class PostgreSQLDatabase(DatabasePlugin):
                 k, v, di = await normalize(doc)
             else:
                 raise ValueError(f'cannot convert object type {type(doc)} to {document}')
-            sql = f'insert into {document.__metaclass__.__collection__} ({", ".join(k)}) values ({", ".join(v)})'
 
-            cursor.execute(sql)
+            sql = f'insert into {document.__metaclass__.__collection__} ({", ".join(k)}) values ({", ".join(["%s" for _ in v])})'
+            cursor.execute(sql, v)
 
     async def read(self, document, query):
         """
@@ -325,7 +322,7 @@ class PostgreSQLDatabase(DatabasePlugin):
 
                 if field_value is None:
                     values.append('null')
-                elif field.dtype in (uuid.UUID, str, datetime):
+                elif field.dtype in (uuid.UUID, str, datetime.datetime):
                     values.append(f"'{str(field_value)}'")
                 else:
                     values.append(str(field_value))
@@ -373,7 +370,7 @@ class PostgreSQLDatabase(DatabasePlugin):
 
                 if field_value is None:
                     values.append('null')
-                elif field.dtype in (uuid.UUID, str, datetime):
+                elif field.dtype in (uuid.UUID, str, datetime.datetime):
                     values.append(f"'{str(field_value)}'")
                 else:
                     values.append(str(field_value))
@@ -398,7 +395,7 @@ class PostgreSQLDatabase(DatabasePlugin):
 
                 if field_value is None:
                     values.append('null')
-                elif field.dtype in (uuid.UUID, str, datetime):
+                elif field.dtype in (uuid.UUID, str, datetime.datetime):
                     values.append(f"'{str(field_value)}'")
                 else:
                     values.append(str(field_value))
@@ -440,7 +437,7 @@ class PostgreSQLDatabase(DatabasePlugin):
 
                 if field_value is None:
                     values.append('null')
-                elif field.dtype in (uuid.UUID, str, datetime):
+                elif field.dtype in (uuid.UUID, str, datetime.datetime):
                     values.append(f"'{str(field_value)}'")
                 else:
                     values.append(str(field_value))
@@ -487,7 +484,7 @@ class PostgreSQLDatabase(DatabasePlugin):
 
                 if field_value is None:
                     values.append('null')
-                elif field.dtype in (uuid.UUID, str, datetime):
+                elif field.dtype in (uuid.UUID, str, datetime.datetime):
                     values.append(f"'{str(field_value)}'")
                 else:
                     values.append(str(field_value))
@@ -520,6 +517,15 @@ class PostgreSQLDatabase(DatabasePlugin):
         Raises:
             NotImplementedError: This method should be implemented in the child classes.
         """
+        cursor = self.connection.cursor()
+
+        await self._ensure_collection(document.__metaclass__)
+        cursor.execute(query)
+
+        # keys = list(document.__metaclass__.fields(document.__metaclass__).keys())
+        keys = [desc[0] for desc in cursor.description]
+        for doc in cursor.fetchall():
+            yield dict(zip(keys, doc))
 
     async def count(self, query):
         """
