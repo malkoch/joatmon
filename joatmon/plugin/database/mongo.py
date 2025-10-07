@@ -12,11 +12,11 @@ from pymongo import (
     write_concern
 )
 
-from joatmon.orm.constraint import (
-    PrimaryKeyConstraint,
-    TTLConstraint,
-    UniqueConstraint
+from joatmon.orm.index import (
+    TTLIndex,
+    UniqueIndex
 )
+from joatmon.orm.key import PrimaryKey
 from joatmon.orm.meta import normalize_kwargs
 from joatmon.plugin.database.core import DatabasePlugin
 
@@ -145,7 +145,7 @@ class MongoDatabase(DatabasePlugin):
             collection (Meta): The collection for which the indexes are to be created.
         """
         index_names = set()
-        for index_name, index in collection.constraints(collection, lambda x: isinstance(x, (PrimaryKeyConstraint, UniqueConstraint))).items():
+        for index_name, index in collection.keys(collection, lambda x: isinstance(x, (PrimaryKey,))).items():
             if ',' in index.field:
                 index_fields = list(map(lambda x: x.strip(), index.field.split(',')))
             else:
@@ -158,19 +158,6 @@ class MongoDatabase(DatabasePlugin):
                 self.database[collection.__collection__].create_index(c, name=index_name, unique=True)
             except Exception as ex:
                 print(str(ex))
-        for index_name, index in collection.constraints(collection, lambda x: isinstance(x, (TTLConstraint,))).items():
-            if ',' in index.field:
-                index_fields = list(map(lambda x: x.strip(), index.field.split(',')))
-            else:
-                index_fields = [index.field]
-            c = [(f'{k}', 1) for k in index_fields]
-            if index_name in index_names:
-                continue
-            index_names.add(index_name)
-            try:
-                self.database[collection.__collection__].create_index(c, name=index_name, expireAfterSeconds=index.ttl)
-            except Exception as ex:
-                print(str(ex))
         for index_name, index in collection.indexes(collection).items():
             if ',' in index.field:
                 index_fields = list(map(lambda x: x.strip(), index.field.split(',')))
@@ -180,10 +167,18 @@ class MongoDatabase(DatabasePlugin):
             if index_name in index_names:
                 continue
             index_names.add(index_name)
-            try:
-                self.database[collection.__collection__].create_index(c, name=index_name)
-            except Exception as ex:
-                print(str(ex))
+
+            if isinstance(index, TTLIndex):
+                try:
+                    self.database[collection.__collection__].create_index(c, name=index_name, expireAfterSeconds=index.ttl)
+                except Exception as ex:
+                    print(str(ex))
+            elif isinstance(index, UniqueIndex):
+                try:
+                    self.database[collection.__collection__].create_index(c, name=index_name, unique=isinstance(index, UniqueIndex))
+                except Exception as ex:
+                    print(str(ex))
+
 
     async def _ensure_collection(self, collection):
         """

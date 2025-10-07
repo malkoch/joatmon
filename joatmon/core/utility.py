@@ -198,6 +198,8 @@ def to_enumerable(value, string=False):
         ret = to_enumerable({k: v for k, v in value.__dict__.items()}, string)
     elif isinstance(value, Enum):
         ret = str(value).lower()
+    elif callable(value):
+        ret = str(value.__name__)
     else:
         ret = value
         if string:

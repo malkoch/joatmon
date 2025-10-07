@@ -5,7 +5,7 @@ import psycopg2
 import psycopg2.extras
 
 from joatmon.core.utility import get_converter
-from joatmon.orm.constraint import UniqueConstraint
+from joatmon.orm.index import UniqueIndex
 from joatmon.orm.meta import normalize_kwargs
 from joatmon.orm.query import Dialects
 from joatmon.plugin.database.core import DatabasePlugin
@@ -99,7 +99,7 @@ class PostgreSQLDatabase(DatabasePlugin):
         cursor.execute(sql)
 
         index_names = set()
-        for index_name, index in collection.constraints(collection).items():  # need to loop through indexes as well
+        for index_name, index in collection.indexes(collection).items():  # need to loop through indexes as well
             if ',' in index.field:
                 index_fields = list(map(lambda x: x.strip(), index.field.split(',')))
             else:
@@ -108,7 +108,7 @@ class PostgreSQLDatabase(DatabasePlugin):
             if index_name in index_names:
                 continue
             index_names.add(index_name)
-            cursor.execute(f'create {"unique" if isinstance(index, UniqueConstraint) else ""} index {collection.__collection__}_{index_name} on {collection.__collection__} ({c})')
+            cursor.execute(f'create {"unique" if isinstance(index, UniqueIndex) else ""} index {collection.__collection__}_{index_name} on {collection.__collection__} ({c})')
 
     async def _update_collection(self, collection):
         cursor = self.connection.cursor()
@@ -181,7 +181,7 @@ class PostgreSQLDatabase(DatabasePlugin):
             cursor.execute(f'drop index {index_name}')
 
         index_names = set()
-        for index_name, index in doc_constraints:
+        for index_name, index in doc_indexes:
             if ',' in index.field:
                 index_fields = list(map(lambda x: x.strip(), index.field.split(',')))
             else:
@@ -190,7 +190,7 @@ class PostgreSQLDatabase(DatabasePlugin):
             if index_name in index_names:
                 continue
             index_names.add(index_name)
-            cursor.execute(f'create {"unique" if isinstance(index, UniqueConstraint) else ""} index {collection.__collection__}_{index_name} on {collection.__collection__} ({c})')
+            cursor.execute(f'create {"unique" if isinstance(index, UniqueIndex) else ""} index {collection.__collection__}_{index_name} on {collection.__collection__} ({c})')
 
     async def _create_view(self, collection):
         """

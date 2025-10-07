@@ -22,3 +22,26 @@ class Index(Serializable):
         super(Index, self).__init__()
 
         self.field = field
+
+
+# unique constraint should have more than one field
+class UniqueIndex(Index):
+    """
+    Constraint that checks whether a field's value is unique.
+    """
+
+    def __init__(self, field):
+        super(UniqueIndex, self).__init__(field)
+
+
+class TTLIndex(Index):
+    """
+    Constraint that checks whether a field's value has a valid time-to-live (TTL).
+
+    Attributes:
+        ttl (int): The time-to-live in seconds.
+    """
+
+    def __init__(self, field, ttl):
+        super(TTLIndex, self).__init__(field)
+        self.ttl = ttl

@@ -117,3 +117,5 @@ _*
 *.json
 
 /iva/
+
+.DS_Store
