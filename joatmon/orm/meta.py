@@ -1,10 +1,12 @@
 import inspect
 import typing
+from collections import OrderedDict
 
 from joatmon.core.utility import get_converter
 from joatmon.orm.constraint import Constraint
 from joatmon.orm.field import Field
 from joatmon.orm.index import Index
+from joatmon.orm.key import Key
 
 
 class Meta(type):
@@ -40,6 +42,7 @@ class Meta(type):
         return super().__new__(mcs, name, bases, dct)
 
     def validate(cls):
+        # make sure there is only one fields with primary key tagged
         field_names = set()
 
         for field_name, field in cls.fields(cls).items():
@@ -63,7 +66,13 @@ class Meta(type):
         Returns:
             dict: A dictionary of the fields of the class.
         """
-        return {k: v for k, v in inspect.getmembers(cls, lambda x: isinstance(x, Field)) if predicate(v)}
+        ret = OrderedDict()
+        for _cls in reversed(cls.mro(cls)):
+            for k, v in vars(_cls).items():
+                if not isinstance(v, Field) or not predicate(v):
+                    continue
+                ret[k] = v
+        return ret
 
     def constraints(cls, predicate=lambda x: True) -> typing.Dict[str, Constraint]:
         """
@@ -88,6 +97,18 @@ class Meta(type):
             dict: A dictionary of the indexes of the class.
         """
         return {k: v for k, v in inspect.getmembers(cls, lambda x: isinstance(x, Index)) if predicate(v)}
+
+    def keys(cls, predicate=lambda x: True) -> typing.Dict[str, Index]:
+        """
+        Gets the indexes of the class.
+
+        Args:
+            predicate (callable): A function that determines which indexes to include.
+
+        Returns:
+            dict: A dictionary of the indexes of the class.
+        """
+        return {k: v for k, v in inspect.getmembers(cls, lambda x: isinstance(x, Key)) if predicate(v)}
 
     def query(cls):
         """

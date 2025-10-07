@@ -5,7 +5,11 @@ from threading import Thread
 
 from joatmon.core import context
 from joatmon.core.event import Event
-from joatmon.core.utility import JSONEncoder
+from joatmon.core.utility import (
+    JSONEncoder,
+    get_function_kwargs
+)
+
 
 __all__ = ['producer', 'consumer']
 
@@ -24,11 +28,11 @@ def producer(plugin, topic):
     """
 
     def _decorator(func):
-        def _wrapper(**kwargs):
+        def _wrapper(*args, **kwargs):
             p = context.get_value(plugin).get_producer(topic)
             message = json.dumps(kwargs, cls=JSONEncoder)
             p.produce(topic, message)
-            return func(**kwargs)
+            return func(*args, **kwargs)
 
         return _wrapper
 

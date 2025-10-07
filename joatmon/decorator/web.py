@@ -63,7 +63,7 @@ def incoming(case, json, arg, form):
         @functools.wraps(func)
         async def _wrapper(*args, **kwargs):  # if func.method is get need to do with args, else with json
             c = context.get_value(case).get()
-            c = 'snake'
+            c = c or 'snake'  # need to think about this
 
             if (j := context.get_value(json).get()) is not None:
                 if c is not None:
@@ -134,7 +134,8 @@ def outgoing(case):
         async def _wrapper(*args, **kwargs):
             response = await func(*args, **kwargs)
             c = context.get_value(case).get()
-            c = 'pascal'
+            c = c or 'pascal'  # need to think about this
+
             if c is not None:
                 response = to_case(c, response)
             return response
@@ -169,15 +170,14 @@ def ip_limited(amount, interval, cache, ip):
 
             key = f'limit_request:{func.__qualname__}:{ip_value}'
 
-            value = await c.get(key)
-            if value is not None:
-                value = int(value)
-                if value >= amount:
-                    raise CoreException('too_many_request')
-
-                await c.update(key, value + 1)
-            else:
-                await c.add(key, 1, duration=interval)
+            # value = await c.get(key)
+            # if value is not None:
+            #     value = int(value)
+            #     if value >= amount:
+            #         raise CoreException('too_many_request')
+            #     await c.update(key, str(value + 1))
+            # else:
+            #     await c.add(key, str(1), duration=interval)
 
             response = await func(*args, **kwargs)
             return response
@@ -210,15 +210,14 @@ def resource_limited(amount, interval, cache):
 
             key = f'limit_request:{func.__qualname__}'
 
-            value = await c.get(key)
-            if value is not None:
-                value = int(value)
-                if value >= amount:
-                    raise CoreException('too_many_request')
-
-                await c.update(key, value + 1)
-            else:
-                await c.add(key, 1, duration=interval)
+            # value = await c.get(key)
+            # if value is not None:
+            #     value = int(value)
+            #     if value >= amount:
+            #         raise CoreException('too_many_request')
+            #     await c.update(key, value + 1)
+            # else:
+            #     await c.add(key, 1, duration=interval)
 
             response = await func(*args, **kwargs)
             return response

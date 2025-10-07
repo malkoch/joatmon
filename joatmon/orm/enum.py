@@ -54,7 +54,8 @@ class Enum(IntEnum, metaclass=Meta):
         Returns:
             str: The string representation of the Enum member.
         """
-        return f'{to_snake_string(type(self).__name__.replace("Enum", ""))}.{self.name}'
+        # return f'{to_snake_string(type(self).__name__.replace("Enum", ""))}.{self.name}'
+        return f'{self.name}'
         # return '{@resource.' + f'{to_snake_string(type(self).__name__.replace("Enum", ""))}.{self.name}' + '}'
 
     def __repr__(self):
@@ -64,7 +65,7 @@ class Enum(IntEnum, metaclass=Meta):
         Returns:
             str: The string representation of the Enum member.
         """
-        return f'{type(self).__name__}.{self.name}'
+        return f'{self.name}'
 
     def __lt__(self, other):
         """

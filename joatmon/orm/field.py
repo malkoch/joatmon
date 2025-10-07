@@ -9,6 +9,7 @@ from time import (
 
 from joatmon.core.serializable import Serializable
 from joatmon.core.utility import to_enumerable
+from joatmon.core.vector import Vector
 
 
 class Field(Serializable):
@@ -31,7 +32,7 @@ class Field(Serializable):
         primary: bool = False,
         hash_: bool = False,
         resource: bool = False,
-        fields: dict = None,
+        fields: dict = None
     ):
         super(Field, self).__init__()
 
@@ -273,6 +274,38 @@ def get_converter(field: Field):
 
         return value
 
+    def _vector_converter(value: object) -> typing.Optional[object]:
+        if value is None:
+            return value
+
+        if isinstance(value, Vector):
+            return value
+
+        keys = ['x', 'y', 'z', 'w']
+        if isinstance(value, dict):
+            if any([k not in keys for k in value.keys()]):
+                raise ValueError(f'cannot convert {value} with type {type(value)} to Vector')
+
+            return Vector(**value)
+        if isinstance(value, (list, tuple)):
+            if len(value) == 0 or len(value) > len(keys):
+                raise ValueError(f'cannot convert {value} with type {type(value)} to Vector')
+
+            values = list(value)
+            params = dict(zip(keys, values))
+            return Vector(**params)
+
+        raise ValueError(f'cannot convert {value} with type {type(value)} to Serializable')
+
+    def _serializable_converter(value: object) -> typing.Optional[object]:
+        if value is None:
+            return value
+
+        if isinstance(value, Serializable):
+            return value
+
+        raise ValueError(f'cannot convert {value} with type {type(value)} to Serializable')
+
     converters = {
         datetime: _datetime_converter,
         int: _integer_converter,
@@ -286,6 +319,8 @@ def get_converter(field: Field):
         tuple: _tuple_converter,
         set: _set_converter,
         object: _object_converter,
+        Vector: _vector_converter,
+        Serializable: _serializable_converter
     }
 
     return converters.get(field.dtype, _object_converter)

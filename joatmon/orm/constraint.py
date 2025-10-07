@@ -41,8 +41,6 @@ class Constraint(Serializable):
             return LengthConstraint(**kwargs)
         if constraint_type == 'integer':
             return IntegerValueConstraint(**kwargs)
-        if constraint_type == 'unique':
-            return UniqueConstraint(**kwargs)
         if constraint_type == 'custom':
             return CustomConstraint(**kwargs)
         return None
@@ -122,47 +120,6 @@ class IntegerValueConstraint(Constraint):
 
         self.min_value = min_value
         self.max_value = max_value
-
-
-class PrimaryKeyConstraint(Constraint):
-    """
-    Constraint that checks whether a field's value is a valid primary key.
-    """
-
-    def __init__(self, field):
-        super(PrimaryKeyConstraint, self).__init__(field)
-
-
-class ForeignKeyConstraint(Constraint):
-    """
-    Constraint that checks whether a field's value is a valid foreign key.
-    """
-
-    def __enter__(self, field):
-        super(ForeignKeyConstraint, self).__init__(field)
-
-
-# unique constraint should have more than one field
-class UniqueConstraint(Constraint):
-    """
-    Constraint that checks whether a field's value is unique.
-    """
-
-    def __init__(self, field):
-        super(UniqueConstraint, self).__init__(field)
-
-
-class TTLConstraint(Constraint):
-    """
-    Constraint that checks whether a field's value has a valid time-to-live (TTL).
-
-    Attributes:
-        ttl (int): The time-to-live in seconds.
-    """
-
-    def __init__(self, field, ttl):
-        super(TTLConstraint, self).__init__(field)
-        self.ttl = ttl
 
 
 class CustomConstraint(Constraint):
