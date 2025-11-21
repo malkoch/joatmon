@@ -24,16 +24,16 @@ def get_type(dtype: type):
     return type_mapper.get(dtype, None)
 
 
-class PostgreSQLDatabase(DatabasePlugin):
+class MSSQLDatabase(DatabasePlugin):
     """
-    PostgreSQLDatabase class that inherits from the DatabasePlugin class. It implements the abstract methods of the DatabasePlugin class
-    using PostgreSQL for database operations.
+    MSSQLDatabase class that inherits from the DatabasePlugin class. It implements the abstract methods of the DatabasePlugin class
+    using MSSQL for database operations.
 
     Attributes:
         DATABASES (set): A set to store the databases.
         CREATED_COLLECTIONS (set): A set to store the created collections.
         UPDATED_COLLECTIONS (set): A set to store the updated collections.
-        connection (`psycopg2.extensions.connection` instance): The connection to the PostgreSQL server.
+        connection (`psycopg2.extensions.connection` instance): The connection to the MSSQL server.
     """
 
     DATABASES = set()
@@ -43,14 +43,14 @@ class PostgreSQLDatabase(DatabasePlugin):
     # on del method
     def __init__(self, host, port, user, password, database, schema='public'):
         """
-        Initialize PostgreSQLDatabase with the given host, port, user, password, and database for the PostgreSQL server.
+        Initialize MSSQLDatabase with the given host, port, user, password, and database for the MSSQL server.
 
         Args:
-            host (str): The host of the PostgreSQL server.
-            port (str): The port of the PostgreSQL server.
-            user (str): The user for the PostgreSQL server.
-            password (str): The password for the PostgreSQL server.
-            database (str): The database of the PostgreSQL server.
+            host (str): The host of the MSSQL server.
+            port (str): The port of the MSSQL server.
+            user (str): The user for the MSSQL server.
+            password (str): The password for the MSSQL server.
+            database (str): The database of the MSSQL server.
         """
         psycopg2.extras.register_uuid()
 
@@ -68,7 +68,7 @@ class PostgreSQLDatabase(DatabasePlugin):
 
     async def _check_collection(self, collection):
         """
-        Check if a collection exists in the PostgreSQL database.
+        Check if a collection exists in the MSSQL database.
 
         Args:
             collection (Meta): The collection to be checked.
@@ -84,7 +84,7 @@ class PostgreSQLDatabase(DatabasePlugin):
 
     async def _create_collection(self, collection):
         """
-        Create a collection in the PostgreSQL database.
+        Create a collection in the MSSQL database.
 
         Args:
             collection (Meta): The collection to be created.
@@ -204,7 +204,7 @@ class PostgreSQLDatabase(DatabasePlugin):
 
     async def _create_view(self, collection):
         """
-        Create a view for a collection in the PostgreSQL database.
+        Create a view for a collection in the MSSQL database.
 
         Args:
             collection (Meta): The collection for which the view is to be created.
@@ -214,12 +214,12 @@ class PostgreSQLDatabase(DatabasePlugin):
         sql = f'drop VIEW if exists {collection.__collection__}'
         cursor.execute(sql)
 
-        sql = f'CREATE OR REPLACE VIEW {collection.__collection__} AS {collection.query(collection).build(Dialects.POSTGRESQL)}'
+        sql = f'CREATE OR REPLACE VIEW {collection.__collection__} AS {collection.query(collection).build(Dialects.MSSQL)}'
         cursor.execute(sql)
 
     async def _ensure_collection(self, collection):
         """
-        Ensure that a collection exists in the PostgreSQL database.
+        Ensure that a collection exists in the MSSQL database.
 
         Args:
             collection (Meta): The collection to be ensured.
@@ -229,7 +229,7 @@ class PostgreSQLDatabase(DatabasePlugin):
 
     async def create(self, document):
         """
-        Create a new document in the PostgreSQL database.
+        Create a new document in the MSSQL database.
 
         Args:
             document (Document): The document to be created.
@@ -238,7 +238,7 @@ class PostgreSQLDatabase(DatabasePlugin):
 
     async def alter(self, document):
         """
-        Alter an existing document in the PostgreSQL database.
+        Alter an existing document in the MSSQL database.
 
         Args:
             document (Document): The document to be altered.
@@ -251,7 +251,7 @@ class PostgreSQLDatabase(DatabasePlugin):
 
     async def drop(self, document):
         """
-        Drop a collection from the PostgreSQL database.
+        Drop a collection from the MSSQL database.
 
         Args:
             document (Document): The document whose collection is to be dropped.
@@ -263,7 +263,7 @@ class PostgreSQLDatabase(DatabasePlugin):
     # @debug.timeit()
     async def insert(self, document, *docs):
         """
-        Insert one or more documents into the PostgreSQL database.
+        Insert one or more documents into the MSSQL database.
 
         Args:
             document (Document): The first document to be inserted.
@@ -302,7 +302,7 @@ class PostgreSQLDatabase(DatabasePlugin):
 
     async def read(self, document, query):
         """
-        Read a document from the PostgreSQL database.
+        Read a document from the MSSQL database.
 
         Args:
             document (Document): The document to be read.
@@ -358,7 +358,7 @@ class PostgreSQLDatabase(DatabasePlugin):
 
     async def update(self, document, query, update):
         """
-        Update a document in the PostgreSQL database.
+        Update a document in the MSSQL database.
 
         Args:
             document (Document): The document to be updated.
@@ -424,7 +424,7 @@ class PostgreSQLDatabase(DatabasePlugin):
 
     async def delete(self, document, query):
         """
-        Delete a document from the PostgreSQL database.
+        Delete a document from the MSSQL database.
 
         Args:
             document (Document): The document to be deleted.
@@ -466,7 +466,7 @@ class PostgreSQLDatabase(DatabasePlugin):
 
     async def view(self, document, query):
         """
-        View a document in the PostgreSQL database.
+        View a document in the MSSQL database.
 
         Args:
             document (Document): The document to be viewed.
@@ -552,7 +552,7 @@ class PostgreSQLDatabase(DatabasePlugin):
 
     async def start(self):
         """
-        Start a database transaction in the PostgreSQL database.
+        Start a database transaction in the MSSQL database.
 
         This method sets the autocommit mode of the connection to False, which means that changes made to the database
         are not saved until you call the commit method.
@@ -561,7 +561,7 @@ class PostgreSQLDatabase(DatabasePlugin):
 
     async def commit(self):
         """
-        Commit a database transaction in the PostgreSQL database.
+        Commit a database transaction in the MSSQL database.
 
         This method saves the changes made to the database since the last call to the start method.
         """
@@ -569,7 +569,7 @@ class PostgreSQLDatabase(DatabasePlugin):
 
     async def abort(self):
         """
-        Abort a database transaction in the PostgreSQL database.
+        Abort a database transaction in the MSSQL database.
 
         This method discards the changes made to the database since the last call to the start method.
         """
@@ -577,7 +577,7 @@ class PostgreSQLDatabase(DatabasePlugin):
 
     async def end(self):
         """
-        End a database transaction in the PostgreSQL database.
+        End a database transaction in the MSSQL database.
 
         This method closes the connection to the database. After calling this method, you cannot make any more
         queries to the database using this connection.
