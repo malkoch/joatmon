@@ -1,6 +1,5 @@
-import enum
-
 from joatmon.core.serializable import Serializable
+from joatmon.orm.enum import Enum
 
 
 class Key(Serializable):
@@ -32,7 +31,7 @@ class PrimaryKey(Key):
         self.field = field
 
 
-class ForeignKeyType(enum.Enum):
+class ForeignKeyType(Enum):
     OneToOne = 1
     OneToMany = 2
     ManyToOne = 3
@@ -44,7 +43,7 @@ class ForeignKey(Key):
     Constraint that checks whether a field's value is a valid foreign key.
     """
 
-    def __enter__(self, from_table, from_field, to_table, to_field, rel: ForeignKeyType = ForeignKeyType.OneToOne):
+    def __init__(self, from_table, from_field, to_table, to_field, rel: ForeignKeyType = ForeignKeyType.OneToOne):
         super(ForeignKey, self).__init__()
 
         self.from_table = from_table

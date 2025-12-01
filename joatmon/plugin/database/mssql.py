@@ -1,8 +1,7 @@
 import datetime
 import uuid
 
-import psycopg2
-import psycopg2.extras
+import mssql_python
 
 from joatmon.core.utility import get_converter
 from joatmon.orm.index import UniqueIndex
@@ -13,12 +12,12 @@ from joatmon.plugin.database.core import DatabasePlugin
 
 def get_type(dtype: type):
     type_mapper = {
-        datetime.datetime: 'timestamp without time zone',
-        int: 'integer',
-        float: 'real',
-        str: 'varchar',
-        bool: 'boolean',
-        uuid.UUID: 'uuid',
+        datetime.datetime: 'datetime',
+        int: 'int',
+        float: 'float',
+        str: 'nvarchar(max)',
+        bool: 'bit',
+        uuid.UUID: 'uniqueidentifier',
     }
 
     return type_mapper.get(dtype, None)
@@ -52,19 +51,14 @@ class MSSQLDatabase(DatabasePlugin):
             password (str): The password for the MSSQL server.
             database (str): The database of the MSSQL server.
         """
-        psycopg2.extras.register_uuid()
 
-        self.connection = psycopg2.connect(
-            user=user, password=password, host=host, port=port, database=database, options=f'-c search_path={schema}'  # , async_=True
+        self.connection = mssql_python.connect(
+            f"Server={host};Database={database};UID={user};PWD={password};TrustServerCertificate=yes;"
         )  # maybe use schema
 
         self.connection.autocommit = True
 
         cursor = self.connection.cursor()
-        cursor.execute(f"SELECT 1 FROM pg_catalog.pg_database WHERE datname = '{database}'")
-        exists = cursor.fetchone()
-        if not exists:
-            cursor.execute(f'CREATE DATABASE {database}')
 
     async def _check_collection(self, collection):
         """
@@ -79,7 +73,7 @@ class MSSQLDatabase(DatabasePlugin):
         # for one time only need to check indexes, constraints, default values, table schema as well
         cursor = self.connection.cursor()
 
-        cursor.execute(f"select * from information_schema.tables where table_name = '{collection.__collection__}'")
+        cursor.execute(f"select * from sys.tables where name = '{collection.__collection__}'")
         return len(list(cursor.fetchall())) > 0
 
     async def _create_collection(self, collection):
@@ -257,7 +251,7 @@ class MSSQLDatabase(DatabasePlugin):
             document (Document): The document whose collection is to be dropped.
         """
         cursor = self.connection.cursor()
-        sql = f'drop table if exists {document.__metaclass__.__collection__} cascade'
+        sql = f'drop table if exists {document.__metaclass__.__collection__}'
         cursor.execute(sql)
 
     # @debug.timeit()
@@ -297,8 +291,8 @@ class MSSQLDatabase(DatabasePlugin):
             else:
                 raise ValueError(f'cannot convert object type {type(doc)} to {document}')
 
-            sql = f'insert into {document.__metaclass__.__collection__} ({", ".join(k)}) values ({", ".join(["%s" for _ in v])})'
-            cursor.execute(sql, v)
+            sql = f'insert into {document.__metaclass__.__collection__} ({", ".join(k)}) values ({", ".join(["?" for _ in v])})'
+            cursor.execute(sql, *v)
 
     async def read(self, document, query):
         """
