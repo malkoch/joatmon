@@ -973,28 +973,50 @@ class Sum:
 
     def __init__(self, column):
         """
-        Initializes a new instance of the Sum class.
+        Initializes a new instance of the Count class.
 
         Args:
-            column (Column): The column to sum.
+            column (Column): The column to count.
         """
         self.column = column
+        self.alias = None
+
+    def as_(self, alias):
+        """
+        Sets the alias of the count operation.
+
+        Args:
+            alias (str): The alias to set.
+
+        Returns:
+            Count: The current count instance.
+        """
+        self.alias = alias
+        return self
 
     def build(self, dialect, depth=0):
         """
-        Builds the SQL representation of the sum operation.
+        Builds the SQL representation of the count operation.
 
         Args:
             dialect (Dialects): The SQL dialect to use.
             depth (int, optional): The depth of the query. Defaults to 0.
 
         Returns:
-            str: The SQL representation of the sum operation.
+            str: The SQL representation of the count operation.
         """
         if dialect == Dialects.MSSQL:
-            return f'sum({self.column._table._name}.{self.column._name})'
+            if isinstance(self.column, Column):
+                return f'sum({self.column._table._name}.{self.column._name})'
+            elif isinstance(self.column, Criterion):
+                return f'sum({self.column.build(dialect)})'
         if dialect == Dialects.POSTGRESQL:
-            return f'sum({self.column._table._name}.{self.column._name})'
+            if isinstance(self.column, Column):
+                return f'sum({self.column._table._name}.{self.column._name})'
+            elif isinstance(self.column, Criterion):
+                return f'sum(*) filter(where {self.column.build(dialect)})'
+            elif isinstance(self.column, ArithmeticExpression):
+                return f'sum({self.column.build(dialect)})'
         if dialect == Dialects.MONGO:
             ...
             return None

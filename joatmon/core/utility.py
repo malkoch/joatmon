@@ -197,6 +197,11 @@ def to_enumerable(value, string=False):
     elif isinstance(value, Serializable):
         ret = to_enumerable({k: v for k, v in value.__dict__.items()}, string)
     elif isinstance(value, Enum):
+        # ret = str(value).lower()
+        ret = int(value)
+    elif isinstance(value, datetime):
+        ret = str(value).lower()
+    elif isinstance(value, timedelta):
         ret = str(value).lower()
     elif callable(value):
         ret = str(value.__name__)

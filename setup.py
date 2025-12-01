@@ -45,6 +45,7 @@ extras = {
         'couchbase',
         'elasticsearch',
         'pymongo',
+        'mssql-python',
         'psycopg2',
         'confluent_kafka',
         'pika',
