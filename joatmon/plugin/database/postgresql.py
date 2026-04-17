@@ -148,7 +148,7 @@ class PostgreSQLDatabase(DatabasePlugin):
                 # add as null, update the whole table and then set to not null
                 cursor.execute(f'alter table {collection.__collection__} add column {name} {get_type(field.dtype)}')
                 if not field.nullable:
-                    cursor.execute(f'update {collection.__collection__} set {name} = {field.default()}')
+                    cursor.execute(f'update {collection.__collection__} set {name} = {field.default():s}')
                     cursor.execute(f'alter table {collection.__collection__} alter column {name} set {"not null" if not field.nullable else ""}')
 
         cursor.execute(
