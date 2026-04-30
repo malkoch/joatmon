@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime
 
 from joatmon.core.utility import get_converter
-from joatmon.orm.constraint import UniqueConstraint
+from joatmon.orm.index import UniqueIndex
 from joatmon.orm.meta import normalize_kwargs
 from joatmon.orm.query import Dialects
 from joatmon.plugin.database.core import DatabasePlugin
@@ -83,7 +83,7 @@ class SQLiteDatabase(DatabasePlugin):
                 continue
             index_names.add(index_name)
             cursor.execute(
-                f'create {"unique" if isinstance(index, UniqueConstraint) else ""} index {collection.__collection__}_{index_name} on {collection.__collection__} ({c})'
+                f'create {"unique" if isinstance(index, UniqueIndex) else ""} index {collection.__collection__}_{index_name} on {collection.__collection__} ({c})'
             )
 
     async def _create_view(self, collection):
