@@ -29,7 +29,10 @@ class Field(Serializable):
         dtype: typing.Union[type, typing.List, typing.Tuple],
         nullable: bool = True,
         default=None,
+        description: str = None,
         primary: bool = False,
+        relations: list = None,
+        ignore: bool = False,
         hash_: bool = False,
         resource: bool = False,
         fields: dict = None
@@ -38,8 +41,12 @@ class Field(Serializable):
 
         self.dtype = dtype
         self.nullable = nullable
+        self.description = description
         self.primary = primary
+        self.ignore = ignore
         self.hash_ = hash_
+
+        self.relations = relations or []
         self.fields = fields or {}
         self.names = []
 
