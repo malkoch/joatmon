@@ -4,10 +4,7 @@ from enum import (
     IntEnum
 )
 
-from joatmon.core.utility import (
-    to_pascal_string,
-    to_snake_string
-)
+from joatmon.core.utility import to_pascal_string
 
 
 class Meta(EnumMeta):
