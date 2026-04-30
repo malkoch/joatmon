@@ -436,7 +436,7 @@ class SQLiteDatabase(DatabasePlugin):
         This method sets the autocommit mode of the connection to False, which means that changes made to the database
         are not saved until you call the commit method.
         """
-        self.connection.autocommit = False
+        ...
 
     async def commit(self):
         """
