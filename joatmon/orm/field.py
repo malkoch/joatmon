@@ -31,7 +31,7 @@ class Field(Serializable):
         default=None,
         description: str = None,
         primary: bool = False,
-        relations: list = None,
+        relations: dict[str, 'Field'] = None,
         ignore: bool = False,
         hash_: bool = False,
         resource: bool = False,
@@ -46,7 +46,7 @@ class Field(Serializable):
         self.ignore = ignore
         self.hash_ = hash_
 
-        self.relations = relations or []
+        self.relations = relations or {}
         self.fields = fields or {}
         self.names = []
 

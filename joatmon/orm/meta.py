@@ -41,6 +41,9 @@ class Meta(type):
         """
         return super().__new__(mcs, name, bases, dct)
 
+    # def __getattr__(cls, name):  # get field from the name
+    #     ...
+
     def validate(cls):
         # make sure there is only one fields with primary key tagged
         field_names = set()
