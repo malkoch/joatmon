@@ -1,21 +1,10 @@
-- instead of callback use event
-- remove utility, serializable, event, context module, instead use core functions and classes
-- remove tensorflow and torch dependencies, use our own nn module, let people set backend, context can be used
-- minimax, maximim algorithms to ai module
-- alpha-beta pruning, monte carlo to ai module - maybe policies
-- if any connection is not transactional, do the action and close the action
-    - afterwards open the connection again
-- if any connection is transactional, wait for the commit action, then close the action
-    - afterwards open the connection again
+write unit tests
 
-- need to implement inplace
-- need to implement loss functions
-- need to implement min, max methods
-- need to implement greater etc. methods
-- if the input is parameter, just do the calculation
+check nn module
+try writing mini gpt2
 
-- should have c / c++ codes to use them in functional apis
+check orm module
 
-- implement the array module as well, check the performance and correctness using numpy
-- hold the array data as one dimensional, when indexing etc. convert indexes to one dimensional, then do operation
-- hold some data like shape etc. in array cache, so that we do not need to calculate it everytime
+add postgresql, mssql, sqlite support for database plugin
+
+vnc implementation
