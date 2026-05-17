@@ -1,10 +1,13 @@
 write unit tests
-
 check nn module
 try writing mini gpt2
-
 check orm module
-
 add postgresql, mssql, sqlite support for database plugin
-
 vnc implementation
+proxy decorator, get data and sends to another endpoint
+dependency injector, register with name and/or type
+plugin decorator
+decorator pipeline
+task scheduler, a cron-like
+event system, emit and on methods, wildcard event names
+orm system, ability to join between multiple databases, lazy load, eager load etc.
